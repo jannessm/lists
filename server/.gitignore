@@ -1,0 +1,6 @@
+vendor
+data.json
+jwtRS256.key*
+secrets.php
+data
+budget-data
