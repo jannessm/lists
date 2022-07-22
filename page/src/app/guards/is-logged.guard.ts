@@ -19,20 +19,20 @@ export class IsLoggedGuard implements CanActivate {
   }
 
   checkLogin(url: string): Observable<boolean | UrlTree> {
-    return this.authService.isLoggedIn();//.pipe(
-      // map(loggedIn => {
+    return this.authService.isLoggedIn().pipe(
+      map(loggedIn => {
 
-      //   if (!loggedIn) {
-      //     return true;
+        if (!loggedIn) {
+          return true;
         
-      //   } else {
-      //     throw Error();
-      //   }
-      // }),
-      // catchError(() => {
-      //   return of(this.router.parseUrl('/program'));
-      // })
-      // );
+        } else {
+          throw Error();
+        }
+      }),
+      catchError(() => {
+        return of(this.router.parseUrl('/user/lists'));
+      })
+    );
   }
   
 }

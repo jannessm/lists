@@ -11,6 +11,10 @@ import { ManageUserComponent } from './components/manage-user/manage-user.compon
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { AuthGuard } from './guards/auth.guard';
 import { IsLoggedGuard } from './guards/is-logged.guard';
+import { ListsOverviewComponent } from './components/lists/lists-overview/lists-overview.component';
+import { ListsComponent } from './components/lists/lists.component';
+import { AppRoutingModule } from './app-routing.module';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -18,13 +22,17 @@ import { IsLoggedGuard } from './guards/is-logged.guard';
     LoginComponent,
     RegisterComponent,
     ManageUserComponent,
-    PageNotFoundComponent
+    PageNotFoundComponent,
+    ListsOverviewComponent,
+    ListsComponent,
   ],
   imports: [
+    AppRoutingModule,
     BrowserAnimationsModule,
     BrowserModule,
     HttpClientModule,
     MaterialModule,
+    ReactiveFormsModule,
   ],
   providers: [
     AuthGuard,

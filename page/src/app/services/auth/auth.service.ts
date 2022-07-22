@@ -7,9 +7,11 @@ import { Observable, of } from 'rxjs';
 })
 export class AuthService {
 
+  redirectUrl: UrlTree | string | undefined;
+
   constructor() { }
 
   isLoggedIn(): Observable<boolean | UrlTree> {
-    return of(true);
+    return of(false);
   }
 }

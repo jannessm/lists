@@ -6,14 +6,16 @@ import { RegisterComponent } from './components/register/register.component';
 import { CookieComponent } from './components/cookie/cookie.component';
 import { IsLoggedGuard } from './guards/is-logged.guard';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
+import { ListsComponent } from './components/lists/lists.component';
 
 const routes: Routes = [
   {path: 'register', component: RegisterComponent},
   {path: 'user', canActivate: [AuthGuard], children: [
+    {path: 'lists', component: ListsComponent},
   ]},
   {path: 'login', component: LoginComponent, canActivate:[IsLoggedGuard]},
   {path: 'cookies', component: CookieComponent},
-  {path: '', redirectTo: '/lists', pathMatch: 'full'},
+  {path: '', redirectTo: '/user/lists', pathMatch: 'full'},
   { path: '**', component: PageNotFoundComponent },
 ];
 

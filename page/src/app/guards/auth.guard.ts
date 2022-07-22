@@ -15,29 +15,21 @@ export class AuthGuard implements CanActivate {
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     const url: string = state.url;
     
-    return this.authService.isLoggedIn();//.pipe(
-      // map(loggedIn => {
-      //   // is logged in and its not the first login => continue routing
-      //   if (loggedIn && this.authService.loggedUser && !this.authService.loggedUser.firstLogin) {
-      //     return true;
-        
-      //   // is logged in and is first login => change password (but only if page is different from /user/change-password)
-      //   } else if (loggedIn && this.authService.loggedUser && this.authService.loggedUser.firstLogin) {
-      //     if (url !== '/user/change-password') {
-      //       this.authService.redirectUrl = url;
-      //       return this.router.parseUrl('user/change-password');
-      //     }
-      //     return true;
+    return this.authService.isLoggedIn().pipe(
+      map(loggedIn => {
+        // is logged in => continue routing
+        if (loggedIn) {
+          return true;
 
-      //   // is not logged in => go to login page
-      //   } else {
-      //     this.authService.redirectUrl = url;
-      //     throw Error();
-      //   }
-      // }), catchError((err) => {
-      //   return of(this.router.parseUrl('/login'));
-      // })
-    // );
+        // is not logged in => go to login page
+        } else {
+          this.authService.redirectUrl = url;
+          throw Error();
+        }
+      }), catchError((err) => {
+        return of(this.router.parseUrl('/login'));
+      })
+    );
   }
   
 }

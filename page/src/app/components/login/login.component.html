@@ -1,9 +1,16 @@
-<mat-form-field appearance="outline">
-    <mat-label>email</mat-label>
-    <input matInput placeholder="email">
-</mat-form-field>
-
-<mat-form-field appearance="outline">
-    <mat-label>password</mat-label>
-    <input matInput placeholder="email">
-</mat-form-field>
+<div class="half">
+    <form [formGroup]="form" (ngSubmit)="login()">
+        <mat-form-field appearance="outline">
+            <mat-label>email</mat-label>
+            <input matInput placeholder="Email" formControlName="email">
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+            <mat-label>password</mat-label>
+            <input matInput type="password" placeholder="Password" formControlName="pwd">
+        </mat-form-field>
+    
+        <mat-error *ngIf="wrongCredentials">Leider stimmen Passwort und Name nicht.</mat-error>
+        <button mat-button type="submit" [disabled]="form.invalid">Login</button>
+    </form>
+</div>
