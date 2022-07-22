@@ -1,0 +1,25 @@
+{
+  "name": "lists",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "server": "php -S localhost:8080 -t server/",
+    "page": "cd webpage; npm start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jannessm/lists.git"
+  },
+  "author": "Jannes Magnusson",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/jannessm/lists/issues"
+  },
+  "homepage": "https://github.com/jannessm/lists#readme",
+  "dependencies": {
+    "@angular/cli": "^14.1.0",
+    "@angular/core": "^14.1.0"
+  }
+}
