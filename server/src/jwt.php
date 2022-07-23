@@ -2,7 +2,7 @@
     use Firebase\JWT\JWT;
     use Firebase\JWT\ExpiredException;
     require_once($BASE . 'vendor/autoload.php');
-    require_once($BASE . 'config/secrets.php');
+    require_once($BASE . 'secrets.php');
 
     function generateJWT($user) {
         global $jwtPrivateKey, $serverName;
