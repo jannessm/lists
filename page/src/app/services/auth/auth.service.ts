@@ -60,8 +60,8 @@ export class AuthService {
     return this._jwtValidation;
   }
 
-  login(user: string, pwd: string): Observable<User | undefined> {
-    return this.api.authorize(user, pwd).pipe(
+  login(email: string, pwd: string): Observable<User | undefined> {
+    return this.api.authorize(email, pwd).pipe(
       map(resp => {
         let data;
         
@@ -72,6 +72,24 @@ export class AuthService {
           this.loggedStateChanges.next(undefined);
           return this.setJWT(r.payload);
         
+        }
+        
+        return data;
+      })
+    );
+  }
+
+  register(email: string, pwd: string): Observable<User | undefined> {
+    return this.api.register(email, pwd).pipe(
+      map(resp => {
+        let data;
+        
+        if (resp.status === API_STATUS.SUCCESS) {
+          let r = <DataResponse>resp;
+                
+          this.lsService.jwt = r.payload;
+          this.loggedStateChanges.next(undefined);
+          return this.setJWT(r.payload);
         }
         
         return data;

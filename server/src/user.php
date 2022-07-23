@@ -22,7 +22,6 @@ class User {
             `email` TINYTEXT NOT NULL,
             `password` TINYTEXT NOT NULL,
             `default_list` TINYTEXT,
-            `activated` TINYINT NOT NULL DEFAULT 1,
             PRIMARY KEY (`uuid`)
         );";
         $this->pdo->exec($sql);

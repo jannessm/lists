@@ -100,9 +100,25 @@
             respondJSON(201, $jwt_and_expire_date);
     
         // credentials are wrong
-        } else {
+        } else if ($user && str_replace('"', '', $user['password']) !== $payload['pwd']){
             respondErrorMsg(401, "invalid credentials");
+        } else {
+            respondErrorMsg(400, "user not found");
         }
+    }
+
+    function register() {
+        global $USER;
+        $payload = json_decode(file_get_contents("php://input"), true);
+        $payload['email'] = strtolower($payload['email']);
+        $payload['password'] = str_replace('"', '', $payload['pwd']);
+        unset($payload['pwd']);
+    
+        $USER->add($payload);
+
+        $user = $USER->get($payload['uuid']);
+
+        respondJSON(201, generateJWT($USER->filter($user)));
     }
     
     function validateJWT() {

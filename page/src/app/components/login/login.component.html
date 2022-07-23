@@ -1,16 +1,23 @@
 <div class="half">
-    <form [formGroup]="form" (ngSubmit)="login()">
+    <form [formGroup]="form">
         <mat-form-field appearance="outline">
             <mat-label>email</mat-label>
             <input matInput placeholder="Email" formControlName="email">
+            <mat-error *ngIf="form.get('email')?.hasError('required')">
+                Email muss angegeben werden!
+            </mat-error>
         </mat-form-field>
         
         <mat-form-field appearance="outline">
             <mat-label>password</mat-label>
             <input matInput type="password" placeholder="Password" formControlName="pwd">
+            <mat-error *ngIf="form.get('pwd')?.hasError('required')">
+                Passwort muss angegeben werden!
+            </mat-error>
         </mat-form-field>
     
         <mat-error *ngIf="wrongCredentials">Leider stimmen Passwort und Name nicht.</mat-error>
-        <button mat-button type="submit" [disabled]="form.invalid">Login</button>
+        <button mat-button mat-flat-button (click)="login()" [disabled]="form.invalid">Login</button>
+        <button mat-button mat-flat-button color="accent" (click)="register()" [disabled]="form.invalid">Register</button>
     </form>
 </div>

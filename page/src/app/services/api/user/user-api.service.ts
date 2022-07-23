@@ -1,8 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiResponse } from 'src/app/models/api-responses';
+import { ApiResponse, DataResponse } from 'src/app/models/api-responses';
 import { environment } from 'src/environments/environment';
+
+import { v4 as uuid } from 'uuid';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +24,14 @@ export class UserApiService {
   validateJWT(jwt: string): Observable<ApiResponse> {
     return this.http.post<ApiResponse>(this.BASE_API + "auth/?validate", {
       jwt
+    });
+  }
+
+  register(email: string, pwd: string): Observable<DataResponse> {
+    return this.http.post<DataResponse>(this.BASE_API + "auth/?register", {
+      uuid: uuid(),
+      email,
+      pwd
     });
   }
 }

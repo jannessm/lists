@@ -1,3 +1,11 @@
 .half {
     margin-top: 30vh;
 }
+
+button {
+    width: calc(50% - 5px) !important;
+    
+    &:not(:last-of-type) {
+        margin-right: 10px !important;
+    }
+}
