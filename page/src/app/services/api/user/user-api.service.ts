@@ -29,7 +29,6 @@ export class UserApiService {
 
   register(email: string, pwd: string): Observable<DataResponse> {
     return this.http.post<DataResponse>(this.BASE_API + "auth/?register", {
-      uuid: uuid(),
       email,
       pwd
     });

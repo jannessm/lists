@@ -18,20 +18,18 @@ class User {
 
     public function create_table() {
         $sql = "CREATE TABLE IF NOT EXISTS `user` (
-            `uuid` TINYTEXT NOT NULL,
             `email` TINYTEXT NOT NULL,
             `password` TINYTEXT NOT NULL,
             `default_list` TINYTEXT,
-            PRIMARY KEY (`uuid`)
+            PRIMARY KEY (`email`)
         );";
         $this->pdo->exec($sql);
     }
 
     public function add($user) {
-        $sql = 'INSERT INTO user VALUES (:uuid, :email, :password, :default_list);';
+        $sql = 'INSERT INTO user VALUES (:email, :password, :default_list);';
         $stmt = $this->pdo->prepare($sql);
-        
-        $stmt->bindValue(':uuid', $user['uuid']);
+
         $stmt->bindValue(':email', $user['email']);
         $stmt->bindValue(':password', $user['password']);
 
@@ -44,10 +42,10 @@ class User {
         $stmt->execute();
     }
 
-    public function get($uuid) {
-        $sql = 'SELECT * from user where `uuid`=:uuid;';
+    public function get($email) {
+        $sql = 'SELECT * from user where `email`=:email;';
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindValue(':uuid', $uuid);
+        $stmt->bindValue(':email', $email);
         $stmt->execute();
 
         $user = $stmt->fetch(\PDO::FETCH_ASSOC);
@@ -55,16 +53,16 @@ class User {
         return $user;
     }
 
-    public function update_password($uuid, $new_password) {
-        $sql = 'UPDATE user SET new_password=:new_password where uuid=:uuid;';
+    public function update_password($email, $new_password) {
+        $sql = 'UPDATE user SET new_password=:new_password where email=:email;';
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':new_password' => $new_password, ':uuid' => $uuid]);
+        $stmt->execute([':new_password' => $new_password, ':email' => $email]);
     }
 
-    public function delete($uuid) {
-        $sql = 'DELETE FROM user WHERE uuid=:uuid;';
+    public function delete($email) {
+        $sql = 'DELETE FROM user WHERE email=:email;';
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':uuid' => $uuid]);
+        $stmt->execute([':email' => $email]);
     }
 
     public function filter($user) {

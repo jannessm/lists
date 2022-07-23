@@ -93,7 +93,8 @@
         $user = $USER->get($email);
     
         // check credentials and generate jwt on success
-        if ($user && str_replace('"', '', $user['password']) == $payload['pwd']) {
+        // var_dump($user, $payload['pwd']);
+        if ($user && str_replace('"', '', $user['password']) === $payload['pwd']) {
             $jwtData = $USER->filter($user);
             $jwt_and_expire_date = generateJWT($jwtData);
     
@@ -116,7 +117,7 @@
     
         $USER->add($payload);
 
-        $user = $USER->get($payload['uuid']);
+        $user = $USER->get($payload['email']);
 
         respondJSON(201, generateJWT($USER->filter($user)));
     }
@@ -125,7 +126,7 @@
         global $USER;
         $token = decodeToken(readToken());
         
-        $user = $USER->get($token->user->uuid);
+        $user = $USER->get($token->user->email);
         
         // refresh jwt
         respondJSON(201, generateJWT($USER->filter($user)));
