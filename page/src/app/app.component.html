@@ -1,1 +1,6 @@
 <router-outlet></router-outlet>
+
+<mat-toolbar fxLayout="row" fxLayoutAlign="space-around center" *ngIf="authService.loggedUser">
+    <button mat-icon-button routerLink="/user/lists" [color]="router.isActive('/user/lists', true) ? 'primary' : undefined"><mat-icon>list</mat-icon></button>
+    <button mat-icon-button routerLink="/user/settings" [color]="router.isActive('/user/settings', true) ? 'primary' : undefined"><mat-icon>settings</mat-icon></button>
+</mat-toolbar>

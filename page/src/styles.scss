@@ -1,8 +1,8 @@
 @import "~@angular/material/prebuilt-themes/deeppurple-amber.css";
 html, body { height: 100%; }
-body { margin: 10px; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { margin: 0px; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
-.mat-form-field, button {
+.mat-form-field, button:not(.mat-icon-button) {
     width: 100% !important;
 }
 

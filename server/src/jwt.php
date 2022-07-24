@@ -93,7 +93,6 @@
         $user = $USER->get($email);
     
         // check credentials and generate jwt on success
-        // var_dump($user, $payload['pwd']);
         if ($user && str_replace('"', '', $user['password']) === $payload['pwd']) {
             $jwtData = $USER->filter($user);
             $jwt_and_expire_date = generateJWT($jwtData);

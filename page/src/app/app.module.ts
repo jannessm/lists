@@ -18,6 +18,7 @@ import { NgcCookieConsentModule } from 'ngx-cookieconsent';
 import { COOKIE_CONFIG } from './models/cookie-consent-config';
 import { JwtInterceptor } from './services/jwt-interceptor/jwt.interceptor';
 import { environment } from 'src/environments/environment';
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { environment } from 'src/environments/environment';
     AppRoutingModule,
     BrowserAnimationsModule,
     BrowserModule,
+    FlexLayoutModule,
     HttpClientModule,
     MaterialModule,
     ReactiveFormsModule,
