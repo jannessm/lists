@@ -1,6 +1,24 @@
-<router-outlet></router-outlet>
+<div class="content">
+    <router-outlet></router-outlet>
+</div>
 
 <mat-toolbar fxLayout="row" fxLayoutAlign="space-around center" *ngIf="authService.loggedUser">
-    <button mat-icon-button routerLink="/user/lists" [color]="router.isActive('/user/lists', true) ? 'primary' : undefined"><mat-icon>list</mat-icon></button>
-    <button mat-icon-button routerLink="/user/settings" [color]="router.isActive('/user/settings', true) ? 'primary' : undefined"><mat-icon>settings</mat-icon></button>
+    <button
+        mat-button
+        routerLink="/user/lists"
+        [color]="router.isActive('/user/lists', true) ? 'primary' : undefined">
+        <div fxLayout="column" fxLayoutAlign="center center" class="toolbar-button">
+            <mat-icon>list</mat-icon>
+            <span>Lists</span>
+        </div>
+    </button>
+    <button
+        mat-button
+        routerLink="/user/settings"
+        [color]="router.isActive('/user/settings', true) ? 'primary' : undefined">
+        <div fxLayout="column" fxLayoutAlign="center center" class="toolbar-button">
+            <mat-icon>settings</mat-icon>
+            <span>Settings</span>
+        </div>
+    </button>
 </mat-toolbar>

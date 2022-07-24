@@ -13,4 +13,12 @@ mat-drawer-content {
 mat-toolbar {
     position: absolute;
     bottom: 0;
+
+    .toolbar-button {
+        padding-top: 10px;
+    }
+}
+
+.content {
+    margin: 24px;
 }
