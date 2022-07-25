@@ -10,7 +10,6 @@ import { PageNotFoundComponent } from './components/page-not-found/page-not-foun
 import { AuthGuard } from './guards/auth.guard';
 import { IsLoggedGuard } from './guards/is-logged.guard';
 import { ListsOverviewComponent } from './components/lists/lists-overview/lists-overview.component';
-import { ListsComponent } from './components/lists/lists.component';
 import { AppRoutingModule } from './app-routing.module';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgcCookieConsentModule } from 'ngx-cookieconsent';
@@ -19,6 +18,7 @@ import { JwtInterceptor } from './services/jwt-interceptor/jwt.interceptor';
 import { environment } from 'src/environments/environment';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { SettingsComponent } from './components/settings/settings.component';
+import { AddDialogComponent } from './components/lists/add-dialog/add-dialog.component';
 
 @NgModule({
   declarations: [
@@ -26,8 +26,8 @@ import { SettingsComponent } from './components/settings/settings.component';
     LoginComponent,
     PageNotFoundComponent,
     ListsOverviewComponent,
-    ListsComponent,
     SettingsComponent,
+    AddDialogComponent,
   ],
   imports: [
     AppRoutingModule,

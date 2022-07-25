@@ -9,10 +9,13 @@ require_once('src/jwt.php');
 require_once('src/messages.php');
 require_once('src/sqlite_conn.php');
 require_once('src/user.php');
+require_once('src/lists.php');
+require_once('src/manage_lists.php');
 
 $PDO = (new SQLiteConnection())->connect();
 try {
     $USER = new User($PDO);
+    $LISTS = new Lists($PDO);
 
     // register
     if (isset($_POST) && isset($_GET['register'])) {
@@ -34,6 +37,18 @@ try {
     // validateJWT
     if (isset($_POST) && isset($_GET['validate'])) {
         validateJWT();
+        return;
+    }
+
+    // add lists
+    if (isset($_POST) && isset($_GET['add-list'])) {
+        addList();
+        return;
+    }
+
+    // get lists
+    if (isset($_GET) && isset($_GET['get-lists'])) {
+        getLists();
         return;
     }
 

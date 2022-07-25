@@ -126,7 +126,12 @@
         $token = decodeToken(readToken());
         
         $user = $USER->get($token->user->email);
+
+        if ($user) {
+            // refresh jwt
+            respondJSON(201, generateJWT($USER->filter($user)));
+        } else {
+            respondErrorMsg(400, "user not found");
+        }
         
-        // refresh jwt
-        respondJSON(201, generateJWT($USER->filter($user)));
     }

@@ -15,20 +15,20 @@ export class UserApiService {
   constructor(private http: HttpClient) {}
 
   authorize(email: string, pwd: string): Observable<ApiResponse> {
-    return this.http.post<ApiResponse>(this.BASE_API + "auth/?login", {
+    return this.http.post<ApiResponse>(this.BASE_API + "?login", {
       email,
       pwd
     });
   }
 
   validateJWT(jwt: string): Observable<ApiResponse> {
-    return this.http.post<ApiResponse>(this.BASE_API + "auth/?validate", {
+    return this.http.post<ApiResponse>(this.BASE_API + "?validate", {
       jwt
     });
   }
 
   register(email: string, pwd: string): Observable<DataResponse> {
-    return this.http.post<DataResponse>(this.BASE_API + "auth/?register", {
+    return this.http.post<DataResponse>(this.BASE_API + "?register", {
       email,
       pwd
     });

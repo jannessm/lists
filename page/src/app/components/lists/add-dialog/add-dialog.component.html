@@ -1,0 +1,15 @@
+<h2>Add List</h2>
+
+<mat-dialog-content>
+    <form [formGroup]="form">
+        <mat-form-field>
+            <input matInput formControlName="name" placeholder="Name">
+        </mat-form-field>
+        <mat-slide-toggle color="primary" formControlName="groceries">Einkaufsliste</mat-slide-toggle>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-button [disabled]="!form.valid" (click)="returnFormContent()">Add</button>
+</mat-dialog-actions>
