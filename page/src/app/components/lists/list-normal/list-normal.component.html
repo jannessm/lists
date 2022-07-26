@@ -17,3 +17,8 @@
         <button mat-icon-button (click)="deleteItem(item)" *ngIf="item.done"><mat-icon>close</mat-icon></button>
     </div>
 </div>
+
+<mat-toolbar>
+    <input matInput placeholder="Hinzufügen" class="add-input" [(ngModel)]="new_item" autocomplete="off">
+    <button mat-icon-button (click)="addItem()"><mat-icon>add</mat-icon></button>
+</mat-toolbar>

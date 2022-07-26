@@ -19,7 +19,9 @@ class UserListRelation {
     public function create_table() {
         $sql = "CREATE TABLE IF NOT EXISTS `user_list` (
             `email` TINYTEXT NOT NULL,
-            `uuid` TINYTEXT NOT NULL
+            `uuid` TINYTEXT NOT NULL,
+            FOREIGN KEY (`email`) REFERENCES user(`email`),
+            FOREIGN KEY (`uuid`) REFERENCES lists(`uuid`)
         );";
         $this->pdo->exec($sql);
     }

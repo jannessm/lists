@@ -37,6 +37,19 @@ class Lists {
         $stmt->execute();
     }
 
+    public function get($uuid) {
+        $sql = 'SELECT * FROM lists WHERE uuid=:uuid;';
+        $stmt = $this->pdo->prepare($sql);
+
+        $stmt->bindValue(':uuid', $uuid);
+
+        $stmt->execute();
+
+        $list = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        return $list;
+    }
+
     public function get_all_for_user($uuids) {
         if (count($uuids) > 1) {
             $lists = array_map(fn($uuid) => 'uuid="' . $uuid . '"', $uuids);

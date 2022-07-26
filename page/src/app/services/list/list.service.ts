@@ -29,7 +29,6 @@ export class ListService {
         this.dataLoaded = true;
         if (resp && resp.status === API_STATUS.SUCCESS) {
           this._lastDataObject.unshift(list);
-          console.log(this._lastDataObject);
           this.lists.next(this._lastDataObject);
         }
       });

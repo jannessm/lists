@@ -11,13 +11,16 @@ require_once('src/sqlite_conn.php');
 require_once('src/user.php');
 require_once('src/lists.php');
 require_once('src/user_list_relation.php');
+require_once('src/list_item.php');
 require_once('src/manage_lists.php');
+require_once('src/manage_list_items.php');
 
 $PDO = (new SQLiteConnection())->connect();
 try {
     $USER = new User($PDO);
     $LISTS = new Lists($PDO);
     $USER_LIST = new UserListRelation($PDO);
+    $LIST_ITEMS = new ListItems($PDO);
 
     // register
     if (isset($_POST) && isset($_GET['register'])) {
@@ -65,6 +68,13 @@ try {
         deleteList();
         return;
     }
+
+    // add item
+    if (isset($_POST) && isset($_GET['add-item'])) {
+        addListItem();
+        return;
+    }
+
 
 } catch (Exception $e) {
     respondErrorMsg(500, $e);

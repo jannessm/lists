@@ -11,7 +11,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { IsLoggedGuard } from './guards/is-logged.guard';
 import { ListsOverviewComponent } from './components/lists/lists-overview/lists-overview.component';
 import { AppRoutingModule } from './app-routing.module';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgcCookieConsentModule } from 'ngx-cookieconsent';
 import { COOKIE_CONFIG } from './models/cookie-consent-config';
 import { JwtInterceptor } from './services/jwt-interceptor/jwt.interceptor';
@@ -36,6 +36,7 @@ import { ListNormalComponent } from './components/lists/list-normal/list-normal.
     BrowserAnimationsModule,
     BrowserModule,
     FlexLayoutModule,
+    FormsModule,
     HttpClientModule,
     MaterialModule,
     ReactiveFormsModule,

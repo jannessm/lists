@@ -1,7 +1,8 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { List, ListItem, Timeslot, TIMESLOTS } from 'src/app/models/lists';
+import { ListItemService } from 'src/app/services/list-item/list-item.service';
 import { ListService } from 'src/app/services/list/list.service';
 import { AddDialogComponent } from '../add-dialog/add-dialog.component';
 
@@ -10,23 +11,17 @@ import { AddDialogComponent } from '../add-dialog/add-dialog.component';
   templateUrl: './list-normal.component.html',
   styleUrls: ['./list-normal.component.scss']
 })
-export class ListNormalComponent implements AfterViewInit {
+export class ListNormalComponent {
 
   list: List | undefined;
 
-  timeslots: Timeslot[] = [{
-    name: TIMESLOTS.TODAY,
-    items: [{
-      uuid: '',
-      done: false,
-      time: undefined,
-      name: 'test',
-      created_by: ''
-    }]
-  }];
+  new_item: string = '';
+
+  timeslots: Timeslot[] = [];
 
   constructor(
     private listService: ListService,
+    private listItemService: ListItemService,
     private activatedRoute: ActivatedRoute,
     private dialog: MatDialog,
     private router: Router,
@@ -36,18 +31,14 @@ export class ListNormalComponent implements AfterViewInit {
         const list = this.listService.getList(params.get('id'));
 
         if (!!list) {
-          this.list = list
+          this.list = list;
+          this.listItemService.loadItemsForList(list.uuid);
+          this.listItemService.items.get(list.uuid)?.subscribe();
         }
       });
     });
 
     this.listService.updateData().subscribe();
-  }
-
-  ngAfterViewInit(): void {
-    if (!this.list) {
-      this.router.navigate(['/user/lists']);
-    }
   }
 
   listSettings() {
@@ -71,7 +62,6 @@ export class ListNormalComponent implements AfterViewInit {
   deleteList() {
     if (this.list) {
       this.listService.deleteList(this.list.uuid).subscribe(success => {
-        console.log(success);
         if (success) {
           this.router.navigate(['/user/lists']);
         }
@@ -81,6 +71,12 @@ export class ListNormalComponent implements AfterViewInit {
 
   toggleDone(item: ListItem) {
     item.done = !item.done;
+  }
+
+  addItem() {
+    if (this.list) {
+      this.listItemService.addItem(this.new_item, this.list.uuid);
+    }
   }
 
   deleteItem(item: ListItem) {

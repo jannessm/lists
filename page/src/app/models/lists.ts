@@ -17,10 +17,18 @@ export enum TIMESLOTS {
     SOMETIME = 'Irgendwann'
 }
 
+export enum TIMESLOT_KEYS {
+    TODAY = 'TODAY',
+    TOMORROW = 'TOMORROW',
+    SOON = 'SOON',
+    SOMETIME = 'SOMETIME'
+}
+
 export interface ListItem {
     uuid: string;
     name: string;
     done: boolean;
-    time?: Date;
+    time?: Date | TIMESLOT_KEYS.SOMETIME;
     created_by: string;
+    list_id: string;
 }
