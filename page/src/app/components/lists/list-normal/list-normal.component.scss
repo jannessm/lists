@@ -1,0 +1,25 @@
+.menu {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+}
+
+.item-done {
+    mat-checkbox {
+        color: grey;
+        text-decoration: line-through;
+    }
+}
+
+.item {
+    background: #EEE;
+    border-radius: 8px;
+
+    button {
+        float: right;
+        color: grey;
+    }
+    mat-checkbox {
+        margin: 8px;
+}
+}

@@ -35,3 +35,27 @@ function getLists() {
 
     respondJSON(200, $lists);
 }
+
+function updateList() {
+    global $LISTS;
+    $payload = json_decode(file_get_contents("php://input"), true);
+
+    $LISTS->update($payload);
+
+    respondJSON(201, "list updated");
+}
+
+function deleteList() {
+    global $USER, $LISTS;
+
+    try {
+        $USER->delete_list($_GET['email'], $_GET['uuid']);
+    } catch (Exception $e) {
+        respondErrorMsg(400, "User not found");
+        return;
+    }
+
+    $LISTS->delete($_GET['uuid']);
+
+    respondJSON(201, "list deleted");
+}

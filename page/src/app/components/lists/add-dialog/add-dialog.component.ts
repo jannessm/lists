@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { List } from 'src/app/models/lists';
 
 @Component({
   selector: 'app-add-dialog',
@@ -9,16 +10,23 @@ import { MatDialogRef } from '@angular/material/dialog';
 })
 export class AddDialogComponent {
 
+  title: string = 'Liste Hinzufügen';
   form: FormGroup;
 
   constructor(
     public dialogRef: MatDialogRef<AddDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: List,
     private fb: FormBuilder
   ) {
+    if (data) {
+      this.title = 'Liste Bearbeiten';
+    }
+
     this.form = fb.group({
-      'name': ['', Validators.required],
-      'groceries': [false, Validators.required]
+      'name': [this.data?.name || '', Validators.required],
+      'groceries': [this.data?.groceries || false, Validators.required]
     });
+
   }
 
   onNoClick(): void {

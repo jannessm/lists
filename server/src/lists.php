@@ -53,15 +53,26 @@ class Lists {
 
         $lists = [];
         while ($list = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $list['groceries'] = $list['groceries'] === 1;
             array_push($lists, $list);
         }
 
         return $lists;
     }
 
-    public function delete($email) {
-        $sql = 'DELETE FROM user WHERE email=:email;';
+    public function update($list) {
+        $sql = 'UPDATE lists SET name=:name, groceries=:groceries WHERE uuid=:uuid';
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':email' => $email]);
+        $stmt->execute([
+            ':uuid' => $list['uuid'],
+            ':name' => $list['name'],
+            ':groceries' => $list['groceries']
+        ]);
+    }
+
+    public function delete($uuid) {
+        $sql = 'DELETE FROM lists WHERE uuid=:uuid;';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':uuid' => $uuid]);
     }
 }

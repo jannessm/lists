@@ -7,10 +7,12 @@ import { IsLoggedGuard } from './guards/is-logged.guard';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { ListsOverviewComponent } from './components/lists/lists-overview/lists-overview.component';
+import { ListNormalComponent } from './components/lists/list-normal/list-normal.component';
 
 const routes: Routes = [
   {path: 'user', canActivate: [AuthGuard], children: [
     {path: 'lists', component: ListsOverviewComponent},
+    {path: 'list/:id', component: ListNormalComponent},
     {path: 'settings', component: SettingsComponent},
   ]},
   {path: 'login', component: LoginComponent, canActivate:[IsLoggedGuard]},

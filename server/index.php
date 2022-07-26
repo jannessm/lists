@@ -52,6 +52,18 @@ try {
         return;
     }
 
+    // update list
+    if (isset($_POST) && isset($_GET['update-list'])) {
+        updateList();
+        return;
+    }
+
+    // delete list
+    if ($_SERVER['REQUEST_METHOD'] === 'DELETE' && isset($_GET['delete-list'])) {
+        deleteList();
+        return;
+    }
+
 } catch (Exception $e) {
     respondErrorMsg(500, $e);
 }

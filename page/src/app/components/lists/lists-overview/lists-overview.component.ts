@@ -22,6 +22,9 @@ export class ListsOverviewComponent {
     private listService: ListService
   ) {
     this.lists = this.listService.lists;
+    if (!this.listService.dataLoaded) {
+      this.listService.updateData().subscribe();
+    }
   }
 
   addList() {

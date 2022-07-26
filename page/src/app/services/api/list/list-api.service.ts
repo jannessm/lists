@@ -23,4 +23,12 @@ export class ListApiService {
   getLists(list_ids: string[]): Observable<DataResponse> {
     return this.http.get<DataResponse>(this.BASE_API + '?get-lists&list_ids=' + list_ids.join(","));
   }
+
+  updateList(list: List): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(this.BASE_API + '?update-list', list);
+  }
+
+  deleteList(email: string, uuid: string): Observable<ApiResponse> {
+    return this.http.delete<ApiResponse>(this.BASE_API + '?delete-list&uuid=' + uuid + '&email=' + email);
+  }
 }

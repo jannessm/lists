@@ -52,7 +52,9 @@ class User {
 
         $user = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        $user['list_ids'] = json_decode($user['list_ids']);
+        if ($user) {
+            $user['list_ids'] = json_decode($user['list_ids']);
+        }
 
         return $user;
     }
@@ -87,6 +89,25 @@ class User {
         $sql = 'UPDATE user SET list_ids=:list_ids WHERE email=:email';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':email' => $email, ':list_ids' => json_encode($list_ids)]);
+    }
+
+    public function delete_list($email, $uuid) {
+        $user = $this->get($email);
+
+        if (!$user) {
+            throw Exception("User not found");
+            return;
+        }
+        
+        if (in_array($uuid, $user['list_ids'])) {
+            $list_id = array_search($uuid, $user['list_ids']);
+            
+            if ($list_id) {
+                array_splice($user['list_ids'], $list_id, 1);
+            }
+
+            $this->update_lists($email, $user['list_ids']);
+        }
     }
 
     public function filter($user) {

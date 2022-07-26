@@ -19,6 +19,7 @@ import { environment } from 'src/environments/environment';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { SettingsComponent } from './components/settings/settings.component';
 import { AddDialogComponent } from './components/lists/add-dialog/add-dialog.component';
+import { ListNormalComponent } from './components/lists/list-normal/list-normal.component';
 
 @NgModule({
   declarations: [
@@ -28,6 +29,7 @@ import { AddDialogComponent } from './components/lists/add-dialog/add-dialog.com
     ListsOverviewComponent,
     SettingsComponent,
     AddDialogComponent,
+    ListNormalComponent,
   ],
   imports: [
     AppRoutingModule,
