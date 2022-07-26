@@ -113,17 +113,22 @@
         $payload['email'] = strtolower($payload['email']);
         $payload['password'] = str_replace('"', '', $payload['pwd']);
         unset($payload['pwd']);
+
+        if ($payload['email'] !== '' && $payload['password'] !== '') {
+            $USER->add($payload);
+            $user = $USER->get($payload['email']);
     
-        $USER->add($payload);
-
-        $user = $USER->get($payload['email']);
-
-        respondJSON(201, generateJWT($USER->filter($user)));
+            respondJSON(201, generateJWT($USER->filter($user)));
+        }
     }
     
     function validateJWT() {
         global $USER;
         $token = decodeToken(readToken());
+        
+        if (!$token->user) {
+            respondErrorMsg(400, "token has no user object.");
+        }
         
         $user = $USER->get($token->user->email);
 

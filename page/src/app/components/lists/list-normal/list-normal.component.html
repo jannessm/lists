@@ -4,7 +4,7 @@
     <button mat-menu-item (click)="deleteList()">Löschen</button>
 </mat-menu>
 
-<h1>{{list.name}}</h1>
+<h1 *ngIf="list">{{list.name}}</h1>
 
 <div *ngFor="let timeslot of timeslots">
     <h2>{{ timeslot.name }}</h2>

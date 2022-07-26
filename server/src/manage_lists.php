@@ -1,19 +1,19 @@
 <?php
 
 function addList() {
-    global $LISTS, $USER;
+    global $LISTS, $USER, $USER_LIST;
     $payload = json_decode(file_get_contents("php://input"), true);
 
-    try {
-        $USER->add_list($payload['email'], $payload['list']['uuid']);
-    } catch (Exception $e) {
-        respondErrorMsg(400, "User not found");
-        return;
-    }
-    
-    $LISTS->add($payload['list']);
+    $user = $USER->get($payload['email']);
 
-    respondJSON(201, "list added");
+    if ($user) {
+        $LISTS->add($payload['list']);
+        $USER_LIST->add($payload['email'], $payload['list']['uuid']);
+        respondJSON(201, "list added");
+    } else {
+        respondErrorMsg(400, "user not found");
+    }
+
 }
 
 function getLists() {
@@ -46,16 +46,17 @@ function updateList() {
 }
 
 function deleteList() {
-    global $USER, $LISTS;
+    global $USER, $USER_LIST, $LISTS;
 
-    try {
-        $USER->delete_list($_GET['email'], $_GET['uuid']);
-    } catch (Exception $e) {
-        respondErrorMsg(400, "User not found");
+    $user = $USER->get($_GET['email']);
+
+    if (!$user) {
+        respondErrorMsg(400, "user not found");
         return;
     }
 
     $LISTS->delete($_GET['uuid']);
+    $USER_LIST->delete_all_list($_GET['uuid']);
 
     respondJSON(201, "list deleted");
 }

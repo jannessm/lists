@@ -21,8 +21,6 @@ export class ListService {
     private snackBar: MatSnackBar
   ) {
     this.lists = new ReplaySubject<List[]>(1);
-
-    this.updateData().subscribe();
   }
 
   addList(list: List) {
@@ -31,18 +29,15 @@ export class ListService {
         this.dataLoaded = true;
         if (resp && resp.status === API_STATUS.SUCCESS) {
           this._lastDataObject.unshift(list);
+          console.log(this._lastDataObject);
           this.lists.next(this._lastDataObject);
         }
       });
     }
   }
 
-  getList(uuid: string | null): List {
-    return this._lastDataObject.find(l => l.uuid === uuid) || {
-      uuid: '',
-      name: '',
-      groceries: false
-    };
+  getList(uuid: string | null): List | undefined {
+    return this._lastDataObject.find(l => l.uuid === uuid);
   }
 
   updateList(list: List) {
@@ -68,12 +63,12 @@ export class ListService {
       return this.listApi.deleteList(this.authService.loggedUser.email, uuid).pipe(map(resp => {
         if (resp && resp.status === API_STATUS.SUCCESS) {
           const list_id = this._lastDataObject.findIndex(l => l.uuid === uuid);
-          if (list_id) {
+
+          if (list_id > -1) {
             this._lastDataObject.splice(list_id, 1);
-            this.lists.next(this._lastDataObject);
-            return true;
           }
-          return false;
+          this.lists.next(this._lastDataObject);
+          return true;
         } else {
           this.snackBar.open('Liste konnte nicht gelöscht werden.', 'Ok');
           return false;

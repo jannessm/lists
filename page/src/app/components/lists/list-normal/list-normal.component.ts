@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { List, ListItem, Timeslot, TIMESLOTS } from 'src/app/models/lists';
@@ -10,13 +10,9 @@ import { AddDialogComponent } from '../add-dialog/add-dialog.component';
   templateUrl: './list-normal.component.html',
   styleUrls: ['./list-normal.component.scss']
 })
-export class ListNormalComponent implements OnInit {
+export class ListNormalComponent implements AfterViewInit {
 
-  list: List = {
-    uuid: '',
-    name: '',
-    groceries: false,
-  };
+  list: List | undefined;
 
   timeslots: Timeslot[] = [{
     name: TIMESLOTS.TODAY,
@@ -37,38 +33,50 @@ export class ListNormalComponent implements OnInit {
   ) {
     this.listService.lists.subscribe(() => {
       this.activatedRoute.paramMap.subscribe(params => {
-        this.list = this.listService.getList(params.get('id'));
+        const list = this.listService.getList(params.get('id'));
+
+        if (!!list) {
+          this.list = list
+        }
       });
     });
 
     this.listService.updateData().subscribe();
   }
 
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
+    if (!this.list) {
+      this.router.navigate(['/user/lists']);
+    }
   }
 
   listSettings() {
-    const dialogRef = this.dialog.open(AddDialogComponent, {
-      data: this.list
-    });
-
-    dialogRef.afterClosed().subscribe(new_values => {
-      if (!!new_values) {
-        this.listService.updateList({
-          uuid: this.list.uuid,
-          name: new_values.name,
-          groceries: new_values.groceries
-        }).subscribe();
-      }
-    })
+    if (this.list) {
+      const dialogRef = this.dialog.open(AddDialogComponent, {
+        data: this.list
+      });
+  
+      dialogRef.afterClosed().subscribe(new_values => {
+        if (!!new_values && this.list) {
+          this.listService.updateList({
+            uuid: this.list.uuid,
+            name: new_values.name,
+            groceries: new_values.groceries
+          }).subscribe();
+        }
+      });
+    }
   }
 
   deleteList() {
-    this.listService.deleteList(this.list.uuid).subscribe(success => {
-      if (success) {
-        this.router.navigate(['/user/lists']);
-      }
-    })
+    if (this.list) {
+      this.listService.deleteList(this.list.uuid).subscribe(success => {
+        console.log(success);
+        if (success) {
+          this.router.navigate(['/user/lists']);
+        }
+      });
+    }
   }
 
   toggleDone(item: ListItem) {

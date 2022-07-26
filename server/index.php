@@ -10,12 +10,14 @@ require_once('src/messages.php');
 require_once('src/sqlite_conn.php');
 require_once('src/user.php');
 require_once('src/lists.php');
+require_once('src/user_list_relation.php');
 require_once('src/manage_lists.php');
 
 $PDO = (new SQLiteConnection())->connect();
 try {
     $USER = new User($PDO);
     $LISTS = new Lists($PDO);
+    $USER_LIST = new UserListRelation($PDO);
 
     // register
     if (isset($_POST) && isset($_GET['register'])) {
