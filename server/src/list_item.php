@@ -60,6 +60,12 @@ class ListItems {
         return $items;
     }
 
+    public function update_done($uuid, $done) {
+        $sql = 'UPDATE list_items SET done=:done WHERE uuid=:uuid;';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':done' => $done, ':uuid' => $uuid]);
+    }
+
     public function delete($uuid) {
         $sql = 'DELETE FROM list_items WHERE uuid=:uuid;';
         $stmt = $this->pdo->prepare($sql);

@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { map, Observable, of, ReplaySubject } from 'rxjs';
+import { map, Observable, ObservedValueOf, of, ReplaySubject } from 'rxjs';
 import { ListItem, Time } from 'src/app/models/lists';
 import { ListItemApiService } from '../api/list-item-api/list-item-api.service';
 
 import { v4 as uuid } from 'uuid';
 import { AuthService } from '../auth/auth.service';
 import { API_STATUS } from 'src/app/models/api-responses';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
   providedIn: 'root'
@@ -16,19 +17,32 @@ export class ListItemService {
 
   constructor(
     private listItemApi: ListItemApiService,
-    private authService: AuthService
+    private authService: AuthService,
+    private snackBar: MatSnackBar
   ) { }
 
   addItem(item: string, list_id: string, time: Time = null): Observable<boolean> {
     if (this.authService.loggedUser) {
-      return this.listItemApi.addItem({
+      const new_item = {
         uuid: uuid(),
         name: item,
         done: false,
         created_by: this.authService.loggedUser.email,
         time,
         list_id
-      }).pipe(map(resp => {
+      };
+
+      return this.listItemApi.addItem(new_item).pipe(map(resp => {
+        if (resp && resp.status === API_STATUS.SUCCESS) {
+          const items = this._items.get(list_id);
+          const itemsSubj = this.items.get(list_id);
+
+          if (items && itemsSubj) {
+            items.push(new_item);
+            this._items.set(list_id, items);
+            itemsSubj.next(items);
+          }
+        }
         return resp && resp.status === API_STATUS.SUCCESS;
       }));
     } else {
@@ -51,5 +65,27 @@ export class ListItemService {
         this.items.get(uuid)?.next(items);
       }
     })
+  }
+
+  updateDone(list_id: string, uuid: string, done: boolean): Observable<boolean> {
+    return this.listItemApi.updateDone(uuid, done).pipe(map(resp => {
+      if (resp && resp.status === API_STATUS.SUCCESS) {
+        let items = this._items.get(list_id);
+        
+        if (items) {
+          const item = items.find(i => i.uuid === uuid);
+          
+          if (item) {
+            item.done = done;
+          }
+
+          this.items.get(list_id)?.next(items);
+        }
+        return true;
+      } else {
+        this.snackBar.open("Konnte Element nicht updaten", "Ok");
+        return false;
+      }
+    }));
   }
 }

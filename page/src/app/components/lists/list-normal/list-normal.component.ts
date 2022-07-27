@@ -18,6 +18,7 @@ export class ListNormalComponent {
   new_item: string = '';
 
   timeslots: Timeslot[] = [];
+  items: ListItem[] = [];
 
   constructor(
     private listService: ListService,
@@ -34,6 +35,7 @@ export class ListNormalComponent {
           this.list = list;
           this.listItemService.loadItemsForList(list.uuid);
           this.listItemService.items.get(list.uuid)?.subscribe(items => {
+            this.items = items;
             this.groupItems(items);
           });
         }
@@ -86,6 +88,8 @@ export class ListNormalComponent {
 
       categories.forEach(cat => {
         const cat_items = items.filter(i => cat.condition(i.time));
+        this.sortItems(cat_items);
+
         if (cat_items.length > 0) {
           this.timeslots.push({name: cat.name, items: cat_items});
         }
@@ -105,7 +109,35 @@ export class ListNormalComponent {
     
   }
 
-  toggleDone(item: ListItem) {
-    item.done = !item.done;
+  toggleDone(item: ListItem, itemList: ListItem[]) {
+    if (this.list) {
+      this.listItemService.updateDone(this.list.uuid, item.uuid, item.done).subscribe(success => {
+        if (!success) {
+          item.done = !item.done;
+        } else {
+          this.sortItems(itemList);
+        }
+      });
+    }
+  }
+
+  sortItems(items: ListItem[]) {
+    console.log('sort');
+    items.sort((a, b) => {
+      const c = a.done ? 1 : 0;
+      const d = b.done ? 1 : 0;
+
+      if (c - d == 0 && a.time && !b.time) {
+        return -1;
+      } else if (c - d == 0 && !a.time && b.time) {
+        return 1;
+      } else if (c - d == 0 && a.time && b.time) {
+        return a.time.getTime() - b.time.getTime();
+      } else if (c - d == 0) {
+        return a.name.localeCompare(b.name);
+      }
+
+      return c - d;
+    });
   }
 }

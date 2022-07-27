@@ -20,4 +20,11 @@ export class ListItemApiService {
   getItemsForList(list_id: string): Observable<DataResponse> {
     return this.http.get<DataResponse>(this.BASE_API + '?get-items-for-list&list_id=' + list_id);
   }
+
+  updateDone(uuid: string, done: boolean): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(this.BASE_API + '?update-done', {
+      uuid,
+      done
+    });
+  }
 }

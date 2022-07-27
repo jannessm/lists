@@ -22,3 +22,12 @@ function getListItems() {
 
     respondJSON(200, $items);
 }
+
+function updateDone() {
+    global $LIST_ITEMS;
+    $payload = json_decode(file_get_contents("php://input"), true);
+
+    $LIST_ITEMS->update_done($payload['uuid'], $payload['done']);
+
+    respondJSON(201, "updated done");
+}

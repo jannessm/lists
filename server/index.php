@@ -81,6 +81,12 @@ try {
         return;
     }
 
+    // update done
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['update-done'])) {
+        updateDone();
+        return;
+    }
+
 
 } catch (Exception $e) {
     respondErrorMsg(500, $e);
