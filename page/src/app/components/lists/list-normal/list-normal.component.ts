@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { is_sometime, is_soon, is_today, is_tomorrow, List, ListItem, Timeslot, TIMESLOTS } from 'src/app/models/lists';
 import { ListItemService } from 'src/app/services/list-item/list-item.service';
 import { ListService } from 'src/app/services/list/list.service';
 import { AddDialogComponent } from '../add-dialog/add-dialog.component';
+import { UpdateItemDialogComponent } from '../update-item-dialog/update-item-dialog.component';
 
 @Component({
   selector: 'app-list-normal',
@@ -19,6 +20,9 @@ export class ListNormalComponent {
 
   timeslots: Timeslot[] = [];
   items: ListItem[] = [];
+
+  pointerDown: boolean = false;
+  updateDialogRef: MatDialogRef<UpdateItemDialogComponent, any> | undefined;
 
   constructor(
     private listService: ListService,
@@ -75,26 +79,30 @@ export class ListNormalComponent {
 
   groupItems(items: ListItem[]) {
     this.timeslots = [];
+    let categories = [];
     
     if (this.list?.groceries) {
+      categories = [
+        {condition: () => true, name: TIMESLOTS.NONE}
+      ];
 
     } else {
-      const categories = [
+      categories = [
         {condition: is_today, name: TIMESLOTS.TODAY},
         {condition: is_tomorrow, name: TIMESLOTS.TOMORROW},
         {condition: is_soon, name: TIMESLOTS.SOON},
         {condition: is_sometime, name: TIMESLOTS.SOMETIME},
       ];
-
-      categories.forEach(cat => {
-        const cat_items = items.filter(i => cat.condition(i.time));
-        this.sortItems(cat_items);
-
-        if (cat_items.length > 0) {
-          this.timeslots.push({name: cat.name, items: cat_items});
-        }
-      });
     }
+
+    categories.forEach(cat => {
+      const cat_items = items.filter(i => cat.condition(i.time));
+      this.sortItems(cat_items);
+
+      if (cat_items.length > 0) {
+        this.timeslots.push({name: cat.name, items: cat_items});
+      }
+    });
   }
   
   addItem() {
@@ -140,5 +148,26 @@ export class ListNormalComponent {
 
       return c - d;
     });
+  }
+
+  openUpdateDialog(item: ListItem) {
+    this.pointerDown = true;
+
+    setTimeout(() => {
+      if (this.pointerDown && !this.updateDialogRef) {
+        this.pointerDown = false;
+
+        this.updateDialogRef = this.dialog.open(UpdateItemDialogComponent, {data: item});
+
+        this.updateDialogRef.afterClosed().subscribe(new_item => {
+          this.updateDialogRef = undefined;
+          console.log(new_item);
+        });
+      }
+    }, 500);
+  }
+
+  cancelUpdateDialog() {
+    this.pointerDown = false;
   }
 }

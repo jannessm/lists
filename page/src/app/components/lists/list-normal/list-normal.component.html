@@ -9,7 +9,7 @@
 <div *ngFor="let timeslot of timeslots">
     <h2>{{ timeslot.name }}</h2>
 
-    <div class="item" *ngFor="let item of timeslot.items" [class.item-done]="item.done">
+    <div class="item" *ngFor="let item of timeslot.items" [class.item-done]="item.done" (pointerdown)="openUpdateDialog(item)" (pointerup)="cancelUpdateDialog()">
         <mat-checkbox (change)="toggleDone(item, timeslot.items)" [(ngModel)]="item.done" color="primary">
             {{ item.name }}
             <mat-chip *ngIf="item.time">{{item.time}}</mat-chip>

@@ -14,7 +14,8 @@ export enum TIMESLOTS {
     TODAY = 'Heute',
     TOMORROW = 'Morgen',
     SOON = 'In Kürze',
-    SOMETIME = 'Irgendwann'
+    SOMETIME = 'Irgendwann',
+    NONE = ''
 }
 
 export enum TIMESLOT_KEYS {
