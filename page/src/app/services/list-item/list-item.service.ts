@@ -70,7 +70,7 @@ export class ListItemService {
   updateDone(list_id: string, uuid: string, done: boolean): Observable<boolean> {
     return this.listItemApi.updateDone(uuid, done).pipe(map(resp => {
       if (resp && resp.status === API_STATUS.SUCCESS) {
-        let items = this._items.get(list_id);
+        const items = this._items.get(list_id);
         
         if (items) {
           const item = items.find(i => i.uuid === uuid);
@@ -87,5 +87,25 @@ export class ListItemService {
         return false;
       }
     }));
+  }
+
+  deleteItem(list_id: string, uuid: string) {
+    return this.listItemApi.deleteItem(uuid).subscribe(resp => {
+      if (resp && resp.status === API_STATUS.SUCCESS) {
+        const items = this._items.get(list_id);
+        const itemsSubj = this.items.get(list_id);
+
+        if (items && itemsSubj) {
+          const id = items.findIndex(i => i.uuid === uuid);
+
+          if (id > -1) {
+            items.splice(id, 1);
+            itemsSubj.next(items);
+          }
+        }
+      } else {
+        this.snackBar.open("Element konnte nicht gelöscht werden", "Ok");
+      }
+    });
   }
 }

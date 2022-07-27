@@ -106,7 +106,9 @@ export class ListNormalComponent {
   }
   
   deleteItem(item: ListItem) {
-    
+    if (this.list) {
+      this.listItemService.deleteItem(this.list.uuid, item.uuid);
+    }
   }
 
   toggleDone(item: ListItem, itemList: ListItem[]) {
@@ -122,7 +124,6 @@ export class ListNormalComponent {
   }
 
   sortItems(items: ListItem[]) {
-    console.log('sort');
     items.sort((a, b) => {
       const c = a.done ? 1 : 0;
       const d = b.done ? 1 : 0;

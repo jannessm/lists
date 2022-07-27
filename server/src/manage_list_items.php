@@ -31,3 +31,11 @@ function updateDone() {
 
     respondJSON(201, "updated done");
 }
+
+function deleteItem() {
+    global $LIST_ITEMS;
+    
+    $LIST_ITEMS->delete($_GET['uuid']);
+
+    respondJSON(201, "delete done");
+}

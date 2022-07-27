@@ -27,4 +27,8 @@ export class ListItemApiService {
       done
     });
   }
+
+  deleteItem(uuid: string): Observable<ApiResponse> {
+    return this.http.delete<ApiResponse>(this.BASE_API + '?delete-item&uuid=' + uuid);
+  }
 }

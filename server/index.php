@@ -87,6 +87,12 @@ try {
         return;
     }
 
+    // delete item
+    if ($_SERVER['REQUEST_METHOD'] === 'DELETE' && isset($_GET['delete-item'])) {
+        deleteItem();
+        return;
+    }
+
 
 } catch (Exception $e) {
     respondErrorMsg(500, $e);
