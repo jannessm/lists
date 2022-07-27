@@ -20,7 +20,7 @@ class ListItems {
         $sql = "CREATE TABLE IF NOT EXISTS `list_items` (
             `uuid` TINYTEXT NOT NULL,
             `name` TINYTEXT NOT NULL,
-            `time` TINYTEXT NOT NULL,
+            `time` TINYTEXT,
             `done` TINYINT NOT NULL DEFAULT 0,
             `list_id` TINYTEXT NOT NULL,
             `created_by` TINYTEXT NOT NULL,
@@ -32,7 +32,7 @@ class ListItems {
     }
 
     public function add($item) {
-        $sql = 'INSERT INTO list_items VALUES (:uuid, :name, :time, :done, :created_by, :list_id);';
+        $sql = 'INSERT INTO list_items VALUES (:uuid, :name, :time, :done, :list_id, :created_by);';
         $stmt = $this->pdo->prepare($sql);
 
         $stmt->bindValue(':uuid', $item['uuid']);
@@ -45,17 +45,19 @@ class ListItems {
         $stmt->execute();
     }
 
-    public function get_for_list($uuid) {
+    public function get_all_for_list($uuid) {
         $sql = 'SELECT * FROM list_items WHERE list_id=:uuid;';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':uuid', $uuid);
         $stmt->execute();
+        
+        $items = [];
+        while($item = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $item['done'] = $item['done'] === 1;
+            array_push($items, $item);
+        }
 
-        $item = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-        $item['done'] = $item['done'] === 1;
-
-        return $item;
+        return $items;
     }
 
     public function delete($uuid) {

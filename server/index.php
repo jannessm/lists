@@ -75,6 +75,12 @@ try {
         return;
     }
 
+    // get items
+    if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['get-items-for-list'])) {
+        getListItems();
+        return;
+    }
+
 
 } catch (Exception $e) {
     respondErrorMsg(500, $e);

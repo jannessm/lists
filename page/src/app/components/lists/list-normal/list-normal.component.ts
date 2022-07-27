@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { List, ListItem, Timeslot, TIMESLOTS } from 'src/app/models/lists';
+import { is_sometime, is_soon, is_today, is_tomorrow, List, ListItem, Timeslot, TIMESLOTS } from 'src/app/models/lists';
 import { ListItemService } from 'src/app/services/list-item/list-item.service';
 import { ListService } from 'src/app/services/list/list.service';
 import { AddDialogComponent } from '../add-dialog/add-dialog.component';
@@ -33,7 +33,9 @@ export class ListNormalComponent {
         if (!!list) {
           this.list = list;
           this.listItemService.loadItemsForList(list.uuid);
-          this.listItemService.items.get(list.uuid)?.subscribe();
+          this.listItemService.items.get(list.uuid)?.subscribe(items => {
+            this.groupItems(items);
+          });
         }
       });
     });
@@ -69,17 +71,41 @@ export class ListNormalComponent {
     }
   }
 
-  toggleDone(item: ListItem) {
-    item.done = !item.done;
-  }
+  groupItems(items: ListItem[]) {
+    this.timeslots = [];
+    
+    if (this.list?.groceries) {
 
-  addItem() {
-    if (this.list) {
-      this.listItemService.addItem(this.new_item, this.list.uuid);
+    } else {
+      const categories = [
+        {condition: is_today, name: TIMESLOTS.TODAY},
+        {condition: is_tomorrow, name: TIMESLOTS.TOMORROW},
+        {condition: is_soon, name: TIMESLOTS.SOON},
+        {condition: is_sometime, name: TIMESLOTS.SOMETIME},
+      ];
+
+      categories.forEach(cat => {
+        const cat_items = items.filter(i => cat.condition(i.time));
+        if (cat_items.length > 0) {
+          this.timeslots.push({name: cat.name, items: cat_items});
+        }
+      });
     }
   }
-
+  
+  addItem() {
+    if (this.list) {
+      this.listItemService.addItem(this.new_item, this.list.uuid).subscribe(success => {
+        this.new_item = '';
+      });
+    }
+  }
+  
   deleteItem(item: ListItem) {
+    
+  }
 
+  toggleDone(item: ListItem) {
+    item.done = !item.done;
   }
 }

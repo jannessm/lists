@@ -24,11 +24,31 @@ export enum TIMESLOT_KEYS {
     SOMETIME = 'SOMETIME'
 }
 
+export type Time = Date | null;
+
+export function is_today(time: Time) {
+    const now = new Date();
+    return time !== null && time.getUTCDate() === now.getUTCDate() && time.getUTCFullYear() === now.getUTCFullYear() && time.getUTCMonth() === now.getUTCMonth();
+}
+
+export function is_tomorrow(time: Time) {
+    const now = new Date();
+    return time !== null && time.getUTCDate() === now.getUTCDate() + 1 && time.getUTCFullYear() === now.getUTCFullYear() && time.getUTCMonth() === now.getUTCMonth();
+}
+
+export function is_soon(time: Time) {
+    return !is_today(time) && !is_tomorrow(time) && time !== null;
+}
+
+export function is_sometime(time: Time) {
+    return time === null;
+}
+
 export interface ListItem {
     uuid: string;
     name: string;
     done: boolean;
-    time?: Date | TIMESLOT_KEYS.SOMETIME;
+    time: Time;
     created_by: string;
     list_id: string;
 }

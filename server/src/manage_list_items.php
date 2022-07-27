@@ -14,3 +14,11 @@ function addListItem() {
     }
 
 }
+
+function getListItems() {
+    global $LIST_ITEMS;
+    
+    $items = $LIST_ITEMS->get_all_for_list($_GET['list_id']);
+
+    respondJSON(200, $items);
+}

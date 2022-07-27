@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiResponse } from 'src/app/models/api-responses';
+import { ApiResponse, DataResponse } from 'src/app/models/api-responses';
 import { ListItem } from 'src/app/models/lists';
 import { environment } from 'src/environments/environment';
 
@@ -15,5 +15,9 @@ export class ListItemApiService {
 
   addItem(item: ListItem): Observable<ApiResponse> {
     return this.http.post<ApiResponse>(this.BASE_API + '?add-item', item);
+  }
+
+  getItemsForList(list_id: string): Observable<DataResponse> {
+    return this.http.get<DataResponse>(this.BASE_API + '?get-items-for-list&list_id=' + list_id);
   }
 }
