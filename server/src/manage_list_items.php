@@ -32,6 +32,16 @@ function updateDone() {
     respondJSON(201, "updated done");
 }
 
+function updateItem() {
+    global $LIST_ITEMS;
+    $payload = json_decode(file_get_contents("php://input"), true);
+
+    $LIST_ITEMS->update($payload);
+
+    respondJSON(201, "updated done");
+
+}
+
 function deleteItem() {
     global $LIST_ITEMS;
     

@@ -66,6 +66,12 @@ class ListItems {
         $stmt->execute([':done' => $done, ':uuid' => $uuid]);
     }
 
+    public function update($item) {
+        $sql = 'UPDATE list_items SET name=:name, time=:time WHERE uuid=:uuid;';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':name' => $item['name'], ':time' => $item['time'], ':uuid' => $item['uuid']]);
+    }
+
     public function delete($uuid) {
         $sql = 'DELETE FROM list_items WHERE uuid=:uuid;';
         $stmt = $this->pdo->prepare($sql);

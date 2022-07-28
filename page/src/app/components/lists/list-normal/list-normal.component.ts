@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { is_sometime, is_soon, is_today, is_tomorrow, List, ListItem, Timeslot, TIMESLOTS } from 'src/app/models/lists';
+import { is_past, is_sometime, is_soon, is_today, is_tomorrow, List, ListItem, Timeslot, TIMESLOTS } from 'src/app/models/lists';
 import { ListItemService } from 'src/app/services/list-item/list-item.service';
 import { ListService } from 'src/app/services/list/list.service';
 import { AddDialogComponent } from '../add-dialog/add-dialog.component';
@@ -88,7 +88,7 @@ export class ListNormalComponent {
 
     } else {
       categories = [
-        {condition: is_today, name: TIMESLOTS.TODAY},
+        {condition: [is_today, is_past], name: TIMESLOTS.TODAY},
         {condition: is_tomorrow, name: TIMESLOTS.TOMORROW},
         {condition: is_soon, name: TIMESLOTS.SOON},
         {condition: is_sometime, name: TIMESLOTS.SOMETIME},
@@ -96,7 +96,13 @@ export class ListNormalComponent {
     }
 
     categories.forEach(cat => {
-      const cat_items = items.filter(i => cat.condition(i.time));
+      const cat_items = items.filter(i => {
+        if (Array.isArray(cat.condition)) {
+          return cat.condition.reduce((cond, fn) => fn(i.time) || cond, false);
+        } else {
+          return cat.condition(i.time)
+        }
+      });
       this.sortItems(cat_items);
 
       if (cat_items.length > 0) {
@@ -136,13 +142,7 @@ export class ListNormalComponent {
       const c = a.done ? 1 : 0;
       const d = b.done ? 1 : 0;
 
-      if (c - d == 0 && a.time && !b.time) {
-        return -1;
-      } else if (c - d == 0 && !a.time && b.time) {
-        return 1;
-      } else if (c - d == 0 && a.time && b.time) {
-        return a.time.getTime() - b.time.getTime();
-      } else if (c - d == 0) {
+      if (c - d == 0) {
         return a.name.localeCompare(b.name);
       }
 
@@ -151,23 +151,41 @@ export class ListNormalComponent {
   }
 
   openUpdateDialog(item: ListItem) {
-    this.pointerDown = true;
+    
+    if (!this.pointerDown) {
+      this.pointerDown = true;
+      setTimeout(() => {
+        if (this.pointerDown && !this.updateDialogRef) {  
+          this.updateDialogRef = this.dialog.open(UpdateItemDialogComponent, {
+            data: {
+              list: this.list,
+              item
+            }
+          });
+  
+          this.updateDialogRef.afterClosed().subscribe(new_item => {            
+            if (this.list && new_item) {
+              new_item.time = (new Date(new_item.time)).toUTCString();
+              new_item.uuid = item.uuid;
 
-    setTimeout(() => {
-      if (this.pointerDown && !this.updateDialogRef) {
-        this.pointerDown = false;
+              this.listItemService.updateItem(this.list.uuid, new_item);
+            }
 
-        this.updateDialogRef = this.dialog.open(UpdateItemDialogComponent, {data: item});
-
-        this.updateDialogRef.afterClosed().subscribe(new_item => {
-          this.updateDialogRef = undefined;
-          console.log(new_item);
-        });
-      }
-    }, 500);
+            setTimeout(() => {
+              this.updateDialogRef = undefined;
+              this.pointerDown = false;
+            }, 300);
+          });
+        }
+      }, 500);
+    }
   }
 
   cancelUpdateDialog() {
     this.pointerDown = false;
+  }
+
+  is_today(time: Date): boolean {
+    return is_today(time);
   }
 }

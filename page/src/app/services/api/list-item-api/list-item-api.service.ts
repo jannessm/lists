@@ -28,6 +28,10 @@ export class ListItemApiService {
     });
   }
 
+  updateItem(item: ListItem): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(this.BASE_API + '?update-item', item);
+  }
+
   deleteItem(uuid: string): Observable<ApiResponse> {
     return this.http.delete<ApiResponse>(this.BASE_API + '?delete-item&uuid=' + uuid);
   }

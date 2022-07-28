@@ -87,6 +87,12 @@ try {
         return;
     }
 
+    // update done
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['update-item'])) {
+        updateItem();
+        return;
+    }
+
     // delete item
     if ($_SERVER['REQUEST_METHOD'] === 'DELETE' && isset($_GET['delete-item'])) {
         deleteItem();

@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ListItem } from 'src/app/models/lists';
+import { List, ListItem } from 'src/app/models/lists';
 
 @Component({
   selector: 'app-update-item-dialog',
@@ -10,15 +10,17 @@ import { ListItem } from 'src/app/models/lists';
 })
 export class UpdateItemDialogComponent {
   form: FormGroup;
+  list: List;
 
   constructor(
     public dialogRef: MatDialogRef<UpdateItemDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ListItem,
+    @Inject(MAT_DIALOG_DATA) public data: {list:List, item: ListItem},
     private fb: FormBuilder
   ) {
+    this.list = data.list;
     this.form = fb.group({
-      'name': [data.name, Validators.required],
-      'time': [data.time]
+      'name': [data.item.name, Validators.required],
+      'time': [data.item.time]
     });
   }
 

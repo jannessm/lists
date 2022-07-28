@@ -89,8 +89,30 @@ export class ListItemService {
     }));
   }
 
+  updateItem(list_id: string, item: ListItem) {
+    this.listItemApi.updateItem(item).subscribe(resp => {
+      if (resp && resp.status === API_STATUS.SUCCESS) {
+        const items = this._items.get(list_id);
+        const itemsSubj = this.items.get(list_id);
+
+        if (items && itemsSubj) {
+          const i = items.find(i => i.uuid === item.uuid);
+
+          if (i) {
+            i.name = item.name;
+            i.time = item.time;
+
+            itemsSubj.next(items);
+          }
+        }
+      } else {
+        this.snackBar.open("Konnte Änderungen nicht speichern", "Ok");
+      }
+    })
+  }
+
   deleteItem(list_id: string, uuid: string) {
-    return this.listItemApi.deleteItem(uuid).subscribe(resp => {
+    this.listItemApi.deleteItem(uuid).subscribe(resp => {
       if (resp && resp.status === API_STATUS.SUCCESS) {
         const items = this._items.get(list_id);
         const itemsSubj = this.items.get(list_id);

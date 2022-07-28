@@ -23,6 +23,10 @@
     mat-checkbox {
         margin: 8px;
     }
+
+    mat-chip-list, mat-chip {
+        display: inline-block;
+    }
 }
 
 mat-toolbar {
@@ -35,5 +39,6 @@ mat-toolbar {
         border-radius: 8px;
         padding: 8px;
         width: 100%;
+        background-color: white;
     }
 }

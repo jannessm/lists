@@ -1,3 +1,5 @@
+import { NotExpr } from "@angular/compiler";
+
 export interface List {
     uuid: string;
     name: string;
@@ -27,6 +29,11 @@ export enum TIMESLOT_KEYS {
 
 export type Time = Date | null;
 
+export function is_past(time: Time) {
+    const now = new Date();
+    return time !== null && time.getTime() - now.getTime() < 0
+}
+
 export function is_today(time: Time) {
     const now = new Date();
     return time !== null && time.getUTCDate() === now.getUTCDate() && time.getUTCFullYear() === now.getUTCFullYear() && time.getUTCMonth() === now.getUTCMonth();
@@ -38,7 +45,7 @@ export function is_tomorrow(time: Time) {
 }
 
 export function is_soon(time: Time) {
-    return !is_today(time) && !is_tomorrow(time) && time !== null;
+    return !is_past(time) && !is_today(time) && !is_tomorrow(time) && time !== null;
 }
 
 export function is_sometime(time: Time) {

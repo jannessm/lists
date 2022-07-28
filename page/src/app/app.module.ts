@@ -21,6 +21,11 @@ import { SettingsComponent } from './components/settings/settings.component';
 import { AddDialogComponent } from './components/lists/add-dialog/add-dialog.component';
 import { ListNormalComponent } from './components/lists/list-normal/list-normal.component';
 import { UpdateItemDialogComponent } from './components/lists/update-item-dialog/update-item-dialog.component';
+import { registerLocaleData } from '@angular/common';
+import localeDe from '@angular/common/locales/de';
+
+
+registerLocaleData(localeDe, 'de');
 
 @NgModule({
   declarations: [
