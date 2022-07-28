@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  api: 'https://lists.magnusson.berlin',
+  api: 'http://mag-banane.de/lists/api/',
   locale: 'de'
 };

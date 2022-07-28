@@ -24,6 +24,7 @@ import { UpdateItemDialogComponent } from './components/lists/update-item-dialog
 import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 import { ShareListDialogComponent } from './components/lists/share-list-dialog/share-list-dialog.component';
+import { ServiceWorkerModule } from '@angular/service-worker';
 
 
 registerLocaleData(localeDe, 'de');
@@ -50,6 +51,12 @@ registerLocaleData(localeDe, 'de');
     MaterialModule,
     ReactiveFormsModule,
     NgcCookieConsentModule.forRoot(COOKIE_CONFIG),
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: environment.production,
+      // Register the ServiceWorker as soon as the application is stable
+      // or after 30 seconds (whichever comes first).
+      registrationStrategy: 'registerWhenStable:30000'
+    }),
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi:true},
