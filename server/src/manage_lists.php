@@ -45,8 +45,23 @@ function updateList() {
     respondJSON(201, "list updated");
 }
 
+function shareList() {
+    global $USER_LIST, $USER;
+    $payload = json_decode(file_get_contents("php://input"), true);
+
+    $user = $USER->get($payload['email']);
+
+    if ($user) {
+        $USER_LIST->add($payload['email'], $payload['uuid']);
+        respondJSON(201, "list shared");
+    } else {
+        respondErrorMsg(400, "user not found");
+    }
+
+}
+
 function deleteList() {
-    global $USER, $USER_LIST, $LISTS;
+    global $USER, $USER_LIST, $LISTS, $LIST_ITEMS;
 
     $user = $USER->get($_GET['email']);
 
@@ -55,8 +70,12 @@ function deleteList() {
         return;
     }
 
-    $LISTS->delete($_GET['uuid']);
-    $USER_LIST->delete_all_list($_GET['uuid']);
+    $delete = $USER_LIST->delete($_GET['email'], $_GET['uuid']);
+    
+    if ($delete) {
+        $LISTS->delete($_GET['uuid']);
+        $LIST_ITEMS->delete_all_for_list($_GET['uuid']);
+    }
 
     respondJSON(201, "list deleted");
 }

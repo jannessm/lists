@@ -23,6 +23,7 @@ import { ListNormalComponent } from './components/lists/list-normal/list-normal.
 import { UpdateItemDialogComponent } from './components/lists/update-item-dialog/update-item-dialog.component';
 import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
+import { ShareListDialogComponent } from './components/lists/share-list-dialog/share-list-dialog.component';
 
 
 registerLocaleData(localeDe, 'de');
@@ -37,6 +38,7 @@ registerLocaleData(localeDe, 'de');
     AddDialogComponent,
     ListNormalComponent,
     UpdateItemDialogComponent,
+    ShareListDialogComponent,
   ],
   imports: [
     AppRoutingModule,

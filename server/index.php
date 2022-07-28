@@ -63,6 +63,12 @@ try {
         return;
     }
 
+    // share list
+    if (isset($_POST) && isset($_GET['share-list'])) {
+        shareList();
+        return;
+    }
+
     // delete list
     if ($_SERVER['REQUEST_METHOD'] === 'DELETE' && isset($_GET['delete-list'])) {
         deleteList();

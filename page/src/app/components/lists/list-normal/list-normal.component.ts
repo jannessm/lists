@@ -5,6 +5,7 @@ import { is_past, is_sometime, is_soon, is_today, is_tomorrow, List, ListItem, T
 import { ListItemService } from 'src/app/services/list-item/list-item.service';
 import { ListService } from 'src/app/services/list/list.service';
 import { AddDialogComponent } from '../add-dialog/add-dialog.component';
+import { ShareListDialogComponent } from '../share-list-dialog/share-list-dialog.component';
 import { UpdateItemDialogComponent } from '../update-item-dialog/update-item-dialog.component';
 
 @Component({
@@ -67,6 +68,18 @@ export class ListNormalComponent {
     }
   }
 
+  shareList() {
+    if (this.list) {
+      const dialogRef = this.dialog.open(ShareListDialogComponent);
+
+      dialogRef.afterClosed().subscribe(data => {
+        if (!!data && this.list) {
+          this.listService.shareList(data.email, this.list.uuid);
+        }
+      })
+    }
+  }
+
   deleteList() {
     if (this.list) {
       this.listService.deleteList(this.list.uuid).subscribe(success => {
@@ -109,6 +122,13 @@ export class ListNormalComponent {
         this.timeslots.push({name: cat.name, items: cat_items});
       }
     });
+
+    if (this.list && this.timeslots.length > 0 && this.timeslots[0].name === TIMESLOTS.TODAY) {
+      // this.list.todo = this.timeslots[0].items.reduce((todo, i) => !i.done ? todo + 1 : todo, 0); TODO: fix badge on overview
+    }
+    if (this.list && this.timeslots.length > 0 && this.list.todo && this.list.todo < 1) {
+      this.list.todo = undefined;
+    }
   }
   
   addItem() {
@@ -128,8 +148,13 @@ export class ListNormalComponent {
   toggleDone(item: ListItem, itemList: ListItem[]) {
     if (this.list) {
       this.listItemService.updateDone(this.list.uuid, item.uuid, item.done).subscribe(success => {
-        if (!success) {
+        if (!success && this.list) {
           item.done = !item.done;
+
+          if (this.list.todo) {
+            // this.list.todo += item.done ? -1 : 1;
+            // this.list.todo = this.list.todo < 1 ? undefined : this.list.todo;
+          }
         } else {
           this.sortItems(itemList);
         }

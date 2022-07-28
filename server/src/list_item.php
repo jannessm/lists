@@ -77,4 +77,10 @@ class ListItems {
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':uuid' => $uuid]);
     }
+
+    public function delete_all_for_list($uuid) {
+        $sql = 'DELETE FROM list_items WHERE list_id=:uuid;';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':uuid' => $uuid]);
+    }
 }

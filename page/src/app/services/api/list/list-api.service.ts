@@ -28,6 +28,10 @@ export class ListApiService {
     return this.http.post<ApiResponse>(this.BASE_API + '?update-list', list);
   }
 
+  shareList(email: string, uuid: string): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(this.BASE_API + '?share-list', {email, uuid});
+  }
+
   deleteList(email: string, uuid: string): Observable<ApiResponse> {
     return this.http.delete<ApiResponse>(this.BASE_API + '?delete-list&uuid=' + uuid + '&email=' + email);
   }

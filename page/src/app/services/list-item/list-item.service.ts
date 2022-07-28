@@ -19,7 +19,12 @@ export class ListItemService {
     private listItemApi: ListItemApiService,
     private authService: AuthService,
     private snackBar: MatSnackBar
-  ) { }
+  ) {
+    this.authService.loggedStateChanges.subscribe(() => {
+      this.items.clear();
+      this._items.clear();
+    })
+  }
 
   addItem(item: string, list_id: string, time: Time = null): Observable<boolean> {
     if (this.authService.loggedUser) {

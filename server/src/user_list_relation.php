@@ -40,6 +40,12 @@ class UserListRelation {
         $sql = 'DELETE FROM user_list WHERE email=:email AND uuid=:uuid;';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':email' => $email, ':uuid' => $uuid]);
+
+        $sql = 'SELECT * FROM user_list WHERE uuid=:uuid;';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':uuid' => $uuid]);
+
+        return $stmt->fetch(\PDO::FETCH_ASSOC) === false;
     }
 
     public function delete_all_user($email) {

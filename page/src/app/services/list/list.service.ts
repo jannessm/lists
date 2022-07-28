@@ -21,6 +21,12 @@ export class ListService {
     private snackBar: MatSnackBar
   ) {
     this.lists = new ReplaySubject<List[]>(1);
+
+    this.authService.loggedStateChanges.subscribe(() => {
+      this._lastDataObject = [];
+      this.lists.next([]);
+      this.dataLoaded = false;
+    });
   }
 
   addList(list: List) {
@@ -55,6 +61,14 @@ export class ListService {
         this.snackBar.open('Liste konnte nicht geändert werden.', 'Ok');
       }
     }));
+  }
+
+  shareList(email: string, uuid: string) {
+    this.listApi.shareList(email, uuid).subscribe(resp => {
+      if (resp && resp.status !== API_STATUS.SUCCESS) {
+        this.snackBar.open("Benutzer nicht gefunden.", "Ok");
+      }
+    })
   }
 
   deleteList(uuid: string) {
