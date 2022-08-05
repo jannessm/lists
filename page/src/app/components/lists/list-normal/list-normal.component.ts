@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { is_past, is_sometime, is_soon, is_today, is_tomorrow, List, ListItem, Timeslot, TIMESLOTS } from 'src/app/models/lists';
@@ -23,7 +23,10 @@ export class ListNormalComponent {
   items: ListItem[] = [];
 
   pointerDown: boolean = false;
+  pointerPosX: number | undefined; 
   updateDialogRef: MatDialogRef<UpdateItemDialogComponent, any> | undefined;
+
+  @ViewChild('itemsContainer') itemContainer!: ElementRef;
 
   constructor(
     private listService: ListService,
@@ -179,8 +182,13 @@ export class ListNormalComponent {
     
     if (!this.pointerDown) {
       this.pointerDown = true;
+      this.pointerPosX = this.itemContainer.nativeElement.scrollTop;
+
       setTimeout(() => {
-        if (this.pointerDown && !this.updateDialogRef) {  
+        const currScrollPos = this.itemContainer.nativeElement.scrollTop;
+        if (this.pointerPosX != undefined)
+          console.log(Math.abs(currScrollPos - this.pointerPosX) < 50);
+        if (this.pointerPosX != undefined && this.pointerDown && !this.updateDialogRef && Math.abs(currScrollPos - this.pointerPosX) < 50) {  
           this.updateDialogRef = this.dialog.open(UpdateItemDialogComponent, {
             data: {
               list: this.list,
@@ -197,8 +205,7 @@ export class ListNormalComponent {
             }
 
             setTimeout(() => {
-              this.updateDialogRef = undefined;
-              this.pointerDown = false;
+              this.cancelUpdateDialog();
             }, 300);
           });
         }
@@ -208,6 +215,7 @@ export class ListNormalComponent {
 
   cancelUpdateDialog() {
     this.pointerDown = false;
+    this.pointerPosX = undefined;
   }
 
   is_today(time: Date): boolean {

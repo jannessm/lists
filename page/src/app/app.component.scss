@@ -13,6 +13,7 @@ mat-drawer-content {
 mat-toolbar {
     position: absolute;
     bottom: 0;
+    height: 64px;
 
     .toolbar-button {
         padding-top: 10px;
@@ -21,4 +22,7 @@ mat-toolbar {
 
 .content {
     margin: 24px;
+    height: calc(100% - 112px);
+    overflow-y: auto;
+    overflow-x: hidden;
 }

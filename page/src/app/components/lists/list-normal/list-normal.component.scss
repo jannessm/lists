@@ -4,6 +4,15 @@
     right: 24px;
 }
 
+#items-container {
+    height: calc(100% - 64px);
+    overflow-y: auto;
+
+    div:last-child {
+        margin-bottom: 64px;
+    }
+}
+
 .item-done {
     mat-checkbox, mat-chip {
         color: grey;
@@ -33,6 +42,7 @@ mat-toolbar {
     position: absolute;
     right: 0;
     bottom: 56px;
+    height: 64px;
 
     .add-input {
         border: none;

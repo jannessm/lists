@@ -7,18 +7,20 @@
 
 <h1 *ngIf="list">{{list.name}}</h1>
 
-<div *ngFor="let timeslot of timeslots">
-    <h2>{{ timeslot.name }}</h2>
-
-    <div class="item" *ngFor="let item of timeslot.items" [class.item-done]="item.done" (pointerdown)="openUpdateDialog(item)" (pointerup)="cancelUpdateDialog()">
-        <mat-checkbox (change)="toggleDone(item, timeslot.items)" [(ngModel)]="item.done" color="primary">
-            {{ item.name }}
-            <mat-chip-list *ngIf="list && !list.groceries">
-                <mat-chip *ngIf="item.time && is_today(item.time)">{{item.time | date:'h:mm'}}</mat-chip>
-                <mat-chip *ngIf="item.time && !is_today(item.time)">{{item.time | date:'short'}}</mat-chip>
-            </mat-chip-list>
-        </mat-checkbox>
-        <button mat-icon-button (click)="deleteItem(item)" *ngIf="item.done"><mat-icon>close</mat-icon></button>
+<div id="items-container" #itemsContainer>
+    <div *ngFor="let timeslot of timeslots">
+        <h2>{{ timeslot.name }}</h2>
+    
+        <div class="item" *ngFor="let item of timeslot.items" [class.item-done]="item.done" (pointerdown)="openUpdateDialog(item)" (pointerup)="cancelUpdateDialog()">
+            <mat-checkbox (change)="toggleDone(item, timeslot.items)" [(ngModel)]="item.done" color="primary">
+                {{ item.name }}
+                <mat-chip-list *ngIf="list && !list.groceries">
+                    <mat-chip *ngIf="item.time && is_today(item.time)">{{item.time | date:'h:mm'}}</mat-chip>
+                    <mat-chip *ngIf="item.time && !is_today(item.time)">{{item.time | date:'short'}}</mat-chip>
+                </mat-chip-list>
+            </mat-checkbox>
+            <button mat-icon-button (click)="deleteItem(item)" *ngIf="item.done"><mat-icon>close</mat-icon></button>
+        </div>
     </div>
 </div>
 
