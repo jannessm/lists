@@ -54,7 +54,7 @@ class Lists {
         if (count($uuids) > 1) {
             $lists = array_map(fn($uuid) => 'uuid="' . $uuid . '"', $uuids);
             $sql = "SELECT * FROM lists WHERE " . implode(' OR ', $lists) . ";";
-            // var_dump($sql);
+
             $stmt = $this->pdo->prepare($sql);
         } else {
             $sql = "SELECT * FROM lists WHERE uuid=:uuids;";
@@ -66,7 +66,7 @@ class Lists {
 
         $lists = [];
         while ($list = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $list['groceries'] = $list['groceries'] === 1;
+            $list['groceries'] = $list['groceries'] === 1 || $list['groceries'] === '1';
             array_push($lists, $list);
         }
 

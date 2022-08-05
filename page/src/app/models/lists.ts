@@ -36,12 +36,12 @@ export function is_past(time: Time) {
 
 export function is_today(time: Time) {
     const now = new Date();
-    return time !== null && time.getUTCDate() === now.getUTCDate() && time.getUTCFullYear() === now.getUTCFullYear() && time.getUTCMonth() === now.getUTCMonth();
+    return time !== null && time.getDate() === now.getDate() && time.getFullYear() === now.getFullYear() && time.getMonth() === now.getMonth();
 }
 
 export function is_tomorrow(time: Time) {
     const now = new Date();
-    return time !== null && time.getUTCDate() === now.getUTCDate() + 1 && time.getUTCFullYear() === now.getUTCFullYear() && time.getUTCMonth() === now.getUTCMonth();
+    return time !== null && time.getDate() === now.getDate() + 1 && time.getFullYear() === now.getFullYear() && time.getMonth() === now.getMonth();
 }
 
 export function is_soon(time: Time) {

@@ -105,7 +105,7 @@ export class ListItemService {
 
           if (i) {
             i.name = item.name;
-            i.time = item.time;
+            i.time = !item.time ? null: new Date(item.time);
 
             itemsSubj.next(items);
           }

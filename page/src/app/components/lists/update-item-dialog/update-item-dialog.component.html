@@ -3,6 +3,8 @@
         <mat-form-field appearance="outline">
             <input matInput formControlName="name" placeholder="Name">
         </mat-form-field>
+
+        <mat-slide-toggle color="primary" formControlName="hasDate">Erinnerung</mat-slide-toggle>
         <mat-form-field appearance="outline" *ngIf="!list.groceries">
             <input matInput type="datetime-local" formControlName="time">
         </mat-form-field>

@@ -179,15 +179,14 @@ export class ListNormalComponent {
   }
 
   openUpdateDialog(item: ListItem) {
-    
     if (!this.pointerDown) {
       this.pointerDown = true;
       this.pointerPosX = this.itemContainer.nativeElement.scrollTop;
-
+      
       setTimeout(() => {
         const currScrollPos = this.itemContainer.nativeElement.scrollTop;
-        if (this.pointerPosX != undefined)
-          console.log(Math.abs(currScrollPos - this.pointerPosX) < 50);
+        
+        console.log(!this.pointerDown, this.pointerPosX, this.updateDialogRef);
         if (this.pointerPosX != undefined && this.pointerDown && !this.updateDialogRef && Math.abs(currScrollPos - this.pointerPosX) < 50) {  
           this.updateDialogRef = this.dialog.open(UpdateItemDialogComponent, {
             data: {
@@ -198,7 +197,7 @@ export class ListNormalComponent {
   
           this.updateDialogRef.afterClosed().subscribe(new_item => {            
             if (this.list && new_item) {
-              new_item.time = (new Date(new_item.time)).toUTCString();
+              new_item.time = new_item.time !== null ? (new Date(new_item.time)).toUTCString() : null;
               new_item.uuid = item.uuid;
 
               this.listItemService.updateItem(this.list.uuid, new_item);
@@ -206,16 +205,19 @@ export class ListNormalComponent {
 
             setTimeout(() => {
               this.cancelUpdateDialog();
-            }, 300);
+            }, 500);
           });
+        } else {
+          this.cancelUpdateDialog();
         }
-      }, 500);
+      }, 300);
     }
   }
 
   cancelUpdateDialog() {
     this.pointerDown = false;
     this.pointerPosX = undefined;
+    this.updateDialogRef = undefined;
   }
 
   is_today(time: Date): boolean {
