@@ -43,6 +43,12 @@ mat-toolbar {
     right: 0;
     bottom: 56px;
     height: 64px;
+    z-index: 10;
+
+    &.toolbar-time {
+        display: none;
+        padding: 8px;
+    }
 
     .add-input {
         border: none;
@@ -51,4 +57,13 @@ mat-toolbar {
         width: 100%;
         background-color: white;
     }
+}
+
+#toggle-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    height: calc(100% - 128px);
+    width: 100%;
 }

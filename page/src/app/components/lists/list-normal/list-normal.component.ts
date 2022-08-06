@@ -1,4 +1,5 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { is_past, is_sometime, is_soon, is_today, is_tomorrow, List, ListItem, Timeslot, TIMESLOTS } from 'src/app/models/lists';
@@ -8,16 +9,30 @@ import { AddDialogComponent } from '../add-dialog/add-dialog.component';
 import { ShareListDialogComponent } from '../share-list-dialog/share-list-dialog.component';
 import { UpdateItemDialogComponent } from '../update-item-dialog/update-item-dialog.component';
 
+import flatpickr from "flatpickr";
+import { MatChip } from '@angular/material/chips';
+
 @Component({
   selector: 'app-list-normal',
   templateUrl: './list-normal.component.html',
   styleUrls: ['./list-normal.component.scss']
 })
-export class ListNormalComponent {
+export class ListNormalComponent implements AfterViewInit{
 
   list: List | undefined;
 
-  new_item: string = '';
+  newItem: string = '';
+  focusInput: boolean = false;
+  newItemTime = new FormControl('sometime');
+  timePicker: flatpickr.Instance;
+  timePickerDate: Date | undefined;
+  timePickerConfig = {
+    enableTime: true,
+    minuteIncrement: 5,
+    disableMobile: true,
+    time_24hr: true
+  };
+  pickerOpen = false;
 
   timeslots: Timeslot[] = [];
   items: ListItem[] = [];
@@ -27,6 +42,7 @@ export class ListNormalComponent {
   updateDialogRef: MatDialogRef<UpdateItemDialogComponent, any> | undefined;
 
   @ViewChild('itemsContainer') itemContainer!: ElementRef;
+  @ViewChild('picker') picker!: ElementRef;
 
   constructor(
     private listService: ListService,
@@ -51,6 +67,11 @@ export class ListNormalComponent {
     });
 
     this.listService.updateData().subscribe();
+    this.timePicker = flatpickr('#picker', this.timePickerConfig) as flatpickr.Instance;
+  }
+
+  ngAfterViewInit(): void {
+    this.timePicker = flatpickr('#picker', this.timePickerConfig) as flatpickr.Instance;
   }
 
   listSettings() {
@@ -136,8 +157,32 @@ export class ListNormalComponent {
   
   addItem() {
     if (this.list) {
-      this.listItemService.addItem(this.new_item, this.list.uuid).subscribe(success => {
-        this.new_item = '';
+      let newTime = null;
+      switch(this.newItemTime.value) {
+        case 'today':
+          newTime = new Date();
+          newTime.setHours(9, 0);
+          break;
+        case 'tomorrow':
+          newTime = new Date();
+          newTime.setDate(newTime.getDate() + 1);
+          newTime.setHours(9, 0);
+          break;
+        case 'different':
+          if (this.timePickerDate) {
+            newTime = this.timePickerDate;
+          }
+      }
+
+      setTimeout(() => {
+        this.timePickerDate = undefined;
+        this.timePicker.clear();
+        this.focusInput = false;
+        this.newItemTime.setValue('sometime');
+      }, 1);
+
+      this.listItemService.addItem(this.newItem, this.list.uuid, newTime).subscribe(success => {
+        this.newItem = '';
       });
     }
   }
@@ -185,8 +230,7 @@ export class ListNormalComponent {
       
       setTimeout(() => {
         const currScrollPos = this.itemContainer.nativeElement.scrollTop;
-        
-        console.log(!this.pointerDown, this.pointerPosX, this.updateDialogRef);
+
         if (this.pointerPosX != undefined && this.pointerDown && !this.updateDialogRef && Math.abs(currScrollPos - this.pointerPosX) < 50) {  
           this.updateDialogRef = this.dialog.open(UpdateItemDialogComponent, {
             data: {
@@ -195,12 +239,12 @@ export class ListNormalComponent {
             }
           });
   
-          this.updateDialogRef.afterClosed().subscribe(new_item => {            
-            if (this.list && new_item) {
-              new_item.time = new_item.time !== null ? (new Date(new_item.time)).toUTCString() : null;
-              new_item.uuid = item.uuid;
+          this.updateDialogRef.afterClosed().subscribe(newItem => {            
+            if (this.list && newItem) {
+              newItem.time = newItem.time !== null ? (new Date(newItem.time)).toUTCString() : null;
+              newItem.uuid = item.uuid;
 
-              this.listItemService.updateItem(this.list.uuid, new_item);
+              this.listItemService.updateItem(this.list.uuid, newItem);
             }
 
             setTimeout(() => {
@@ -222,5 +266,38 @@ export class ListNormalComponent {
 
   is_today(time: Date): boolean {
     return is_today(time);
+  }
+
+  toggleNewTimeSelected(chip: MatChip) {
+    if (this.pickerOpen) {
+      this.timePicker.close();
+      this.pickerOpen = false;
+
+    } else {
+      chip.toggleSelected(true);
+
+      if (chip.value !== 'different') {
+        this.timePicker.clear();
+        this.timePickerDate = undefined;
+      }
+    }
+  }
+
+  pickerToggleFocus() {
+    if (this.newItemTime.value === 'different') {
+      this.timePicker.open();
+      this.pickerOpen = true;
+    } else {
+      this.timePicker.close();
+      this.pickerOpen = false;
+    }
+  }
+
+  setTimePickerDate(event: any) {
+    if (event.target.value !== '') {
+      this.timePickerDate = this.timePicker.selectedDates[0];
+    } else {
+      this.timePickerDate = undefined;
+    }
   }
 }

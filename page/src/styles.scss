@@ -1,5 +1,6 @@
 @import "~@angular/material/prebuilt-themes/deeppurple-amber.css";
-html, body { height: 100%; }
+@import '~flatpickr/dist/flatpickr.css'; // you may need to adjust the css import depending on your build tool
+html, body { height: 100%; overflow: hidden; }
 body { margin: 0px; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .mat-form-field, button.mat-button {

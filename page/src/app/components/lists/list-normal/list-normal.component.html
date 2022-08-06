@@ -1,3 +1,4 @@
+<div id="toggle-overlay" (click)="!pickerOpen ? focusInput=false : ''" [style.display]="focusInput ? 'block' : 'none'"></div>
 <button class="menu" mat-icon-button [matMenuTriggerFor]="menu"><mat-icon>more_vert</mat-icon></button>
 <mat-menu #menu="matMenu">
     <button mat-menu-item (click)="listSettings()">Einstellungen</button>
@@ -24,7 +25,19 @@
     </div>
 </div>
 
-<mat-toolbar>
-    <input matInput placeholder="Hinzufügen" class="add-input" [(ngModel)]="new_item" autocomplete="off">
-    <button mat-icon-button (click)="addItem()"><mat-icon>add</mat-icon></button>
-</mat-toolbar>
+<div (click)="focusInput=true">
+    <mat-toolbar class="toolbar-input" [style.bottom]="focusInput ? 0 : '64px'">
+        <input matInput placeholder="Hinzufügen" class="add-input" [(ngModel)]="newItem" autocomplete="off">
+        <button mat-icon-button (click)="addItem()"><mat-icon>add</mat-icon></button>
+    </mat-toolbar>
+
+    <mat-toolbar class="toolbar-time" [style.display]="focusInput ? 'block' : 'none'">
+        <mat-chip-list *ngIf="list && !list.groceries" [formControl]="newItemTime">
+            <mat-chip (click)="toggleNewTimeSelected(chipToday)" #chipToday="matChip" value="today">Heute</mat-chip>
+            <mat-chip (click)="toggleNewTimeSelected(chipTomorrow)" #chipTomorrow="matChip" value="tomorrow">Morgen</mat-chip>
+            <mat-chip (click)="toggleNewTimeSelected(chipDiff); pickerToggleFocus()" #chipDiff="matChip" value="different">{{(timePickerDate | date:'short') || 'Andere'}}</mat-chip>
+            <mat-chip (click)="toggleNewTimeSelected(chipSometime)" #chipSometime="matChip" value="sometime">Irgendwann</mat-chip>
+        </mat-chip-list>
+    </mat-toolbar>
+    <input id="picker" type="text" #picker (change)="setTimePickerDate($event)">
+</div>
