@@ -45,6 +45,20 @@ function voteForGroceryCategory(categoryItems: string[]) {
     return votes;
   };
 }
+
+function compareGrocerySlots(categoryNames: string[]) {
+  return (a: Slot, b: Slot) => {
+    let id_a = categoryNames.findIndex(c => c === a.name);
+    let id_b = categoryNames.findIndex(c => c === b.name);
+    if (id_a < 0) {
+      id_a = 999999999;
+    }
+    if (id_b < 0) {
+      id_b = 999999999;
+    }
+    return id_a - id_b;
+  };
+}
   
 export function groupItems(items: ListItem[], isGroceries: boolean, groceryCategories: GroceryCategories | undefined = undefined) {
   const slots: Slot[] = [];
@@ -96,8 +110,12 @@ export function groupItems(items: ListItem[], isGroceries: boolean, groceryCateg
 
     slot.items.push(highestVotes.item);
   });
-
+  
   slots.forEach(cat => sortItems(cat.items));
+  
+  if (isGroceries && groceryCategories) {
+    slots.sort(compareGrocerySlots(Object.keys(groceryCategories)));
+  }
 
   return slots;
 }
