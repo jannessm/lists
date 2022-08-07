@@ -177,7 +177,7 @@ export class ListNormalComponent implements AfterViewInit{
     }
   }
 
-  openUpdateDialog(item: ListItem) {
+  openUpdateDialog(item: ListItem, itemList: ListItem[]) {
     if (!this.pointerDown) {
       this.pointerDown = true;
       this.pointerPosX = this.itemContainer.nativeElement.scrollTop;
@@ -202,17 +202,17 @@ export class ListNormalComponent implements AfterViewInit{
             }
 
             setTimeout(() => {
-              this.cancelUpdateDialog();
+              this.cancelUpdateDialog(item, itemList);
             }, 500);
           });
         } else {
-          this.cancelUpdateDialog();
+          this.cancelUpdateDialog(item, itemList);
         }
       }, 300);
     }
   }
 
-  cancelUpdateDialog() {
+  cancelUpdateDialog(item: ListItem, itemList: ListItem[]) {
     this.pointerDown = false;
     this.pointerPosX = undefined;
     this.updateDialogRef = undefined;

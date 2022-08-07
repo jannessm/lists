@@ -1,4 +1,10 @@
 .list-card {
     padding: 24px;
     width: calc(50% - 24px);
+    white-space: pre-line;
+    word-break: break-all;
+}
+
+.container {
+    gap: 24px;
 }

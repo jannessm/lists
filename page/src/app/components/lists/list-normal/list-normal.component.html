@@ -9,11 +9,11 @@
 <h1 *ngIf="list">{{list.name}}</h1>
 
 <div id="items-container" #itemsContainer>
-    <div *ngFor="let timeslot of slots">
-        <h2>{{ timeslot.name }}</h2>
+    <div *ngFor="let slot of slots">
+        <h2>{{ slot.name }}</h2>
     
-        <div class="item" *ngFor="let item of timeslot.items" [class.item-done]="item.done" (pointerdown)="openUpdateDialog(item)" (pointerup)="cancelUpdateDialog()">
-            <mat-checkbox (change)="toggleDone(item, timeslot.items)" [(ngModel)]="item.done" color="primary">
+        <div class="item" *ngFor="let item of slot.items" [class.item-done]="item.done" (pointerdown)="openUpdateDialog(item, slot.items)" (pointerup)="cancelUpdateDialog(item, slot.items)">
+            <mat-checkbox (change)="toggleDone(item, slot.items)" [(ngModel)]="item.done" color="primary">
                 <span class="item-content">{{ item.name }}
                     <mat-chip-list *ngIf="list && !list.groceries" disabled>
                         <mat-chip *ngIf="item.time && is_today(item)">{{item.time | date:'h:mm'}}</mat-chip>

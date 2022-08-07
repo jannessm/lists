@@ -17,8 +17,6 @@
     .item-content, mat-chip {
         color: grey;
         text-decoration: line-through;
-
-
     }
 }
 
@@ -26,6 +24,7 @@
     background: #EEE;
     border-radius: 8px;
     margin: 8px;
+    width: calc(100% - 20px);
 
     button {
         float: right;
@@ -34,16 +33,17 @@
     mat-checkbox {
         margin: 8px;
         position: relative;
+        width: calc(100% - 20px);
 
         .item-content {
-            max-width: calc(100% - 45px);
             white-space: pre-wrap;
-            display: inline-block;
+            margin-right: 20px;
         }
 
         button {
             top: calc(50% - 20px);
             position: absolute;
+            right: 0;
         }
     }
 
