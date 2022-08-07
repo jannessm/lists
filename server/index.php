@@ -17,35 +17,6 @@ require_once('src/manage_list_items.php');
 
 $PDO = (new SQLiteConnection())->connect();
 
-
-    // get grocery categories
-    if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['grocery-categories'])) {
-        $data = [];
-        $handle = fopen($BASE . 'grocery_categories.tsv', 'rb');
-        $f = [];
-        while (!feof($handle)) {
-            $f[] = fgets($handle);
-        }
-        
-        // read categories
-        $header = str_getcsv($f[0], "\t");
-        foreach($header as $h) {
-            $data[$h] = [];
-        }
-
-        array_splice($f, 0, 1);
-
-        foreach ($f as $row) {
-            $row = str_getcsv($row, "\t");
-            foreach($row as $col => $val) {
-                if ($val) {
-                    array_push($data[$header[$col]], $val);
-                }
-            }
-        }
-
-        respondJSON(200, $data);
-    }
 try {
     $USER = new User($PDO);
     $LISTS = new Lists($PDO);
@@ -135,6 +106,34 @@ try {
         return;
     }
 
+    // get grocery categories
+    if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['grocery-categories'])) {
+        $data = [];
+        $handle = fopen($BASE . 'grocery_categories.tsv', 'rb');
+        $f = [];
+        while (!feof($handle)) {
+            $f[] = fgets($handle);
+        }
+        
+        // read categories
+        $header = str_getcsv($f[0], "\t");
+        foreach($header as $h) {
+            $data[$h] = [];
+        }
+
+        array_splice($f, 0, 1);
+
+        foreach ($f as $row) {
+            $row = str_getcsv($row, "\t");
+            foreach($row as $col => $val) {
+                if ($val) {
+                    array_push($data[$header[$col]], $val);
+                }
+            }
+        }
+
+        respondJSON(200, $data);
+    }
 
 } catch (Exception $e) {
     respondErrorMsg(500, $e);
