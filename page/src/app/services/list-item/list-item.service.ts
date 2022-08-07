@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { map, Observable, ObservedValueOf, of, ReplaySubject } from 'rxjs';
-import { ListItem, Time } from 'src/app/models/lists';
+import { ListItem } from 'src/app/models/lists';
 import { ListItemApiService } from '../api/list-item-api/list-item-api.service';
 
 import { v4 as uuid } from 'uuid';
 import { AuthService } from '../auth/auth.service';
 import { API_STATUS } from 'src/app/models/api-responses';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Time } from 'src/app/models/categories_timeslots';
 
 @Injectable({
   providedIn: 'root'

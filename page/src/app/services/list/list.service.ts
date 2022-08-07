@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { map, Observable, of, ReplaySubject, Subject } from 'rxjs';
+import { map, Observable, of, ReplaySubject } from 'rxjs';
 import { API_STATUS } from 'src/app/models/api-responses';
+import { GroceryCategories } from 'src/app/models/categories_groceries';
 import { List } from 'src/app/models/lists';
 import { ListApiService } from '../api/list/list-api.service';
 import { AuthService } from '../auth/auth.service';
@@ -14,6 +15,7 @@ export class ListService {
   lists: ReplaySubject<List[]>;
   _lastDataObject: List[] = [];
   dataLoaded = false;
+  groceryCategories: GroceryCategories = {};
 
   constructor(
     private listApi: ListApiService,
@@ -26,6 +28,13 @@ export class ListService {
       this._lastDataObject = [];
       this.lists.next([]);
       this.dataLoaded = false;
+    });
+
+
+    this.listApi.getGroceryCategories().subscribe(resp => {
+      if (resp && resp.status === API_STATUS.SUCCESS) {
+        this.groceryCategories = resp.payload;
+      }
     });
   }
 

@@ -35,4 +35,8 @@ export class ListApiService {
   deleteList(email: string, uuid: string): Observable<ApiResponse> {
     return this.http.delete<ApiResponse>(this.BASE_API + '?delete-list&uuid=' + uuid + '&email=' + email);
   }
+
+  getGroceryCategories(): Observable<DataResponse> {
+    return this.http.get<DataResponse>(this.BASE_API + '?grocery-categories');
+  }
 }

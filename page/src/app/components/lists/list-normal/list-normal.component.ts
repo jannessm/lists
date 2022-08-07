@@ -2,7 +2,7 @@ import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { is_past, is_sometime, is_soon, is_today, is_tomorrow, List, ListItem, Timeslot, TIMESLOTS } from 'src/app/models/lists';
+import { List, ListItem } from 'src/app/models/lists';
 import { ListItemService } from 'src/app/services/list-item/list-item.service';
 import { ListService } from 'src/app/services/list/list.service';
 import { AddDialogComponent } from '../add-dialog/add-dialog.component';
@@ -11,6 +11,8 @@ import { UpdateItemDialogComponent } from '../update-item-dialog/update-item-dia
 
 import flatpickr from "flatpickr";
 import { MatChip } from '@angular/material/chips';
+import { groupItems, Slot, sortItems } from 'src/app/models/categories';
+import { is_today } from 'src/app/models/categories_timeslots';
 
 @Component({
   selector: 'app-list-normal',
@@ -34,7 +36,7 @@ export class ListNormalComponent implements AfterViewInit{
   };
   pickerOpen = false;
 
-  timeslots: Timeslot[] = [];
+  slots: Slot[] = [];
   items: ListItem[] = [];
 
   pointerDown: boolean = false;
@@ -115,43 +117,8 @@ export class ListNormalComponent implements AfterViewInit{
   }
 
   groupItems(items: ListItem[]) {
-    this.timeslots = [];
-    let categories = [];
-    
-    if (this.list?.groceries) {
-      categories = [
-        {condition: () => true, name: TIMESLOTS.NONE}
-      ];
-
-    } else {
-      categories = [
-        {condition: [is_today, is_past], name: TIMESLOTS.TODAY},
-        {condition: is_tomorrow, name: TIMESLOTS.TOMORROW},
-        {condition: is_soon, name: TIMESLOTS.SOON},
-        {condition: is_sometime, name: TIMESLOTS.SOMETIME},
-      ];
-    }
-
-    categories.forEach(cat => {
-      const cat_items = items.filter(i => {
-        if (Array.isArray(cat.condition)) {
-          return cat.condition.reduce((cond, fn) => fn(i.time) || cond, false);
-        } else {
-          return cat.condition(i.time)
-        }
-      });
-      this.sortItems(cat_items);
-
-      if (cat_items.length > 0) {
-        this.timeslots.push({name: cat.name, items: cat_items});
-      }
-    });
-
-    if (this.list && this.timeslots.length > 0 && this.timeslots[0].name === TIMESLOTS.TODAY) {
-      // this.list.todo = this.timeslots[0].items.reduce((todo, i) => !i.done ? todo + 1 : todo, 0); TODO: fix badge on overview
-    }
-    if (this.list && this.timeslots.length > 0 && this.list.todo && this.list.todo < 1) {
-      this.list.todo = undefined;
+    if (this.list) {
+      this.slots = groupItems(items, this.list.groceries, this.listService.groceryCategories);
     }
   }
   
@@ -204,23 +171,10 @@ export class ListNormalComponent implements AfterViewInit{
             // this.list.todo = this.list.todo < 1 ? undefined : this.list.todo;
           }
         } else {
-          this.sortItems(itemList);
+          sortItems(itemList);
         }
       });
     }
-  }
-
-  sortItems(items: ListItem[]) {
-    items.sort((a, b) => {
-      const c = a.done ? 1 : 0;
-      const d = b.done ? 1 : 0;
-
-      if (c - d == 0) {
-        return a.name.localeCompare(b.name);
-      }
-
-      return c - d;
-    });
   }
 
   openUpdateDialog(item: ListItem) {
@@ -264,8 +218,8 @@ export class ListNormalComponent implements AfterViewInit{
     this.updateDialogRef = undefined;
   }
 
-  is_today(time: Date): boolean {
-    return is_today(time);
+  is_today(item: ListItem): boolean {
+    return !!is_today(item);
   }
 
   toggleNewTimeSelected(chip: MatChip) {
