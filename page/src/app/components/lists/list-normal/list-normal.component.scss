@@ -14,9 +14,11 @@
 }
 
 .item-done {
-    mat-checkbox, mat-chip {
+    .item-content, mat-chip {
         color: grey;
         text-decoration: line-through;
+
+
     }
 }
 
@@ -31,6 +33,18 @@
     }
     mat-checkbox {
         margin: 8px;
+        position: relative;
+
+        .item-content {
+            max-width: calc(100% - 45px);
+            white-space: pre-wrap;
+            display: inline-block;
+        }
+
+        button {
+            top: calc(50% - 20px);
+            position: absolute;
+        }
     }
 
     mat-chip-list, mat-chip {

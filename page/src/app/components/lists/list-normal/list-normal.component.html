@@ -14,13 +14,14 @@
     
         <div class="item" *ngFor="let item of timeslot.items" [class.item-done]="item.done" (pointerdown)="openUpdateDialog(item)" (pointerup)="cancelUpdateDialog()">
             <mat-checkbox (change)="toggleDone(item, timeslot.items)" [(ngModel)]="item.done" color="primary">
-                {{ item.name }}
-                <mat-chip-list *ngIf="list && !list.groceries" disabled>
-                    <mat-chip *ngIf="item.time && is_today(item)">{{item.time | date:'h:mm'}}</mat-chip>
-                    <mat-chip *ngIf="item.time && !is_today(item)">{{item.time | date:'short'}}</mat-chip>
-                </mat-chip-list>
+                <span class="item-content">{{ item.name }}
+                    <mat-chip-list *ngIf="list && !list.groceries" disabled>
+                        <mat-chip *ngIf="item.time && is_today(item)">{{item.time | date:'h:mm'}}</mat-chip>
+                        <mat-chip *ngIf="item.time && !is_today(item)">{{item.time | date:'short'}}</mat-chip>
+                    </mat-chip-list>
+                </span>
+                <button mat-icon-button (click)="deleteItem(item)" *ngIf="item.done"><mat-icon>close</mat-icon></button>
             </mat-checkbox>
-            <button mat-icon-button (click)="deleteItem(item)" *ngIf="item.done"><mat-icon>close</mat-icon></button>
         </div>
     </div>
 </div>

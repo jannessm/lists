@@ -18,6 +18,10 @@ export function sortItems(items: ListItem[]) {
     const c = a.done ? 1 : 0;
     const d = b.done ? 1 : 0;
 
+    if (a.time && b.time) {
+      return a.time.getTime() - b.time.getTime();
+    }
+
     if (c - d == 0) {
       return a.name.localeCompare(b.name);
     }
@@ -31,7 +35,11 @@ function voteForGroceryCategory(categoryItems: string[]) {
     let votes = 0;
 
     categoryItems.forEach(catItem => {
-      item.name.split(' ').forEach(itemWord => votes += itemWord.indexOf(catItem) + 1);
+      item.name.split(' ').forEach(itemWord => {
+        const offset = itemWord.toLowerCase().indexOf(catItem.toLowerCase()) + 1;
+        const weight = offset > 0 ? catItem.length : 0;
+        votes += weight + offset;
+      });
     });
 
     return votes;
@@ -59,8 +67,8 @@ export function groupItems(items: ListItem[], isGroceries: boolean, groceryCateg
     ];
   }
 
-  const catItemAssignment = items.map(i => 
-    categories.map(cat => {
+  const catItemAssignment = items.map(i => {
+    const votes = categories.map(cat => {
         if (Array.isArray(cat.calcVotes)) {
           return {
             votes: cat.calcVotes.reduce((votes, fn) => fn(i) + votes, 0),
@@ -74,9 +82,10 @@ export function groupItems(items: ListItem[], isGroceries: boolean, groceryCateg
             item: i
           };
         }
-      })
-      .reduce((vote, cat) => cat.votes > vote.votes ? cat : vote, {votes: 0, name: GROCERY_OTHERS, item: i})
-  );
+      });
+
+    return votes.reduce((vote, cat) => cat.votes > vote.votes ? cat : vote, {votes: 0, name: GROCERY_OTHERS, item: i})
+  });
 
   catItemAssignment.forEach(highestVotes => {
     let slot = slots.find((val) => highestVotes.name === val.name);
