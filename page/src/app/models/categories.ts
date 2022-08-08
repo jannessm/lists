@@ -18,6 +18,10 @@ export function sortItems(items: ListItem[]) {
     const c = a.done ? 1 : 0;
     const d = b.done ? 1 : 0;
 
+    if ((c === 1 && d !== 1) || (d === 1 && c !== 1)) {
+      return c - d;
+    }
+
     if (a.time && b.time) {
       return a.time.getTime() - b.time.getTime();
     }

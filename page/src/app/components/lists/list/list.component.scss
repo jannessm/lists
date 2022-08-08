@@ -1,15 +1,22 @@
+@import '../../../../variables.scss';
+
 .menu {
     position: absolute;
     top: 24px;
     right: 24px;
 }
 
+.users {
+    margin-bottom: 12px;
+    margin-top: -12px;
+}
+
 #items-container {
-    height: calc(100% - 64px);
+    height: calc(100% - $nav-bar-height);
     overflow-y: auto;
 
     div:last-child {
-        margin-bottom: 64px;
+        margin-bottom: $nav-bar-height;
     }
 }
 
@@ -23,8 +30,8 @@
 .item {
     background: #EEE;
     border-radius: 8px;
-    margin: 8px;
-    width: calc(100% - 20px);
+    margin: 6px 0;
+    width: 100%;
 
     button {
         float: right;
