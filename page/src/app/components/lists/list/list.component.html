@@ -31,13 +31,13 @@
 </div>
 
 <div (click)="focusInput=true">
-    <mat-toolbar class="toolbar-input" [style.bottom]="focusInput ? 0 : '64px'">
+    <mat-toolbar class="toolbar-input" [style.bottom]="focusInput ? 0 : '78px'" [style.height]="list && list.groceries ? '78px' : '64px'">
         <input matInput placeholder="Hinzufügen" class="add-input" [(ngModel)]="newItem" autocomplete="off">
         <button mat-icon-button (click)="addItem()"><mat-icon>add</mat-icon></button>
     </mat-toolbar>
 
-    <mat-toolbar class="toolbar-time" [style.display]="focusInput ? 'block' : 'none'">
-        <mat-chip-list *ngIf="list && !list.groceries" [formControl]="newItemTime">
+    <mat-toolbar class="toolbar-time" [style.display]="focusInput ? 'block' : 'none'" *ngIf="list && !list.groceries">
+        <mat-chip-list [formControl]="newItemTime">
             <mat-chip (click)="toggleNewTimeSelected(chipToday)" #chipToday="matChip" value="today">Heute</mat-chip>
             <mat-chip (click)="toggleNewTimeSelected(chipTomorrow)" #chipTomorrow="matChip" value="tomorrow">Morgen</mat-chip>
             <mat-chip (click)="toggleNewTimeSelected(chipDiff); pickerToggleFocus()" #chipDiff="matChip" value="different">{{(timePickerDate | date:'short') || 'Andere'}}</mat-chip>
