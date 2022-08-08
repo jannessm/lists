@@ -17,7 +17,7 @@
         </mat-form-field>
     
         <mat-error *ngIf="wrongCredentials">Leider stimmen Passwort und Name nicht.</mat-error>
-        <button mat-button mat-flat-button (click)="login()" [disabled]="form.invalid">Login</button>
-        <button mat-button mat-flat-button color="accent" (click)="register()" [disabled]="form.invalid">Register</button>
+        <button mat-stroked-button (click)="login()" [disabled]="form.invalid">Login</button>
+        <button mat-flat-button color="accent" (click)="register()" [disabled]="form.invalid">Register</button>
     </form>
 </div>

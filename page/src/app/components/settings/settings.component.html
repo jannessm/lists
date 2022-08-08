@@ -1,1 +1,6 @@
-<button mat-button (click)="logout()">Logout</button>
+<div class="container" fxLayout="column" fxLayoutAlign="space-around center">
+    <button disabled mat-fab class="user-fab-0" *ngIf="userEmail">{{userEmail.substr(0, 2).toUpperCase()}}</button>
+    <div>{{userEmail}}</div>
+    
+    <button mat-stroked-button (click)="logout()">Logout</button>
+</div>

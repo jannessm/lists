@@ -8,8 +8,11 @@ import { AuthService } from 'src/app/services/auth/auth.service';
   styleUrls: ['./settings.component.scss']
 })
 export class SettingsComponent {
+  userEmail: string | undefined;
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(private authService: AuthService, private router: Router) {
+    this.userEmail = this.authService.loggedUser?.email;
+  }
 
   logout() {
     this.authService.logout();
