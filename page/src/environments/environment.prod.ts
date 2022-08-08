@@ -1,7 +1,8 @@
-import * as pkg from '../../package.json';
+import { version } from './version';
+
 export const environment = {
   production: true,
   api: 'https://magnusson.berlin/lists/api/',
   locale: 'de',
-  version: pkg.version
+  version: version
 };
