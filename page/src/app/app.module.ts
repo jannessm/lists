@@ -19,7 +19,7 @@ import { environment } from 'src/environments/environment';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { SettingsComponent } from './components/settings/settings.component';
 import { AddDialogComponent } from './components/lists/add-dialog/add-dialog.component';
-import { ListNormalComponent } from './components/lists/list-normal/list-normal.component';
+import { ListComponent } from './components/lists/list/list.component';
 import { UpdateItemDialogComponent } from './components/lists/update-item-dialog/update-item-dialog.component';
 import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
@@ -37,7 +37,7 @@ registerLocaleData(localeDe, 'de');
     ListsOverviewComponent,
     SettingsComponent,
     AddDialogComponent,
-    ListNormalComponent,
+    ListComponent,
     UpdateItemDialogComponent,
     ShareListDialogComponent,
   ],

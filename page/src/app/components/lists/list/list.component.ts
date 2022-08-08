@@ -16,11 +16,11 @@ import { is_today } from 'src/app/models/categories_timeslots';
 import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
-  selector: 'app-list-normal',
-  templateUrl: './list-normal.component.html',
-  styleUrls: ['./list-normal.component.scss']
+  selector: 'app-list',
+  templateUrl: './list.component.html',
+  styleUrls: ['./list.component.scss']
 })
-export class ListNormalComponent implements AfterViewInit{
+export class ListComponent implements AfterViewInit{
 
   list: List | undefined;
 
