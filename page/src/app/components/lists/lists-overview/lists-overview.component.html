@@ -8,13 +8,13 @@
         [matBadge]="l.todo"
         [matBadgeHidden]="!!l.todo && l.todo < 1"
         [routerLink]="'/user/list/' + l.uuid">
-        {{ l.name }}
+        <span>{{ l.name }}</span>
         <mat-icon *ngIf="l.groceries" [style.color]="'#999'">shopping_basket</mat-icon>
     </button>
     <button
         class="list-card"
         mat-raised-button
         (click)="addList()">
-        <mat-icon>add</mat-icon>
+        <mat-icon class="add-list">add</mat-icon>
     </button>
 </div>

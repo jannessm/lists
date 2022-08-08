@@ -2,6 +2,7 @@
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: *");
+header("Access-Control-Allow-Methods: *");
 
 $BASE = './';
 
@@ -127,7 +128,7 @@ try {
             $row = str_getcsv($row, "\t");
             foreach($row as $col => $val) {
                 if ($val) {
-                    array_push($data[$header[$col]], $val);
+                    array_push($data[$header[$col]], trim($val));
                 }
             }
         }

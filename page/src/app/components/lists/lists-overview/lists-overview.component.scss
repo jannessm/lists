@@ -1,10 +1,21 @@
 .list-card {
-    padding: 24px;
-    width: calc(50% - 24px);
+    padding: 12px;
+    width: calc(50% - 12px);
     white-space: pre-line;
     word-break: break-all;
+    position: relative;
+    word-break: break-word;
+
+    mat-icon:not(.add-list) {
+        position: absolute;
+        left: 6px;
+        top: 6px;
+        width: 12px;
+        height: 12px;
+        font-size: 12px;
+    }
 }
 
 .container {
-    gap: 24px;
+    gap: 12px;
 }

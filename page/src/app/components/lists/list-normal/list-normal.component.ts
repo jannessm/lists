@@ -13,6 +13,7 @@ import flatpickr from "flatpickr";
 import { MatChip } from '@angular/material/chips';
 import { groupItems, Slot, sortItems } from 'src/app/models/categories';
 import { is_today } from 'src/app/models/categories_timeslots';
+import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
   selector: 'app-list-normal',
@@ -22,6 +23,8 @@ import { is_today } from 'src/app/models/categories_timeslots';
 export class ListNormalComponent implements AfterViewInit{
 
   list: List | undefined;
+
+  userEmail: string | undefined;
 
   newItem: string = '';
   focusInput: boolean = false;
@@ -52,6 +55,7 @@ export class ListNormalComponent implements AfterViewInit{
     private activatedRoute: ActivatedRoute,
     private dialog: MatDialog,
     private router: Router,
+    private authService: AuthService
   ) {
     this.listService.lists.subscribe(() => {
       this.activatedRoute.paramMap.subscribe(params => {
@@ -70,6 +74,8 @@ export class ListNormalComponent implements AfterViewInit{
 
     this.listService.updateData().subscribe();
     this.timePicker = flatpickr('#picker', this.timePickerConfig) as flatpickr.Instance;
+
+    this.userEmail = this.authService.loggedUser?.email;
   }
 
   ngAfterViewInit(): void {
@@ -87,7 +93,9 @@ export class ListNormalComponent implements AfterViewInit{
           this.listService.updateList({
             uuid: this.list.uuid,
             name: new_values.name,
-            groceries: new_values.groceries
+            groceries: new_values.groceries,
+            shared: this.list.shared,
+            users: this.list.users
           }).subscribe();
         }
       });

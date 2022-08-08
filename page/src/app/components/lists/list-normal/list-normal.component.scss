@@ -37,10 +37,16 @@
 
         .item-content {
             white-space: pre-wrap;
-            margin-right: 20px;
+            margin-right: 36px;
+            margin-bottom: 0 !important;
         }
 
-        button {
+        button.mini-user-fab {
+            margin-left: 6px !important;
+            float: left;
+        }
+
+        button:not(.mini-user-fab) {
             top: calc(50% - 20px);
             position: absolute;
             right: 0;

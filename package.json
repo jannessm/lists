@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "server": "php -S localhost:8080 -t server/",
-    "page": "cd webpage; npm start",
+    "page": "cd page; npm start",
+    "page-win": "cd ./page; npm start-win",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

@@ -1,3 +1,4 @@
+@use 'sass:list';
 @import "~@angular/material/prebuilt-themes/deeppurple-amber.css";
 @import '~flatpickr/dist/flatpickr.css'; // you may need to adjust the css import depending on your build tool
 html, body { height: 100%; overflow: hidden; }
@@ -10,4 +11,28 @@ body { margin: 0px; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .half {
     max-width: 500px;
     margin: 0 auto;
+}
+
+$bgcolors: #ff6f42, #9d9c23, #5b6abf, #ef6191, #00786a, #c1175a, #4184f3, #db4437, #f4b400, #0f9d58, #aa46bb, #00abc0;
+$colors: white, white, white, black, white, white, black, black, black, black, white, black;
+
+.mini-user-fab {
+    width: 36px !important;
+    height: 36px !important;
+    line-height: 12px !important;
+    
+    span {
+        line-height: 12px !important;
+    }
+}
+
+@for $i from 0 to 12 {
+    .user-fab-#{$i} {
+        background-color: list.nth($bgcolors, $i + 1) !important;
+        color: list.nth($colors, $i + 1) !important;
+        z-index: 12 - $i;
+        @if $i > 0 {
+            margin-left: -12px !important;
+        }
+    }
 }

@@ -35,7 +35,9 @@ export class ListsOverviewComponent {
         this.listService.addList({
           uuid: uuid(),
           name: res.name,
-          groceries: res.groceries
+          groceries: res.groceries,
+          shared: false,
+          users: []
         });
       }
     });

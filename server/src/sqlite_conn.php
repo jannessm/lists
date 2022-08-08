@@ -22,7 +22,7 @@ class SQLiteConnection {
             try {
                 $this->pdo = new \PDO("sqlite:" . $sqliteFile);
             } catch (\PDOException $e) {
-                respondErrorMsg("Database not available.");
+                respondErrorMsg(500, "Database not available.");
             }
         }
         return $this->pdo;

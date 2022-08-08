@@ -6,7 +6,12 @@
     <button mat-menu-item (click)="deleteList()">Löschen</button>
 </mat-menu>
 
-<h1 *ngIf="list">{{list.name}}</h1>
+<h1 *ngIf="list">
+    {{list.name}}
+    <span *ngIf="list.shared">
+        <button mat-mini-fab *ngFor="let user of list.users; let i = index" [class]="'user-fab-' + i % 12" disabled >{{user.substr(0, 2).toUpperCase()}}</button>
+    </span>
+</h1>
 
 <div id="items-container" #itemsContainer>
     <div *ngFor="let slot of slots">
@@ -14,12 +19,13 @@
     
         <div class="item" *ngFor="let item of slot.items" [class.item-done]="item.done" (pointerdown)="openUpdateDialog(item, slot.items)" (pointerup)="cancelUpdateDialog(item, slot.items)">
             <mat-checkbox (change)="toggleDone(item, slot.items)" [(ngModel)]="item.done" color="primary">
-                <span class="item-content">{{ item.name }}
+                <div class="item-content">{{ item.name }}
                     <mat-chip-list *ngIf="list && !list.groceries" disabled>
                         <mat-chip *ngIf="item.time && is_today(item)">{{item.time | date:'h:mm'}}</mat-chip>
                         <mat-chip *ngIf="item.time && !is_today(item)">{{item.time | date:'short'}}</mat-chip>
                     </mat-chip-list>
-                </span>
+                    <button mat-mini-fab disabled *ngIf="list && list.shared && userEmail !== item.created_by" [class]="'mini-user-fab user-fab-' + list.users.indexOf(item.created_by) % 12">{{item.created_by.substr(0, 2).toUpperCase()}}</button>
+                </div>
                 <button mat-icon-button (click)="deleteItem(item)" *ngIf="item.done"><mat-icon>close</mat-icon></button>
             </mat-checkbox>
         </div>

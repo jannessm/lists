@@ -52,8 +52,10 @@ class Lists {
 
     public function get_all_for_user($uuids) {
         if (count($uuids) > 1) {
-            $lists = array_map(fn($uuid) => 'uuid="' . $uuid . '"', $uuids);
-            $sql = "SELECT * FROM lists WHERE " . implode(' OR ', $lists) . ";";
+            $lists = implode(' OR ', array_map(fn($uuid) => 'uuid="' . $uuid . '"', $uuids));
+            $sql = "SELECT uuid, name, groceries, users FROM lists LEFT JOIN (
+                SELECT uuid as user_list_uuid, GROUP_CONCAT(email) as users FROM user_list WHERE " . $lists . " GROUP BY uuid
+            ) ON uuid=user_list_uuid WHERE " . $lists . ";";
 
             $stmt = $this->pdo->prepare($sql);
         } else {
@@ -67,6 +69,8 @@ class Lists {
         $lists = [];
         while ($list = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $list['groceries'] = $list['groceries'] === 1 || $list['groceries'] === '1';
+            $list['users'] = explode(",", $list['users']);
+            $list['shared'] = count($list['users']) > 1;
             array_push($lists, $list);
         }
 

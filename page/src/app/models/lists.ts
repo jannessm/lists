@@ -5,6 +5,8 @@ export interface List {
     name: string;
     groceries: boolean;
     todo?: number;
+    shared: boolean;
+    users: string[];
 }
 
 export interface ListItem {
