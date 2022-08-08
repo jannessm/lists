@@ -2,7 +2,7 @@
     <router-outlet></router-outlet>
 </div>
 
-<mat-toolbar fxLayout="row" fxLayoutAlign="space-around center" *ngIf="authService.loggedUser">
+<mat-toolbar fxLayout="row" fxLayoutAlign="center" *ngIf="authService.loggedUser">
     <button
         mat-button
         routerLink="/user/lists"

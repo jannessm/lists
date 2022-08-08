@@ -30,6 +30,7 @@
         float: right;
         color: grey;
     }
+    
     mat-checkbox {
         margin: 8px;
         position: relative;
@@ -43,7 +44,7 @@
 
         button.mini-user-fab {
             margin-left: 6px !important;
-            float: left;
+            float: none;
         }
 
         button:not(.mini-user-fab) {

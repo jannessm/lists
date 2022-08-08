@@ -6,12 +6,10 @@
     <button mat-menu-item (click)="deleteList()">Löschen</button>
 </mat-menu>
 
-<h1 *ngIf="list">
-    {{list.name}}
-    <span *ngIf="list.shared">
-        <button mat-mini-fab *ngFor="let user of list.users; let i = index" [class]="'user-fab-' + i % 12" disabled >{{user.substr(0, 2).toUpperCase()}}</button>
-    </span>
-</h1>
+<h1 *ngIf="list">{{list.name}}</h1>
+<span *ngIf="list && list.shared">
+    <button mat-mini-fab *ngFor="let user of list.users; let i = index" [class]="'user-fab-' + i % 12" disabled >{{user.substr(0, 2).toUpperCase()}}</button>
+</span>
 
 <div id="items-container" #itemsContainer>
     <div *ngFor="let slot of slots">

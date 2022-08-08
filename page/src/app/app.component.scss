@@ -1,3 +1,5 @@
+@import '../variables.scss';
+
 mat-drawer {
     padding: 24px;
 }
@@ -13,11 +15,7 @@ mat-drawer-content {
 mat-toolbar {
     position: absolute;
     bottom: 0;
-    height: 64px;
-
-    .toolbar-button {
-        padding-top: 10px;
-    }
+    height: $nav-bar-height;
 }
 
 .content {

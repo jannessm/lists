@@ -46,7 +46,7 @@ function voteForGroceryCategory(categoryItems: string[]) {
   };
 }
 
-function compareGrocerySlots(categoryNames: string[]) {
+function compareSlots(categoryNames: string[]) {
   return (a: Slot, b: Slot) => {
     let id_a = categoryNames.findIndex(c => c === a.name);
     let id_b = categoryNames.findIndex(c => c === b.name);
@@ -114,7 +114,9 @@ export function groupItems(items: ListItem[], isGroceries: boolean, groceryCateg
   slots.forEach(cat => sortItems(cat.items));
   
   if (isGroceries && groceryCategories) {
-    slots.sort(compareGrocerySlots(Object.keys(groceryCategories)));
+    slots.sort(compareSlots(Object.keys(groceryCategories)));
+  } else {
+    slots.sort(compareSlots(categories.map(c => c.name)))
   }
 
   return slots;
