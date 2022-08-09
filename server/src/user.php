@@ -43,20 +43,12 @@ class User {
     }
 
     public function get($email) {
-        $sql = 'SELECT email, password, default_list, list_ids from user Left JOIN (
-                SELECT email as ul_email, GROUP_CONCAT(uuid, ",") AS list_ids FROM user_list WHERE `email`=:email GROUP BY email
-            ) ON email=ul_email where `email`=:email;';
+        $sql = 'SELECT email, password, default_list from user where `email`=:email;';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':email', $email);
         $stmt->execute();
 
         $user = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-        if ($user && $user['list_ids'] && $user['list_ids'] !== '' && $user['list_ids'] !== NULL) {
-            $user['list_ids'] = explode(",", $user['list_ids']);
-        } elseif ($user) {
-            $user['list_ids'] = [];
-        }
 
         return $user;
     }

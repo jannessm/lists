@@ -18,20 +18,13 @@ function addList() {
 
 function getLists() {
     global $LISTS;
-
-    $list_ids = [];
     
-    if ($_GET['list_ids'] === '') {
-        respondJSON(200, []);
+    if ($_GET['email'] === '') {
+        respondErrorMsg(400, "provide user email");
         return;
-    
-    } elseif (strpos($_GET['list_ids'], ',') === false) {
-        $list_ids = [$_GET['list_ids']];
-    } else {
-        $list_ids = explode(",", $_GET['list_ids']);
     }
 
-    $lists = $LISTS->get_all_for_user($list_ids);
+    $lists = $LISTS->get_all_for_user($_GET['email']);
 
     respondJSON(200, $lists);
 }

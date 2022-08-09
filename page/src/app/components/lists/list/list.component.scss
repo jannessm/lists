@@ -52,6 +52,7 @@
         button.mini-user-fab {
             margin-left: 6px !important;
             float: none;
+            z-index: 0;
         }
 
         button:not(.mini-user-fab) {

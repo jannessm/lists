@@ -50,20 +50,12 @@ class Lists {
         return $list;
     }
 
-    public function get_all_for_user($uuids) {
-        if (count($uuids) > 1) {
-            $lists = implode(' OR ', array_map(fn($uuid) => 'uuid="' . $uuid . '"', $uuids));
-            $sql = "SELECT uuid, name, groceries, users FROM lists LEFT JOIN (
-                SELECT uuid as user_list_uuid, GROUP_CONCAT(email) as users FROM user_list WHERE " . $lists . " GROUP BY uuid
-            ) ON uuid=user_list_uuid WHERE " . $lists . ";";
+    public function get_all_for_user($email) {
+        $select_uuids_for_user = "SELECT uuid AS ul_uuid FROM user_list WHERE email='" . $email . "'";
+        $group_users_for_uuids = "SELECT uuid AS u_uuid, GROUP_CONCAT(email) AS users FROM user_list RIGHT JOIN (" . $select_uuids_for_user . ") ON uuid=ul_uuid GROUP BY uuid";
 
-            $stmt = $this->pdo->prepare($sql);
-        } else {
-            $sql = "SELECT * FROM lists WHERE uuid=:uuids;";
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->bindValue(':uuids', $uuids[0]);
-        }
-
+        $sql = "SELECT uuid, name, groceries, users FROM lists RIGHT JOIN (" . $group_users_for_uuids . ") ON uuid=u_uuid;";
+        $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
 
         $lists = [];

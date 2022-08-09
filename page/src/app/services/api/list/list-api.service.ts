@@ -20,8 +20,8 @@ export class ListApiService {
     });
   }
 
-  getLists(list_ids: string[]): Observable<DataResponse> {
-    return this.http.get<DataResponse>(this.BASE_API + '?get-lists&list_ids=' + list_ids.join(","));
+  getLists(email: string): Observable<DataResponse> {
+    return this.http.get<DataResponse>(this.BASE_API + '?get-lists&email=' + email);
   }
 
   updateList(list: List): Observable<ApiResponse> {
