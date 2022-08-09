@@ -11,6 +11,8 @@ export interface Category {
 export interface Slot {
   name: string | TIMESLOTS;
   items: ListItem[];
+  collapsed: boolean;
+  nDone: number;
 }
 
 export function sortItems(items: ListItem[]) {
@@ -108,11 +110,12 @@ export function groupItems(items: ListItem[], isGroceries: boolean, groceryCateg
   catItemAssignment.forEach(highestVotes => {
     let slot = slots.find((val) => highestVotes.name === val.name);
     if (!slot) {
-      slot = {name: highestVotes.name, items: []}
+      slot = {name: highestVotes.name, items: [], collapsed: true, nDone: 0}
       slots.push(slot);
     }
 
     slot.items.push(highestVotes.item);
+    slot.nDone += highestVotes.item.done ? 1 : 0;
   });
   
   slots.forEach(cat => sortItems(cat.items));

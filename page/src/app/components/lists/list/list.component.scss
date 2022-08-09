@@ -15,8 +15,13 @@
     height: calc(100% - $nav-bar-height);
     overflow-y: auto;
 
-    div:last-child {
+    .slots:last-child {
         margin-bottom: $nav-bar-height;
+    }
+
+    .slot-done-toggle {
+        // display: inline-block;
+        float: right;
     }
 }
 
