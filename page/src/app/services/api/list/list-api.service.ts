@@ -21,7 +21,7 @@ export class ListApiService {
   }
 
   getLists(email: string): Observable<DataResponse> {
-    return this.http.get<DataResponse>(this.BASE_API + '?get-lists&email=' + email);
+    return this.http.get<DataResponse>(this.BASE_API + '?get-lists&email=' + encodeURIComponent(email));
   }
 
   updateList(list: List): Observable<ApiResponse> {
@@ -33,7 +33,7 @@ export class ListApiService {
   }
 
   deleteList(email: string, uuid: string): Observable<ApiResponse> {
-    return this.http.delete<ApiResponse>(this.BASE_API + '?delete-list&uuid=' + uuid + '&email=' + email);
+    return this.http.delete<ApiResponse>(this.BASE_API + '?delete-list&uuid=' + uuid + '&email=' + encodeURIComponent(email));
   }
 
   getGroceryCategories(): Observable<DataResponse> {

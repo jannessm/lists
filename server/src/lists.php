@@ -51,12 +51,12 @@ class Lists {
     }
 
     public function get_all_for_user($email) {
-        $select_uuids_for_user = "SELECT uuid AS ul_uuid FROM user_list WHERE email='" . $email . "'";
-        $group_users_for_uuids = "SELECT uuid AS u_uuid, GROUP_CONCAT(email) AS users FROM user_list RIGHT JOIN (" . $select_uuids_for_user . ") ON uuid=ul_uuid GROUP BY uuid";
+        $get_lists = "SELECT uuid AS l_uuid, name, groceries FROM lists";
+        $group_users_for_uuids = "SELECT uuid AS ul_uuid, name, groceries, GROUP_CONCAT(email) AS users FROM user_list LEFT JOIN (" . $get_lists . ") ON l_uuid=ul_uuid GROUP BY ul_uuid";
 
-        $sql = "SELECT uuid, name, groceries, users FROM lists RIGHT JOIN (" . $group_users_for_uuids . ") ON uuid=u_uuid;";
+        $sql = "SELECT uuid, name, groceries, users FROM user_list LEFT JOIN (" . $group_users_for_uuids . ") ON uuid=ul_uuid WHERE email=:email;";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([':email' => $email]);
 
         $lists = [];
         while ($list = $stmt->fetch(\PDO::FETCH_ASSOC)) {
