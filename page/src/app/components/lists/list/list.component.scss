@@ -15,7 +15,7 @@
     height: calc(100% - $nav-bar-height);
     overflow-y: auto;
 
-    .slots:last-child {
+    .item:last-child {
         margin-bottom: $nav-bar-height;
     }
 
