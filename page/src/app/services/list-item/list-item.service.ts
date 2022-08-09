@@ -73,19 +73,21 @@ export class ListItemService {
     })
   }
 
-  updateDone(list_id: string, uuid: string, done: boolean): Observable<boolean> {
-    return this.listItemApi.updateDone(uuid, done).pipe(map(resp => {
+  updateDone(list_id: string, uuids: string[], done: boolean): Observable<boolean> {
+    return this.listItemApi.updateDone(uuids, done).pipe(map(resp => {
       if (resp && resp.status === API_STATUS.SUCCESS) {
         const items = this._items.get(list_id);
         
         if (items) {
-          const item = items.find(i => i.uuid === uuid);
-          
-          if (item) {
-            item.done = done;
-          }
-
-          this.items.get(list_id)?.next(items);
+          uuids.forEach(uuid => {
+            const item = items.find(i => i.uuid === uuid);
+            
+            if (item) {
+              item.done = done;
+            }
+  
+            this.items.get(list_id)?.next(items);
+          });
         }
         return true;
       } else {
@@ -117,19 +119,21 @@ export class ListItemService {
     })
   }
 
-  deleteItem(list_id: string, uuid: string) {
-    this.listItemApi.deleteItem(uuid).subscribe(resp => {
+  deleteItems(list_id: string, uuids: string[]) {
+    this.listItemApi.deleteItems(uuids).subscribe(resp => {
       if (resp && resp.status === API_STATUS.SUCCESS) {
         const items = this._items.get(list_id);
         const itemsSubj = this.items.get(list_id);
 
         if (items && itemsSubj) {
-          const id = items.findIndex(i => i.uuid === uuid);
-
-          if (id > -1) {
-            items.splice(id, 1);
-            itemsSubj.next(items);
-          }
+          uuids.forEach(uuid => {
+            const id = items.findIndex(i => i.uuid === uuid);
+  
+            if (id > -1) {
+              items.splice(id, 1);
+              itemsSubj.next(items);
+            }
+          })
         }
       } else {
         this.snackBar.open("Element konnte nicht gelöscht werden", "Ok");

@@ -56,14 +56,16 @@ function shareList() {
 function deleteList() {
     global $USER, $USER_LIST, $LISTS, $LIST_ITEMS;
 
-    $user = $USER->get(urldecode($_GET['email']));
+    $email = urldecode($_GET['email']);
+
+    $user = $USER->get($email);
 
     if (!$user) {
         respondErrorMsg(400, "user not found");
         return;
     }
 
-    $delete = $USER_LIST->delete($_GET['email'], $_GET['uuid']);
+    $delete = $USER_LIST->delete($email, $_GET['uuids']);
     
     if ($delete) {
         $LISTS->delete($_GET['uuid']);

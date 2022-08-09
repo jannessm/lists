@@ -164,23 +164,35 @@ export class ListComponent implements AfterViewInit{
   
   deleteItem(item: ListItem) {
     if (this.list) {
-      this.listItemService.deleteItem(this.list.uuid, item.uuid);
+      this.listItemService.deleteItems(this.list.uuid, [item.uuid]);
     }
   }
 
-  toggleDone(item: ListItem, itemList: ListItem[]) {
+  deleteAll() {
     if (this.list) {
-      this.listItemService.updateDone(this.list.uuid, item.uuid, item.done).subscribe(success => {
-        if (!success && this.list) {
-          item.done = !item.done;
+      this.listItemService.deleteItems(this.list.uuid, this.items.map(i => i.uuid));
+    }
+  }
 
-          if (this.list.todo) {
-            // this.list.todo += item.done ? -1 : 1;
-            // this.list.todo = this.list.todo < 1 ? undefined : this.list.todo;
-          }
-        } else {
-          sortItems(itemList);
-        }
+  deleteAllDone() {
+    if (this.list) {
+      this.listItemService.deleteItems(this.list.uuid, this.items.filter(i => i.done).map(i => i.uuid));
+    }
+  }
+
+  markAllNotDone() {
+    if (this.list) {
+      this.listItemService.updateDone(this.list.uuid, this.items.map(i => i.uuid), false).subscribe(success => {
+        //TODO: count unmarked items
+      });
+    }
+  }
+
+  toggleDone(item: ListItem, itemList: ListItem[], done: boolean | null = null) {
+    if (this.list) {
+      const new_done = done !== null ? done : item.done;
+      this.listItemService.updateDone(this.list.uuid, [item.uuid], new_done).subscribe(success => {
+        //TODO: count unmarked items
       });
     }
   }

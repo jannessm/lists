@@ -27,7 +27,7 @@ function updateDone() {
     global $LIST_ITEMS;
     $payload = json_decode(file_get_contents("php://input"), true);
 
-    $LIST_ITEMS->update_done($payload['uuid'], $payload['done']);
+    $LIST_ITEMS->update_done($payload['uuids'], $payload['done']);
 
     respondJSON(201, "updated done");
 }
@@ -45,7 +45,7 @@ function updateItem() {
 function deleteItem() {
     global $LIST_ITEMS;
     
-    $LIST_ITEMS->delete($_GET['uuid']);
+    $LIST_ITEMS->delete(explode(',', $_GET['uuids']));
 
     respondJSON(201, "delete done");
 }

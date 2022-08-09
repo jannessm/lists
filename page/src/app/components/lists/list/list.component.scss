@@ -70,7 +70,7 @@
 mat-toolbar {
     position: absolute;
     right: 0;
-    bottom: 56px;
+    bottom: 64px;
     height: 64px;
     z-index: 10;
 
@@ -86,6 +86,9 @@ mat-toolbar {
         padding: 8px;
         width: 100%;
         background-color: white;
+    }
+    #picker {
+        display: none;
     }
 }
 

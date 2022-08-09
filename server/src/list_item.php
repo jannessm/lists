@@ -60,10 +60,10 @@ class ListItems {
         return $items;
     }
 
-    public function update_done($uuid, $done) {
-        $sql = 'UPDATE list_items SET done=:done WHERE uuid=:uuid;';
+    public function update_done($uuids, $done) {
+        $sql = 'UPDATE list_items SET done=:done WHERE ' . $this->join_uuids($uuids) . ';';
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':done' => $done, ':uuid' => $uuid]);
+        $stmt->execute([':done' => $done]);
     }
 
     public function update($item) {
@@ -72,15 +72,19 @@ class ListItems {
         $stmt->execute([':name' => $item['name'], ':time' => $item['time'], ':uuid' => $item['uuid']]);
     }
 
-    public function delete($uuid) {
-        $sql = 'DELETE FROM list_items WHERE uuid=:uuid;';
+    public function delete($uuids) {
+        $sql = 'DELETE FROM list_items WHERE ' . $this->join_uuids($uuids) . ';';
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':uuid' => $uuid]);
+        $stmt->execute();
     }
 
     public function delete_all_for_list($uuid) {
         $sql = 'DELETE FROM list_items WHERE list_id=:uuid;';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':uuid' => $uuid]);
+    }
+
+    private function join_uuids($uuids) {
+        return implode(' OR ', array_map(fn($uuid) => 'uuid="'. $uuid . '"', $uuids));
     }
 }
