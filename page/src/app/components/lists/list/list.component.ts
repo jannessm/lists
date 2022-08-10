@@ -131,7 +131,19 @@ export class ListComponent implements AfterViewInit{
 
   groupItems(items: ListItem[]) {
     if (this.list) {
-      this.slots = groupItems(items, this.list.groceries, this.listService.groceryCategories);
+      const slots = groupItems(items, this.list.groceries, this.listService.groceryCategories);
+
+      if (this.slots) {
+        slots.forEach(s => {
+          const this_s = this.slots.find(sl => sl.name === s.name);
+
+          if (this_s) {
+            s.collapsed = this_s.collapsed;
+          }
+        });
+
+        this.slots = slots;
+      }
     }
   }
   
