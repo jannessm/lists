@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { map, Observable, of, ReplaySubject } from 'rxjs';
+import { interval, map, Observable, of, ReplaySubject } from 'rxjs';
 import { API_STATUS } from 'src/app/models/api-responses';
 import { GroceryCategories } from 'src/app/models/categories_groceries';
 import { List } from 'src/app/models/lists';
 import { ListApiService } from '../api/list/list-api.service';
 import { AuthService } from '../auth/auth.service';
+import { UpdateService } from '../update/update.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,8 @@ export class ListService {
   constructor(
     private listApi: ListApiService,
     private authService: AuthService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private updateService: UpdateService
   ) {
     this.lists = new ReplaySubject<List[]>(1);
 
@@ -30,12 +32,13 @@ export class ListService {
       this.dataLoaded = false;
     });
 
-
     this.listApi.getGroceryCategories().subscribe(resp => {
       if (resp && resp.status === API_STATUS.SUCCESS) {
         this.groceryCategories = resp.payload;
       }
     });
+
+    // this.updateService.register('listService', this.updateData.bind(this));
   }
 
   addList(list: List) {
@@ -112,9 +115,9 @@ export class ListService {
     }
   }
 
-  updateData(): Observable<void> {
+  updateData() {
     if (this.authService.loggedUser) {
-      return this.listApi.getLists(this.authService.loggedUser.email).pipe(map(resp => {
+      this.listApi.getLists(this.authService.loggedUser.email).subscribe(resp => {
         if (resp.status === API_STATUS.SUCCESS) {
           this._lastDataObject = <List[]>resp.payload;
           this.lists.next(this._lastDataObject);
@@ -122,9 +125,7 @@ export class ListService {
         } else {
           this.snackBar.open("Liste konnte nicht hinzugefügt werden", "Ok");
         }
-      }));
-    } else {
-      return of();
+      });
     }
   }
 }

@@ -8,6 +8,7 @@ import { AuthService } from '../auth/auth.service';
 import { API_STATUS } from 'src/app/models/api-responses';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Time } from 'src/app/models/categories_timeslots';
+import { UpdateService } from '../update/update.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,12 +20,15 @@ export class ListItemService {
   constructor(
     private listItemApi: ListItemApiService,
     private authService: AuthService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private updateService: UpdateService
   ) {
     this.authService.loggedStateChanges.subscribe(() => {
       this.items.clear();
       this._items.clear();
-    })
+    });
+
+    // this.updateService.register('listItemService', )
   }
 
   addItem(item: string, list_id: string, time: Time = null): Observable<boolean> {
