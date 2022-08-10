@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -43,11 +43,16 @@ export class ListComponent implements AfterViewInit{
   items: ListItem[] = [];
 
   pointerDown: boolean = false;
-  pointerPosX: number | undefined; 
+  pointerPosY: number | undefined; 
   updateDialogRef: MatDialogRef<UpdateItemDialogComponent, any> | undefined;
 
   @ViewChild('itemsContainer') itemContainer!: ElementRef;
   @ViewChild('picker') picker!: ElementRef;
+
+  @HostListener('mousemove', ['$event'])
+  onMousemove(event: MouseEvent): void  { 
+    this.pointerPosY = event.clientY;
+  }
 
   constructor(
     private listService: ListService,
@@ -197,15 +202,14 @@ export class ListComponent implements AfterViewInit{
     }
   }
 
-  openUpdateDialog(item: ListItem, itemList: ListItem[]) {
+  openUpdateDialog(event: MouseEvent, item: ListItem) {
     if (!this.pointerDown) {
       this.pointerDown = true;
-      this.pointerPosX = this.itemContainer.nativeElement.scrollTop;
+      const currScrollPos = event.clientY;
       
       setTimeout(() => {
-        const currScrollPos = this.itemContainer.nativeElement.scrollTop;
 
-        if (this.pointerPosX != undefined && this.pointerDown && !this.updateDialogRef && Math.abs(currScrollPos - this.pointerPosX) < 50) {  
+        if (this.pointerPosY != undefined && this.pointerDown && !this.updateDialogRef && Math.abs(currScrollPos - this.pointerPosY) < 50) {  
           this.updateDialogRef = this.dialog.open(UpdateItemDialogComponent, {
             data: {
               list: this.list,
@@ -222,19 +226,18 @@ export class ListComponent implements AfterViewInit{
             }
 
             setTimeout(() => {
-              this.cancelUpdateDialog(item, itemList);
+              this.cancelUpdateDialog();
             }, 500);
           });
         } else {
-          this.cancelUpdateDialog(item, itemList);
+          this.cancelUpdateDialog();
         }
-      }, 300);
+      }, 1000);
     }
   }
 
-  cancelUpdateDialog(item: ListItem, itemList: ListItem[]) {
+  cancelUpdateDialog() {
     this.pointerDown = false;
-    this.pointerPosX = undefined;
     this.updateDialogRef = undefined;
   }
 

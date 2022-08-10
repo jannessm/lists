@@ -25,7 +25,11 @@
             </mat-chip-list>
         </h2>
     
-        <div class="item" *ngFor="let item of slot.items" [class.item-done]="item.done" (pointerdown)="openUpdateDialog(item, slot.items)" (pointerup)="cancelUpdateDialog(item, slot.items)">
+        <div class="item"
+             *ngFor="let item of slot.items"
+             [class.item-done]="item.done"
+             (pointerdown)="openUpdateDialog($event, item)"
+             (pointerup)="cancelUpdateDialog()">
             <div *ngIf="!slot.collapsed || !item.done">
                 <mat-checkbox (change)="toggleDone(item, slot.items)" [(ngModel)]="item.done" color="primary">
                     <div class="item-content">{{ item.name }}
