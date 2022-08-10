@@ -10,5 +10,5 @@
         </mat-form-field>
     </form>
 
-    <button mat-button mat-dialog-close>Abbrechen</button>
-    <button mat-button [disabled]="!form.valid" (click)="returnFormContent()">{{'Speichern'}}</button>
+    <button mat-flat-button color="primary" (click)="bottomSheetRef.dismiss()">Abbrechen</button>
+    <button mat-stroked-button [disabled]="!form.valid" (click)="returnFormContent()">{{'Speichern'}}</button>
