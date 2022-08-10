@@ -31,7 +31,12 @@ class SQLiteConnection {
     }
 
     public function backup() {
-        global $sqliteFile, $LISTS; $LIST_ITEMS;
+        // skip if localhost
+        if(in_array($_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1'])) {
+            return;
+        }
+        
+        global $sqliteFile, $LISTS, $LIST_ITEMS;
         if ($this->pdo) {
             $today = (new DateTime())->format('Y-m-d');
 

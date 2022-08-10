@@ -87,7 +87,7 @@ class ListItems {
     public function delete_all_without_list() {
         $sql = 'DELETE FROM list_items WHERE list_id NOT IN (SELECT uuid FROM user_list);';
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':uuid' => $uuid]);
+        $stmt->execute();
 
     }
 

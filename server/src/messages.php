@@ -8,7 +8,6 @@ function respondErrorMsg($httpCode, $message) {
         "message" => $message,
         "code" => $httpCode
     ), JSON_UNESCAPED_UNICODE);
-    exit;
 }
 
 function respondJSON($httpCode, $payload) {
@@ -24,5 +23,4 @@ function respondJSON($httpCode, $payload) {
         "payload" => $payload,
         "code" => $httpCode
     ), JSON_UNESCAPED_UNICODE);
-    exit;
 }
