@@ -37,8 +37,6 @@ export class ListService {
         this.groceryCategories = resp.payload;
       }
     });
-
-    // this.updateService.register('listService', this.updateData.bind(this));
   }
 
   addList(list: List) {

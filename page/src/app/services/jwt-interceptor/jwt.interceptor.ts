@@ -1,4 +1,4 @@
-import { HttpInterceptor, HttpSentEvent, HttpHeaderResponse, HttpHandler, HttpEvent, HttpRequest, HttpHeaders, HttpClient, HttpErrorResponse } from "@angular/common/http";
+import { HttpInterceptor, HttpHandler, HttpEvent, HttpRequest } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { Injectable } from "@angular/core";
 import { LocalStorageService } from "../local-storage/local-storage.service";
@@ -7,9 +7,7 @@ import { LocalStorageService } from "../local-storage/local-storage.service";
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
   
-  constructor(private http: HttpClient, private lsService: LocalStorageService){
-    
-  }
+  constructor(private lsService: LocalStorageService) { }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     let jsonReq: HttpRequest<any> = req.clone();

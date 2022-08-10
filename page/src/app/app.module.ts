@@ -27,6 +27,7 @@ import { ShareListDialogComponent } from './components/lists/share-list-dialog/s
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { FlatpickrModule } from 'angularx-flatpickr';
 import { ConfirmDeleteSheetComponent } from './components/lists/confirm-delete-sheet/confirm-delete-sheet.component';
+import { CacheInterceptor } from './services/cache-interceptor/cache.interceptor';
 
 registerLocaleData(localeDe, 'de');
 
@@ -63,6 +64,7 @@ registerLocaleData(localeDe, 'de');
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi:true},
+    {provide: HTTP_INTERCEPTORS, useClass: CacheInterceptor, multi:true},
     {
       provide: LOCALE_ID,
       useValue: environment.locale // 'de' for Germany, 'fr' for France ...

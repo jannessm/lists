@@ -27,8 +27,6 @@ export class ListItemService {
       this.items.clear();
       this._items.clear();
     });
-
-    // this.updateService.register('listItemService', )
   }
 
   addItem(item: string, list_id: string, time: Time = null): Observable<boolean> {
