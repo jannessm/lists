@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { map, Observable, ObservedValueOf, of, ReplaySubject } from 'rxjs';
+import { map, Observable, of, ReplaySubject } from 'rxjs';
 import { ListItem } from 'src/app/models/lists';
 import { ListItemApiService } from '../api/list-item-api/list-item-api.service';
 
@@ -27,6 +27,8 @@ export class ListItemService {
       this.items.clear();
       this._items.clear();
     });
+
+    this.updateService.register('listItemService', this.updateAllLists.bind(this));
   }
 
   addItem(item: string, list_id: string, time: Time = null): Observable<boolean> {
@@ -89,7 +91,7 @@ export class ListItemService {
 
   updateDone(list_id: string, uuids: string[], done: boolean): Observable<boolean> {
     return this.listItemApi.updateDone(uuids, done).pipe(map(resp => {
-      if (resp && resp.status === API_STATUS.SUCCESS) {
+      if ((resp && resp.status === API_STATUS.SUCCESS) || !this.updateService.online) {
         const items = this._items.get(list_id);
         
         if (items) {
@@ -160,5 +162,11 @@ export class ListItemService {
         this.snackBar.open("Element konnte nicht gelöscht werden", "Ok");
       }
     });
+  }
+
+  updateAllLists() {
+    for (let k of this._items.keys()) {
+      this.loadItemsForList(k);
+    }
   }
 }

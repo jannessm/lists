@@ -3,9 +3,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { interval, map, Observable, of, ReplaySubject } from 'rxjs';
 import { API_STATUS } from 'src/app/models/api-responses';
 import { GroceryCategories } from 'src/app/models/categories_groceries';
-import { List } from 'src/app/models/lists';
+import { List, ListItem } from 'src/app/models/lists';
 import { ListApiService } from '../api/list/list-api.service';
 import { AuthService } from '../auth/auth.service';
+import { ListItemService } from '../list-item/list-item.service';
 import { UpdateService } from '../update/update.service';
 
 @Injectable({
@@ -22,7 +23,8 @@ export class ListService {
     private listApi: ListApiService,
     private authService: AuthService,
     private snackBar: MatSnackBar,
-    private updateService: UpdateService
+    private updateService: UpdateService,
+    private listItemService: ListItemService,
   ) {
     this.lists = new ReplaySubject<List[]>(1);
 
@@ -37,6 +39,18 @@ export class ListService {
         this.groceryCategories = resp.payload;
       }
     });
+
+    this.updateService.register('listService', this.updateData.bind(this));
+
+    // initial load of all items for all lists
+    if (!!this.authService.loggedUser) {
+      const subscription = this.updateData().subscribe(() => {
+        this._lastDataObject.forEach(list => {
+          listItemService.loadItemsForList(list.uuid);
+        });
+        subscription.unsubscribe();
+      });
+    }
   }
 
   addList(list: List) {
@@ -113,9 +127,9 @@ export class ListService {
     }
   }
 
-  updateData() {
+  updateData(): Observable<void> {
     if (this.authService.loggedUser) {
-      this.listApi.getLists(this.authService.loggedUser.email).subscribe(resp => {
+      return this.listApi.getLists(this.authService.loggedUser.email).pipe(map(resp => {
         if (resp.status === API_STATUS.SUCCESS) {
           this._lastDataObject = <List[]>resp.payload;
           this.lists.next(this._lastDataObject);
@@ -123,7 +137,9 @@ export class ListService {
         } else {
           this.snackBar.open("Liste konnte nicht hinzugefügt werden", "Ok");
         }
-      });
+      }));
+    } else {
+      return of();
     }
   }
 }

@@ -25,9 +25,10 @@ export class AppDB extends Dexie {
   }
 
   async put(uri: string, payload: any, requestType: HttpRequestType) {
-    let table = this.cachedGets;
+    let table = db.cachedGets;
+
     if (requestType !== HttpRequestType.GET) {
-      table = this.cachedQueries;
+      table = db.cachedQueries;
     }
     
     await table.put({

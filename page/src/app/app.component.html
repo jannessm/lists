@@ -1,4 +1,5 @@
-<div class="content">
+<div id="refresh"><mat-icon [style.opacity]="refreshOpacity" [@rotate]="animationState" (@rotate.done)="onEnd()">refresh</mat-icon></div>
+<div class="content" [style.top]="marginTopContent + 'px'">
     <router-outlet></router-outlet>
 </div>
 

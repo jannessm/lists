@@ -5,6 +5,8 @@ import { ApiResponse, DataResponse } from 'src/app/models/api-responses';
 import { List } from 'src/app/models/lists';
 import { environment } from 'src/environments/environment';
 
+import { v4 as genUuid } from 'uuid';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -14,7 +16,8 @@ export class ListApiService {
   constructor(private http: HttpClient) {}
 
   addList(email: string, list: List): Observable<ApiResponse> {
-    return this.http.post<ApiResponse>(this.BASE_API + '?add-list', {
+    const req_id = genUuid();
+    return this.http.post<ApiResponse>(this.BASE_API + '?add-list&uuid=' + req_id, {
       email,
       list
     });
@@ -25,11 +28,13 @@ export class ListApiService {
   }
 
   updateList(list: List): Observable<ApiResponse> {
-    return this.http.post<ApiResponse>(this.BASE_API + '?update-list', list);
+    const req_id = genUuid();
+    return this.http.post<ApiResponse>(this.BASE_API + '?update-list&uuid=' + req_id, list);
   }
 
   shareList(email: string, uuid: string): Observable<ApiResponse> {
-    return this.http.post<ApiResponse>(this.BASE_API + '?share-list', {email, uuid});
+    const req_id = genUuid();
+    return this.http.post<ApiResponse>(this.BASE_API + '?share-list&uuid=' + req_id, {email, uuid});
   }
 
   deleteList(email: string, uuid: string): Observable<ApiResponse> {

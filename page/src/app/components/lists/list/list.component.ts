@@ -82,7 +82,7 @@ export class ListComponent implements AfterViewInit{
       });
     });
 
-    this.listService.updateData();
+    this.listService.updateData().subscribe();
     this.timePicker = flatpickr('#picker', this.timePickerConfig) as flatpickr.Instance;
 
     this.userEmail = this.authService.loggedUser?.email;

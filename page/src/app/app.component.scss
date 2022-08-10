@@ -7,6 +7,25 @@ mat-toolbar {
 }
 
 .content {
-    margin: 12px;
+    position: absolute;
     height: calc(100% - 112px);
+    border-top: 1px solid grey;
+    padding: 12px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#refresh {
+    position: absolute;
+    top: 12px;
+    left: calc(50% - 20px);
+    width: 32px;
+    height: 32px;
+
+    mat-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 32px;
+        opacity: 0;
+    }
 }
