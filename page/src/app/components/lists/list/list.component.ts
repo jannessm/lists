@@ -16,6 +16,7 @@ import { is_today } from 'src/app/models/categories_timeslots';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ConfirmDeleteSheetComponent } from '../confirm-delete-sheet/confirm-delete-sheet.component';
 
 @Component({
   selector: 'app-list',
@@ -126,11 +127,17 @@ export class ListComponent implements AfterViewInit{
 
   deleteList() {
     if (this.list) {
-      this.listService.deleteList(this.list.uuid).subscribe(success => {
-        if (success) {
-          this.router.navigate(['/user/lists']);
+      const confirm = this.bottomSheet.open(ConfirmDeleteSheetComponent, {data: this.list.name});
+      
+      confirm.afterDismissed().subscribe(del => {
+        if (del && this.list) {
+          this.listService.deleteList(this.list.uuid).subscribe(success => {
+            if (success) {
+              this.router.navigate(['/user/lists']);
+            }
+          });
         }
-      });
+      })
     }
   }
 
@@ -185,21 +192,34 @@ export class ListComponent implements AfterViewInit{
   }
   
   deleteItem(item: ListItem) {
-    if (this.list) {
-      this.listItemService.deleteItems(this.list.uuid, [item.uuid]);
-    }
+    const confirm = this.bottomSheet.open(ConfirmDeleteSheetComponent, {data: item.name});
+    
+    confirm.afterDismissed().subscribe(del => {
+      if (this.list && del) {
+        
+        this.listItemService.deleteItems(this.list.uuid, [item.uuid]);
+      }
+    });
   }
 
   deleteAll() {
-    if (this.list) {
-      this.listItemService.deleteItems(this.list.uuid, this.items.map(i => i.uuid));
-    }
+    const confirm = this.bottomSheet.open(ConfirmDeleteSheetComponent, {data: 'alle Einträge'});
+    
+    confirm.afterDismissed().subscribe(del => {
+      if (this.list && del) {
+        this.listItemService.deleteItems(this.list.uuid, this.items.map(i => i.uuid));
+      }
+    });
   }
 
   deleteAllDone() {
-    if (this.list) {
-      this.listItemService.deleteItems(this.list.uuid, this.items.filter(i => i.done).map(i => i.uuid));
-    }
+    const confirm = this.bottomSheet.open(ConfirmDeleteSheetComponent, {data: 'alle erledigten Einträge'});
+    
+    confirm.afterDismissed().subscribe(del => {
+      if (this.list && del) {
+        this.listItemService.deleteItems(this.list.uuid, this.items.filter(i => i.done).map(i => i.uuid));
+      }
+    });
   }
 
   markAllNotDone() {

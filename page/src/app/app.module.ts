@@ -26,6 +26,7 @@ import localeDe from '@angular/common/locales/de';
 import { ShareListDialogComponent } from './components/lists/share-list-dialog/share-list-dialog.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { FlatpickrModule } from 'angularx-flatpickr';
+import { ConfirmDeleteSheetComponent } from './components/lists/confirm-delete-sheet/confirm-delete-sheet.component';
 
 registerLocaleData(localeDe, 'de');
 
@@ -40,6 +41,7 @@ registerLocaleData(localeDe, 'de');
     ListComponent,
     UpdateItemDialogComponent,
     ShareListDialogComponent,
+    ConfirmDeleteSheetComponent,
   ],
   imports: [
     AppRoutingModule,
