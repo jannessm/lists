@@ -4,7 +4,7 @@
 @import 'variables.scss';
 
 html, body { height: 100%; overflow: hidden; }
-body { margin: 0px; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { margin: 0px; font-family: Roboto, "Helvetica Neue", sans-serif; position: relative; }
 
 .mat-form-field, button.mat-button {
     width: 100% !important;

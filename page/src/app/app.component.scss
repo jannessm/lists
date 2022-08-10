@@ -9,11 +9,9 @@ mat-toolbar {
 .content {
     position: absolute;
     height: calc(100% - 112px);
-    border-top: 1px solid grey;
     padding: 12px;
     width: 100%;
     box-sizing: border-box;
-    box-shadow: 2px 1px -2px #0003;
 }
 
 #refresh {
