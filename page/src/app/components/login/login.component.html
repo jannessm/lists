@@ -2,9 +2,12 @@
     <form [formGroup]="form" autocomplete="off">
         <mat-form-field appearance="outline">
             <mat-label>email</mat-label>
-            <input matInput placeholder="Email" formControlName="email">
+            <input matInput placeholder="Email" formControlName="email" type="email">
             <mat-error *ngIf="form.get('email')?.hasError('required')">
                 Email muss angegeben werden!
+            </mat-error>
+            <mat-error *ngIf="form.get('email')?.hasError('email')">
+                Bitte eine gültige Email Adresse angeben!
             </mat-error>
         </mat-form-field>
         

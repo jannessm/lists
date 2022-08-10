@@ -12,6 +12,8 @@ class SQLiteConnection {
      */
     private $pdo;
 
+    private $backup_max = 10;
+
     /**
      * return in instance of the PDO object that connects to the SQLite database
      * @return \PDO
@@ -26,6 +28,36 @@ class SQLiteConnection {
             }
         }
         return $this->pdo;
+    }
+
+    public function backup() {
+        global $sqliteFile;
+        if ($this->pdo) {
+            $today = (new DateTime())->format('Y-m-d');
+
+            // get all past backup files
+            $backup_files = scandir(dirname($sqliteFile));
+            $backup_files = array_filter($backup_files, fn($file) => str_starts_with($file, $sqliteFile));
+
+            $last_backups = array_filter(
+                array_map(fn($file) => substr($file, -10), $backup_files),
+                fn($file) => !str_starts_with($file, $sqliteFile)
+            );
+
+            rsort($last_backups);
+            
+            for ($i = $this->backup_max; $i < count($last_backups); $i++) {
+                unlink($sqliteFile . '.bkp-' . $last_backups[$i]);
+            }
+
+            $backup_files = array_filter($backup_files, fn($file) => str_ends_with($file, $today));
+            
+            if (count($backup_files) === 0) {
+                $new_backup = new SQLite3($sqliteFile . '.bkp-' . (new DateTime())->format('Y-m-d'));
+                $conn = new SQLite3($sqliteFile);
+                $conn->backup($new_backup);
+            }
+        }
     }
 
 }

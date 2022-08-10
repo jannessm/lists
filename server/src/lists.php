@@ -84,4 +84,10 @@ class Lists {
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':uuid' => $uuid]);
     }
+
+    public function delete_all_not_present_in_user_list() {
+        $sql = 'DELETE FROM lists WHERE uuid NOT IN (SELECT uuid FROM user_list);';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+    }
 }

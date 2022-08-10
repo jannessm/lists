@@ -15,6 +15,7 @@ export class LoginComponent {
   form: FormGroup;
 
   wrongCredentials = false;
+  noSpacesRegex = /.*\S.*/;
 
   constructor(
     private fb: FormBuilder,
@@ -22,7 +23,7 @@ export class LoginComponent {
     private router: Router
   ) {
     this.form = fb.group({
-      email: [undefined, Validators.required],
+      email: [undefined, [Validators.required, Validators.email]],
       pwd: [undefined, Validators.required]
     });
 

@@ -84,6 +84,13 @@ class ListItems {
         $stmt->execute([':uuid' => $uuid]);
     }
 
+    public function delete_all_without_list() {
+        $sql = 'DELETE FROM list_items WHERE list_id NOT IN (SELECT uuid FROM user_list);';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':uuid' => $uuid]);
+
+    }
+
     private function join_uuids($uuids) {
         return implode(' OR ', array_map(fn($uuid) => 'uuid="'. $uuid . '"', $uuids));
     }

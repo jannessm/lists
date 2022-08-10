@@ -24,7 +24,7 @@ function getLists() {
         return;
     }
 
-    $lists = $LISTS->get_all_for_user(urldecode($_GET['email']));
+    $lists = $LISTS->get_all_for_user($_GET['email']);
 
     respondJSON(200, $lists);
 }
@@ -56,7 +56,7 @@ function shareList() {
 function deleteList() {
     global $USER, $USER_LIST, $LISTS, $LIST_ITEMS;
 
-    $email = urldecode($_GET['email']);
+    $email = $_GET['email'];
 
     $user = $USER->get($email);
 

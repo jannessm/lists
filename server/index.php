@@ -16,7 +16,9 @@ require_once('src/list_item.php');
 require_once('src/manage_lists.php');
 require_once('src/manage_list_items.php');
 
-$PDO = (new SQLiteConnection())->connect();
+$sqlconn = new SQLiteConnection();
+$PDO = $sqlconn->connect();
+$sqlconn->backup();
 
 try {
     $USER = new User($PDO);
@@ -134,6 +136,12 @@ try {
         }
 
         respondJSON(200, $data);
+    }
+
+    // top secret clear db routine
+    if ($_SERVER['REQUEST_METHOD'] === 'DELETE' && isset($_GET['clean'])) {
+        $LISTS->delete_all_not_present_in_user_list();
+        $LIST_ITEMS->delete_all_without_list();
     }
 
 } catch (Exception $e) {
