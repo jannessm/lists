@@ -22,7 +22,7 @@ export class ShareListDialogComponent {
 
   returnFormContent() {
     this.bottomSheetRef.dismiss({
-      'email': this.form.controls['email'].value
+      'email': this.form.controls['email'].value.toLowerCase().trim()
     });
   }
 }

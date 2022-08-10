@@ -28,6 +28,12 @@ export class ListItemService {
   }
 
   addItem(item: string, list_id: string, time: Time = null): Observable<boolean> {
+    item = item.trim();
+    if (item === '') {
+      this.snackBar.open('Der Inhalt darf nicht leer sein.', 'Ok');
+      return of(false);
+    }
+    
     if (this.authService.loggedUser) {
       const new_item = {
         uuid: uuid(),
@@ -98,6 +104,13 @@ export class ListItemService {
   }
 
   updateItem(list_id: string, item: ListItem) {
+    item.name = item.name.trim();
+    
+    if (item.name === '') {
+      this.snackBar.open('Der Inhalt darf nicht leer sein.', 'Ok');
+      return;
+    }
+
     this.listItemApi.updateItem(item).subscribe(resp => {
       if (resp && resp.status === API_STATUS.SUCCESS) {
         const items = this._items.get(list_id);

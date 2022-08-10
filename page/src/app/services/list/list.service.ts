@@ -39,7 +39,9 @@ export class ListService {
   }
 
   addList(list: List) {
-    if (this.authService.loggedUser) {
+    list.name = list.name.trim();
+    
+    if (this.authService.loggedUser && list.name !== '') {
       this.listApi.addList(this.authService.loggedUser.email, list).subscribe(resp => {
         this.dataLoaded = true;
         if (resp && resp.status === API_STATUS.SUCCESS) {
@@ -47,6 +49,8 @@ export class ListService {
           this.lists.next(this._lastDataObject);
         }
       });
+    } else if (list.name === '') {
+      this.snackBar.open('Der Name darf nicht leer sein.', 'Ok');
     }
   }
 
@@ -55,7 +59,14 @@ export class ListService {
   }
 
   updateList(list: List) {
-    return this.listApi.updateList(list).pipe(map(resp => {
+    list.name = list.name.trim();
+
+    if (list.name === '') {
+      this.snackBar.open('Der Name darf nicht leer sein.', 'Ok');
+      return;
+    }
+
+    this.listApi.updateList(list).subscribe(resp => {
       if (resp && resp.status === API_STATUS.SUCCESS) {
         const old_list = this._lastDataObject.find(l => l.uuid === list.uuid);
 
@@ -69,7 +80,7 @@ export class ListService {
       } else {
         this.snackBar.open('Liste konnte nicht geändert werden.', 'Ok');
       }
-    }));
+    });
   }
 
   shareList(email: string, uuid: string) {

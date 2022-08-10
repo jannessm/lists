@@ -15,6 +15,7 @@ import { groupItems, Slot, sortItems } from 'src/app/models/categories';
 import { is_today } from 'src/app/models/categories_timeslots';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-list',
@@ -62,7 +63,8 @@ export class ListComponent implements AfterViewInit{
     private activatedRoute: ActivatedRoute,
     private bottomSheet: MatBottomSheet,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private snackbar: MatSnackBar
   ) {
     this.listService.lists.subscribe(() => {
       this.activatedRoute.paramMap.subscribe(params => {
@@ -96,14 +98,15 @@ export class ListComponent implements AfterViewInit{
       });
   
       dialogRef.afterDismissed().subscribe(new_values => {
+        if (!!new_values && new_values.name === '') {
+          this.snackbar.open('Name darf nicht leer sein.', 'Ok');
+          return;
+        }
+        
         if (!!new_values && this.list) {
-          this.listService.updateList({
-            uuid: this.list.uuid,
-            name: new_values.name,
-            groceries: new_values.groceries,
-            shared: this.list.shared,
-            users: this.list.users
-          }).subscribe();
+          this.list.name = new_values.name;
+          this.list.groceries = new_values.groceries;
+          this.listService.updateList(this.list);
         }
       });
     }
@@ -150,7 +153,7 @@ export class ListComponent implements AfterViewInit{
   }
   
   addItem() {
-    if (this.list) {
+    if (this.list && this.newItem !== '') {
       let newTime = null;
       switch(this.newItemTime.value) {
         case 'today':

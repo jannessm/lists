@@ -29,13 +29,9 @@ export class AddDialogComponent {
 
   }
 
-  onNoClick(): void {
-    this.bottomSheetRef.dismiss();
-  }
-
   returnFormContent() {
     this.bottomSheetRef.dismiss({
-      'name': this.form.controls['name'].value,
+      'name': this.form.controls['name'].value.trim(),
       'groceries': this.form.controls['groceries'].value
     });
   }

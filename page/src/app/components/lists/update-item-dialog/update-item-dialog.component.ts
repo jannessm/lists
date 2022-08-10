@@ -46,7 +46,7 @@ export class UpdateItemDialogComponent {
     }
 
     this.bottomSheetRef.dismiss({
-      'name': this.form.controls['name'].value,
+      'name': this.form.controls['name'].value.trim(),
       'time': this.form.controls['hasDate'].value ? time_val : null
     });
   }

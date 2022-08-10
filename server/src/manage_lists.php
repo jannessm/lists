@@ -65,7 +65,7 @@ function deleteList() {
         return;
     }
 
-    $delete = $USER_LIST->delete($email, $_GET['uuids']);
+    $delete = $USER_LIST->delete($email, $_GET['uuid']);
     
     if ($delete) {
         $LISTS->delete($_GET['uuid']);

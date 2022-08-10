@@ -92,9 +92,6 @@ mat-toolbar {
         width: 100%;
         background-color: white;
     }
-    #picker {
-        display: none;
-    }
 }
 
 #toggle-overlay {
@@ -104,4 +101,9 @@ mat-toolbar {
     z-index: 100;
     height: calc(100% - 128px);
     width: 100%;
+}
+
+
+#picker {
+    display: none;
 }
