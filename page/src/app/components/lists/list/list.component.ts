@@ -224,7 +224,7 @@ export class ListComponent implements AfterViewInit{
 
   markAllNotDone() {
     if (this.list) {
-      this.listItemService.updateDone(this.list.uuid, this.items.map(i => i.uuid), false).subscribe(success => {
+      this.listItemService.updateDone(this.list.uuid, this.items.filter(i => i.done).map(i => i.uuid), false).subscribe(success => {
         //TODO: count unmarked items
       });
     }

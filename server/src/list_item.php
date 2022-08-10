@@ -61,9 +61,9 @@ class ListItems {
     }
 
     public function update_done($uuids, $done) {
-        $sql = 'UPDATE list_items SET done=:done WHERE ' . $this->join_uuids($uuids) . ';';
+        $sql = 'UPDATE list_items SET done=? WHERE uuid IN (' . $this->add_uuid_placeholders($uuids) . ');';
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':done' => $done]);
+        $stmt->execute(array_merge([$done], $uuids));
     }
 
     public function update($item) {
@@ -73,9 +73,9 @@ class ListItems {
     }
 
     public function delete($uuids) {
-        $sql = 'DELETE FROM list_items WHERE ' . $this->join_uuids($uuids) . ';';
+        $sql = 'DELETE FROM list_items WHERE uuid IN (' . $this->add_uuid_placeholders($uuids) . ');';
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute();
+        $stmt->execute($uuids);
     }
 
     public function delete_all_for_list($uuid) {
@@ -91,7 +91,7 @@ class ListItems {
 
     }
 
-    private function join_uuids($uuids) {
-        return implode(' OR ', array_map(fn($uuid) => 'uuid="'. $uuid . '"', $uuids));
+    private function add_uuid_placeholders($uuids) {
+        return implode(',', array_map(fn($uuid) => '?', $uuids));
     }
 }
