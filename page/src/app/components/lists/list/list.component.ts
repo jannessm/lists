@@ -50,7 +50,8 @@ export class ListComponent implements AfterViewInit{
   @ViewChild('picker') picker!: ElementRef;
 
   @HostListener('mousemove', ['$event'])
-  onMousemove(event: MouseEvent): void  { 
+  @HostListener('touchmove', ['$event'])
+  onMousemove(event: MouseEvent): void  {
     this.pointerPosY = event.clientY;
   }
 
@@ -244,7 +245,7 @@ export class ListComponent implements AfterViewInit{
         } else {
           this.cancelUpdateDialog();
         }
-      }, 1000);
+      }, 500);
     }
   }
 
