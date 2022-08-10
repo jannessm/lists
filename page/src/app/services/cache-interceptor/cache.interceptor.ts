@@ -24,8 +24,12 @@ export class CacheInterceptor implements HttpInterceptor {
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {    
     if (!this.isOnline) {
-      return from(db.get(request.url)).pipe(map(res => {
-        return new HttpResponse({body: res[0].payload, status: 200});
+      return from(db.get(request.url, <HttpRequestType>request.method)).pipe(map(res => {
+        if (res.length == 1) {
+          return new HttpResponse({body: res[0].payload, status: 200});
+        } else {
+          return new HttpResponse({status: 404});
+        }
       }));
     
     } else {

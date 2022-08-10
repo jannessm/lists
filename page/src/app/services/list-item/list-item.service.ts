@@ -73,6 +73,12 @@ export class ListItemService {
       if (resp && resp.status === API_STATUS.SUCCESS) {
         const items = (<ListItem[]>resp.payload).map(item => {
           item.time = !item.time ? null : new Date(item.time);
+          
+          // check for invalid Date
+          if (!!item.time && isNaN(item.time.getTime())) {
+            item.time = null;
+          }
+          
           return item;
         });
         this._items.set(uuid, items);

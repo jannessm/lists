@@ -13,25 +13,36 @@ export interface CachedQuery {
 }
 
 export class AppDB extends Dexie {
+  cachedGets!: Table<CachedQuery, string>;
   cachedQueries!: Table<CachedQuery, string>;
 
   constructor() {
-    super('ngdexieliveQuery');
+    super('db');
     this.version(3).stores({
+      cachedGets: 'uri',
       cachedQueries: 'uri',
     });
   }
 
   async put(uri: string, payload: any, requestType: HttpRequestType) {
-    await db.cachedQueries.put({
+    let table = this.cachedGets;
+    if (requestType !== HttpRequestType.GET) {
+      table = this.cachedQueries;
+    }
+    
+    await table.put({
       uri,
       payload,
       requestType
     }, 'uri');
   }
 
-  async get(uri: string) {
-    return await db.cachedQueries.where({uri}).toArray()
+  async get(uri: string, requestType: HttpRequestType) {
+    let table = this.cachedGets;
+    if (requestType !== HttpRequestType.GET) {
+      table = this.cachedQueries;
+    }
+    return await table.where({uri}).toArray()
   }
 }
 
