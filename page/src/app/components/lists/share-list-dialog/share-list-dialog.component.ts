@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 
 @Component({
   selector: 'app-share-list-dialog',
@@ -12,7 +12,7 @@ export class ShareListDialogComponent {
   form: FormGroup;
 
   constructor(
-    public dialogRef: MatDialogRef<ShareListDialogComponent>,
+    public bottomSheetRef: MatBottomSheetRef<ShareListDialogComponent>,
     private fb: FormBuilder) {
     
     this.form = fb.group({
@@ -20,12 +20,8 @@ export class ShareListDialogComponent {
     });
   }
 
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
-
   returnFormContent() {
-    this.dialogRef.close({
+    this.bottomSheetRef.dismiss({
       'email': this.form.controls['email'].value
     });
   }

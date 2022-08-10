@@ -1,9 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { Observable, of } from 'rxjs';
+import { Component } from '@angular/core';
+import { Observable } from 'rxjs';
 import { List } from 'src/app/models/lists';
-import { AuthService } from 'src/app/services/auth/auth.service';
 import { ListService } from 'src/app/services/list/list.service';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AddDialogComponent } from '../add-dialog/add-dialog.component';
 
 import { v4 as uuid } from 'uuid';
@@ -18,7 +17,7 @@ export class ListsOverviewComponent {
   lists: Observable<List[]>;
 
   constructor(
-    public dialog: MatDialog,
+    public bottomSheet: MatBottomSheet,
     private listService: ListService
   ) {
     this.lists = this.listService.lists;
@@ -28,9 +27,9 @@ export class ListsOverviewComponent {
   }
 
   addList() {
-    const dialogRef = this.dialog.open(AddDialogComponent);
+    const dialogRef = this.bottomSheet.open(AddDialogComponent);
 
-    dialogRef.afterClosed().subscribe(res => {
+    dialogRef.afterDismissed().subscribe(res => {
       if (!!res) {
         this.listService.addList({
           uuid: uuid(),

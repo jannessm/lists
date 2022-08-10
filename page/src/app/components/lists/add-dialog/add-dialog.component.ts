@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { List } from 'src/app/models/lists';
 
 @Component({
@@ -14,8 +14,8 @@ export class AddDialogComponent {
   form: FormGroup;
 
   constructor(
-    public dialogRef: MatDialogRef<AddDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: List,
+    public bottomSheetRef: MatBottomSheetRef<AddDialogComponent>,
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: List,
     private fb: FormBuilder
   ) {
     if (data) {
@@ -30,11 +30,11 @@ export class AddDialogComponent {
   }
 
   onNoClick(): void {
-    this.dialogRef.close();
+    this.bottomSheetRef.dismiss();
   }
 
   returnFormContent() {
-    this.dialogRef.close({
+    this.bottomSheetRef.dismiss({
       'name': this.form.controls['name'].value,
       'groceries': this.form.controls['groceries'].value
     });

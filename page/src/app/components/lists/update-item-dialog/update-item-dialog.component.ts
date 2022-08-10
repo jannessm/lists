@@ -1,6 +1,6 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { List, ListItem } from 'src/app/models/lists';
 
 @Component({
@@ -14,8 +14,8 @@ export class UpdateItemDialogComponent {
   timezone: string | undefined;
 
   constructor(
-    public dialogRef: MatDialogRef<UpdateItemDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: {list:List, item: ListItem},
+    public bottomSheetRef: MatBottomSheetRef<UpdateItemDialogComponent>,
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: {list:List, item: ListItem},
     private fb: FormBuilder
   ) {
     this.list = data.list;
@@ -39,18 +39,13 @@ export class UpdateItemDialogComponent {
     }
   }
 
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
-
   returnFormContent() {
-    console.log(this.form.controls['time'].value, typeof(this.form.controls['time'].value))
     let time_val = this.form.controls['time'].value;
     if (this.timezone) {
       time_val += this.timezone;
     }
 
-    this.dialogRef.close({
+    this.bottomSheetRef.dismiss({
       'name': this.form.controls['name'].value,
       'time': this.form.controls['hasDate'].value ? time_val : null
     });

@@ -3,7 +3,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,7 +20,7 @@ const imports = [
   MatButtonModule,
   MatCheckboxModule,
   MatChipsModule,
-  MatDialogModule,
+  MatBottomSheetModule,
   MatDatepickerModule,
   MatFormFieldModule,
   MatIconModule,

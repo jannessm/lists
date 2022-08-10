@@ -14,6 +14,7 @@ import { MatChip } from '@angular/material/chips';
 import { groupItems, Slot, sortItems } from 'src/app/models/categories';
 import { is_today } from 'src/app/models/categories_timeslots';
 import { AuthService } from 'src/app/services/auth/auth.service';
+import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 
 @Component({
   selector: 'app-list',
@@ -44,7 +45,7 @@ export class ListComponent implements AfterViewInit{
 
   pointerDown: boolean = false;
   pointerPosY: number | undefined; 
-  updateDialogRef: MatDialogRef<UpdateItemDialogComponent, any> | undefined;
+  updateDialogRef: MatBottomSheetRef<UpdateItemDialogComponent, any> | undefined;
 
   @ViewChild('itemsContainer') itemContainer!: ElementRef;
   @ViewChild('picker') picker!: ElementRef;
@@ -59,7 +60,7 @@ export class ListComponent implements AfterViewInit{
     private listService: ListService,
     private listItemService: ListItemService,
     private activatedRoute: ActivatedRoute,
-    private dialog: MatDialog,
+    private bottomSheet: MatBottomSheet,
     private router: Router,
     private authService: AuthService
   ) {
@@ -90,11 +91,11 @@ export class ListComponent implements AfterViewInit{
 
   listSettings() {
     if (this.list) {
-      const dialogRef = this.dialog.open(AddDialogComponent, {
+      const dialogRef = this.bottomSheet.open(AddDialogComponent, {
         data: this.list
       });
   
-      dialogRef.afterClosed().subscribe(new_values => {
+      dialogRef.afterDismissed().subscribe(new_values => {
         if (!!new_values && this.list) {
           this.listService.updateList({
             uuid: this.list.uuid,
@@ -110,9 +111,9 @@ export class ListComponent implements AfterViewInit{
 
   shareList() {
     if (this.list) {
-      const dialogRef = this.dialog.open(ShareListDialogComponent);
+      const dialogRef = this.bottomSheet.open(ShareListDialogComponent);
 
-      dialogRef.afterClosed().subscribe(data => {
+      dialogRef.afterDismissed().subscribe(data => {
         if (!!data && this.list) {
           this.listService.shareList(data.email, this.list.uuid);
         }
@@ -223,14 +224,14 @@ export class ListComponent implements AfterViewInit{
       setTimeout(() => {
 
         if (this.pointerPosY != undefined && this.pointerDown && !this.updateDialogRef && Math.abs(currScrollPos - this.pointerPosY) < 50) {  
-          this.updateDialogRef = this.dialog.open(UpdateItemDialogComponent, {
+          this.updateDialogRef = this.bottomSheet.open(UpdateItemDialogComponent, {
             data: {
               list: this.list,
               item
             }
           });
   
-          this.updateDialogRef.afterClosed().subscribe(newItem => {            
+          this.updateDialogRef.afterDismissed().subscribe(newItem => {            
             if (this.list && newItem) {
               newItem.time = newItem.time !== null ? (new Date(newItem.time)).toUTCString() : null;
               newItem.uuid = item.uuid;
