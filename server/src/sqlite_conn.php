@@ -31,7 +31,7 @@ class SQLiteConnection {
     }
 
     public function backup() {
-        global $sqliteFile;
+        global $sqliteFile, $LISTS; $LIST_ITEMS;
         if ($this->pdo) {
             $today = (new DateTime())->format('Y-m-d');
 
@@ -53,6 +53,10 @@ class SQLiteConnection {
             $backup_files = array_filter($backup_files, fn($file) => str_ends_with($file, $today));
             
             if (count($backup_files) === 0) {
+                // clean up database
+                $LISTS->delete_all_not_present_in_user_list();
+                $LIST_ITEMS->delete_all_without_list();
+                
                 $new_backup = new SQLite3($sqliteFile . '.bkp-' . (new DateTime())->format('Y-m-d'));
                 $conn = new SQLite3($sqliteFile);
                 $conn->backup($new_backup);

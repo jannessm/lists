@@ -18,7 +18,6 @@ require_once('src/manage_list_items.php');
 
 $sqlconn = new SQLiteConnection();
 $PDO = $sqlconn->connect();
-$sqlconn->backup();
 
 try {
     $USER = new User($PDO);
@@ -29,6 +28,8 @@ try {
     // register
     if (isset($_POST) && isset($_GET['register'])) {
         register();
+
+        $sqlconn->backup();
         return;
     }
     
@@ -52,6 +53,8 @@ try {
     // add lists
     if (isset($_POST) && isset($_GET['add-list'])) {
         addList();
+
+        $sqlconn->backup();
         return;
     }
 
@@ -64,24 +67,32 @@ try {
     // update list
     if (isset($_POST) && isset($_GET['update-list'])) {
         updateList();
+
+        $sqlconn->backup();
         return;
     }
 
     // share list
     if (isset($_POST) && isset($_GET['share-list'])) {
         shareList();
+
+        $sqlconn->backup();
         return;
     }
 
     // delete list
     if ($_SERVER['REQUEST_METHOD'] === 'DELETE' && isset($_GET['delete-list'])) {
         deleteList();
+
+        $sqlconn->backup();
         return;
     }
 
     // add item
     if (isset($_POST) && isset($_GET['add-item'])) {
         addListItem();
+
+        $sqlconn->backup();
         return;
     }
 
@@ -94,18 +105,24 @@ try {
     // update done
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['update-done'])) {
         updateDone();
+
+        $sqlconn->backup();
         return;
     }
 
-    // update done
+    // update item
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['update-item'])) {
         updateItem();
+
+        $sqlconn->backup();
         return;
     }
 
     // delete item
     if ($_SERVER['REQUEST_METHOD'] === 'DELETE' && isset($_GET['delete-item'])) {
         deleteItem();
+
+        $sqlconn->backup();
         return;
     }
 
@@ -136,12 +153,6 @@ try {
         }
 
         respondJSON(200, $data);
-    }
-
-    // top secret clear db routine
-    if ($_SERVER['REQUEST_METHOD'] === 'DELETE' && isset($_GET['clean'])) {
-        $LISTS->delete_all_not_present_in_user_list();
-        $LIST_ITEMS->delete_all_without_list();
     }
 
 } catch (Exception $e) {
