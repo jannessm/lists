@@ -147,7 +147,12 @@ try {
             $row = str_getcsv($row, "\t");
             foreach($row as $col => $val) {
                 if ($val) {
-                    array_push($data[$header[$col]], trim($val));
+                    //remove diacritics, trim, lowercase
+                    $val = strtolower(trim($val));
+                    $val = Normalizer::normalize($val, Normalizer::FORM_D);
+                    $val = preg_replace('@\pM@u', '', $val);
+                    
+                    array_push($data[$header[$col]], $val);
                 }
             }
         }
