@@ -86,13 +86,30 @@ mat-toolbar {
         height: 40px;
     }
 
-    .add-input {
-        border: none;
-        border-radius: 8px;
-        padding: 8px;
-        width: 100%;
-        background-color: white;
+    &.toolbar-input {
+        padding: 12px;
+        height: 64px;
+        bottom: $nav-bar-height;
+        
+        &.focusInput {
+            bottom: 0px;
+        }
+
+        &.groceries {
+            height: 78px;
+        }
+
+        .add-input {
+            border: none;
+            border-radius: 8px;
+            padding: 8px;
+            width: 100%;
+            background-color: white;
+            line-height: 32px;
+            font-size: 20px;
+        }
     }
+
 }
 
 #toggle-overlay {
@@ -100,11 +117,24 @@ mat-toolbar {
     top: 0;
     left: 0;
     z-index: 100;
-    height: calc(100% - 128px);
+    height: calc(100% + 9px);
     width: 100%;
+    display: none;
+
+    &.groceries {
+        height: calc(100% + 35px);
+    }
+
+    &.focusInput {
+        display: block;
+    }
 }
 
 
 #picker {
-    display: none;
+    opacity: 0;
+    position: absolute;
+    bottom: -30px;
+    width: 100%;
+    z-index: -100;
 }

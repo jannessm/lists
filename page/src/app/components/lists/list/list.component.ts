@@ -1,6 +1,5 @@
 import { AfterViewInit, Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { List, ListItem } from 'src/app/models/lists';
 import { ListItemService } from 'src/app/services/list-item/list-item.service';
@@ -10,20 +9,21 @@ import { ShareListDialogComponent } from '../share-list-dialog/share-list-dialog
 import { UpdateItemDialogComponent } from '../update-item-dialog/update-item-dialog.component';
 
 import flatpickr from "flatpickr";
-import { MatChip } from '@angular/material/chips';
-import { groupItems, Slot, sortItems } from 'src/app/models/categories';
+import { groupItems, Slot } from 'src/app/models/categories';
 import { is_today } from 'src/app/models/categories_timeslots';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmDeleteSheetComponent } from '../confirm-delete-sheet/confirm-delete-sheet.component';
+import { MatChip } from '@angular/material/chips';
+import { Options } from 'flatpickr/dist/types/options';
 
 @Component({
   selector: 'app-list',
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss']
 })
-export class ListComponent implements AfterViewInit{
+export class ListComponent implements AfterViewInit {
 
   list: List | undefined;
 
@@ -32,13 +32,14 @@ export class ListComponent implements AfterViewInit{
   newItem: string = '';
   focusInput: boolean = false;
   newItemTime = new FormControl('sometime');
-  timePicker: flatpickr.Instance;
+  timePicker!: flatpickr.Instance;
   timePickerDate: Date | undefined;
-  timePickerConfig = {
+  timePickerConfig: Options = {
     enableTime: true,
     minuteIncrement: 5,
     disableMobile: true,
-    time_24hr: true
+    time_24hr: true,
+    // position: 'above center'
   };
   pickerOpen = false;
 
@@ -49,8 +50,9 @@ export class ListComponent implements AfterViewInit{
   pointerPosY: number | undefined; 
   updateDialogRef: MatBottomSheetRef<UpdateItemDialogComponent, any> | undefined;
 
-  @ViewChild('itemsContainer') itemContainer!: ElementRef;
+  @ViewChild('itemsContainer') itemsContainer!: ElementRef;
   @ViewChild('picker') picker!: ElementRef;
+  @ViewChild('chipDate') chipDiff!: ElementRef;
 
   @HostListener('mousemove', ['$event'])
   @HostListener('touchmove', ['$event'])
@@ -83,13 +85,12 @@ export class ListComponent implements AfterViewInit{
     });
 
     this.listService.updateData().subscribe();
-    this.timePicker = flatpickr('#picker', this.timePickerConfig) as flatpickr.Instance;
-
     this.userEmail = this.authService.loggedUser?.email;
   }
 
   ngAfterViewInit(): void {
     this.timePicker = flatpickr('#picker', this.timePickerConfig) as flatpickr.Instance;
+    this.timePicker.config.onOpen.push(() => this.pickerOpen = true);
   }
 
   listSettings() {
@@ -283,27 +284,13 @@ export class ListComponent implements AfterViewInit{
   }
 
   toggleNewTimeSelected(chip: MatChip) {
-    if (this.pickerOpen) {
-      this.timePicker.close();
-      this.pickerOpen = false;
+    chip.selected = true;
 
+    if (chip.value !== 'different') {
+      this.timePicker.clear();
+      this.timePickerDate = undefined;
     } else {
-      chip.toggleSelected(true);
-
-      if (chip.value !== 'different') {
-        this.timePicker.clear();
-        this.timePickerDate = undefined;
-      }
-    }
-  }
-
-  pickerToggleFocus() {
-    if (this.newItemTime.value === 'different') {
       this.timePicker.open();
-      this.pickerOpen = true;
-    } else {
-      this.timePicker.close();
-      this.pickerOpen = false;
     }
   }
 
@@ -313,5 +300,12 @@ export class ListComponent implements AfterViewInit{
     } else {
       this.timePickerDate = undefined;
     }
+  }
+
+  closeFocusInput() {
+    if (!this.pickerOpen) {
+      this.focusInput = false;
+    }
+    this.pickerOpen = this.timePicker.isOpen;
   }
 }
