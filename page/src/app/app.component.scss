@@ -1,7 +1,7 @@
 @import '../variables.scss';
 
 mat-toolbar {
-    position: absolute;
+    position: fixed;
     bottom: 0;
     height: $nav-bar-height;
 }
