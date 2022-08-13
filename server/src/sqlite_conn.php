@@ -36,7 +36,7 @@ class SQLiteConnection {
             return;
         }
         
-        global $sqliteFile, $LISTS, $LIST_ITEMS;
+        global $sqliteFile, $LISTS, $LIST_ITEMS, $USER_LIST;
         if ($this->pdo) {
             $today = (new DateTime())->format('Y-m-d');
 
@@ -61,6 +61,7 @@ class SQLiteConnection {
                 // clean up database
                 $LISTS->delete_all_not_present_in_user_list();
                 $LIST_ITEMS->delete_all_without_list();
+                $USER_LIST->delete_duplicates();
                 
                 $new_backup = new SQLite3($sqliteFile . '.bkp-' . (new DateTime())->format('Y-m-d'));
                 $conn = new SQLite3($sqliteFile);

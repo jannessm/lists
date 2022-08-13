@@ -25,6 +25,8 @@ try {
     $USER_LIST = new UserListRelation($PDO);
     $LIST_ITEMS = new ListItems($PDO);
 
+    // $USER_LIST->add_unique();
+
     // register
     if (isset($_POST) && isset($_GET['register'])) {
         register();

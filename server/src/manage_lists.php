@@ -45,8 +45,16 @@ function shareList() {
     $user = $USER->get($payload['email']);
 
     if ($user) {
-        $USER_LIST->add($payload['email'], $payload['uuid']);
-        respondJSON(201, "list shared");
+        try {
+            $USER_LIST->add($payload['email'], $payload['uuid']);
+            respondJSON(201, "list shared");
+        } catch (PDOException $e) {
+            if ($e->getCode() === "23000") {
+                respondErrorMsg(400, "already shared");
+            } else {
+                throw $e;
+            }
+        }
     } else {
         respondErrorMsg(400, "user not found");
     }

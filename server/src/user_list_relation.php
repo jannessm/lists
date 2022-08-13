@@ -21,7 +21,8 @@ class UserListRelation {
             `email` TINYTEXT NOT NULL,
             `uuid` TINYTEXT NOT NULL,
             FOREIGN KEY (`email`) REFERENCES user(`email`),
-            FOREIGN KEY (`uuid`) REFERENCES lists(`uuid`)
+            FOREIGN KEY (`uuid`) REFERENCES lists(`uuid`),
+            UNIQUE(`email`, `uuid`)
         );";
         $this->pdo->exec($sql);
     }
@@ -58,5 +59,15 @@ class UserListRelation {
         $sql = 'DELETE FROM user_list WHERE uuid=:uuid;';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':uuid' => $uuid]);
+    }
+
+    public function delete_duplicates() {
+        $sql = 'DELETE FROM user_list WHERE rowid NOT IN (SELECT MIN(rowid) FROM user_list GROUP BY email, uuid);';
+        $this->pdo->exec($sql);
+    }
+
+    public function add_unique() {
+        $this->delete_duplicates();
+        $this->pdo->exec("create unique index ux_user_list on user_list(email, uuid);");
     }
 }

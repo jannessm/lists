@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { interval, map, Observable, of, ReplaySubject } from 'rxjs';
-import { API_STATUS } from 'src/app/models/api-responses';
+import { map, Observable, of, ReplaySubject } from 'rxjs';
+import { API_STATUS, ErrorResponse } from 'src/app/models/api-responses';
 import { GroceryCategories } from 'src/app/models/categories_groceries';
-import { List, ListItem } from 'src/app/models/lists';
+import { List } from 'src/app/models/lists';
 import { ListApiService } from '../api/list/list-api.service';
 import { AuthService } from '../auth/auth.service';
 import { ListItemService } from '../list-item/list-item.service';
@@ -101,7 +101,11 @@ export class ListService {
   shareList(email: string, uuid: string) {
     this.listApi.shareList(email, uuid).subscribe(resp => {
       if (resp && resp.status !== API_STATUS.SUCCESS) {
-        this.snackBar.open("Benutzer nicht gefunden.", "Ok");
+        if ((<ErrorResponse>resp).message === 'already shared') {
+          this.snackBar.open("Liste bereits mit Nutzer geteilt.", "Ok");
+        } else {
+          this.snackBar.open("Benutzer nicht gefunden.", "Ok");
+        }
       }
     })
   }
