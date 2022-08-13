@@ -42,7 +42,9 @@ function voteForGroceryCategory(categoryItems: string[]) {
 
     categoryItems.forEach(catItem => {
       item.name.split(' ').forEach(itemWord => {
-        const offset = itemWord.toLowerCase().indexOf(catItem.toLowerCase()) + 1;
+        itemWord = itemWord.toLowerCase();
+        itemWord = itemWord.normalize("NFD").replace(/\p{Diacritic}/gu, "")
+        const offset = itemWord.indexOf(catItem) + 1;
         const weight = offset > 0 ? catItem.length : 0;
         votes += weight + offset;
       });
