@@ -38,6 +38,11 @@
     border-radius: 8px;
     margin: 6px 0;
     width: 100%;
+    user-select: none;
+
+    &.dark-theme {
+        background: #464646;
+    }
 
     button {
         float: right;
@@ -104,7 +109,14 @@ mat-toolbar {
             border-radius: 8px;
             padding: 8px;
             width: 100%;
-            background-color: white;
+
+            &.dark-theme {
+                background-color: #464646;
+            }
+
+            &:not(.dark-theme) {
+                background-color: white;
+            }
             line-height: 32px;
             font-size: 20px;
         }

@@ -149,8 +149,8 @@ try {
                 if ($val) {
                     //remove diacritics, trim, lowercase
                     $val = strtolower(trim($val));
-                    $val = Normalizer::normalize($val, Normalizer::FORM_D);
-                    $val = preg_replace('@\pM@u', '', $val);
+                    $regexp = '/&([a-z]{1,2})(acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml|caron);/i';
+                    $val = html_entity_decode(preg_replace($regexp, '$1', htmlentities($val)));
                     
                     array_push($data[$header[$col]], $val);
                 }

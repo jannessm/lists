@@ -28,6 +28,7 @@
         <div class="item"
              *ngFor="let item of slot.items"
              [class.item-done]="item.done"
+             [class.dark-theme]="themeService.isDark | async"
              (pointerdown)="openUpdateDialog($event, item)"
              (pointerup)="cancelUpdateDialog()">
             <div *ngIf="!slot.collapsed || !item.done">
@@ -48,7 +49,7 @@
 
 <div (click)="focusInput=true">
     <mat-toolbar class="toolbar-input" [class.focusInput]="focusInput" [class.groceries]="list?.groceries">
-            <input matInput placeholder="Hinzufügen" class="add-input" [(ngModel)]="newItem" autocomplete="off">
+            <input matInput placeholder="Hinzufügen" class="add-input" [class.dark-theme]="themeService.isDark | async" [(ngModel)]="newItem" autocomplete="off">
             <button mat-icon-button (click)="addItem()"><mat-icon>add</mat-icon></button>
     </mat-toolbar>
 

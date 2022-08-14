@@ -3,6 +3,7 @@ import { Component, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { delay } from 'rxjs';
 import { AuthService } from './services/auth/auth.service';
+import { ThemeService } from './services/theme/theme.service';
 import { UpdateService } from './services/update/update.service';
 
 @Component({
@@ -35,7 +36,10 @@ export class AppComponent {
   constructor(
     public authService: AuthService,
     public router: Router,
-    private updateService: UpdateService) {}
+    private updateService: UpdateService,
+    private themeService: ThemeService) {
+      themeService.isDark.subscribe(this.setTheme)
+    }
   
   @HostListener('pointerdown', ['$event'])
   setStartPos(e: MouseEvent) {
@@ -90,6 +94,14 @@ export class AppComponent {
     if (this.loading) {
       this.animationState = 'start';
       setTimeout(() => {this.animationState = 'go'}, 1);
+    }
+  }
+
+  setTheme(dark: boolean) {
+    if (dark) {
+      document.body.classList.add('dark-theme');
+    } else {
+      document.body.classList.remove('dark-theme');
     }
   }
 }

@@ -17,6 +17,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmDeleteSheetComponent } from '../confirm-delete-sheet/confirm-delete-sheet.component';
 import { MatChip } from '@angular/material/chips';
 import { Options } from 'flatpickr/dist/types/options';
+import { ThemeService } from 'src/app/services/theme/theme.service';
 
 @Component({
   selector: 'app-list',
@@ -67,7 +68,8 @@ export class ListComponent implements AfterViewInit {
     private bottomSheet: MatBottomSheet,
     private router: Router,
     private authService: AuthService,
-    private snackbar: MatSnackBar
+    private snackbar: MatSnackBar,
+    public themeService: ThemeService
   ) {
     this.listService.lists.subscribe(() => {
       this.activatedRoute.paramMap.subscribe(params => {
