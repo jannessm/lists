@@ -1,11 +1,11 @@
 {
   "name": "Lists",
   "short_name": "Lists",
-  "theme_color": "#1976d2",
+  "theme_color": "#ffab40",
   "background_color": "#ffffff",
   "display": "standalone",
-  "scope": "/",
-  "start_url": "/",
+  "scope": "./",
+  "start_url": "./",
   "icons": [
     {
       "src": "assets/icons/icon-72x72.png",

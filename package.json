@@ -20,7 +20,5 @@
   },
   "homepage": "https://github.com/jannessm/lists#readme",
   "dependencies": {
-    "@angular/cli": "^14.1.0",
-    "@angular/core": "^14.1.0"
   }
 }

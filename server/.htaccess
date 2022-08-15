@@ -14,7 +14,7 @@
   RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -d
   RewriteRule ^.*$ - [NC,L]
   # Redirect all non-file routes to index.html
-  RewriteCond %{REQUEST_URI} !lists/api/.*
+  RewriteCond %{REQUEST_URI} !api/.*
   RewriteRule ^(?!.*\.).*$ index.html [NC,L]
 </IfModule>
 

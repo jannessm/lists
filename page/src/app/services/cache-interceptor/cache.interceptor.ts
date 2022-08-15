@@ -17,6 +17,7 @@ export class CacheInterceptor implements HttpInterceptor {
   constructor(private updateService: UpdateService) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {    
+    console.log(request.url, 'intercepted', this.updateService.online);
     if (!this.updateService.online && request.method !== HttpRequestType.GET) {
       return from(db.put(request.url, request.body, <HttpRequestType>request.method)).pipe(map(res => {
         return new HttpResponse({status: 200, body: {status: 'success'}});

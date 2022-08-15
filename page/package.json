@@ -3,10 +3,8 @@
   "version": "2.1.0",
   "scripts": {
     "ng": "ng",
-    "start": "export NODE_OPTIONS=--openssl-legacy-provider; ng serve",
-    "start-win": "ng serve",
-    "build": "export NODE_OPTIONS=--openssl-legacy-provider; ng build",
-    "build-win": "ng build",
+    "start": "ng serve",
+    "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -28,7 +26,6 @@
     "dexie": "^3.2.2",
     "flatpickr": "^4.6.13",
     "jwt-decode": "^3.1.2",
-    "localstorage-slim": "^2.3.0",
     "md5-ts": "^0.1.6",
     "ngx-cookieconsent": "^2.2.3",
     "rxjs": "~7.5.0",
