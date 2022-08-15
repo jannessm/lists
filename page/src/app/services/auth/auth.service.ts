@@ -28,7 +28,6 @@ export class AuthService {
     private lsService: LocalStorageService,
   ) {
 
-    
     if (!!this.lsService.jwt) {
       const jwt = this.lsService.jwt;
       this._jwtValidation = this.api.validateJWT(jwt).pipe(
@@ -43,6 +42,8 @@ export class AuthService {
     } else {
       this._jwtValidation = of(false);
     }
+
+    this._jwtValidation.subscribe();
   }
 
   isLoggedIn(): Observable<boolean> {

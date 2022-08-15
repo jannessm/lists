@@ -7,6 +7,7 @@ export enum HttpRequestType {
 }
 
 export interface CachedQuery {
+  requested: number;
   uri: string;
   payload: any;
   requestType: HttpRequestType;
@@ -34,7 +35,8 @@ export class AppDB extends Dexie {
     await table.put({
       uri,
       payload,
-      requestType
+      requestType,
+      requested: new Date().getTime()
     }, 'uri');
   }
 
@@ -43,7 +45,8 @@ export class AppDB extends Dexie {
     if (requestType !== HttpRequestType.GET) {
       table = this.cachedQueries;
     }
-    return await table.where({uri}).toArray()
+
+    return await table.where({uri}).reverse().sortBy('requested');
   }
 }
 
