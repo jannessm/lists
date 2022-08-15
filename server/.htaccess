@@ -32,10 +32,10 @@ Options -Indexes
 IndexIgnore *
 
 # Hide files of type .png, .zip, .jpg, .gif and .doc from listing
-IndexIgnore *.png *.zip *.jpg *.gif *.doc *.json *.key *.pub *secrets.php
+IndexIgnore *.png *.zip *.jpg *.gif *.doc *.key *.pub *secrets.php
 
 # Deny access to files with extensions .ini, .psd, .log, .sh
-<FilesMatch "\.(ini|psd|log|sh|json|key|pub)$">
+<FilesMatch "\.(ini|psd|log|sh|key|pub)$">
 Order allow,deny
 Deny from all
 </FilesMatch>
