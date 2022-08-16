@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,13 +10,18 @@ export class ThemeService {
 
   constructor() {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-      this.isDark.next(e.matches);
+      this.updateTheme(e.matches);
     });
 
-    if(window.matchMedia('(prefers-color-scheme: dark)').matches){
-      this.isDark.next(true);
+    this.updateTheme();
+  }
+
+  updateTheme(isDark: boolean | null = null) {
+    if (isDark === null) {
+      this.isDark.next(window.matchMedia('(prefers-color-scheme: dark)').matches);
     } else {
-      this.isDark.next(false);
+      this.isDark.next(isDark);
     }
   }
 }
+

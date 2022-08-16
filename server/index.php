@@ -13,6 +13,7 @@ require_once('src/user.php');
 require_once('src/lists.php');
 require_once('src/user_list_relation.php');
 require_once('src/list_item.php');
+require_once('src/manage_user.php');
 require_once('src/manage_lists.php');
 require_once('src/manage_list_items.php');
 
@@ -47,6 +48,12 @@ try {
     // validateJWT
     if (isset($_POST) && isset($_GET['validate'])) {
         validateJWT();
+        return;
+    }
+
+    // set Theme
+    if (isset($_POST) && isset($_GET['update-theme'])) {
+        setTheme();
         return;
     }
 

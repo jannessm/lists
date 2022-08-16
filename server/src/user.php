@@ -20,7 +20,7 @@ class User {
         $sql = "CREATE TABLE IF NOT EXISTS `user` (
             `email` TINYTEXT NOT NULL,
             `password` TINYTEXT NOT NULL,
-            `default_list` TINYTEXT,
+            `dark_theme` TINYINT,
             PRIMARY KEY (`email`)
         );";
         $this->pdo->exec($sql);
@@ -43,12 +43,16 @@ class User {
     }
 
     public function get($email) {
-        $sql = 'SELECT email, password, default_list from user where `email`=:email;';
+        $sql = 'SELECT email, password, dark_theme from user where `email`=:email;';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':email', $email);
         $stmt->execute();
 
         $user = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if ($user['dark_theme'] !== null) {
+            $user['dark_theme'] = $user['dark_theme'] === 1 || $user['dark_theme'] === '1';
+        }
 
         return $user;
     }
@@ -57,6 +61,12 @@ class User {
         $sql = 'UPDATE user SET new_password=:new_password where email=:email;';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':new_password' => $new_password, ':email' => $email]);
+    }
+
+    public function update_theme($email, $dark_theme) {
+        $sql = 'UPDATE user SET dark_theme=:theme where email=:email;';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':theme' => $dark_theme, ':email' => $email]);
     }
 
     public function delete($email) {

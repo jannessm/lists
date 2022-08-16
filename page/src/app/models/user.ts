@@ -1,4 +1,4 @@
 export interface User {
     email: string;
-    default_list: string;
+    dark_theme: boolean | null;
 }

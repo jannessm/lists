@@ -134,7 +134,7 @@ export class ListService {
   updateData(): Observable<void> {
     if (this.authService.loggedUser) {
       return this.listApi.getLists(this.authService.loggedUser.email).pipe(map(resp => {
-        console.log(resp);
+        // console.log(resp);
         if (resp.status === API_STATUS.SUCCESS) {
           this._lastDataObject = <List[]>resp.payload;
           this.lists.next(this._lastDataObject);

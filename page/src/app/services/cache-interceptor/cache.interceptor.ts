@@ -10,6 +10,7 @@ import {
 import { from, map, Observable, of } from 'rxjs';
 import { UpdateService } from '../update/update.service';
 import { db, HttpRequestType } from 'src/app/models/db';
+import { API_STATUS } from 'src/app/models/api-responses';
 
 @Injectable()
 export class CacheInterceptor implements HttpInterceptor {
@@ -18,13 +19,13 @@ export class CacheInterceptor implements HttpInterceptor {
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {    
     if (!this.updateService.online && request.urlWithParams.endsWith('?validate')){
-      return of(new HttpResponse({status: 200, body: {status: 'success', payload: (<{jwt: string}>request.body).jwt}}));
+      return of(new HttpResponse({status: 200, body: {status: API_STATUS.SUCCESS, payload: (<{jwt: string}>request.body).jwt}}));
     }
 
 
     if (!this.updateService.online && request.method !== HttpRequestType.GET) {
       return from(db.put(request.url, request.body, <HttpRequestType>request.method)).pipe(map(res => {
-        return new HttpResponse({status: 200, body: {status: 'success'}});
+        return new HttpResponse({status: 400, body: {status: API_STATUS.ERROR}}); // disable changes until offline is working
       }));
     
     } else if (!this.updateService.online) {

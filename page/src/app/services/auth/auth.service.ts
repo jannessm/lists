@@ -1,5 +1,5 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { Observable, of, Subscriber } from 'rxjs';
+import { Observable, ObservedValueOf, of, Subscriber } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { UserApiService } from '../api/user/user-api.service';
 import { User } from 'src/app/models/user';
@@ -8,6 +8,7 @@ import { LocalStorageService } from '../local-storage/local-storage.service';
 
 import jwt_decode from 'jwt-decode';
 import { JWT } from 'src/app/models/jwt';
+import { ThemeService } from '../theme/theme.service';
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +27,7 @@ export class AuthService {
   constructor(
     private api: UserApiService,
     private lsService: LocalStorageService,
+    private themeService: ThemeService
   ) {
 
     if (!!this.lsService.jwt) {
@@ -98,6 +100,25 @@ export class AuthService {
     );
   }
 
+  updateTheme(darkTheme: boolean | null): Observable<boolean | null> {
+    if (this.loggedUser) {
+      return this.api.setDarkTheme(this.loggedUser.email, darkTheme).pipe(map(resp => {
+        if (resp.status === API_STATUS.SUCCESS && this.loggedUser) {
+          this.loggedUser.dark_theme = darkTheme;
+          this.themeService.updateTheme(darkTheme);
+          return darkTheme;
+        
+        } else if (this.loggedUser) {
+          return this.loggedUser.dark_theme;
+        
+        } else {
+          return null;
+        }
+      }))
+    }
+    return of(null);
+  }
+
   logout(): void {
     this.loggedUser = null;
     this._isLoggedIn = false;
@@ -109,8 +130,11 @@ export class AuthService {
     const jwt_decoded: JWT = jwt_decode(jwt);
     
     this.loggedUser = <User>jwt_decoded.user;
+
     this._isLoggedIn = true;
 
+    this.themeService.updateTheme(this.loggedUser.dark_theme);
+    
     return jwt_decoded.user;
   }
 }

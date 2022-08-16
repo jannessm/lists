@@ -33,4 +33,11 @@ export class UserApiService {
       pwd
     });
   }
+
+  setDarkTheme(email: string, darkTheme: boolean | null): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(this.BASE_API + '?update-theme', {
+      email,
+      'dark_theme': darkTheme
+    });
+  }
 }
