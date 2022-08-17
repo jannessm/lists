@@ -106,7 +106,6 @@ export class AuthService {
         if (resp.status === API_STATUS.SUCCESS && this.loggedUser) {
           this.loggedUser.dark_theme = darkTheme;
           this.themeService.userPreference = darkTheme;
-          console.log(darkTheme);
           this.themeService.updateTheme();
           return darkTheme;
         

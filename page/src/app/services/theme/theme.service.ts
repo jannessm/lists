@@ -23,7 +23,7 @@ export class ThemeService {
     if (this.userPreference !== null) {
       isDark = this.userPreference;
     }
-    console.log(isDark, this.userPreference);
+
     this.isDark.next(isDark);
 
     const metaTag = document.querySelector('meta[name=theme-color]');

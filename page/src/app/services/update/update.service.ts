@@ -42,7 +42,6 @@ export class UpdateService {
     return from(db.cachedQueries.toArray()).pipe(map(reqs => {
 
       reqs.forEach(req => {
-        console.log(req)
         switch (req.requestType) {
           case HttpRequestType.POST:
             this.http.post(req.uri, req.payload).subscribe(() => this.delReq(req.uri));

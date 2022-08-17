@@ -56,9 +56,12 @@ export class ListComponent implements AfterViewInit {
   @ViewChild('chipDate') chipDiff!: ElementRef;
 
   @HostListener('mousemove', ['$event'])
-  @HostListener('touchmove', ['$event'])
   onMousemove(event: MouseEvent): void  {
     this.pointerPosY = event.clientY;
+  }
+  @HostListener('touchmove', ['$event'])
+  onTouchMove(event: TouchEvent): void {
+    this.pointerPosY = event.changedTouches[0].clientY;
   }
 
   constructor(
@@ -165,6 +168,7 @@ export class ListComponent implements AfterViewInit {
   addItem() {
     if (this.list && this.newItem !== '') {
       let newTime = null;
+      console.log(this.newItemTime.value);
       switch(this.newItemTime.value) {
         case 'today':
           newTime = new Date();
@@ -246,9 +250,10 @@ export class ListComponent implements AfterViewInit {
     if (!this.pointerDown) {
       this.pointerDown = true;
       const currScrollPos = event.clientY;
+      this.pointerPosY = currScrollPos;
       
       setTimeout(() => {
-
+        
         if (this.pointerPosY != undefined && this.pointerDown && !this.updateDialogRef && Math.abs(currScrollPos - this.pointerPosY) < 50) {  
           this.updateDialogRef = this.bottomSheet.open(UpdateItemDialogComponent, {
             data: {
@@ -286,7 +291,7 @@ export class ListComponent implements AfterViewInit {
   }
 
   toggleNewTimeSelected(chip: MatChip) {
-    chip.selected = true;
+    this.newItemTime.setValue(chip.value);
 
     if (chip.value !== 'different') {
       this.timePicker.clear();

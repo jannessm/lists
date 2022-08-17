@@ -54,7 +54,7 @@
     </mat-toolbar>
 
     <mat-toolbar class="toolbar-time" [style.display]="focusInput ? 'block' : 'none'" *ngIf="list && !list.groceries">
-        <mat-chip-list [formControl]="newItemTime" #chiplist>
+        <mat-chip-list [formControl]="newItemTime">
             <mat-chip (click)="toggleNewTimeSelected(chipToday)" #chipToday="matChip" value="today">Heute</mat-chip>
             <mat-chip (click)="toggleNewTimeSelected(chipTomorrow)" #chipTomorrow="matChip" value="tomorrow">Morgen</mat-chip>
             <mat-chip (click)="toggleNewTimeSelected(chipDiff)" #chipDiff="matChip" value="different">{{(timePickerDate | date:'short') || 'Andere'}}</mat-chip>

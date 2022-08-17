@@ -30,6 +30,7 @@
     .item-content, mat-chip {
         color: grey;
         text-decoration: line-through;
+        user-select: none;
     }
 }
 
@@ -38,7 +39,6 @@
     border-radius: 8px;
     margin: 6px 0;
     width: 100%;
-    user-select: none;
 
     &.dark-theme {
         background: #464646;
@@ -58,6 +58,7 @@
             white-space: pre-wrap;
             margin-right: 36px;
             margin-bottom: 0 !important;
+            user-select: none;
         }
 
         button.mini-user-fab {
@@ -75,6 +76,7 @@
 
     mat-chip-list, mat-chip {
         display: inline-block;
+        user-select: none;
     }
 }
 

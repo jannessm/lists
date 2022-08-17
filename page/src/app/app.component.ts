@@ -98,7 +98,6 @@ export class AppComponent {
   }
 
   setTheme(dark: boolean) {
-    console.log('setTheme', dark);
     if (dark) {
       document.body.classList.add('dark-theme');
     } else {
