@@ -105,7 +105,9 @@ export class AuthService {
       return this.api.setDarkTheme(this.loggedUser.email, darkTheme).pipe(map(resp => {
         if (resp.status === API_STATUS.SUCCESS && this.loggedUser) {
           this.loggedUser.dark_theme = darkTheme;
-          this.themeService.updateTheme(darkTheme);
+          this.themeService.userPreference = darkTheme;
+          console.log(darkTheme);
+          this.themeService.updateTheme();
           return darkTheme;
         
         } else if (this.loggedUser) {
@@ -133,7 +135,8 @@ export class AuthService {
 
     this._isLoggedIn = true;
 
-    this.themeService.updateTheme(this.loggedUser.dark_theme);
+    this.themeService.userPreference = this.loggedUser.dark_theme;
+    this.themeService.updateTheme();
     
     return jwt_decoded.user;
   }

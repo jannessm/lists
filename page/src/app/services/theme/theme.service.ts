@@ -7,20 +7,28 @@ import { AuthService } from '../auth/auth.service';
 })
 export class ThemeService {
   isDark = new ReplaySubject<boolean>(1);
+  userPreference: boolean | null = null;
 
   constructor() {
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-      this.updateTheme(e.matches);
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      this.updateTheme();
     });
 
     this.updateTheme();
   }
 
-  updateTheme(isDark: boolean | null = null) {
-    if (isDark === null) {
-      this.isDark.next(window.matchMedia('(prefers-color-scheme: dark)').matches);
-    } else {
-      this.isDark.next(isDark);
+  updateTheme() {
+    let isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (this.userPreference !== null) {
+      isDark = this.userPreference;
+    }
+    console.log(isDark, this.userPreference);
+    this.isDark.next(isDark);
+
+    const metaTag = document.querySelector('meta[name=theme-color]');
+    if (metaTag) {
+      metaTag.setAttribute('content', isDark ? '#262626' : '#ffffff');
     }
   }
 }
