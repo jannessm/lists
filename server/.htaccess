@@ -45,3 +45,5 @@ Deny from all
 Order allow,deny
 Deny from all
 </FilesMatch>
+
+mod_gzip_on Yes
