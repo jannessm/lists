@@ -133,7 +133,7 @@ export class ListComponent implements AfterViewInit {
 
   deleteList() {
     if (this.list) {
-      const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche' + this.list.name});
+      const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche ' + this.list.name});
       
       confirm.afterDismissed().subscribe(del => {
         if (del && this.list) {
@@ -199,7 +199,7 @@ export class ListComponent implements AfterViewInit {
   }
   
   deleteItem(item: ListItem) {
-    const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche' + item.name});
+    const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche ' + item.name});
     
     confirm.afterDismissed().subscribe(del => {
       if (this.list && del) {

@@ -17,6 +17,8 @@ export class AppDB extends Dexie {
   cachedGets!: Table<CachedQuery, string>;
   cachedQueries!: Table<CachedQuery, string>;
 
+  userEmail: string | undefined;
+
   constructor() {
     super('db');
     this.version(3).stores({
@@ -47,6 +49,11 @@ export class AppDB extends Dexie {
     }
 
     return await table.where({uri}).reverse().sortBy('requested');
+  }
+
+  clear() {
+    this.cachedGets.clear();
+    this.cachedQueries.clear();
   }
 }
 

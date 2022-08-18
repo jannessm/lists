@@ -9,6 +9,7 @@ import { LocalStorageService } from '../local-storage/local-storage.service';
 import jwt_decode from 'jwt-decode';
 import { JWT } from 'src/app/models/jwt';
 import { ThemeService } from '../theme/theme.service';
+import { db } from 'src/app/models/db';
 
 @Injectable({
   providedIn: 'root'
@@ -125,6 +126,8 @@ export class AuthService {
     this._isLoggedIn = false;
     this.lsService.jwt = undefined;
     this.loggedStateChanges.next(undefined);
+    db.userEmail = undefined;
+    db.clear();
   }
 
   setJWT(jwt: string): User {
@@ -136,6 +139,8 @@ export class AuthService {
 
     this.themeService.userPreference = this.loggedUser.dark_theme;
     this.themeService.updateTheme();
+
+    db.userEmail = this.loggedUser.email;
     
     return jwt_decoded.user;
   }
