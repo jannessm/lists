@@ -58,6 +58,8 @@ export class ListItemService {
             this._items.set(list_id, items);
             itemsSubj.next(items);
           }
+        } else {
+          this.snackBar.open('Eintrag konnte nicht hinzugefügt werden.', 'Ok');
         }
         return resp && resp.status === API_STATUS.SUCCESS;
       }));
@@ -91,7 +93,7 @@ export class ListItemService {
 
   updateDone(list_id: string, uuids: string[], done: boolean): Observable<boolean> {
     return this.listItemApi.updateDone(uuids, done).pipe(map(resp => {
-      if ((resp && resp.status === API_STATUS.SUCCESS) || !this.updateService.online) {
+      if ((resp && resp.status === API_STATUS.SUCCESS)) {
         const items = this._items.get(list_id);
         
         if (items) {
@@ -107,7 +109,7 @@ export class ListItemService {
         }
         return true;
       } else {
-        this.snackBar.open("Konnte Element nicht updaten", "Ok");
+        this.snackBar.open("Konnte Eintrag nicht aktualisieren", "Ok");
         return false;
       }
     }));

@@ -62,6 +62,8 @@ export class ListService {
         if (resp && resp.status === API_STATUS.SUCCESS) {
           this._lastDataObject.unshift(list);
           this.lists.next(this._lastDataObject);
+        } else {
+          this.snackBar.open('Liste konnte nicht hinzugefügt werden.', 'Ok');
         }
       });
     } else if (list.name === '') {
