@@ -17,12 +17,16 @@
     overflow-x: hidden;
 
     .item:last-child {
-        margin-bottom: calc($nav-bar-height * 2);
+        margin-bottom: $nav-bar-height;
     }
 
     .slot-done-toggle {
         // display: inline-block;
         float: right;
+    }
+
+    .slot:last-child {
+        margin-bottom: $nav-bar-height;
     }
 }
 

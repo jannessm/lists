@@ -1,5 +1,6 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { Component, HostListener } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { delay } from 'rxjs';
 import { AuthService } from './services/auth/auth.service';
@@ -37,6 +38,7 @@ export class AppComponent {
     public authService: AuthService,
     public router: Router,
     private updateService: UpdateService,
+    private snackBar: MatSnackBar,
     private themeService: ThemeService) {
       themeService.isDark.subscribe(this.setTheme)
     }
@@ -56,7 +58,7 @@ export class AppComponent {
     if (this.refreshOpacity < 1) {
       this.marginTopContent = -1;
       this.refreshOpacity = 0;
-    } else {
+    } else if (this.updateService.online) {
       this.marginTopContent = 64;
       this.refreshOpacity = 1;
       this.loading = true;
@@ -67,6 +69,11 @@ export class AppComponent {
         this.marginTopContent = -1;
         this.refreshOpacity = 0;
       });
+    } else if (!this.updateService.online) {
+      this.snackBar.open('Aktualisierung offline nicht möglich.', 'Ok');
+      this.loading = false;
+      this.marginTopContent = -1;
+      this.refreshOpacity = 0;
     }
   }
 

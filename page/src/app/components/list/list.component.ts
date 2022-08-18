@@ -18,6 +18,7 @@ import { MatChip } from '@angular/material/chips';
 import { Options } from 'flatpickr/dist/types/options';
 import { ThemeService } from 'src/app/services/theme/theme.service';
 import { ConfirmSheetComponent } from '../bottom-sheets/confirm-sheet/confirm-sheet.component';
+import { splitNsName } from '@angular/compiler';
 
 @Component({
   selector: 'app-list',
@@ -314,5 +315,37 @@ export class ListComponent implements AfterViewInit {
       this.focusInput = false;
     }
     this.pickerOpen = this.timePicker.isOpen;
+  }
+
+  listToText() {
+    const done = '✓';
+    const open = '☐';
+    const indent = '  ';
+
+    if (this.list) {
+      let listStr = this.list.name + '\n\n';
+      this.slots.forEach(slot => {
+        if (slot.items.length > 0) {
+          
+          listStr += indent + slot.name + '\n\n';
+          
+          slot.items.forEach(item => {
+            const mark = item.done ? done : open;
+            listStr += indent + indent + mark + ' ' + item.name + '\n';
+          });
+          
+          listStr += '\n';
+        }
+        
+      });
+
+      // check if mobile
+      if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && !!navigator.share) {
+        navigator.share({text: listStr, title: this.list.name});
+      } else {
+        navigator.clipboard.writeText(this.list.name + '\n\n' + listStr);
+        this.snackbar.open('Liste in die Zwischenablage kopiert!', 'Ok');
+      }
+    }
   }
 }
