@@ -33,6 +33,6 @@ export class ListItemApiService {
   }
 
   deleteItems(uuids: string[], list_id: string): Observable<ApiResponse> {
-    return this.http.delete<ApiResponse>(this.BASE_API + '?delete-items&uuids=' + uuids.join(',') + 'list_id=' + list_id);
+    return this.http.delete<ApiResponse>(this.BASE_API + '?delete-items&uuids=' + uuids.join(',') + '&list_id=' + list_id);
   }
 }

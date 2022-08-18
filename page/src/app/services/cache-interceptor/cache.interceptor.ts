@@ -11,7 +11,6 @@ import { from, map, Observable, of } from 'rxjs';
 import { UpdateService } from '../update/update.service';
 import { db, HttpRequestType } from 'src/app/models/db';
 import { API_STATUS } from 'src/app/models/api-responses';
-import { AuthService } from '../auth/auth.service';
 import { List, ListItem } from 'src/app/models/lists';
 
 const UUID_REGEX = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
@@ -61,7 +60,7 @@ export class CacheInterceptor implements HttpInterceptor {
 
     // delete-list
     if (request.urlWithParams.indexOf('?delete-list&uuid=') > -1 && db.userEmail) {
-      this.deleteListInCache(reqBase, request.params.get('uuid'));
+      this.deleteListInCache(reqBase, this.getParamValue(request.urlWithParams, 'uuid'));
     }
 
     // add-item
@@ -69,8 +68,9 @@ export class CacheInterceptor implements HttpInterceptor {
       this.addItemInCache(request, reqBase);
     }
     // update-done
-    if (request.urlWithParams.indexOf('?add-item') > -1) {
-      this.updateDoneInCache(request, reqBase,  request.params.get('list_id'));
+    if (request.urlWithParams.indexOf('?update-done') > -1) {
+      console.log(request.params);
+      this.updateDoneInCache(request, reqBase, this.getParamValue(request.urlWithParams, 'list_id'));
     }
 
     // update-item-list
@@ -80,28 +80,27 @@ export class CacheInterceptor implements HttpInterceptor {
 
     // delete-item
     if (request.urlWithParams.indexOf('?delete-item') > -1) {
-      this.deleteItemsInCache(request, reqBase,  request.params.get('list_id'));
+      this.deleteItemsInCache(request, reqBase,  this.getParamValue(request.urlWithParams, 'list_id'));
     }
-    console.log(request);
 
     return db.put(
-        request.url,
+        request.urlWithParams,
         request.body,
         <HttpRequestType>request.method
       ).then(res => {
         return new HttpResponse({
           status: 201,
           body: {status: API_STATUS.SUCCESS}
-        }); // disable changes until offline is working
+        });
       });
   }
 
   handleOfflineGet(request: HttpRequest<unknown>): Observable<HttpEvent<unknown>> {
-    return from(db.get(request.url, <HttpRequestType>request.method)).pipe(map(res => {
+    return from(db.get(request.urlWithParams, <HttpRequestType>request.method)).pipe(map(res => {
       if (res.length == 1) {
         return new HttpResponse({body: res[0].payload, status: 200});
       } else {
-        return new HttpResponse({body: {status: 'error', req: request.url, res}, status: 404});
+        return new HttpResponse({body: {status: 'error', req: request.urlWithParams, res}, status: 404});
       }
     }));
   }
@@ -109,7 +108,7 @@ export class CacheInterceptor implements HttpInterceptor {
   handleOnline(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     return next.handle(request).pipe(map(res => {
       if (res.type == HttpEventType.Response && !!res.body && request.method === HttpRequestType.GET) {
-        db.put(request.url, res.body, <HttpRequestType>request.method);
+        db.put(request.urlWithParams, res.body, <HttpRequestType>request.method);
       }
       return res;
     }));
@@ -120,12 +119,13 @@ export class CacheInterceptor implements HttpInterceptor {
       const getListReq = reqBase + '?get-lists&email=' + encodeURIComponent(db.userEmail);
       const listsReq = await db.get(getListReq, HttpRequestType.GET);
       const newList: List = (<any>request.body).list;
+      newList.users = [db.userEmail];
       const lists = listsReq[0].payload.payload;
       
       lists.push(newList);
 
       await db.put(getListReq, listsReq[0].payload, HttpRequestType.GET);
-      await db.put(reqBase + '?get-items-for-list&list_id=' + newList.uuid, [], HttpRequestType.GET);
+      await db.put(reqBase + '?get-items-for-list&list_id=' + newList.uuid, {status: API_STATUS.SUCCESS, payload: [], code: 200}, HttpRequestType.GET);
     }
   }
 
@@ -133,7 +133,7 @@ export class CacheInterceptor implements HttpInterceptor {
     if (db.userEmail) {
       const getListReq = reqBase + '?get-lists&email=' + encodeURIComponent(db.userEmail);
       const listsReq = await db.get(getListReq, HttpRequestType.GET);
-      const list: List = (<any>request.body).list;
+      const list: List = <List>request.body;
       
       const lists: Array<List> = listsReq[0].payload.payload;
       const listId = lists.findIndex(l => l.uuid == list.uuid);
@@ -167,14 +167,16 @@ export class CacheInterceptor implements HttpInterceptor {
       const newItem = <ListItem>request.body;
       const getListItemsReq = reqBase + '?get-items-for-list&list_id=' + newItem.list_id;
       const listsReq = await db.get(getListItemsReq, HttpRequestType.GET);
-      const items = listsReq[0].payload.payload;
       
+      const items = listsReq[0].payload.payload;
+
       items.push(newItem);
       await db.put(getListItemsReq, listsReq[0].payload, HttpRequestType.GET);
     }
   }
 
   async updateDoneInCache(request: HttpRequest<unknown>, reqBase: string, list_id: string | null) {
+    console.log('updateDone', list_id);
     if (db.userEmail && list_id != null) {
       const itemUUIDs = <string[]>(<any>request.body).uuids;
       const done = <boolean>(<any>request.body).done;
@@ -189,7 +191,7 @@ export class CacheInterceptor implements HttpInterceptor {
           item.done = done;
         }
       });
-      
+      console.log(items);
       await db.put(getListItemsReq, listsReq[0].payload, HttpRequestType.GET);
     }
   }
@@ -216,8 +218,9 @@ export class CacheInterceptor implements HttpInterceptor {
       const getListItemsReq = reqBase + '?get-items-for-list&list_id=' + list_id;
       const listsReq = await db.get(getListItemsReq, HttpRequestType.GET);
       const items = <ListItem[]>listsReq[0].payload.payload;
+      console.log(listsReq[0]);
       
-      const uuids = request.params.get('uuids');
+      const uuids = this.getParamValue(request.urlWithParams, 'uuids');
 
       if (uuids) {
         uuids.split(',').forEach(uuid => {
@@ -230,5 +233,25 @@ export class CacheInterceptor implements HttpInterceptor {
 
       await db.put(getListItemsReq, listsReq[0].payload, HttpRequestType.GET);
     }
+  }
+
+  getParamValue(uri: string, key: string): string {
+    let paramId = uri.indexOf('?' + key + '=');
+    if (paramId == -1) {
+      paramId = uri.indexOf('&' + key + '=');
+    }
+
+    if (paramId > -1) {
+      const start = paramId + 2 + key.length;
+      uri = uri.substring(start);
+      const end = uri.indexOf('&');
+      
+      if (end !== -1) {
+        return uri.substring(0, end);
+      }
+      return uri;
+    }
+
+    return '';
   }
 }

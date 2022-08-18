@@ -52,6 +52,8 @@ export class UpdateService {
   updateData() {
     return from(db.cachedQueries.toArray()).pipe(map(reqs => {
 
+      reqs.sort((a,b) => a.requested - b.requested);
+  
       reqs.forEach(req => {
         switch (req.requestType) {
           case HttpRequestType.POST:

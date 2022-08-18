@@ -168,7 +168,7 @@ export class ListComponent implements AfterViewInit {
   addItem() {
     if (this.list && this.newItem !== '') {
       let newTime = null;
-      console.log(this.newItemTime.value);
+
       switch(this.newItemTime.value) {
         case 'today':
           newTime = new Date();

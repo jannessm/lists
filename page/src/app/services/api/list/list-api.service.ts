@@ -17,6 +17,7 @@ export class ListApiService {
 
   addList(email: string, list: List): Observable<ApiResponse> {
     const req_id = genUuid();
+  
     return this.http.post<ApiResponse>(this.BASE_API + '?add-list&uuid=' + req_id, {
       email,
       list
