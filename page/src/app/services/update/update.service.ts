@@ -36,7 +36,9 @@ export class UpdateService {
     });
 
     this.updates.versionUpdates.subscribe(event => {
-      this.showAppUpdateAlert();
+      if (event.type === 'VERSION_DETECTED') {
+        this.showAppUpdateAlert();
+      }
     });
     
   }
