@@ -4,17 +4,17 @@ import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bott
 import { List, ListItem } from 'src/app/models/lists';
 
 @Component({
-  selector: 'app-update-item-dialog',
-  templateUrl: './update-item-dialog.component.html',
-  styleUrls: ['./update-item-dialog.component.scss']
+  selector: 'app-update-item-sheet',
+  templateUrl: './update-item-sheet.component.html',
+  styleUrls: ['./update-item-sheet.component.scss']
 })
-export class UpdateItemDialogComponent {
+export class UpdateItemSheetComponent {
   form: FormGroup;
   list: List;
   timezone: string | undefined;
 
   constructor(
-    public bottomSheetRef: MatBottomSheetRef<UpdateItemDialogComponent>,
+    public bottomSheetRef: MatBottomSheetRef<UpdateItemSheetComponent>,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: {list:List, item: ListItem},
     private fb: FormBuilder
   ) {

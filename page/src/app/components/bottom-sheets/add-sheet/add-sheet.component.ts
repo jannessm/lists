@@ -4,17 +4,17 @@ import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bott
 import { List } from 'src/app/models/lists';
 
 @Component({
-  selector: 'app-add-dialog',
-  templateUrl: './add-dialog.component.html',
-  styleUrls: ['./add-dialog.component.scss']
+  selector: 'app-add-sheet',
+  templateUrl: './add-sheet.component.html',
+  styleUrls: ['./add-sheet.component.scss']
 })
-export class AddDialogComponent {
+export class AddSheetComponent {
 
   title: string = 'Liste Hinzufügen';
   form: FormGroup;
 
   constructor(
-    public bottomSheetRef: MatBottomSheetRef<AddDialogComponent>,
+    public bottomSheetRef: MatBottomSheetRef<AddSheetComponent>,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: List,
     private fb: FormBuilder
   ) {

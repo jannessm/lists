@@ -29,8 +29,8 @@
              *ngFor="let item of slot.items"
              [class.item-done]="item.done"
              [class.dark-theme]="themeService.isDark | async"
-             (pointerdown)="openUpdateDialog($event, item)"
-             (pointerup)="cancelUpdateDialog()">
+             (pointerdown)="openUpdateSheet($event, item)"
+             (pointerup)="cancelUpdateSheet()">
             <div *ngIf="!slot.collapsed || !item.done">
                 <mat-checkbox (change)="toggleDone(item, slot.items)" [(ngModel)]="item.done" color="primary">
                     <div class="item-content">{{ item.name }}

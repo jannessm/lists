@@ -4,9 +4,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { List, ListItem } from 'src/app/models/lists';
 import { ListItemService } from 'src/app/services/list-item/list-item.service';
 import { ListService } from 'src/app/services/list/list.service';
-import { AddDialogComponent } from '../add-dialog/add-dialog.component';
-import { ShareListDialogComponent } from '../share-list-dialog/share-list-dialog.component';
-import { UpdateItemDialogComponent } from '../update-item-dialog/update-item-dialog.component';
+import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.component';
+import { ShareListSheetComponent } from '../bottom-sheets/share-list-sheet/share-list-sheet.component';
+import { UpdateItemSheetComponent } from '../bottom-sheets/update-item-sheet/update-item-sheet.component';
 
 import flatpickr from "flatpickr";
 import { groupItems, Slot } from 'src/app/models/categories';
@@ -14,10 +14,10 @@ import { is_today } from 'src/app/models/categories_timeslots';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ConfirmDeleteSheetComponent } from '../confirm-delete-sheet/confirm-delete-sheet.component';
 import { MatChip } from '@angular/material/chips';
 import { Options } from 'flatpickr/dist/types/options';
 import { ThemeService } from 'src/app/services/theme/theme.service';
+import { ConfirmSheetComponent } from '../bottom-sheets/confirm-sheet/confirm-sheet.component';
 
 @Component({
   selector: 'app-list',
@@ -49,7 +49,7 @@ export class ListComponent implements AfterViewInit {
 
   pointerDown: boolean = false;
   pointerPosY: number | undefined; 
-  updateDialogRef: MatBottomSheetRef<UpdateItemDialogComponent, any> | undefined;
+  updateSheetRef: MatBottomSheetRef<UpdateItemSheetComponent, any> | undefined;
 
   @ViewChild('itemsContainer') itemsContainer!: ElementRef;
   @ViewChild('picker') picker!: ElementRef;
@@ -100,7 +100,7 @@ export class ListComponent implements AfterViewInit {
 
   listSettings() {
     if (this.list) {
-      const dialogRef = this.bottomSheet.open(AddDialogComponent, {
+      const dialogRef = this.bottomSheet.open(AddSheetComponent, {
         data: this.list
       });
   
@@ -121,7 +121,7 @@ export class ListComponent implements AfterViewInit {
 
   shareList() {
     if (this.list) {
-      const dialogRef = this.bottomSheet.open(ShareListDialogComponent);
+      const dialogRef = this.bottomSheet.open(ShareListSheetComponent);
 
       dialogRef.afterDismissed().subscribe(data => {
         if (!!data && this.list) {
@@ -133,7 +133,7 @@ export class ListComponent implements AfterViewInit {
 
   deleteList() {
     if (this.list) {
-      const confirm = this.bottomSheet.open(ConfirmDeleteSheetComponent, {data: this.list.name});
+      const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche' + this.list.name});
       
       confirm.afterDismissed().subscribe(del => {
         if (del && this.list) {
@@ -199,7 +199,7 @@ export class ListComponent implements AfterViewInit {
   }
   
   deleteItem(item: ListItem) {
-    const confirm = this.bottomSheet.open(ConfirmDeleteSheetComponent, {data: item.name});
+    const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche' + item.name});
     
     confirm.afterDismissed().subscribe(del => {
       if (this.list && del) {
@@ -210,7 +210,7 @@ export class ListComponent implements AfterViewInit {
   }
 
   deleteAll() {
-    const confirm = this.bottomSheet.open(ConfirmDeleteSheetComponent, {data: 'alle Einträge'});
+    const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche alle Einträge'});
     
     confirm.afterDismissed().subscribe(del => {
       if (this.list && del) {
@@ -220,7 +220,7 @@ export class ListComponent implements AfterViewInit {
   }
 
   deleteAllDone() {
-    const confirm = this.bottomSheet.open(ConfirmDeleteSheetComponent, {data: 'alle erledigten Einträge'});
+    const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche alle erledigten Einträge'});
     
     confirm.afterDismissed().subscribe(del => {
       if (this.list && del) {
@@ -246,7 +246,7 @@ export class ListComponent implements AfterViewInit {
     }
   }
 
-  openUpdateDialog(event: MouseEvent, item: ListItem) {
+  openUpdateSheet(event: MouseEvent, item: ListItem) {
     if (!this.pointerDown) {
       this.pointerDown = true;
       const currScrollPos = event.clientY;
@@ -254,15 +254,15 @@ export class ListComponent implements AfterViewInit {
       
       setTimeout(() => {
         
-        if (this.pointerPosY != undefined && this.pointerDown && !this.updateDialogRef && Math.abs(currScrollPos - this.pointerPosY) < 50) {  
-          this.updateDialogRef = this.bottomSheet.open(UpdateItemDialogComponent, {
+        if (this.pointerPosY != undefined && this.pointerDown && !this.updateSheetRef && Math.abs(currScrollPos - this.pointerPosY) < 50) {  
+          this.updateSheetRef = this.bottomSheet.open(UpdateItemSheetComponent, {
             data: {
               list: this.list,
               item
             }
           });
   
-          this.updateDialogRef.afterDismissed().subscribe(newItem => {            
+          this.updateSheetRef.afterDismissed().subscribe(newItem => {            
             if (this.list && newItem) {
               newItem.time = newItem.time !== null ? (new Date(newItem.time)).toUTCString() : null;
               newItem.uuid = item.uuid;
@@ -271,19 +271,19 @@ export class ListComponent implements AfterViewInit {
             }
 
             setTimeout(() => {
-              this.cancelUpdateDialog();
+              this.cancelUpdateSheet();
             }, 500);
           });
         } else {
-          this.cancelUpdateDialog();
+          this.cancelUpdateSheet();
         }
       }, 500);
     }
   }
 
-  cancelUpdateDialog() {
+  cancelUpdateSheet() {
     this.pointerDown = false;
-    this.updateDialogRef = undefined;
+    this.updateSheetRef = undefined;
   }
 
   is_today(item: ListItem): boolean {

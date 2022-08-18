@@ -1,10 +1,7 @@
 import { Component } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
-import { API_STATUS } from 'src/app/models/api-responses';
-import { UserApiService } from 'src/app/services/api/user/user-api.service';
 import { AuthService } from 'src/app/services/auth/auth.service';
-import { ThemeService } from 'src/app/services/theme/theme.service';
 import { environment } from 'src/environments/environment';
 
 @Component({

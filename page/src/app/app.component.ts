@@ -62,7 +62,7 @@ export class AppComponent {
       this.loading = true;
       this.animationState = 'go';
 
-      this.updateService.update().pipe(delay(500)).subscribe(() => {
+      this.updateService.updateData().pipe(delay(500)).subscribe(() => {
         this.loading = false;
         this.marginTopContent = -1;
         this.refreshOpacity = 0;

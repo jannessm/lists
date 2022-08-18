@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { List } from 'src/app/models/lists';
 import { ListService } from 'src/app/services/list/list.service';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { AddDialogComponent } from '../add-dialog/add-dialog.component';
+import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.component';
 
 import { v4 as uuid } from 'uuid';
 
@@ -27,7 +27,7 @@ export class ListsOverviewComponent {
   }
 
   addList() {
-    const dialogRef = this.bottomSheet.open(AddDialogComponent);
+    const dialogRef = this.bottomSheet.open(AddSheetComponent);
 
     dialogRef.afterDismissed().subscribe(res => {
       if (!!res) {

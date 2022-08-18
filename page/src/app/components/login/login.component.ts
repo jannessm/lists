@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import md5 from 'md5-ts';
-import { from } from 'rxjs';
 import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({

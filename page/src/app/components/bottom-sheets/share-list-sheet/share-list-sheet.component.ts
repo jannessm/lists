@@ -3,16 +3,16 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 
 @Component({
-  selector: 'app-share-list-dialog',
-  templateUrl: './share-list-dialog.component.html',
-  styleUrls: ['./share-list-dialog.component.scss']
+  selector: 'app-share-list-sheet',
+  templateUrl: './share-list-sheet.component.html',
+  styleUrls: ['./share-list-sheet.component.scss']
 })
-export class ShareListDialogComponent {
+export class ShareListSheetComponent {
 
   form: FormGroup;
 
   constructor(
-    public bottomSheetRef: MatBottomSheetRef<ShareListDialogComponent>,
+    public bottomSheetRef: MatBottomSheetRef<ShareListSheetComponent>,
     private fb: FormBuilder) {
     
     this.form = fb.group({
