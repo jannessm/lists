@@ -21,8 +21,8 @@ export class ListItemApiService {
     return this.http.get<DataResponse>(this.BASE_API + '?get-items-for-list&list_id=' + list_id);
   }
 
-  updateDone(uuids: string[], done: boolean): Observable<ApiResponse> {
-    return this.http.post<ApiResponse>(this.BASE_API + '?update-done&uuids=' + uuids.join(','), {
+  updateDone(uuids: string[], done: boolean, list_id: string): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(this.BASE_API + '?update-done&uuids=' + uuids.join(',') + '&list_id=' + list_id, {
       uuids,
       done
     });
@@ -32,7 +32,7 @@ export class ListItemApiService {
     return this.http.post<ApiResponse>(this.BASE_API + '?update-item&uuid=' + item.uuid, item);
   }
 
-  deleteItems(uuids: string[]): Observable<ApiResponse> {
-    return this.http.delete<ApiResponse>(this.BASE_API + '?delete-item&uuids=' + uuids.join(','));
+  deleteItems(uuids: string[], list_id: string): Observable<ApiResponse> {
+    return this.http.delete<ApiResponse>(this.BASE_API + '?delete-items&uuids=' + uuids.join(',') + 'list_id=' + list_id);
   }
 }

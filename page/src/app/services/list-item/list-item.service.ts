@@ -92,7 +92,7 @@ export class ListItemService {
   }
 
   updateDone(list_id: string, uuids: string[], done: boolean): Observable<boolean> {
-    return this.listItemApi.updateDone(uuids, done).pipe(map(resp => {
+    return this.listItemApi.updateDone(uuids, done, list_id).pipe(map(resp => {
       if ((resp && resp.status === API_STATUS.SUCCESS)) {
         const items = this._items.get(list_id);
         
@@ -145,7 +145,7 @@ export class ListItemService {
   }
 
   deleteItems(list_id: string, uuids: string[]) {
-    this.listItemApi.deleteItems(uuids).subscribe(resp => {
+    this.listItemApi.deleteItems(uuids, list_id).subscribe(resp => {
       if (resp && resp.status === API_STATUS.SUCCESS) {
         const items = this._items.get(list_id);
         const itemsSubj = this.items.get(list_id);

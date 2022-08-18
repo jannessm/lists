@@ -126,7 +126,7 @@ try {
     }
 
     // delete item
-    if ($_SERVER['REQUEST_METHOD'] === 'DELETE' && isset($_GET['delete-item'])) {
+    if ($_SERVER['REQUEST_METHOD'] === 'DELETE' && isset($_GET['delete-items'])) {
         deleteItem();
 
         $sqlconn->backup();
