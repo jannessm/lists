@@ -138,6 +138,7 @@ export class ListService {
       return this.listApi.getLists(this.authService.loggedUser.email).pipe(map(resp => {
         if (resp.status === API_STATUS.SUCCESS) {
           this._lastDataObject = <List[]>resp.payload;
+          this._lastDataObject.sort(this.sortLists);
           this.lists.next(this._lastDataObject);
           this.dataLoaded = true;
         } else {
@@ -146,6 +147,16 @@ export class ListService {
       }));
     } else {
       return of();
+    }
+  }
+
+  sortLists(a: List, b: List): number {
+    if ((a.groceries && b.groceries) || (!a.groceries && !b.groceries)) {
+      return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+    } else if (a.groceries && !b.groceries) {
+      return -1;
+    } else {
+      return 1;
     }
   }
 }
