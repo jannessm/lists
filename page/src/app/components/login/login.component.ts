@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import md5 from 'md5-ts';
 import { AuthService } from 'src/app/services/auth/auth.service';
@@ -15,11 +16,13 @@ export class LoginComponent {
 
   wrongCredentials = false;
   noSpacesRegex = /.*\S.*/;
+  showCaptcha = false;
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private snackBar: MatSnackBar
   ) {
     this.form = fb.group({
       email: [undefined, [Validators.required, Validators.email]],
@@ -79,6 +82,10 @@ export class LoginComponent {
         }
       }
     })
+  }
+
+  registerCaptchaFailed() {
+    this.snackBar.open("Captcha fehlgeschlagen. Keine Registrierung möglich", "Ok");
   }
 
 }

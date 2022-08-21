@@ -20,7 +20,14 @@
         </mat-form-field>
     
         <mat-error *ngIf="wrongCredentials">Leider stimmen Passwort und Name nicht.</mat-error>
-        <button mat-stroked-button (click)="login()" [disabled]="form.invalid">Login</button>
-        <button mat-flat-button color="primary" (click)="register()" [disabled]="form.invalid">Register</button>
+        <button mat-stroked-button (click)="login()" [disabled]="form.invalid || form.disabled">Login</button>
+        <button mat-flat-button color="primary" (click)="showCaptcha=true; form.disable()" [disabled]="form.invalid || form.disabled">Register</button>
+        
+        <div class="captcha" *ngIf="showCaptcha">
+            <ng-hcaptcha (verify)="register()"
+                      (expired)="form.enable()"
+                      (error)="registerCaptchaFailed(); form.enable()">
+            </ng-hcaptcha>
+        </div>
     </form>
 </div>

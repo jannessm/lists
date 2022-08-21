@@ -1,6 +1,7 @@
 import { LOCALE_ID, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { NgHcaptchaModule } from 'ng-hcaptcha';
 
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -60,6 +61,10 @@ registerLocaleData(localeDe, 'de');
       // or after 30 seconds (whichever comes first).
       registrationStrategy: 'registerImmediately'
       // registrationStrategy: 'registerWhenStable:3000'
+    }),
+    NgHcaptchaModule.forRoot({
+      siteKey: 'd2da939a-7988-479e-86d9-7d85faa98e3f',
+      languageCode: 'de' // optional, will default to browser language
     }),
   ],
   providers: [
