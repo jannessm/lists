@@ -30,10 +30,13 @@
     }
 
     function isValidJWT() {
-        global $serverName;
+        global $serverName, $USER;
         
         try {
             $token = decodeToken(readToken());
+            if ($token) {
+                $USER->update_last_login($token->user->email);
+            }
         } catch (Exception $e) {
             return false;
         }
@@ -96,6 +99,7 @@
         if ($user && str_replace('"', '', $user['password']) === $payload['pwd']) {
             $jwtData = $USER->filter($user);
             $jwt_and_expire_date = generateJWT($jwtData);
+            $USER->update_last_login($user->email);
     
             respondJSON(201, $jwt_and_expire_date);
     

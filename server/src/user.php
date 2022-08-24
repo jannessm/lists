@@ -20,24 +20,21 @@ class User {
         $sql = "CREATE TABLE IF NOT EXISTS `user` (
             `email` TINYTEXT NOT NULL,
             `password` TINYTEXT NOT NULL,
+            `activated` TINYINT NOT NULL DEFAULT 0,
             `dark_theme` TINYINT,
+            `last_login` TINYTEXT,
             PRIMARY KEY (`email`)
         );";
         $this->pdo->exec($sql);
     }
 
     public function add($user) {
-        $sql = 'INSERT INTO user VALUES (:email, :password, :default_list);';
+        $sql = 'INSERT INTO user VALUES (:email, :password, 0, NULL, :last_login);';
         $stmt = $this->pdo->prepare($sql);
 
         $stmt->bindValue(':email', $user['email']);
         $stmt->bindValue(':password', $user['password']);
-
-        if (array_key_exists('default_list', $user)) {
-            $stmt->bindValue(':default_list', $user['default_list']);
-        } else {
-            $stmt->bindValue(':default_list', NULL);
-        }
+        $stmt->bindValue(':last_login', $this->now());
 
         $stmt->execute();
     }
@@ -69,10 +66,25 @@ class User {
         $stmt->execute([':theme' => $dark_theme, ':email' => $email]);
     }
 
+    public function update_last_login($email) {
+        $sql = 'UPDATE user SET last_login=:last_login where email=:email;';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':last_login' => $this->now(), ':email' => $email]);
+    }
+
     public function delete($email) {
         $sql = 'DELETE FROM user WHERE email=:email;';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':email' => $email]);
+    }
+
+    public function delete_inactive() {
+        $one_year_ago = new DateTime("now", new DateTimeZone("UTC"));
+        $year = new DateInterval("P1Y");
+        $one_year_ago->sub($year);
+        $sql = 'DELETE FROM user WHERE last_login < :one_year_ago or activated=0';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':one_year_ago' => $one_year_ago->format('c')]);
     }
 
     public function filter($user) {
@@ -81,7 +93,14 @@ class User {
         }
 
         unset($user['password']);
+        unset($user['last_login']);
+        unset($user['activated']);
 
         return $user;
+    }
+
+    private function now() {
+        date_default_timezone_set("UTC");
+        return date('c');
     }
 }

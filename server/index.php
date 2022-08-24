@@ -168,5 +168,6 @@ try {
     }
 
 } catch (Exception $e) {
+    var_dump($e);
     respondErrorMsg(500, $e);
 }
