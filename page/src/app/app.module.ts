@@ -16,7 +16,6 @@ import { NgcCookieConsentModule } from 'ngx-cookieconsent';
 import { COOKIE_CONFIG } from './models/cookie-consent-config';
 import { JwtInterceptor } from './services/jwt-interceptor/jwt.interceptor';
 import { environment } from 'src/environments/environment';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { SettingsComponent } from './components/settings/settings.component';
 import { AddSheetComponent } from './components/bottom-sheets/add-sheet/add-sheet.component';
 import { ListComponent } from './components/list/list.component';
@@ -49,7 +48,6 @@ registerLocaleData(localeDe, 'de');
     BrowserAnimationsModule,
     BrowserModule,
     FlatpickrModule.forRoot(),
-    FlexLayoutModule,
     FormsModule,
     HttpClientModule,
     ReactiveFormsModule,
