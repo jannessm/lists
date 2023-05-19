@@ -6,6 +6,7 @@ header("Access-Control-Allow-Methods: *");
 
 $BASE = './';
 
+
 require_once('src/jwt.php');
 require_once('src/messages.php');
 require_once('src/sqlite_conn.php');
@@ -16,6 +17,11 @@ require_once('src/list_item.php');
 require_once('src/manage_user.php');
 require_once('src/manage_lists.php');
 require_once('src/manage_list_items.php');
+
+if (isset($_GET['ping'])) {
+    respondJSON(200, "ok");
+    return;
+}
 
 $sqlconn = new SQLiteConnection();
 $PDO = $sqlconn->connect();
