@@ -8,7 +8,7 @@
         global $jwtPrivateKey, $serverName;
         
         $issuedAt   = new DateTimeImmutable();
-        $expire     = $issuedAt->modify('+1 month')->getTimestamp();      // Add 60 seconds
+        $expire     = $issuedAt->modify('+1 month')->getTimestamp();
 
         $data = [
             'iat'  => $issuedAt->getTimestamp(),         // Issued at: time when the token was generated
