@@ -36,5 +36,5 @@ $app-dark-theme: mat.define-dark-theme((
 .dark-theme {
     background-color: #262626;
     color: white;
-    @include mat.all-component-themes($app-dark-theme);
+    @include mat.all-component-colors($app-dark-theme);
 }

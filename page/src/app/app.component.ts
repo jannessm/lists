@@ -33,6 +33,7 @@ export class AppComponent {
   refreshOpacity = 0;
   animationState = 'start';
   loading = false;
+  isOnline = true;
 
   constructor(
     public authService: AuthService,
@@ -40,7 +41,8 @@ export class AppComponent {
     private updateService: UpdateService,
     private snackBar: MatSnackBar,
     private themeService: ThemeService) {
-      themeService.isDark.subscribe(this.setTheme)
+      themeService.isDark.subscribe(this.setTheme);
+      updateService.isOnline.subscribe(online => this.isOnline = online);
     }
   
   @HostListener('pointerdown', ['$event'])

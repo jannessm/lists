@@ -19,7 +19,6 @@ require_once('src/manage_lists.php');
 require_once('src/manage_list_items.php');
 
 if (isset($_GET['ping'])) {
-    respondJSON(200, "ok");
     return;
 }
 

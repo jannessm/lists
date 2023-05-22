@@ -1,10 +1,11 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpBackend, HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { SwUpdate } from '@angular/service-worker';
-import { from, fromEvent, map, merge, Observable, Observer, Subscription } from 'rxjs';
+import { repeat, timer, from, fromEvent, interval, map, merge, Observable, Observer, Subscription, timeout } from 'rxjs';
 import { ConfirmSheetComponent } from 'src/app/components/bottom-sheets/confirm-sheet/confirm-sheet.component';
 import { db, HttpRequestType } from 'src/app/models/db';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -15,13 +16,27 @@ export class UpdateService {
   _interval: Subscription | undefined;
   isOnline: Observable<boolean>;
   online: boolean = true;
+  last_online: boolean | undefined;
+  http: HttpClient;
+  
+  pingInterval: number = 2 * 1000;
+  timeout: number = 1000;
 
-  constructor(private http: HttpClient,
+  constructor(private httpBackend: HttpBackend,
               private readonly updates: SwUpdate,
               private bottomSheet: MatBottomSheet) {
+    this.http = new HttpClient(httpBackend);
+
     this.isOnline = merge(
-        fromEvent(window, 'offline').pipe(map(() => false)),
-        fromEvent(window, 'online').pipe(map(() => true)),
+        fromEvent(window, 'offline')
+          .pipe(map(() => false)),
+        this.http.get(environment.api + '?ping').pipe(
+            timeout({
+              each: this.timeout,
+              with: () => from([false])
+            }),
+            repeat({ delay: this.pingInterval }),
+            map(res => res !== false)),
         new Observable((sub: Observer<boolean>) => {
           sub.next(navigator.onLine);
           sub.complete();
@@ -30,9 +45,13 @@ export class UpdateService {
 
     this.isOnline.subscribe(online => {
       this.online = online;
-      if (online) {
+      if (online && online !== this.last_online) {
         this.updateData().subscribe();
       }
+      if (online !== this.last_online) {
+        console.log("online:", online);
+      }
+      this.last_online = online;
     });
 
     this.updates.versionUpdates.subscribe(event => {
