@@ -63,6 +63,8 @@
             margin-right: 36px;
             margin-bottom: 0 !important;
             user-select: none;
+            display: flex;
+            align-items: center;
         }
 
         button.mini-user-fab {
@@ -72,15 +74,25 @@
         }
 
         button:not(.mini-user-fab) {
-            top: calc(50% - 20px);
+            top: calc(50% - 24px);
             position: absolute;
             right: 0;
         }
     }
 
-    mat-chip-list, mat-chip {
+    mat-chip-listbox, mat-chip-option {
         display: inline-block;
         user-select: none;
+    }
+}
+
+.slots mat-chip-option {
+    line-height: 36px;
+    user-select: none;
+
+    mat-icon {
+        position: relative;
+        top: 6px;
     }
 }
 
@@ -94,10 +106,12 @@ mat-toolbar {
     &.toolbar-time {
         display: none;
         padding: 8px;
-        height: 40px;
+        height: 46px;
+        z-index: 11;
     }
 
     &.toolbar-input {
+        z-index: 11;
         padding: 12px;
         height: 64px;
         bottom: $nav-bar-height;

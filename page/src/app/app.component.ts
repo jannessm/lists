@@ -80,7 +80,11 @@ export class AppComponent {
   @HostListener('touchmove', ['$event'])
   negativeScrollTouch(e: TouchEvent) {
     let clientY = e.changedTouches[0].clientY;
-    if (this.scrollTop === 0 && this.startPos - clientY < 0) {
+    const container = document.querySelector('.container') || document.querySelector('#items-container');
+    const isTop = this.scrollTop === 0;
+    const containerIsTop = container === null || (container !== null && container.scrollTop === 0);
+
+    if (isTop && containerIsTop && this.startPos - clientY < 0) {
       this.marginTopContent = (clientY - this.startPos) / 3;
 
       this.refreshOpacity = (clientY - this.startPos) < 200 ? 0.005 * (clientY - this.startPos) / 3 : 1;
@@ -90,7 +94,11 @@ export class AppComponent {
   @HostListener('mousemove', ['$event'])
   negativeScroll(e: MouseEvent) {
     let clientY = e.clientY;
-    if (this.scrollTop === 0 && this.startPos - clientY < 0) {
+    const container = document.querySelector('.container') || document.querySelector('#items-container');
+    const isTop = this.scrollTop === 0;
+    const containerIsTop = container === null || (container !== null && container.scrollTop === 0);
+
+    if (isTop && containerIsTop && this.startPos - clientY < 0) {
       this.marginTopContent = (clientY - this.startPos) / 3;
 
       this.refreshOpacity = (clientY - this.startPos) < 200 ? 0.005 * (clientY - this.startPos) / 3 : 1;

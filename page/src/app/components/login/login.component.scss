@@ -1,13 +1,12 @@
-.half {
-    margin-top: 30vh;
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
 }
 
-button {
-    width: calc(50% - 5px) !important;
-    
-    &:not(:last-of-type) {
-        margin-right: 10px !important;
-    }
+.half {
+    margin-top: 30vh;
 }
 
 .captcha {

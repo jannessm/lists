@@ -3,12 +3,12 @@
     <router-outlet></router-outlet>
 </div>
 
-<mat-toolbar fxLayout="row" fxLayoutAlign="center" *ngIf="authService.loggedUser">
+<mat-toolbar *ngIf="authService.loggedUser">
     <button
         mat-button
         routerLink="/user/lists"
         [color]="router.isActive('/user/lists', true) ? 'primary' : undefined">
-        <div fxLayout="column" fxLayoutAlign="center center" class="toolbar-button">
+        <div class="toolbar-button">
             <mat-icon>list</mat-icon>
             <span>Lists</span>
         </div>
@@ -17,7 +17,7 @@
         mat-button
         routerLink="/user/settings"
         [color]="router.isActive('/user/settings', true) ? 'primary' : undefined">
-        <div fxLayout="column" fxLayoutAlign="center center" class="toolbar-button">
+        <div class="toolbar-button">
             <mat-icon>settings</mat-icon>
             <span>Settings</span>
         </div>

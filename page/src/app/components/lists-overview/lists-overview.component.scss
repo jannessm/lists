@@ -1,10 +1,10 @@
 .list-card {
     padding: 12px;
-    width: calc(50% - 12px);
+    width: calc(50% - 6px);
     white-space: pre-line;
     word-break: break-all;
     position: relative;
-    word-break: break-word;
+    height: fit-content !important;
 
     mat-icon:not(.add-list) {
         position: absolute;
@@ -14,8 +14,18 @@
         height: 12px;
         font-size: 12px;
     }
+
+    .add-list {
+        margin: 0;
+    }
 }
 
 .container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
     gap: 12px;
+    align-content: flex-start;
+    height: calc(100% - 35px);
+    overflow-y: auto;
 }

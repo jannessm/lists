@@ -5,6 +5,13 @@
 html, body { height: 100%; overflow: hidden; }
 body { margin: 0px; font-family: Roboto, "Helvetica Neue", sans-serif; position: relative; }
 
+@media (min-width: 769px) {
+    body {
+        width: 768px;
+        margin: 0 auto;
+    }
+}
+
 .mat-form-field, button.mat-button {
     width: 100% !important;
 }
