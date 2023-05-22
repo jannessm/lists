@@ -99,7 +99,7 @@
         if ($user && str_replace('"', '', $user['password']) === $payload['pwd']) {
             $jwtData = $USER->filter($user);
             $jwt_and_expire_date = generateJWT($jwtData);
-            $USER->update_last_login($user->email);
+            $USER->update_last_login($user['email']);
     
             respondJSON(201, $jwt_and_expire_date);
     
