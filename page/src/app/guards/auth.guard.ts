@@ -14,21 +14,14 @@ export class AuthGuard  {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     const url: string = state.url;
+    console.log(url);
+
+    if (this.router.getCurrentNavigation()?.extras.state?.['bypass']) {
+      return true;
+    }
     
     return this.authService.isLoggedIn().pipe(
-      map(loggedIn => {
-        // is logged in => continue routing
-        if (loggedIn) {
-          return true;
-
-        // is not logged in => go to login page
-        } else {
-          this.authService.redirectUrl = url;
-          throw Error();
-        }
-      }), catchError((err) => {
-        return of(this.router.parseUrl('/login'));
-      })
+      map(loggedIn => loggedIn || this.router.parseUrl('/login'))
     );
   }
   

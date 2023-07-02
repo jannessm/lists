@@ -1,6 +1,8 @@
 .container {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    gap: 16px;
 
     div {
         margin: 12px;
@@ -14,5 +16,9 @@
         color: grey;
         font-size: 12px;
         margin-top: 48px;
+    }
+
+    mat-form-field {
+        width: 100%;
     }
 }

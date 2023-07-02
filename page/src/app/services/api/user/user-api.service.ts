@@ -4,8 +4,6 @@ import { Observable } from 'rxjs';
 import { ApiResponse, DataResponse } from 'src/app/models/api-responses';
 import { environment } from 'src/environments/environment';
 
-import { v4 as uuid } from 'uuid';
-
 @Injectable({
   providedIn: 'root'
 })
@@ -39,5 +37,15 @@ export class UserApiService {
       email,
       'dark_theme': darkTheme
     });
+  }
+
+  addPushSubscriber(email: string, subscription: any): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(this.BASE_API + '?add-subscription', {
+      email, subscription
+    });
+  }
+
+  removePushSubscriber(email: string): Observable<ApiResponse> {
+    return this.http.delete<ApiResponse>(this.BASE_API + '?remove-subscription&email='+email);
   }
 }

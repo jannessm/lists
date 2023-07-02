@@ -21,6 +21,8 @@ class ListItems {
             `uuid` TINYTEXT NOT NULL,
             `name` TINYTEXT NOT NULL,
             `time` TINYTEXT,
+            `remind` TINYINT NOT NULL DEFAULT 0,
+            `reminded` TINYINT NOT NULL DEFAULT 0,
             `done` TINYINT NOT NULL DEFAULT 0,
             `list_id` TINYTEXT NOT NULL,
             `created_by` TINYTEXT NOT NULL,
@@ -60,6 +62,32 @@ class ListItems {
         return $items;
     }
 
+    public function get_all_in_due($email) {
+        $sql = 'SELECT li.uuid, li.name, li.time, li.remind, li.reminded, ul.uuid as list_id, ul.email
+                FROM list_items as li
+                LEFT JOIN (
+                    SELECT email, uuid
+                    FROM user_list
+                    WHERE email=:email
+                ) as ul
+                ON li.list_id=ul.uuid
+                WHERE li.time is not null AND
+                      li.reminded=0 AND
+                      li.remind=1 AND
+                      datetime(li.time) <= datetime("now");';
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':email', $email);
+        $stmt->execute();
+        
+        $items = [];
+        while($item = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            array_push($items, $item);
+        }
+
+        return $items;
+    }
+
     public function update_done($uuids, $done) {
         $sql = 'UPDATE list_items SET done=? WHERE uuid IN (' . $this->add_uuid_placeholders($uuids) . ');';
         $stmt = $this->pdo->prepare($sql);
@@ -67,9 +95,9 @@ class ListItems {
     }
 
     public function update($item) {
-        $sql = 'UPDATE list_items SET name=:name, time=:time WHERE uuid=:uuid;';
+        $sql = 'UPDATE list_items SET name=:name, time=:time, remind=:remind WHERE uuid=:uuid;';
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':name' => $item['name'], ':time' => $item['time'], ':uuid' => $item['uuid']]);
+        $stmt->execute([':name' => $item['name'], ':time' => $item['time'], ':uuid' => $item['uuid'], ':remind' => $item['remind']]);
     }
 
     public function delete($uuids) {

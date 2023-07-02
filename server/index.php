@@ -1,8 +1,30 @@
 <?php
 
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: *");
-header("Access-Control-Allow-Methods: *");
+function cors() {
+    
+    // Allow from any origin
+    if (isset($_SERVER['HTTP_ORIGIN'])) {
+        // Decide if the origin in $_SERVER['HTTP_ORIGIN'] is one
+        // you want to allow, and if so:
+        header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+        header('Access-Control-Allow-Credentials: true');
+        header('Access-Control-Max-Age: 86400');    // cache for 1 day
+    }
+    
+    // Access-Control headers are received during OPTIONS requests
+    if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+        
+        if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']))
+            // may also be using PUT, PATCH, HEAD etc
+            header("Access-Control-Allow-Methods: GET, POST, OPTIONS, DELETE");
+        
+        if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
+            header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+    
+        exit(0);
+    }
+}
+cors();
 
 $BASE = './';
 
@@ -13,6 +35,7 @@ require_once('src/sqlite_conn.php');
 require_once('src/user.php');
 require_once('src/lists.php');
 require_once('src/user_list_relation.php');
+require_once('src/user_subscriptions.php');
 require_once('src/list_item.php');
 require_once('src/manage_user.php');
 require_once('src/manage_lists.php');
@@ -29,6 +52,7 @@ try {
     $USER = new User($PDO);
     $LISTS = new Lists($PDO);
     $USER_LIST = new UserListRelation($PDO);
+    $USER_SUBSCRIPTIONS = new UserSubscriptions($PDO);
     $LIST_ITEMS = new ListItems($PDO);
 
     // register
@@ -136,6 +160,15 @@ try {
 
         $sqlconn->backup();
         return;
+    }
+
+    //add push subscription
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['add-subscription'])) {
+        add_subscription();
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'DELETE' && isset($_GET['remove-subscription'])) {
+        remove_subscription();
     }
 
     // get grocery categories

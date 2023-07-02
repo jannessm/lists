@@ -31,6 +31,20 @@ export class UpdateItemSheetComponent {
         timeControl.disable();
       } else if (timeControl) {
         timeControl.enable();
+
+        if (!timeControl.value) {
+          const now = new Date();
+          now.setDate(now.getDate() + 1);
+
+          const month = ("0" + (now.getMonth() + 1)).slice(-2);
+          const day = ("0" + now.getDate()).slice(-2);
+          const hour = ("0" + now.getHours()).slice(-2);
+          const minute = ("0" + now.getMinutes()).slice(-2);
+          
+          const today = now.getFullYear()+'-'+month+'-'+day+'T'+hour+':'+minute;
+
+          timeControl.setValue(today);
+        }
       }
     })
 
@@ -47,7 +61,8 @@ export class UpdateItemSheetComponent {
 
     this.bottomSheetRef.dismiss({
       'name': this.form.controls['name'].value.trim(),
-      'time': this.form.controls['hasDate'].value ? time_val : null
+      'time': time_val,
+      'remind': this.form.controls['hasDate'].value
     });
   }
 }

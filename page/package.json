@@ -27,6 +27,7 @@
     "jwt-decode": "^3.1.2",
     "md5-ts": "^0.1.6",
     "ng-hcaptcha": "^2.0.0",
+    "ngx-cookie-service": "^16.0.0",
     "ngx-cookieconsent": "^4.0.2",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",

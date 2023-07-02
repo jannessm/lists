@@ -16,7 +16,7 @@ const routes: Routes = [
   ]},
   {path: 'login', component: LoginComponent, canActivate:[IsLoggedGuard]},
   {path: 'cookies', component: CookieComponent},
-  {path: '**', redirectTo: '/user/lists', pathMatch: 'full'},
+  {path: '**', redirectTo: '/login'},
 ];
 
 @NgModule({

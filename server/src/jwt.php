@@ -90,13 +90,16 @@
     }
 
     function login() {
-        global $USER;
+        global $USER, $USER_SUBSCRIPTIONS;
         $payload = json_decode(file_get_contents("php://input"), true);
         $email = strtolower($payload['email']);
         $user = $USER->get($email);
     
         // check credentials and generate jwt on success
         if ($user && str_replace('"', '', $user['password']) === $payload['pwd']) {
+            // add device to user if not existent
+            $USER_SUBSCRIPTIONS->addDevice($user['email'], $_COOKIE['listsId']);
+
             $jwtData = $USER->filter($user);
             $jwt_and_expire_date = generateJWT($jwtData);
             $USER->update_last_login($user['email']);

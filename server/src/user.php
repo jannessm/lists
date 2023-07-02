@@ -40,9 +40,18 @@ class User {
     }
 
     public function get($email) {
-        $sql = 'SELECT email, password, dark_theme from user where `email`=:email;';
+        $sql = "SELECT user.email, user.password, user.dark_theme, u_s.subscription
+                FROM user
+                LEFT JOIN (
+                    SELECT email, deviceId, subscription
+                    FROM user_subscriptions
+                    WHERE deviceId=:deviceId
+                ) as u_s
+                ON user.email=u_s.email
+                WHERE user.email=:email";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':email', $email);
+        $stmt->bindValue(':deviceId', $_COOKIE['listsId']);
         $stmt->execute();
 
         $user = $stmt->fetch(\PDO::FETCH_ASSOC);
@@ -50,6 +59,7 @@ class User {
         if ($user['dark_theme'] !== null) {
             $user['dark_theme'] = $user['dark_theme'] === 1 || $user['dark_theme'] === '1';
         }
+        $user['subscription'] = $user['subscription'] !== null;
 
         return $user;
     }

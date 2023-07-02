@@ -6,6 +6,8 @@ import { delay } from 'rxjs';
 import { AuthService } from './services/auth/auth.service';
 import { ThemeService } from './services/theme/theme.service';
 import { UpdateService } from './services/update/update.service';
+import { CookieService } from 'ngx-cookie-service';
+import { v4 as uuid } from 'uuid';
 
 @Component({
   selector: 'app-root',
@@ -40,9 +42,14 @@ export class AppComponent {
     public router: Router,
     private updateService: UpdateService,
     private snackBar: MatSnackBar,
-    private themeService: ThemeService) {
+    private themeService: ThemeService,
+    private cookieService: CookieService) {
       themeService.isDark.subscribe(this.setTheme);
       updateService.isOnline.subscribe(online => this.isOnline = online);
+
+      if (!this.cookieService.check('listsId')) {
+        this.cookieService.set('listsId', uuid(), 365);
+      }
     }
   
   @HostListener('pointerdown', ['$event'])

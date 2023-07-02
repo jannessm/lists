@@ -14,11 +14,17 @@ export class JwtInterceptor implements HttpInterceptor {
 
     if (this.lsService.jwt != null || this.lsService.jwt !== undefined) {
       jsonReq = req.clone({
-        setHeaders:{
+        setHeaders: {
           Authorization : `Bearer "${this.lsService.jwt}"`
-        }
+        },
+        withCredentials: true
+      });
+    } else {
+      jsonReq = req.clone({
+        withCredentials: true
       });
     }
+
 
     return next.handle(jsonReq);
   }

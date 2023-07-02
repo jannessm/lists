@@ -27,6 +27,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { FlatpickrModule } from 'angularx-flatpickr';
 import { CacheInterceptor } from './services/cache-interceptor/cache.interceptor';
 import { ConfirmSheetComponent } from './components/bottom-sheets/confirm-sheet/confirm-sheet.component';
+import { CookieService } from 'ngx-cookie-service';
 
 registerLocaleData(localeDe, 'de');
 
@@ -53,8 +54,8 @@ registerLocaleData(localeDe, 'de');
     ReactiveFormsModule,
     NgcCookieConsentModule.forRoot(COOKIE_CONFIG),
     ServiceWorkerModule.register('ngsw-worker.js', {
-      enabled: environment.production,
-      // enabled: true,
+      // enabled: environment.production,
+      enabled: true,
       // Register the ServiceWorker as soon as the application is stable
       // or after 30 seconds (whichever comes first).
       registrationStrategy: 'registerImmediately'
@@ -74,6 +75,7 @@ registerLocaleData(localeDe, 'de');
     },
     AuthGuard,
     IsLoggedGuard,
+    CookieService
   ],
   bootstrap: [AppComponent]
 })

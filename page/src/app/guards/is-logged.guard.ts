@@ -14,24 +14,18 @@ export class IsLoggedGuard  {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     const url: string = state.url;
+    console.log(url, );
 
+    if (this.router.getCurrentNavigation()?.extras.state?.['bypass']) {
+      return true;
+    }
+  
     return this.checkLogin(url);
   }
 
   checkLogin(url: string): Observable<boolean | UrlTree> {
     return this.authService.isLoggedIn().pipe(
-      map(loggedIn => {
-
-        if (!loggedIn) {
-          return true;
-        
-        } else {
-          throw Error();
-        }
-      }),
-      catchError(() => {
-        return of(this.router.parseUrl('/user/lists'));
-      })
+      map(loggedIn => !loggedIn || this.router.parseUrl('/user/lists'))
     );
   }
   
