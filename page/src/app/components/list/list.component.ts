@@ -26,6 +26,7 @@ import { splitNsName } from '@angular/compiler';
   styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements AfterViewInit {
+  @ViewChild('toolbar-time') toolbar!: Element;
 
   list: List | undefined;
 
@@ -41,7 +42,6 @@ export class ListComponent implements AfterViewInit {
     minuteIncrement: 5,
     disableMobile: true,
     time_24hr: true,
-    // position: 'above center'
   };
   pickerOpen = false;
 
@@ -92,6 +92,8 @@ export class ListComponent implements AfterViewInit {
 
     this.listService.updateData().subscribe();
     this.userEmail = this.authService.loggedUser?.email;
+
+    this.newItemTime.valueChanges.subscribe(this.toggleNewTimeSelected.bind(this));
   }
 
   ngAfterViewInit(): void {
@@ -291,10 +293,12 @@ export class ListComponent implements AfterViewInit {
     return !!is_today(item);
   }
 
-  toggleNewTimeSelected(chip: MatChip) {
-    this.newItemTime.setValue(chip.value);
+  toggleNewTimeSelected(value: string | null) {
+    if (value === null) return;
 
-    if (chip.value !== 'different') {
+    console.log(value, this.timePicker);
+
+    if (value !== 'different') {
       this.timePicker.clear();
       this.timePickerDate = undefined;
     } else {

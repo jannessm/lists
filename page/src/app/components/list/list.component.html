@@ -55,12 +55,12 @@
     </mat-toolbar>
 
     <mat-toolbar class="toolbar-time" [style.display]="focusInput ? 'block' : 'none'" *ngIf="list && !list.groceries">
-        <mat-chip-list [formControl]="newItemTime">
-            <mat-chip (click)="toggleNewTimeSelected(chipToday)" #chipToday="matChip" value="today">Heute</mat-chip>
-            <mat-chip (click)="toggleNewTimeSelected(chipTomorrow)" #chipTomorrow="matChip" value="tomorrow">Morgen</mat-chip>
-            <mat-chip (click)="toggleNewTimeSelected(chipDiff)" #chipDiff="matChip" value="different">{{(timePickerDate | date:'short') || 'Andere'}}</mat-chip>
-            <mat-chip (click)="toggleNewTimeSelected(chipSometime)" #chipSometime="matChip" value="sometime">Irgendwann</mat-chip>
-        </mat-chip-list>
+        <mat-chip-listbox [formControl]="newItemTime">
+            <mat-chip-option value="today">Heute</mat-chip-option>
+            <mat-chip-option value="tomorrow">Morgen</mat-chip-option>
+            <mat-chip-option value="different">{{(timePickerDate | date:'short') || 'Andere'}}</mat-chip-option>
+            <mat-chip-option value="sometime">Irgendwann</mat-chip-option>
+        </mat-chip-listbox>
     </mat-toolbar>
     <input id="picker" type="text" #picker (change)="setTimePickerDate($event)">
 </div>

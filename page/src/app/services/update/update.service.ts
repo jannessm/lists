@@ -2,7 +2,7 @@ import { HttpBackend, HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { SwUpdate } from '@angular/service-worker';
-import { repeat, timer, from, fromEvent, interval, map, merge, Observable, Observer, Subscription, timeout } from 'rxjs';
+import { repeat, from, fromEvent, of, map, merge, Observable, Observer, Subscription, timeout } from 'rxjs';
 import { ConfirmSheetComponent } from 'src/app/components/bottom-sheets/confirm-sheet/confirm-sheet.component';
 import { db, HttpRequestType } from 'src/app/models/db';
 import { environment } from 'src/environments/environment';
@@ -27,21 +27,25 @@ export class UpdateService {
               private bottomSheet: MatBottomSheet) {
     this.http = new HttpClient(httpBackend);
 
-    this.isOnline = merge(
-        fromEvent(window, 'offline')
-          .pipe(map(() => false)),
-        this.http.get(environment.api + '?ping').pipe(
-            timeout({
-              each: this.timeout,
-              with: () => from([false])
-            }),
-            repeat({ delay: this.pingInterval }),
-            map(res => res !== false)),
-        new Observable((sub: Observer<boolean>) => {
-          sub.next(navigator.onLine);
-          sub.complete();
-        })
-      );
+    if (environment.production) {
+      this.isOnline = merge(
+          fromEvent(window, 'offline')
+            .pipe(map(() => false)),
+          this.http.get(environment.api + '?ping').pipe(
+              timeout({
+                each: this.timeout,
+                with: () => from([false])
+              }),
+              repeat({ delay: this.pingInterval }),
+              map(res => res !== false)),
+          new Observable((sub: Observer<boolean>) => {
+            sub.next(navigator.onLine);
+            sub.complete();
+          })
+        );
+    } else {
+      this.isOnline = of(true);
+    }
 
     this.isOnline.subscribe(online => {
       this.online = online;
