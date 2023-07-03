@@ -31,14 +31,15 @@
              [class.item-done]="item.done"
              [class.dark-theme]="themeService.isDark | async"
              (pointerdown)="openUpdateSheet($event, item)"
-             (pointerup)="cancelUpdateSheet()">
+             (pointerup)="cancelUpdateSheet()"
+             [id]="'uuid-' + item.uuid">
             <div *ngIf="!slot.collapsed || !item.done">
                 <mat-checkbox (change)="toggleDone(item, slot.items)" [(ngModel)]="item.done" color="primary">
                     <div class="item-content">{{ item.name }}
-                        <mat-chip-listbox *ngIf="list && !list.groceries" disabled>
-                            <mat-chip-option *ngIf="item.time && is_today(item)">{{item.time | date:'h:mm'}}</mat-chip-option>
-                            <mat-chip-option *ngIf="item.time && !is_today(item)">{{item.time | date:'short'}}</mat-chip-option>
-                        </mat-chip-listbox>
+                        <mat-chip-set *ngIf="list && !list.groceries" disabled>
+                            <mat-chip *ngIf="item.time && is_today(item)" [highlighted]="!!item.remind">{{item.time | date:'h:mm'}}</mat-chip>
+                            <mat-chip *ngIf="item.time && !is_today(item)" [highlighted]="!!item.remind">{{item.time | date:'short'}}</mat-chip>
+                        </mat-chip-set>
                         <button mat-mini-fab disabled *ngIf="list && list.shared && userEmail !== item.created_by" [class]="'mini-user-fab user-fab-' + list.users.indexOf(item.created_by) % 12">{{item.created_by.substr(0, 2).toUpperCase()}}</button>
                     </div>
                     <button mat-icon-button (click)="deleteItem(item)" *ngIf="item.done"><mat-icon>close</mat-icon></button>

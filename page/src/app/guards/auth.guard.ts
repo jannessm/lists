@@ -14,7 +14,6 @@ export class AuthGuard  {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     const url: string = state.url;
-    console.log(url);
 
     if (this.router.getCurrentNavigation()?.extras.state?.['bypass']) {
       return true;

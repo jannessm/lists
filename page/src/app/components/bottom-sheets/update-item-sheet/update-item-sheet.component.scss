@@ -2,6 +2,10 @@ form {
     display: flex;
     flex-direction: column;
     gap: 16px;
+
+    button {
+        margin: 6px 0 !important;
+    }
 }
 
 button {

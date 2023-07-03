@@ -14,11 +14,9 @@ import { is_today } from 'src/app/models/categories_timeslots';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatChip } from '@angular/material/chips';
 import { Options } from 'flatpickr/dist/types/options';
 import { ThemeService } from 'src/app/services/theme/theme.service';
 import { ConfirmSheetComponent } from '../bottom-sheets/confirm-sheet/confirm-sheet.component';
-import { splitNsName } from '@angular/compiler';
 
 @Component({
   selector: 'app-list',
@@ -269,7 +267,7 @@ export class ListComponent implements AfterViewInit {
             if (this.list && newItem) {
               newItem.time = newItem.time !== null ? (new Date(newItem.time)).toISOString() : null;
               newItem.uuid = item.uuid;
-
+              console.log(newItem);
               this.listItemService.updateItem(this.list.uuid, newItem);
             }
 

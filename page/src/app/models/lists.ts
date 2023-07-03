@@ -14,6 +14,7 @@ export interface ListItem {
     name: string;
     done: boolean;
     time: Time;
+    remind: boolean;
     created_by: string;
     list_id: string;
 }

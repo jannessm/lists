@@ -3,9 +3,14 @@
         <input matInput formControlName="name" placeholder="Name">
     </mat-form-field>
 
-    <mat-slide-toggle color="primary" formControlName="hasDate">Erinnerung</mat-slide-toggle>
+    <mat-slide-toggle color="primary" formControlName="remind">Erinnerung</mat-slide-toggle>
+
     <mat-form-field appearance="outline" *ngIf="!list.groceries">
-        <input matInput type="datetime-local" formControlName="time" #picker>
+        <input matInput type="datetime-local" formControlName="time">
+        
+        <button *ngIf="form.controls['time'].value" matSuffix mat-icon-button aria-label="Clear" (click)="form.controls['time'].setValue('')">
+            <mat-icon>close</mat-icon>
+        </button>
     </mat-form-field>
 </form>
 

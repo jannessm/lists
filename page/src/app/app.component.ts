@@ -1,5 +1,5 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, HostListener } from '@angular/core';
+import { AfterViewChecked, Component, HostListener } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { delay } from 'rxjs';
@@ -27,7 +27,7 @@ import { v4 as uuid } from 'uuid';
     ])
   ]
 })
-export class AppComponent {
+export class AppComponent implements AfterViewChecked {
   title = 'Lists';
   startPos = 0;
   scrollTop = -1;
@@ -50,7 +50,22 @@ export class AppComponent {
       if (!this.cookieService.check('listsId')) {
         this.cookieService.set('listsId', uuid(), 365);
       }
+  }
+
+  ngAfterViewChecked(): void {
+    const urlParts = window.location.href.split('#');
+
+    if (urlParts.length > 1) {
+      try {
+        const elem = document.querySelector('#' + urlParts[1]);
+  
+        if (elem && !elem.classList.contains('highlight')) {
+          elem.scrollIntoView({ behavior: "smooth", block: "start"});
+          elem.classList.add('highlight')
+        }
+      } catch (e) {console.log(e)}
     }
+  }
   
   @HostListener('pointerdown', ['$event'])
   setStartPos(e: MouseEvent) {

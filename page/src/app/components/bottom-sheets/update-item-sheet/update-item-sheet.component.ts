@@ -21,11 +21,11 @@ export class UpdateItemSheetComponent {
     this.list = data.list;
     this.form = fb.group({
       'name': [data.item.name, Validators.required],
-      'hasDate': [!!data.item.time],
-      'time': [{value: data.item.time?.toISOString().slice(0,16), disabled: !data.item.time}]
+      'remind': [!!data.item.remind],
+      'time': [{value: data.item.time?.toISOString().slice(0,16), disabled: !data.item.remind}]
     });
 
-    this.form.get('hasDate')?.valueChanges.subscribe(val => {
+    this.form.get('remind')?.valueChanges.subscribe(val => {
       const timeControl = this.form.get('time');
       if (timeControl && !val) {
         timeControl.disable();
@@ -62,7 +62,7 @@ export class UpdateItemSheetComponent {
     this.bottomSheetRef.dismiss({
       'name': this.form.controls['name'].value.trim(),
       'time': time_val,
-      'remind': this.form.controls['hasDate'].value
+      'remind': this.form.controls['remind'].value
     });
   }
 }

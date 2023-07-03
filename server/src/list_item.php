@@ -22,7 +22,6 @@ class ListItems {
             `name` TINYTEXT NOT NULL,
             `time` TINYTEXT,
             `remind` TINYINT NOT NULL DEFAULT 0,
-            `reminded` TINYINT NOT NULL DEFAULT 0,
             `done` TINYINT NOT NULL DEFAULT 0,
             `list_id` TINYTEXT NOT NULL,
             `created_by` TINYTEXT NOT NULL,
@@ -63,7 +62,7 @@ class ListItems {
     }
 
     public function get_all_in_due($email) {
-        $sql = 'SELECT li.uuid, li.name, li.time, li.remind, li.reminded, ul.uuid as list_id, ul.email
+        $sql = 'SELECT li.uuid, li.name, li.time, li.remind, ul.uuid as list_id, ul.email
                 FROM list_items as li
                 LEFT JOIN (
                     SELECT email, uuid
@@ -72,7 +71,6 @@ class ListItems {
                 ) as ul
                 ON li.list_id=ul.uuid
                 WHERE li.time is not null AND
-                      li.reminded=0 AND
                       li.remind=1 AND
                       datetime(li.time) <= datetime("now");';
 

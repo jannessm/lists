@@ -40,30 +40,29 @@ export class SettingsComponent {
     });
 
     this.pushSubscription.valueChanges.subscribe(push_enabled => {
-      console.log(this.swPush.isEnabled);
 
-      const swsub = this.swPush.subscription.subscribe(sub => {
-        console.log(push_enabled, sub);
+      // const swsub = this.swPush.subscription.subscribe(sub => {
+      //   console.log(push_enabled, sub);
 
         if (!push_enabled) {
           this.userApi.removePushSubscriber(this.userEmail).subscribe(console.log);
         }
 
-        if (push_enabled && !sub) {
+        if (push_enabled) {
+        // if (push_enabled && !sub) {
           this.swPush.requestSubscription({
             serverPublicKey: environment.vapid
           })
           .then(sub => this.userApi.addPushSubscriber(this.userEmail, sub).subscribe())
           .catch(err => console.error("Could not subscribe to notifications", err));
-        } else if (!push_enabled && sub) {
+        } else if (!push_enabled) {
+        // } else if (!push_enabled && sub) {
           this.swPush.unsubscribe().then(console.log);
         }
       });
 
-      setTimeout(() => {swsub.unsubscribe()}, 100);
-    });
-
-    this.swPush.messages.subscribe(console.log);
+      // setTimeout(() => {swsub.unsubscribe()}, 100);
+    // });
   }
 
   getDarkThemeFormValue(darkTheme: boolean | null): string {

@@ -39,13 +39,14 @@ export class ListItemService {
     }
     
     if (this.authService.loggedUser) {
-      const new_item = {
+      const new_item: ListItem = {
         uuid: uuid(),
         name: item,
         done: false,
         created_by: this.authService.loggedUser.email,
         time,
-        list_id
+        list_id,
+        remind: false
       };
 
       return this.listItemApi.addItem(new_item).pipe(map(resp => {
@@ -134,6 +135,7 @@ export class ListItemService {
           if (i) {
             i.name = item.name;
             i.time = !item.time ? null: new Date(item.time);
+            i.remind = item.remind;
 
             itemsSubj.next(items);
           }

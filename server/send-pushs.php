@@ -31,36 +31,7 @@ $PDO = $sqlconn->connect();
 $USER_SUBSCRIPTIONS = new UserSubscriptions($PDO);
 $LIST_ITEMS = new ListItems($PDO);
 
-$notifications = [];
-
-foreach($USER_SUBSCRIPTIONS->get_subscribed_users() as $user) {
-
-    
-    foreach($LIST_ITEMS->get_all_in_due($user) as $list_item) {
-        var_dump($list_item);
-        foreach($USER_SUBSCRIPTIONS->get_subscriptions_for_user($user) as $subscription) {
-            array_push($notifications, [
-                'subscription' => Subscription::create($subscription['subscription']),
-                'payload' => ["notification" => [
-                    "title" => "Erinnerung",
-                    "body" => $list_item['name'],
-                    "icon" => "assets/icons/Icon-256.png",
-                    "vibrate" => [100, 50, 100],
-                    "timestamp" => (new DateTime())->getTimestamp(),
-                    "data" => [
-                        "onActionClick" => [
-                            "default" => [
-                                "operation" => "navigateLastFocusedOrOpen",
-                                "url" => "http://listsapp.de/user/list/" . $list_item['list_id'] . '?focus=' . $list_item['uuid']
-                            ]
-                        ]
-                    ]
-                ]]
-            ]);
-        }
-    }
-
-}
+$notified_list_items = [];
 
 $webPush = new WebPush([
     "VAPID" => [
@@ -70,27 +41,52 @@ $webPush = new WebPush([
     ]
 ]);
 
-foreach ($notifications as $notification) {
-    $webPush->queueNotification(
-        $notification['subscription'],
-        json_encode($notification['payload']) // optional (defaults null)
-    );
+foreach($USER_SUBSCRIPTIONS->get_subscribed_users() as $user) {
+    
+    foreach($LIST_ITEMS->get_all_in_due($user) as $list_item) {
+        $notifications = [];
+
+        foreach($USER_SUBSCRIPTIONS->get_subscriptions_for_user($user) as $subscription) {
+            $webPush->queueNotification(
+                Subscription::create($subscription['subscription']),
+                json_encode(["notification" => [
+                    "title" => "Erinnerung",
+                    "body" => $list_item['name'],
+                    "icon" => "assets/icons/Icon-256.png",
+                    "vibrate" => [100, 50, 100],
+                    "timestamp" => (new DateTime())->getTimestamp(),
+                    "data" => [
+                        "onActionClick" => [
+                            "default" => [
+                                "operation" => "navigateLastFocusedOrOpen",
+                                "url" => "http://localhost:4200/user/list/" . $list_item['list_id'] . '#uuid-' . $list_item['uuid']
+                            ]
+                        ]
+                    ]
+                ]])
+            );
+        }
+        
+        /**
+         * Check sent results
+         * @var MessageSentReport $report
+         */
+        foreach ($webPush->flush() as $report) {
+            $endpoint = $report->getRequest()->getUri()->__toString();
+        
+            if ($report->isSuccess()) {
+                echo "[v] Message sent successfully for subscription {$endpoint}.\n";
+                array_push($notified_list_items, $list_item);
+            } else {
+                echo "[x] Message failed to sent for subscription {$endpoint}: {$report->getReason()} \n";
+            }
+        }
+    }
 }
 
-/**
- * Check sent results
- * @var MessageSentReport $report
- */
-foreach ($webPush->flush() as $report) {
-    $endpoint = $report->getRequest()->getUri()->__toString();
-    var_dump($report);
-
-    if ($report->isSuccess()) {
-        echo "[v] Message sent successfully for subscription {$endpoint}.\n";
-        // $LIST_ITEMS->reminded()
-    } else {
-        echo "[x] Message failed to sent for subscription {$endpoint}: {$report->getReason()} \n";
-    }
+foreach($notified_list_items as $item) {
+    $item['remind'] = false;
+    $LIST_ITEMS->update($item);
 }
 
 ?>

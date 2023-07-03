@@ -46,3 +46,27 @@ body { margin: 0px; font-family: Roboto, "Helvetica Neue", sans-serif; position:
     right: auto !important;
     top: auto !important;
 }
+
+.highlight {
+    background-color: list.nth($bgcolors, 1);
+    animation-name: highlight-animation;
+    animation-delay: 1s;
+    animation-duration: 800ms;
+    animation-timing-function: ease-in-out;
+
+    &.dark-theme {
+        animation-name: highlight-animation-dark;
+    }
+}
+
+@keyframes highlight-animation {
+    0% {background-color: #eee;}
+    50% {background-color: list.nth($bgcolors, 1);}
+    100% {background-color: #eee;}
+}
+
+@keyframes highlight-animation-dark {
+    0% {background-color: #464646;}
+    50% {background-color: list.nth($bgcolors, 1);}
+    100% {background-color: #464646;}
+}
