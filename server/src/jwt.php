@@ -4,6 +4,9 @@
     require_once($BASE . 'vendor/autoload.php');
     require_once($BASE . 'secrets.php');
 
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+    $dotenv->load();
+
     function generateJWT($user) {
         global $jwtPrivateKey, $serverName;
         

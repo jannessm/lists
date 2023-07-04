@@ -30,7 +30,7 @@ class UserSubscriptions {
     }
 
     public function add($email, $deviceId, $browser, $os, $subscription=null) {
-        $sql = 'INSERT INTO user_subscriptions VALUES (:email, :deviceId, :browser, :os, :subscription);';
+        $sql = 'INSERT INTO user_subscriptions (email, deviceId, browser, os, subscription) VALUES (:email, :deviceId, :browser, :os, :subscription);';
         $stmt = $this->pdo->prepare($sql);
 
         $stmt->bindValue(':email', $email);
@@ -65,6 +65,7 @@ class UserSubscriptions {
         $device = $this->get($email, $deviceId);
 
         if (!$device) {
+            $this->delete($deviceId);
             $browser_info = get_browser(null, true);
             $this->add($email, $deviceId, $browser_info['browser'], $browser_info['platform']);
 
@@ -133,10 +134,10 @@ class UserSubscriptions {
 
     }
 
-    public function delete($email, $deviceId) {
-        $sql = 'DELETE FROM user_subscriptions WHERE email=:email AND deviceId=:deviceId;';
+    public function delete($deviceId) {
+        $sql = 'DELETE FROM user_subscriptions WHERE deviceId=:deviceId;';
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':email' => $email, ':deviceId' => $deviceId]);
+        $stmt->execute([':deviceId' => $deviceId]);
 
         $sql = 'SELECT * FROM user_subscriptions WHERE deviceId=:deviceId;';
         $stmt = $this->pdo->prepare($sql);

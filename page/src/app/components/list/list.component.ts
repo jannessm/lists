@@ -265,9 +265,14 @@ export class ListComponent implements AfterViewInit {
   
           this.updateSheetRef.afterDismissed().subscribe(newItem => {            
             if (this.list && newItem) {
-              newItem.time = newItem.time !== null ? (new Date(newItem.time)).toISOString() : null;
+              try {
+                newItem.time = (new Date(newItem.time)).toISOString();
+              } catch {
+                newItem.time = null;
+              }
+
               newItem.uuid = item.uuid;
-              console.log(newItem);
+
               this.listItemService.updateItem(this.list.uuid, newItem);
             }
 

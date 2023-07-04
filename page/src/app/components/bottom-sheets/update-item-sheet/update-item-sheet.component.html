@@ -3,7 +3,7 @@
         <input matInput formControlName="name" placeholder="Name">
     </mat-form-field>
 
-    <mat-slide-toggle color="primary" formControlName="remind">Erinnerung</mat-slide-toggle>
+    <mat-slide-toggle  *ngIf="!list.groceries" color="primary" formControlName="remind">Erinnerung</mat-slide-toggle>
 
     <mat-form-field appearance="outline" *ngIf="!list.groceries">
         <input matInput type="datetime-local" formControlName="time">

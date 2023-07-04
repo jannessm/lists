@@ -35,7 +35,7 @@ $notified_list_items = [];
 
 $webPush = new WebPush([
     "VAPID" => [
-        "subject" => "http://localhost:8080",
+        "subject" => $_ENV['BACKEND'],
         "publicKey" => $vapidPublicKey,
         "privateKey" => $vapidPrivateKey
     ]
@@ -59,7 +59,7 @@ foreach($USER_SUBSCRIPTIONS->get_subscribed_users() as $user) {
                         "onActionClick" => [
                             "default" => [
                                 "operation" => "navigateLastFocusedOrOpen",
-                                "url" => "http://localhost:4200/user/list/" . $list_item['list_id'] . '#uuid-' . $list_item['uuid']
+                                "url" => $_ENV['FRONTEND'] . "/user/list/" . $list_item['list_id'] . '#uuid-' . $list_item['uuid']
                             ]
                         ]
                     ]

@@ -33,12 +33,13 @@ class ListItems {
     }
 
     public function add($item) {
-        $sql = 'INSERT INTO list_items VALUES (:uuid, :name, :time, :done, :list_id, :created_by);';
+        $sql = 'INSERT INTO list_items VALUES (:uuid, :name, :time, :remind, :done, :list_id, :created_by);';
         $stmt = $this->pdo->prepare($sql);
 
         $stmt->bindValue(':uuid', $item['uuid']);
         $stmt->bindValue(':name', $item['name']);
         $stmt->bindValue(':time', $item['time']);
+        $stmt->bindValue(':remind', $item['remind']);
         $stmt->bindValue(':done', $item['done']);
         $stmt->bindValue(':created_by', $item['created_by']);
         $stmt->bindValue(':list_id', $item['list_id']);

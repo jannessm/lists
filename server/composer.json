@@ -1,6 +1,7 @@
 {
     "require": {
         "firebase/php-jwt": "^5.4",
-        "minishlink/web-push": "^8.0"
+        "minishlink/web-push": "^8.0",
+        "vlucas/phpdotenv": "^5.5"
     }
 }

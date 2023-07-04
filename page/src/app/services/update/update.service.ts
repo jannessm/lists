@@ -19,7 +19,7 @@ export class UpdateService {
   last_online: boolean | undefined;
   http: HttpClient;
   
-  pingInterval: number = 2 * 1000;
+  pingInterval: number = 30 * 1000;
   timeout: number = 1000;
 
   constructor(private httpBackend: HttpBackend,
