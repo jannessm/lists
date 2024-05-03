@@ -52,7 +52,7 @@ try {
     $USER = new User($PDO);
     $LISTS = new Lists($PDO);
     $USER_LIST = new UserListRelation($PDO);
-    $USER_SUBSCRIPTIONS = new UserSubscriptions($PDO);
+    // $USER_SUBSCRIPTIONS = new UserSubscriptions($PDO);
     $LIST_ITEMS = new ListItems($PDO);
 
     // register

@@ -28,21 +28,29 @@ export class UpdateService {
     this.http = new HttpClient(httpBackend);
 
     if (environment.production) {
+      // this.isOnline = merge(
+      //     fromEvent(window, 'offline')
+      //       .pipe(map(() => false)),
+      //     this.http.get(environment.api + '?ping').pipe(
+      //         timeout({
+      //           each: this.timeout,
+      //           with: () => from([false])
+      //         }),
+      //         repeat({ delay: this.pingInterval }),
+      //         map(res => res !== false)),
+      //     new Observable((sub: Observer<boolean>) => {
+      //       sub.next(navigator.onLine);
+      //       sub.complete();
+      //     })
+      //   );
       this.isOnline = merge(
-          fromEvent(window, 'offline')
-            .pipe(map(() => false)),
-          this.http.get(environment.api + '?ping').pipe(
-              timeout({
-                each: this.timeout,
-                with: () => from([false])
-              }),
-              repeat({ delay: this.pingInterval }),
-              map(res => res !== false)),
-          new Observable((sub: Observer<boolean>) => {
-            sub.next(navigator.onLine);
-            sub.complete();
-          })
-        );
+        fromEvent(window, 'offline').pipe(map(() => false)),
+        fromEvent(window, 'online').pipe(map(() => true)),
+        new Observable((sub: Observer<boolean>) => {
+          sub.next(navigator.onLine);
+          sub.complete();
+        })
+      ); 
     } else {
       this.isOnline = of(true);
     }

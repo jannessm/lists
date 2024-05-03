@@ -101,7 +101,7 @@
         // check credentials and generate jwt on success
         if ($user && str_replace('"', '', $user['password']) === $payload['pwd']) {
             // add device to user if not existent
-            $USER_SUBSCRIPTIONS->addDevice($user['email'], $_COOKIE['listsId']);
+            // $USER_SUBSCRIPTIONS->addDevice($user['email'], $_COOKIE['listsId']);
 
             $jwtData = $USER->filter($user);
             $jwt_and_expire_date = generateJWT($jwtData);
