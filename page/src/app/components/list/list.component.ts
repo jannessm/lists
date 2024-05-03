@@ -299,7 +299,7 @@ export class ListComponent implements AfterViewInit {
   toggleNewTimeSelected(value: string | null) {
     if (value === null) return;
 
-    console.log(value, this.timePicker);
+    // console.log(value, this.timePicker);
 
     if (value !== 'different') {
       this.timePicker.clear();

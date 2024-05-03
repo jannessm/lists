@@ -6,6 +6,7 @@ import { repeat, from, fromEvent, of, map, merge, Observable, Observer, Subscrip
 import { ConfirmSheetComponent } from 'src/app/components/bottom-sheets/confirm-sheet/confirm-sheet.component';
 import { db, HttpRequestType } from 'src/app/models/db';
 import { environment } from 'src/environments/environment';
+import { LocalStorageService } from '../local-storage/local-storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -24,10 +25,11 @@ export class UpdateService {
 
   constructor(private httpBackend: HttpBackend,
               private readonly updates: SwUpdate,
-              private bottomSheet: MatBottomSheet) {
+              private bottomSheet: MatBottomSheet,
+              private lsService: LocalStorageService) {
     this.http = new HttpClient(httpBackend);
 
-    if (environment.production) {
+    if (environment.production || true) {
       // this.isOnline = merge(
       //     fromEvent(window, 'offline')
       //       .pipe(map(() => false)),
@@ -84,14 +86,21 @@ export class UpdateService {
     return from(db.cachedQueries.toArray()).pipe(map(reqs => {
 
       reqs.sort((a,b) => a.requested - b.requested);
+
+      const options = {withCredentials: true, headers: {}};
+      if (this.lsService.jwt != null || this.lsService.jwt !== undefined) {
+        options['headers'] = {
+            Authorization : `Bearer "${this.lsService.jwt}"`
+          };
+      }
   
       reqs.forEach(req => {
         switch (req.requestType) {
           case HttpRequestType.POST:
-            this.http.post(req.uri, req.payload).subscribe(() => this.delReq(req.uri));
+            this.http.post(req.uri, req.payload, options).subscribe(() => this.delReq(req.uri));
             break;
           case HttpRequestType.DELETE:
-            this.http.delete(req.uri).subscribe(() => this.delReq(req.uri));
+            this.http.delete(req.uri, options).subscribe(() => this.delReq(req.uri));
         }
       })
     })).pipe(map(() => {
