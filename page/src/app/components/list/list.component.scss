@@ -2,8 +2,12 @@
 
 .menu {
     position: absolute;
-    top: 24px;
+    top: 18px;
     right: 24px;
+}
+
+h1 {
+    margin-top: 0;
 }
 
 .users {
@@ -107,7 +111,8 @@ mat-toolbar {
     &.toolbar-time {
         display: none;
         padding: 8px;
-        height: 46px;
+        min-height: 46px;
+        height: auto;
         z-index: 11;
     }
 
@@ -150,9 +155,10 @@ mat-toolbar {
     top: 0;
     left: 0;
     z-index: 100;
-    height: calc(100% + 9px);
+    height: 100%;
     width: 100%;
     display: none;
+    z-index: 9;
 
     &.groceries {
         height: calc(100% + 35px);

@@ -42,11 +42,6 @@ body { margin: 0px; font-family: Roboto, "Helvetica Neue", sans-serif; position:
     }
 }
 
-.flatpickr-calendar {
-    right: auto !important;
-    top: auto !important;
-}
-
 .highlight {
     background-color: list.nth($bgcolors, 1);
     animation-name: highlight-animation;
