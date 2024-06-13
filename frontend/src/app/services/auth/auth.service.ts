@@ -23,13 +23,17 @@ export class AuthService {
               private router: Router,
               private pusher: PusherService) {
     this.isLoggedIn = new BehaviorSubject<boolean>(this.cookies.check(SESSION_COOKIE));
+    
     this.isLoggedIn.subscribe(loggedIn => {
       if (loggedIn) {
         this.pusher.init();
+        this.setSessionCookie();
       } else {
         this.pusher.unsubscribe();
+        this.cookies.delete(SESSION_COOKIE);
       }
     });
+    
     this.api.validateLogin().subscribe(this.isLoggedIn.next);
   }
 
@@ -41,9 +45,6 @@ export class AuthService {
     return this.api.login(email, password).pipe(
       map(success => {
       if (success) {
-        const expiration = dayjs().add(3, 'y').toDate();
-
-        this.cookies.set(SESSION_COOKIE, md5('coolToken'), expiration);
         this.isLoggedIn.next(true);
 
         this.router.navigateByUrl('');
@@ -65,7 +66,6 @@ export class AuthService {
     return this.api.logout().pipe(
       map(success => {
         if (success) {
-          this.cookies.delete(SESSION_COOKIE);
           this.isLoggedIn.next(false);
           this.router.navigateByUrl('/login');
 
@@ -75,5 +75,11 @@ export class AuthService {
         }
       })
     );
+  }
+
+  setSessionCookie() {
+    const expiration = dayjs().add(3, 'y').toDate();
+
+    this.cookies.set(SESSION_COOKIE, md5('coolToken'), expiration);
   }
 }
