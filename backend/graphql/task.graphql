@@ -1,0 +1,35 @@
+input TasksInputPushRow {
+  newDocumentState: TaskInput!
+  assumedMasterState: TaskInput!
+}
+
+input TaskInput {
+  id: String
+  name: String!
+  done: Boolean!
+  user: UserInput @belongsTo
+  createdAt: DateTime @rename(attribute: "created_at")
+  updatedAt: DateTime @rename(attribute: "updated_at")
+  _deleted: Boolean
+}
+
+type Task {
+  id: String!
+  name: String!
+  done: Boolean!
+  user: User! @belongsTo
+    
+  "When item was created."
+  createdAt: DateTime! @rename(attribute: "created_at")
+
+  "When item was last updated."
+  updatedAt: DateTime! @rename(attribute: "updated_at")
+
+  "Delete flag for rxDB"
+  _deleted: Boolean!
+}
+
+type TaskPullBulk {
+  documents: [Task]! @whereAuth(relation: "user")
+  checkpoint: CheckpointType
+}

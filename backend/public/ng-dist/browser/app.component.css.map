@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/app.component.scss"],
+  "sourcesContent": ["@import '../variables.scss';\n\n#offline-indicator {\n    height: 24px;\n    width: 100%;\n    background-color: darkred;\n    padding: 6px 12px;\n}\n\nmat-toolbar {\n    display: flex;\n    justify-content: space-around;\n    position: fixed;\n    bottom: 0;\n    height: $nav-bar-height !important;\n    z-index: 10;\n    width: min(100%, 769px);\n\n    button {\n        height: 86px !important;\n        flex: 1;\n    }\n\n    .toolbar-button {\n        display: flex;\n        flex-direction: column;\n        align-items: center;\n        justify-content: center;\n    }\n}\n\n.content {\n    position: absolute;\n    height: calc(100% - 112px);\n    padding: 12px;\n    width: 100%;\n    box-sizing: border-box;\n    padding-top: 24px;\n}\n\n#refresh {\n    position: absolute;\n    top: 12px;\n    left: calc(50% - 20px);\n    width: 32px;\n    height: 32px;\n\n    mat-icon {\n        width: 32px;\n        height: 32px;\n        font-size: 32px;\n        opacity: 0;\n    }\n}"],
+  "mappings": ";AAEA,CAAA;AACI,UAAA;AACA,SAAA;AACA,oBAAA;AACA,WAAA,IAAA;;AAGJ;AACI,WAAA;AACA,mBAAA;AACA,YAAA;AACA,UAAA;AACA,UAAA;AACA,WAAA;AACA,SAAA,IAAA,IAAA,EAAA;;AAEA,YAAA;AACI,UAAA;AACA,QAAA;;AAGJ,YAAA,CAAA;AACI,WAAA;AACA,kBAAA;AACA,eAAA;AACA,mBAAA;;AAIR,CAAA;AACI,YAAA;AACA,UAAA,KAAA,KAAA,EAAA;AACA,WAAA;AACA,SAAA;AACA,cAAA;AACA,eAAA;;AAGJ,CAAA;AACI,YAAA;AACA,OAAA;AACA,QAAA,KAAA,IAAA,EAAA;AACA,SAAA;AACA,UAAA;;AAEA,CAPJ,QAOI;AACI,SAAA;AACA,UAAA;AACA,aAAA;AACA,WAAA;;",
+  "names": []
+}

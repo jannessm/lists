@@ -1,0 +1,69 @@
+@use 'sass:list';
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+@import 'flatpickr/dist/flatpickr.css'; // you may need to adjust the css import depending on your build tool
+@import 'variables.scss';
+
+html, body { height: 100%; overflow: hidden; }
+body { margin: 0px; font-family: Roboto, "Helvetica Neue", sans-serif; position: relative; }
+
+@media (min-width: 769px) {
+    body {
+        width: 768px;
+        margin: 0 auto;
+    }
+}
+
+.mat-form-field, button.mat-button {
+    width: 100% !important;
+}
+
+.half {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.mini-user-fab {
+    width: 36px !important;
+    height: 36px !important;
+    line-height: 12px !important;
+    
+    span {
+        line-height: 12px !important;
+    }
+}
+
+@for $i from 0 to 6 {
+    .user-fab-#{$i} {
+        background-color: list.nth($bgcolors, $i + 1) !important;
+        color: list.nth($colors, $i + 1) !important;
+        z-index: 6 - $i;
+        @if $i > 0 {
+            margin-left: -12px !important;
+        }
+    }
+}
+
+.highlight {
+    background-color: list.nth($bgcolors, 1);
+    animation-name: highlight-animation;
+    animation-delay: 1s;
+    animation-duration: 800ms;
+    animation-timing-function: ease-in-out;
+
+    &.dark-theme {
+        animation-name: highlight-animation-dark;
+    }
+}
+
+@keyframes highlight-animation {
+    0% {background-color: #eee;}
+    50% {background-color: list.nth($bgcolors, 1);}
+    100% {background-color: #eee;}
+}
+
+@keyframes highlight-animation-dark {
+    0% {background-color: #464646;}
+    50% {background-color: list.nth($bgcolors, 1);}
+    100% {background-color: #464646;}
+}

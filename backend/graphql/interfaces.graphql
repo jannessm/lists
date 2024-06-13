@@ -1,0 +1,27 @@
+"A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
+scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+
+type Item {
+    "When item was created."
+    createdAt: DateTime! @rename(attribute: "created_at")
+
+    "When item was last updated."
+    updatedAt: DateTime! @rename(attribute: "updated_at")
+
+    "Delete flag for rxDB"
+    _deleted: Boolean!
+}
+
+input TasksInputCheckpoint {
+    id: String @where(operator: ">=")
+    updatedAt: DateTime! @where(key: "updated_at", operator: ">=")
+}
+
+type CheckpointType {
+    id: String
+    updatedAt: DateTime!
+}
+
+input TasksInputHeaders {
+    user_id: String
+}

@@ -1,0 +1,27 @@
+<div>
+    <form [formGroup]="form">
+        <mat-form-field appearance="outline">
+            <mat-label>email</mat-label>
+            <input matInput placeholder="Email" formControlName="email" type="email">
+            <mat-error *ngIf="form.get('email')?.hasError('required')">
+                Email muss angegeben werden!
+            </mat-error>
+            <mat-error *ngIf="form.get('email')?.hasError('email')">
+                Bitte eine gültige Email Adresse angeben!
+            </mat-error>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+            <mat-label>password</mat-label>
+            <input matInput type="password" placeholder="Password" formControlName="pwd">
+            <mat-error *ngIf="form.get('pwd')?.hasError('required')">
+                Passwort muss angegeben werden!
+            </mat-error>
+        </mat-form-field>
+    
+        <mat-error *ngIf="wrongCredentials">Leider stimmen Passwort und Email nicht.</mat-error>
+        <button mat-stroked-button (click)="login()" [disabled]="form.invalid || form.disabled">Login</button>
+        
+        <button mat-flat-button color="primary" routerLink="/register" [state]="{email: form.get('email')?.value}" type="button">Register</button>
+    </form>
+</div>

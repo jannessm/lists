@@ -1,0 +1,54 @@
+@import '../variables.scss';
+
+#offline-indicator {
+    height: 24px;
+    width: 100%;
+    background-color: darkred;
+    padding: 6px 12px;
+}
+
+mat-toolbar {
+    display: flex;
+    justify-content: space-around;
+    position: fixed;
+    bottom: 0;
+    height: $nav-bar-height !important;
+    z-index: 10;
+    width: min(100%, 769px);
+
+    button {
+        height: 86px !important;
+        flex: 1;
+    }
+
+    .toolbar-button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+.content {
+    position: absolute;
+    height: calc(100% - 112px);
+    padding: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    padding-top: 24px;
+}
+
+#refresh {
+    position: absolute;
+    top: 12px;
+    left: calc(50% - 20px);
+    width: 32px;
+    height: 32px;
+
+    mat-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 32px;
+        opacity: 0;
+    }
+}

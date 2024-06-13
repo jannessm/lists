@@ -1,0 +1,26 @@
+<div>
+    <div *ngIf="pusher.online.asObservable() | async">Online</div>
+    <div *ngIf="!(pusher.online.asObservable() | async)">Offline</div>
+    <button mat-stroked-button (click)="logout()">Logout</button>
+    
+    <div *ngIf="tasks">
+        <div *ngFor="let t of tasks | async">
+            <div class="task">
+                <input type="checkbox" checked *ngIf="t.done">
+                <input type="checkbox" *ngIf="!t.done">
+                <span class="item-id">{{t.id}}</span>
+                <input class="name" value="{{t.name}}">
+                <span class="user">{{t.user.id}}</span>
+            </div>
+        </div>
+        <button mat-stroked-button (click)="save()">Save</button>
+    </div>
+    
+    
+    <mat-form-field appearance="outline">
+        <textarea matInput [(ngModel)]="query"></textarea>
+    </mat-form-field>
+    <button mat-stroked-button (click)="execQuery()">Query</button>
+    <button mat-stroked-button (click)="execMutation()">Mutation</button>
+    <pre>{{ data | json }}</pre>
+</div>

@@ -1,0 +1,29 @@
+#import interfaces.graphql
+
+"Account of a person who utilizes this application."
+type User implements Item {
+  "Unique primary key."
+  id: String!
+
+  "Non-unique name."
+  name: String!
+
+  "Unique email address."
+  email: String!
+
+  "When the email was verified."
+  email_verified_at: DateTime
+  
+  "When item was created."
+  createdAt: DateTime! @rename(attribute: "created_at")
+
+  "When item was last updated."
+  updatedAt: DateTime! @rename(attribute: "updated_at")
+
+  "Delete flag for rxDB"
+  _deleted: Boolean!
+}
+
+input UserInput {
+  id: String!
+}

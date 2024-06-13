@@ -1,0 +1,30 @@
+#import interfaces.graphql
+#import user.graphql
+#import task.graphql
+
+type Query @guard {
+    "Find a single user by an identifying attribute."
+    user(
+      "Search by primary key."
+      id: ID @eq @rules(apply: ["prohibits:email", "required_without:email"])
+
+      "Search by email address."
+      email: String @eq @rules(apply: ["prohibits:id", "required_without:id", "email"])
+    ): User @find
+
+    me: User! @auth
+
+    tasks: [Task!]! @all @whereAuth(relation: "user")
+
+    pullTasks(checkpoint: TasksInputCheckpoint @spread, limit: Int!): TaskPullBulk!
+}
+
+type Mutation @guard {
+  upsertTask(task: TaskInput! @spread): Task @upsert @inject(context: "user.id", name: "user_id") @broadcast(subscription: "streamTasks")
+
+  pushTasks(tasksPushRow: [TasksInputPushRow!]): [Task!]! @field(resolver: "App\\Models\\Task@pushResolver")
+}
+
+type Subscription @guard {
+  streamTasks(headers: TasksInputHeaders): TaskPullBulk
+}
