@@ -50,20 +50,15 @@
         Object.defineProperty(exports2, "__esModule", { value: true });
       };
       __webpack_require__.t = function(value, mode) {
-        if (mode & 1)
-          value = __webpack_require__(value);
-        if (mode & 8)
-          return value;
-        if (mode & 4 && typeof value === "object" && value && value.__esModule)
-          return value;
+        if (mode & 1) value = __webpack_require__(value);
+        if (mode & 8) return value;
+        if (mode & 4 && typeof value === "object" && value && value.__esModule) return value;
         var ns = /* @__PURE__ */ Object.create(null);
         __webpack_require__.r(ns);
         Object.defineProperty(ns, "default", { enumerable: true, value });
-        if (mode & 2 && typeof value != "string")
-          for (var key in value)
-            __webpack_require__.d(ns, key, (function(key2) {
-              return value[key2];
-            }).bind(null, key));
+        if (mode & 2 && typeof value != "string") for (var key in value) __webpack_require__.d(ns, key, (function(key2) {
+          return value[key2];
+        }).bind(null, key));
         return ns;
       };
       __webpack_require__.n = function(module2) {
@@ -96,9 +91,7 @@
             extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
               d2.__proto__ = b2;
             } || function(d2, b2) {
-              for (var p in b2)
-                if (b2.hasOwnProperty(p))
-                  d2[p] = b2[p];
+              for (var p in b2) if (b2.hasOwnProperty(p)) d2[p] = b2[p];
             };
             return extendStatics(d, b);
           };

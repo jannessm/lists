@@ -91,8 +91,7 @@ var require_dayjs_min = __commonJS({
         var e2 = -t2.utcOffset(), n2 = Math.abs(e2), r2 = Math.floor(n2 / 60), i2 = n2 % 60;
         return (e2 <= 0 ? "+" : "-") + m(r2, 2, "0") + ":" + m(i2, 2, "0");
       }, m: function t2(e2, n2) {
-        if (e2.date() < n2.date())
-          return -t2(n2, e2);
+        if (e2.date() < n2.date()) return -t2(n2, e2);
         var r2 = 12 * (n2.year() - e2.year()) + (n2.month() - e2.month()), i2 = e2.clone().add(r2, c), s2 = n2 - i2 < 0, u3 = e2.clone().add(r2 + (s2 ? -1 : 1), c);
         return +(-(r2 + (n2 - i2) / (s2 ? i2 - u3 : u3 - i2)) || 0);
       }, a: function(t2) {
@@ -107,22 +106,19 @@ var require_dayjs_min = __commonJS({
         return t2 instanceof _ || !(!t2 || !t2[p]);
       }, w = function t2(e2, n2, r2) {
         var i2;
-        if (!e2)
-          return g;
+        if (!e2) return g;
         if ("string" == typeof e2) {
           var s2 = e2.toLowerCase();
           D2[s2] && (i2 = s2), n2 && (D2[s2] = n2, i2 = s2);
           var u3 = e2.split("-");
-          if (!i2 && u3.length > 1)
-            return t2(u3[0]);
+          if (!i2 && u3.length > 1) return t2(u3[0]);
         } else {
           var a2 = e2.name;
           D2[a2] = e2, i2 = a2;
         }
         return !r2 && i2 && (g = i2), i2 || !r2 && g;
       }, O = function(t2, e2) {
-        if (S2(t2))
-          return t2.clone();
+        if (S2(t2)) return t2.clone();
         var n2 = "object" == typeof e2 ? e2 : {};
         return n2.date = t2, n2.args = arguments, new _(n2);
       }, b = v;
@@ -137,12 +133,9 @@ var require_dayjs_min = __commonJS({
         return m2.parse = function(t2) {
           this.$d = function(t3) {
             var e2 = t3.date, n2 = t3.utc;
-            if (null === e2)
-              return /* @__PURE__ */ new Date(NaN);
-            if (b.u(e2))
-              return /* @__PURE__ */ new Date();
-            if (e2 instanceof Date)
-              return new Date(e2);
+            if (null === e2) return /* @__PURE__ */ new Date(NaN);
+            if (b.u(e2)) return /* @__PURE__ */ new Date();
+            if (e2 instanceof Date) return new Date(e2);
             if ("string" == typeof e2 && !/Z$/i.test(e2)) {
               var r2 = e2.match($);
               if (r2) {
@@ -206,8 +199,7 @@ var require_dayjs_min = __commonJS({
           if (o2 === c || o2 === h) {
             var y2 = this.clone().set(d, 1);
             y2.$d[l2]($2), y2.init(), this.$d = y2.set(d, Math.min(this.$D, y2.daysInMonth())).$d;
-          } else
-            l2 && this.$d[l2]($2);
+          } else l2 && this.$d[l2]($2);
           return this.init(), this;
         }, m2.set = function(t2, e2) {
           return this.clone().$set(t2, e2);
@@ -220,22 +212,17 @@ var require_dayjs_min = __commonJS({
             var e2 = O(l2);
             return b.w(e2.date(e2.date() + Math.round(t2 * r2)), l2);
           };
-          if ($2 === c)
-            return this.set(c, this.$M + r2);
-          if ($2 === h)
-            return this.set(h, this.$y + r2);
-          if ($2 === a)
-            return y2(1);
-          if ($2 === o)
-            return y2(7);
+          if ($2 === c) return this.set(c, this.$M + r2);
+          if ($2 === h) return this.set(h, this.$y + r2);
+          if ($2 === a) return y2(1);
+          if ($2 === o) return y2(7);
           var M3 = (d2 = {}, d2[s] = e, d2[u2] = n, d2[i] = t, d2)[$2] || 1, m3 = this.$d.getTime() + r2 * M3;
           return b.w(m3, this);
         }, m2.subtract = function(t2, e2) {
           return this.add(-1 * t2, e2);
         }, m2.format = function(t2) {
           var e2 = this, n2 = this.$locale();
-          if (!this.isValid())
-            return n2.invalidDate || l;
+          if (!this.isValid()) return n2.invalidDate || l;
           var r2 = t2 || "YYYY-MM-DDTHH:mm:ssZ", i2 = b.z(this), s2 = this.$H, u3 = this.$m, a2 = this.$M, o2 = n2.weekdays, c2 = n2.months, f2 = n2.meridiem, h2 = function(t3, n3, i3, s3) {
             return t3 && (t3[n3] || t3(e2, r2)) || i3[n3].slice(0, s3);
           }, d2 = function(t3) {
@@ -339,8 +326,7 @@ var require_dayjs_min = __commonJS({
         }, m2.$locale = function() {
           return D2[this.$L];
         }, m2.locale = function(t2, e2) {
-          if (!t2)
-            return this.$L;
+          if (!t2) return this.$L;
           var n2 = this.clone(), r2 = w(t2, e2, true);
           return r2 && (n2.$L = r2), n2;
         }, m2.clone = function() {
@@ -417,20 +403,15 @@ var require_pusher = __commonJS({
             Object.defineProperty(exports2, "__esModule", { value: true });
           };
           __webpack_require__.t = function(value, mode) {
-            if (mode & 1)
-              value = __webpack_require__(value);
-            if (mode & 8)
-              return value;
-            if (mode & 4 && typeof value === "object" && value && value.__esModule)
-              return value;
+            if (mode & 1) value = __webpack_require__(value);
+            if (mode & 8) return value;
+            if (mode & 4 && typeof value === "object" && value && value.__esModule) return value;
             var ns = /* @__PURE__ */ Object.create(null);
             __webpack_require__.r(ns);
             Object.defineProperty(ns, "default", { enumerable: true, value });
-            if (mode & 2 && typeof value != "string")
-              for (var key in value)
-                __webpack_require__.d(ns, key, (function(key2) {
-                  return value[key2];
-                }).bind(null, key));
+            if (mode & 2 && typeof value != "string") for (var key in value) __webpack_require__.d(ns, key, (function(key2) {
+              return value[key2];
+            }).bind(null, key));
             return ns;
           };
           __webpack_require__.n = function(module2) {
@@ -463,9 +444,7 @@ var require_pusher = __commonJS({
                 extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
                   d2.__proto__ = b2;
                 } || function(d2, b2) {
-                  for (var p in b2)
-                    if (b2.hasOwnProperty(p))
-                      d2[p] = b2[p];
+                  for (var p in b2) if (b2.hasOwnProperty(p)) d2[p] = b2[p];
                 };
                 return extendStatics(d, b);
               };
@@ -1075,9 +1054,9 @@ var require_pusher = __commonJS({
               return b.replace(/[\s\S]{1,3}/g, cb_encode);
             };
             class Timer {
-              constructor(set, clear, delay2, callback) {
+              constructor(set2, clear, delay2, callback) {
                 this.clear = clear;
-                this.timer = set(() => {
+                this.timer = set2(() => {
                   if (this.timer) {
                     this.timer = callback(this.timer);
                   }
@@ -2899,7 +2878,7 @@ var require_pusher = __commonJS({
                 return any(this.strategies, util.method("isSupported"));
               }
               connect(minPriority, callback) {
-                return connect(this.strategies, minPriority, function(i, runners) {
+                return connect2(this.strategies, minPriority, function(i, runners) {
                   return function(error, handshake) {
                     runners[i].error = error;
                     if (error) {
@@ -2916,7 +2895,7 @@ var require_pusher = __commonJS({
                 });
               }
             }
-            function connect(strategies, minPriority, callbackBuilder) {
+            function connect2(strategies, minPriority, callbackBuilder) {
               var runners = map2(strategies, function(strategy, i, _, rs) {
                 return strategy.connect(minPriority, callbackBuilder(i, rs));
               });
@@ -4543,8 +4522,7 @@ function consumerDestroy(node) {
 }
 function producerAddLiveConsumer(node, consumer, indexOfThis) {
   assertProducerNode(node);
-  assertConsumerNode(node);
-  if (node.liveConsumerNode.length === 0) {
+  if (node.liveConsumerNode.length === 0 && isConsumerNode(node)) {
     for (let i = 0; i < node.producerNode.length; i++) {
       node.producerIndexOfThis[i] = producerAddLiveConsumer(node.producerNode[i], node, i);
     }
@@ -4554,11 +4532,10 @@ function producerAddLiveConsumer(node, consumer, indexOfThis) {
 }
 function producerRemoveLiveConsumerAtIndex(node, idx) {
   assertProducerNode(node);
-  assertConsumerNode(node);
   if (typeof ngDevMode !== "undefined" && ngDevMode && idx >= node.liveConsumerNode.length) {
     throw new Error(`Assertion error: active consumer index ${idx} is out of bounds of ${node.liveConsumerNode.length} consumers)`);
   }
-  if (node.liveConsumerNode.length === 1) {
+  if (node.liveConsumerNode.length === 1 && isConsumerNode(node)) {
     for (let i = 0; i < node.producerNode.length; i++) {
       producerRemoveLiveConsumerAtIndex(node.producerNode[i], node.producerIndexOfThis[i]);
     }
@@ -4586,6 +4563,9 @@ function assertConsumerNode(node) {
 function assertProducerNode(node) {
   node.liveConsumerNode ??= [];
   node.liveConsumerIndexOfThis ??= [];
+}
+function isConsumerNode(node) {
+  return node.producerNode !== void 0;
 }
 function createComputed(computation) {
   const node = Object.create(COMPUTED_NODE);
@@ -5980,35 +5960,30 @@ function __awaiter(thisArg, _arguments, P, generator) {
 }
 function __values(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-  if (m)
-    return m.call(o);
-  if (o && typeof o.length === "number")
-    return {
-      next: function() {
-        if (o && i >= o.length)
-          o = void 0;
-        return { value: o && o[i++], done: !o };
-      }
-    };
+  if (m) return m.call(o);
+  if (o && typeof o.length === "number") return {
+    next: function() {
+      if (o && i >= o.length) o = void 0;
+      return { value: o && o[i++], done: !o };
+    }
+  };
   throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 }
 function __await(v) {
   return this instanceof __await ? (this.v = v, this) : new __await(v);
 }
 function __asyncGenerator(thisArg, _arguments, generator) {
-  if (!Symbol.asyncIterator)
-    throw new TypeError("Symbol.asyncIterator is not defined.");
+  if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
   var g = generator.apply(thisArg, _arguments || []), i, q = [];
   return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function() {
     return this;
   }, i;
   function verb(n) {
-    if (g[n])
-      i[n] = function(v) {
-        return new Promise(function(a, b) {
-          q.push([n, v, a, b]) > 1 || resume(n, v);
-        });
-      };
+    if (g[n]) i[n] = function(v) {
+      return new Promise(function(a, b) {
+        q.push([n, v, a, b]) > 1 || resume(n, v);
+      });
+    };
   }
   function resume(n, v) {
     try {
@@ -6027,13 +6002,11 @@ function __asyncGenerator(thisArg, _arguments, generator) {
     resume("throw", value);
   }
   function settle(f, v) {
-    if (f(v), q.shift(), q.length)
-      resume(q[0][0], q[0][1]);
+    if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]);
   }
 }
 function __asyncValues(o) {
-  if (!Symbol.asyncIterator)
-    throw new TypeError("Symbol.asyncIterator is not defined.");
+  if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
   var m = o[Symbol.asyncIterator], i;
   return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function() {
     return this;
@@ -6199,11 +6172,9 @@ function process(asyncIterable, subscriber) {
       e_1 = { error: e_1_1 };
     } finally {
       try {
-        if (asyncIterable_1_1 && !asyncIterable_1_1.done && (_a = asyncIterable_1.return))
-          yield _a.call(asyncIterable_1);
+        if (asyncIterable_1_1 && !asyncIterable_1_1.done && (_a = asyncIterable_1.return)) yield _a.call(asyncIterable_1);
       } finally {
-        if (e_1)
-          throw e_1.error;
+        if (e_1) throw e_1.error;
       }
     }
     subscriber.complete();
@@ -6671,6 +6642,9 @@ function merge(...args) {
   return !sources.length ? EMPTY : sources.length === 1 ? innerFrom(sources[0]) : mergeAll(concurrent)(from(sources, scheduler));
 }
 
+// node_modules/rxjs/dist/esm/internal/observable/never.js
+var NEVER = new Observable(noop);
+
 // node_modules/rxjs/dist/esm/internal/operators/filter.js
 function filter(predicate, thisArg) {
   return operate((source, subscriber) => {
@@ -6763,6 +6737,24 @@ function scanInternals(accumulator, seed, hasSeed, emitOnNext, emitBeforeComplet
 // node_modules/rxjs/dist/esm/internal/operators/concatMap.js
 function concatMap(project, resultSelector) {
   return isFunction(resultSelector) ? mergeMap(project, resultSelector, 1) : mergeMap(project, 1);
+}
+
+// node_modules/rxjs/dist/esm/internal/observable/fromSubscribable.js
+function fromSubscribable(subscribable) {
+  return new Observable((subscriber) => subscribable.subscribe(subscriber));
+}
+
+// node_modules/rxjs/dist/esm/internal/operators/connect.js
+var DEFAULT_CONFIG = {
+  connector: () => new Subject()
+};
+function connect(selector, config2 = DEFAULT_CONFIG) {
+  const { connector } = config2;
+  return operate((source, subscriber) => {
+    const subject = connector();
+    innerFrom(selector(fromSubscribable(subject))).subscribe(subscriber);
+    subscriber.add(source.subscribe(subject));
+  });
 }
 
 // node_modules/rxjs/dist/esm/internal/operators/debounceTime.js
@@ -6938,6 +6930,17 @@ function last2(predicate, defaultValue) {
   return (source) => source.pipe(predicate ? filter((v, i) => predicate(v, i, source)) : identity, takeLast(1), hasDefaultValue ? defaultIfEmpty(defaultValue) : throwIfEmpty(() => new EmptyError()));
 }
 
+// node_modules/rxjs/dist/esm/internal/operators/multicast.js
+function multicast(subjectOrSubjectFactory, selector) {
+  const subjectFactory = isFunction(subjectOrSubjectFactory) ? subjectOrSubjectFactory : () => subjectOrSubjectFactory;
+  if (isFunction(selector)) {
+    return connect(selector, {
+      connector: subjectFactory
+    });
+  }
+  return (source) => new ConnectableObservable(source, subjectFactory);
+}
+
 // node_modules/rxjs/dist/esm/internal/operators/pairwise.js
 function pairwise() {
   return operate((source, subscriber) => {
@@ -6950,6 +6953,11 @@ function pairwise() {
       hasPrev = true;
     }));
   });
+}
+
+// node_modules/rxjs/dist/esm/internal/operators/publish.js
+function publish(selector) {
+  return selector ? (source) => connect(selector)(source) : (source) => multicast(new Subject())(source);
 }
 
 // node_modules/rxjs/dist/esm/internal/operators/scan.js
@@ -7135,8 +7143,1121 @@ function tap(observerOrNext, error, complete) {
   }) : identity;
 }
 
+// node_modules/@angular/core/fesm2022/primitives/event-dispatch.mjs
+var JSACTION$1 = "jsaction";
+var OI$1 = "oi";
+var VED = "ved";
+var VET = "vet";
+var JSINSTANCE = "jsinstance";
+var JSTRACK = "jstrack";
+var Attribute = { JSACTION: JSACTION$1, OI: OI$1, VED, VET, JSINSTANCE, JSTRACK };
+var Char = {
+  /**
+   * The separator between the namespace and the action name in the
+   * jsaction attribute value.
+   */
+  NAMESPACE_ACTION_SEPARATOR: ".",
+  /**
+   * The separator between the event name and action in the jsaction
+   * attribute value.
+   */
+  EVENT_ACTION_SEPARATOR: ":",
+  /**
+   * The separator between the logged oi attribute values in the &oi=
+   * URL parameter value.
+   */
+  OI_SEPARATOR: ".",
+  /**
+   * The separator between the key and the value pairs in the &cad=
+   * URL parameter value.
+   */
+  CAD_KEY_VALUE_SEPARATOR: ":",
+  /**
+   * The separator between the key-value pairs in the &cad= URL
+   * parameter value.
+   */
+  CAD_SEPARATOR: ","
+};
+var EventType = {
+  /**
+   * Mouse middle click, introduced in Chrome 55 and not yet supported on
+   * other browsers.
+   */
+  AUXCLICK: "auxclick",
+  /**
+   * The change event fired by browsers when the `value` attribute of input,
+   * select, and textarea elements are changed.
+   */
+  CHANGE: "change",
+  /**
+   * The click event. In addEvent() refers to all click events, in the
+   * jsaction attribute it refers to the unmodified click and Enter/Space
+   * keypress events.  In the latter case, a jsaction click will be triggered,
+   * for accessibility reasons.  See clickmod and clickonly, below.
+   */
+  CLICK: "click",
+  /**
+   * Specifies the jsaction for a modified click event (i.e. a mouse
+   * click with the modifier key Cmd/Ctrl pressed). This event isn't
+   * separately enabled in addEvent(), because in the DOM, it's just a
+   * click event.
+   */
+  CLICKMOD: "clickmod",
+  /**
+   * Specifies the jsaction for a click-only event.  Click-only doesn't take
+   * into account the case where an element with focus receives an Enter/Space
+   * keypress.  This event isn't separately enabled in addEvent().
+   */
+  CLICKONLY: "clickonly",
+  /**
+   * The dblclick event.
+   */
+  DBLCLICK: "dblclick",
+  /**
+   * Focus doesn't bubble, but you can use it in addEvent() and
+   * jsaction anyway. EventContract does the right thing under the
+   * hood.
+   */
+  FOCUS: "focus",
+  /**
+   * This event only exists in IE. For addEvent() and jsaction, use
+   * focus instead; EventContract does the right thing even though
+   * focus doesn't bubble.
+   */
+  FOCUSIN: "focusin",
+  /**
+   * Analog to focus.
+   */
+  BLUR: "blur",
+  /**
+   * Analog to focusin.
+   */
+  FOCUSOUT: "focusout",
+  /**
+   * Submit doesn't bubble, so it cannot be used with event
+   * contract. However, the browser helpfully fires a click event on
+   * the submit button of a form (even if the form is not submitted by
+   * a click on the submit button). So you should handle click on the
+   * submit button instead.
+   */
+  SUBMIT: "submit",
+  /**
+   * The keydown event. In addEvent() and non-click jsaction it represents the
+   * regular DOM keydown event. It represents click actions in non-Gecko
+   * browsers.
+   */
+  KEYDOWN: "keydown",
+  /**
+   * The keypress event. In addEvent() and non-click jsaction it represents the
+   * regular DOM keypress event. It represents click actions in Gecko browsers.
+   */
+  KEYPRESS: "keypress",
+  /**
+   * The keyup event. In addEvent() and non-click jsaction it represents the
+   * regular DOM keyup event. It represents click actions in non-Gecko
+   * browsers.
+   */
+  KEYUP: "keyup",
+  /**
+   * The mouseup event. Can either be used directly or used implicitly to
+   * capture mouseup events. In addEvent(), it represents a regular DOM
+   * mouseup event.
+   */
+  MOUSEUP: "mouseup",
+  /**
+   * The mousedown event. Can either be used directly or used implicitly to
+   * capture mouseenter events. In addEvent(), it represents a regular DOM
+   * mouseover event.
+   */
+  MOUSEDOWN: "mousedown",
+  /**
+   * The mouseover event. Can either be used directly or used implicitly to
+   * capture mouseenter events. In addEvent(), it represents a regular DOM
+   * mouseover event.
+   */
+  MOUSEOVER: "mouseover",
+  /**
+   * The mouseout event. Can either be used directly or used implicitly to
+   * capture mouseover events. In addEvent(), it represents a regular DOM
+   * mouseout event.
+   */
+  MOUSEOUT: "mouseout",
+  /**
+   * The mouseenter event. Does not bubble and fires individually on each
+   * element being entered within a DOM tree.
+   */
+  MOUSEENTER: "mouseenter",
+  /**
+   * The mouseleave event. Does not bubble and fires individually on each
+   * element being entered within a DOM tree.
+   */
+  MOUSELEAVE: "mouseleave",
+  /**
+   * The mousemove event.
+   */
+  MOUSEMOVE: "mousemove",
+  /**
+   * The pointerup event. Can either be used directly or used implicitly to
+   * capture pointerup events. In addEvent(), it represents a regular DOM
+   * pointerup event.
+   */
+  POINTERUP: "pointerup",
+  /**
+   * The pointerdown event. Can either be used directly or used implicitly to
+   * capture pointerenter events. In addEvent(), it represents a regular DOM
+   * mouseover event.
+   */
+  POINTERDOWN: "pointerdown",
+  /**
+   * The pointerover event. Can either be used directly or used implicitly to
+   * capture pointerenter events. In addEvent(), it represents a regular DOM
+   * pointerover event.
+   */
+  POINTEROVER: "pointerover",
+  /**
+   * The pointerout event. Can either be used directly or used implicitly to
+   * capture pointerover events. In addEvent(), it represents a regular DOM
+   * pointerout event.
+   */
+  POINTEROUT: "pointerout",
+  /**
+   * The pointerenter event. Does not bubble and fires individually on each
+   * element being entered within a DOM tree.
+   */
+  POINTERENTER: "pointerenter",
+  /**
+   * The pointerleave event. Does not bubble and fires individually on each
+   * element being entered within a DOM tree.
+   */
+  POINTERLEAVE: "pointerleave",
+  /**
+   * The pointermove event.
+   */
+  POINTERMOVE: "pointermove",
+  /**
+   * The pointercancel event.
+   */
+  POINTERCANCEL: "pointercancel",
+  /**
+   * The gotpointercapture event is fired when
+   * Element.setPointerCapture(pointerId) is called on a mouse input, or
+   * implicitly when a touch input begins.
+   */
+  GOTPOINTERCAPTURE: "gotpointercapture",
+  /**
+   * The lostpointercapture event is fired when
+   * Element.releasePointerCapture(pointerId) is called, or implicitly after a
+   * touch input ends.
+   */
+  LOSTPOINTERCAPTURE: "lostpointercapture",
+  /**
+   * The error event. The error event doesn't bubble, but you can use it in
+   * addEvent() and jsaction anyway. EventContract does the right thing under
+   * the hood (except in IE8 which does not use error events).
+   */
+  ERROR: "error",
+  /**
+   * The load event. The load event doesn't bubble, but you can use it in
+   * addEvent() and jsaction anyway. EventContract does the right thing
+   * under the hood.
+   */
+  LOAD: "load",
+  /**
+   * The unload event.
+   */
+  UNLOAD: "unload",
+  /**
+   * The touchstart event. Bubbles, will only ever fire in browsers with
+   * touch support.
+   */
+  TOUCHSTART: "touchstart",
+  /**
+   * The touchend event. Bubbles, will only ever fire in browsers with
+   * touch support.
+   */
+  TOUCHEND: "touchend",
+  /**
+   * The touchmove event. Bubbles, will only ever fire in browsers with
+   * touch support.
+   */
+  TOUCHMOVE: "touchmove",
+  /**
+   * The input event.
+   */
+  INPUT: "input",
+  /**
+   * The scroll event.
+   */
+  SCROLL: "scroll",
+  /**
+   * The toggle event. The toggle event doesn't bubble, but you can use it in
+   * addEvent() and jsaction anyway. EventContract does the right thing
+   * under the hood.
+   */
+  TOGGLE: "toggle",
+  /**
+   * A custom event. The actual custom event type is declared as the 'type'
+   * field in the event details. Supported in Firefox 6+, IE 9+, and all Chrome
+   * versions.
+   *
+   * This is an internal name. Users should use jsaction's fireCustomEvent to
+   * fire custom events instead of relying on this type to create them.
+   */
+  CUSTOM: "_custom"
+};
+var NON_BUBBLING_MOUSE_EVENTS = [
+  EventType.MOUSEENTER,
+  EventType.MOUSELEAVE,
+  "pointerenter",
+  "pointerleave"
+];
+var SUPPORTED_EVENTS = [
+  EventType.CLICK,
+  EventType.DBLCLICK,
+  EventType.FOCUS,
+  EventType.FOCUSIN,
+  EventType.BLUR,
+  EventType.ERROR,
+  EventType.FOCUSOUT,
+  EventType.KEYDOWN,
+  EventType.KEYUP,
+  EventType.KEYPRESS,
+  EventType.LOAD,
+  EventType.MOUSEOVER,
+  EventType.MOUSEOUT,
+  EventType.SUBMIT,
+  EventType.TOGGLE,
+  EventType.TOUCHSTART,
+  EventType.TOUCHEND,
+  EventType.TOUCHMOVE,
+  "touchcancel",
+  "auxclick",
+  "change",
+  "compositionstart",
+  "compositionupdate",
+  "compositionend",
+  "beforeinput",
+  "input",
+  "select",
+  "copy",
+  "cut",
+  "paste",
+  "mousedown",
+  "mouseup",
+  "wheel",
+  "contextmenu",
+  "dragover",
+  "dragenter",
+  "dragleave",
+  "drop",
+  "dragstart",
+  "dragend",
+  "pointerdown",
+  "pointermove",
+  "pointerup",
+  "pointercancel",
+  "pointerover",
+  "pointerout",
+  "gotpointercapture",
+  "lostpointercapture",
+  // Video events.
+  "ended",
+  "loadedmetadata",
+  // Page visibility events.
+  "pagehide",
+  "pageshow",
+  "visibilitychange",
+  // Content visibility events.
+  "beforematch"
+];
+var CAPTURE_EVENTS = [
+  EventType.FOCUS,
+  EventType.BLUR,
+  EventType.ERROR,
+  EventType.LOAD,
+  EventType.TOGGLE
+];
+var JSACTION = "__jsaction";
+var OWNER = "__owner";
+var parseCache = {};
+function get(element) {
+  return element[JSACTION];
+}
+function set(element, actionMap) {
+  element[JSACTION] = actionMap;
+}
+function getParsed(text) {
+  return parseCache[text];
+}
+function setParsed(text, parsed) {
+  parseCache[text] = parsed;
+}
+function getEventType(eventInfo) {
+  return eventInfo.eventType;
+}
+function setEventType(eventInfo, eventType) {
+  eventInfo.eventType = eventType;
+}
+function getEvent(eventInfo) {
+  return eventInfo.event;
+}
+function setEvent(eventInfo, event) {
+  eventInfo.event = event;
+}
+function getTargetElement(eventInfo) {
+  return eventInfo.targetElement;
+}
+function setTargetElement(eventInfo, targetElement) {
+  eventInfo.targetElement = targetElement;
+}
+function getContainer(eventInfo) {
+  return eventInfo.eic;
+}
+function getAction(eventInfo) {
+  return eventInfo.eia;
+}
+function setAction(eventInfo, actionName, actionElement) {
+  eventInfo.eia = [actionName, actionElement];
+}
+function unsetAction(eventInfo) {
+  eventInfo.eia = void 0;
+}
+function getActionElement(actionInfo) {
+  return actionInfo[1];
+}
+function setIsReplay(eventInfo, replay) {
+  eventInfo.eirp = replay;
+}
+function getA11yClickKey(eventInfo) {
+  return eventInfo.eiack;
+}
+function setA11yClickKey(eventInfo, a11yClickKey) {
+  eventInfo.eiack = a11yClickKey;
+}
+function getResolved(eventInfo) {
+  return eventInfo.eir;
+}
+function setResolved(eventInfo, resolved2) {
+  eventInfo.eir = resolved2;
+}
+function cloneEventInfo(eventInfo) {
+  return {
+    eventType: eventInfo.eventType,
+    event: eventInfo.event,
+    targetElement: eventInfo.targetElement,
+    eic: eventInfo.eic,
+    eia: eventInfo.eia,
+    timeStamp: eventInfo.timeStamp,
+    eirp: eventInfo.eirp,
+    eiack: eventInfo.eiack,
+    eir: eventInfo.eir
+  };
+}
+function createEventInfoFromParameters(eventType, event, targetElement, container, timestamp, action, isReplay, a11yClickKey) {
+  return {
+    eventType,
+    event,
+    targetElement,
+    eic: container,
+    timeStamp: timestamp,
+    eia: action,
+    eirp: isReplay,
+    eiack: a11yClickKey
+  };
+}
+function contains(node, otherNode) {
+  if (otherNode === null) {
+    return false;
+  }
+  if ("contains" in node && otherNode.nodeType === 1) {
+    return node.contains(otherNode);
+  }
+  if ("compareDocumentPosition" in node) {
+    return node === otherNode || Boolean(node.compareDocumentPosition(otherNode) & 16);
+  }
+  while (otherNode && node !== otherNode) {
+    otherNode = otherNode.parentNode;
+  }
+  return otherNode === node;
+}
+var MAC_ENTER = 3;
+var ENTER = 13;
+var SPACE = 32;
+var KeyCode = { MAC_ENTER, ENTER, SPACE };
+function getBrowserEventType(eventType) {
+  if (eventType === EventType.MOUSEENTER) {
+    return EventType.MOUSEOVER;
+  } else if (eventType === EventType.MOUSELEAVE) {
+    return EventType.MOUSEOUT;
+  } else if (eventType === EventType.POINTERENTER) {
+    return EventType.POINTEROVER;
+  } else if (eventType === EventType.POINTERLEAVE) {
+    return EventType.POINTEROUT;
+  }
+  return eventType;
+}
+function preventDefault(e) {
+  e.preventDefault ? e.preventDefault() : e.returnValue = false;
+}
+function getTarget(e) {
+  let el = e.target;
+  if (!el.getAttribute && el.parentNode) {
+    el = el.parentNode;
+  }
+  return el;
+}
+var isMac = typeof navigator !== "undefined" && /Macintosh/.test(navigator.userAgent);
+function isMiddleClick(e) {
+  return (
+    // `which` is an old DOM API.
+    // tslint:disable-next-line:no-any
+    e.which === 2 || // `which` is an old DOM API.
+    // tslint:disable-next-line:no-any
+    e.which == null && // `button` is an old DOM API.
+    // tslint:disable-next-line:no-any
+    e.button === 4
+  );
+}
+function isModifiedClickEvent(e) {
+  return (
+    // `metaKey` is an old DOM API.
+    // tslint:disable-next-line:no-any
+    isMac && e.metaKey || // `ctrlKey` is an old DOM API.
+    // tslint:disable-next-line:no-any
+    !isMac && e.ctrlKey || isMiddleClick(e) || // `shiftKey` is an old DOM API.
+    // tslint:disable-next-line:no-any
+    e.shiftKey
+  );
+}
+var isWebKit = typeof navigator !== "undefined" && !/Opera/.test(navigator.userAgent) && /WebKit/.test(navigator.userAgent);
+var isIe = typeof navigator !== "undefined" && (/MSIE/.test(navigator.userAgent) || /Trident/.test(navigator.userAgent));
+var isGecko = typeof navigator !== "undefined" && !/Opera|WebKit/.test(navigator.userAgent) && /Gecko/.test(navigator.product);
+function isValidActionKeyTarget(el) {
+  if (!("getAttribute" in el)) {
+    return false;
+  }
+  if (isTextControl(el)) {
+    return false;
+  }
+  if (isNativelyActivatable(el)) {
+    return false;
+  }
+  if (el.isContentEditable) {
+    return false;
+  }
+  return true;
+}
+function hasModifierKey(e) {
+  return (
+    // `ctrlKey` is an old DOM API.
+    // tslint:disable-next-line:no-any
+    e.ctrlKey || // `shiftKey` is an old DOM API.
+    // tslint:disable-next-line:no-any
+    e.shiftKey || // `altKey` is an old DOM API.
+    // tslint:disable-next-line:no-any
+    e.altKey || // `metaKey` is an old DOM API.
+    // tslint:disable-next-line:no-any
+    e.metaKey
+  );
+}
+function shouldCallPreventDefaultOnNativeHtmlControl(e) {
+  const el = getTarget(e);
+  const tagName = el.tagName.toUpperCase();
+  const role = (el.getAttribute("role") || "").toUpperCase();
+  if (tagName === "BUTTON" || role === "BUTTON") {
+    return true;
+  }
+  if (!isNativeHTMLControl(el)) {
+    return false;
+  }
+  if (tagName === "A") {
+    return false;
+  }
+  if (tagName === "SELECT") {
+    return false;
+  }
+  if (processSpace(el)) {
+    return false;
+  }
+  if (isTextControl(el)) {
+    return false;
+  }
+  return true;
+}
+function isActionKeyEvent(e) {
+  let key = (
+    // `which` is an old DOM API.
+    // tslint:disable-next-line:no-any
+    e.which || // `keyCode` is an old DOM API.
+    // tslint:disable-next-line:no-any
+    e.keyCode
+  );
+  if (!key && e.key) {
+    key = ACTION_KEY_TO_KEYCODE[e.key];
+  }
+  if (isWebKit && key === KeyCode.MAC_ENTER) {
+    key = KeyCode.ENTER;
+  }
+  if (key !== KeyCode.ENTER && key !== KeyCode.SPACE) {
+    return false;
+  }
+  const el = getTarget(e);
+  if (e.type !== EventType.KEYDOWN || !isValidActionKeyTarget(el) || hasModifierKey(e)) {
+    return false;
+  }
+  if (processSpace(el) && key === KeyCode.SPACE) {
+    return false;
+  }
+  if (!isFocusable(el)) {
+    return false;
+  }
+  const type = (el.getAttribute("role") || el.type || el.tagName).toUpperCase();
+  const isSpecificTriggerKey = IDENTIFIER_TO_KEY_TRIGGER_MAPPING[type] % key === 0;
+  const isDefaultTriggerKey = !(type in IDENTIFIER_TO_KEY_TRIGGER_MAPPING) && key === KeyCode.ENTER;
+  const hasType = el.tagName.toUpperCase() !== "INPUT" || !!el.type;
+  return (isSpecificTriggerKey || isDefaultTriggerKey) && hasType;
+}
+function isFocusable(el) {
+  return (el.tagName in NATIVELY_FOCUSABLE_ELEMENTS || hasSpecifiedTabIndex(el)) && !el.disabled;
+}
+function hasSpecifiedTabIndex(element) {
+  const attrNode = element.getAttributeNode("tabindex");
+  return attrNode != null && attrNode.specified;
+}
+var NATIVELY_FOCUSABLE_ELEMENTS = {
+  "A": 1,
+  "INPUT": 1,
+  "TEXTAREA": 1,
+  "SELECT": 1,
+  "BUTTON": 1
+};
+function isSpaceKeyEvent(e) {
+  const key = (
+    // `which` is an old DOM API.
+    // tslint:disable-next-line:no-any
+    e.which || // `keyCode` is an old DOM API.
+    // tslint:disable-next-line:no-any
+    e.keyCode
+  );
+  const el = getTarget(e);
+  const elementName = (el.type || el.tagName).toUpperCase();
+  return key === KeyCode.SPACE && elementName !== "CHECKBOX";
+}
+function isMouseSpecialEvent(e, type, element) {
+  const related = e.relatedTarget;
+  return (e.type === EventType.MOUSEOVER && type === EventType.MOUSEENTER || e.type === EventType.MOUSEOUT && type === EventType.MOUSELEAVE || e.type === EventType.POINTEROVER && type === EventType.POINTERENTER || e.type === EventType.POINTEROUT && type === EventType.POINTERLEAVE) && (!related || related !== element && !contains(element, related));
+}
+function createMouseSpecialEvent(e, target) {
+  const copy = {};
+  for (const property in e) {
+    if (property === "srcElement" || property === "target") {
+      continue;
+    }
+    const key = property;
+    const value = e[key];
+    if (typeof value === "function") {
+      continue;
+    }
+    copy[key] = value;
+  }
+  if (e.type === EventType.MOUSEOVER) {
+    copy["type"] = EventType.MOUSEENTER;
+  } else if (e.type === EventType.MOUSEOUT) {
+    copy["type"] = EventType.MOUSELEAVE;
+  } else if (e.type === EventType.POINTEROVER) {
+    copy["type"] = EventType.POINTERENTER;
+  } else {
+    copy["type"] = EventType.POINTERLEAVE;
+  }
+  copy["target"] = copy["srcElement"] = target;
+  copy["bubbles"] = false;
+  return copy;
+}
+var ACTION_KEY_TO_KEYCODE = {
+  "Enter": KeyCode.ENTER,
+  " ": KeyCode.SPACE
+};
+var IDENTIFIER_TO_KEY_TRIGGER_MAPPING = {
+  "A": KeyCode.ENTER,
+  "BUTTON": 0,
+  "CHECKBOX": KeyCode.SPACE,
+  "COMBOBOX": KeyCode.ENTER,
+  "FILE": 0,
+  "GRIDCELL": KeyCode.ENTER,
+  "LINK": KeyCode.ENTER,
+  "LISTBOX": KeyCode.ENTER,
+  "MENU": 0,
+  "MENUBAR": 0,
+  "MENUITEM": 0,
+  "MENUITEMCHECKBOX": 0,
+  "MENUITEMRADIO": 0,
+  "OPTION": 0,
+  "RADIO": KeyCode.SPACE,
+  "RADIOGROUP": KeyCode.SPACE,
+  "RESET": 0,
+  "SUBMIT": 0,
+  "SWITCH": KeyCode.SPACE,
+  "TAB": 0,
+  "TREE": KeyCode.ENTER,
+  "TREEITEM": KeyCode.ENTER
+};
+function processSpace(element) {
+  const type = (element.getAttribute("type") || element.tagName).toUpperCase();
+  return type in PROCESS_SPACE;
+}
+function isTextControl(el) {
+  const type = (el.getAttribute("type") || el.tagName).toUpperCase();
+  return type in TEXT_CONTROLS;
+}
+function isNativeHTMLControl(el) {
+  return el.tagName.toUpperCase() in NATIVE_HTML_CONTROLS;
+}
+function isNativelyActivatable(el) {
+  return el.tagName.toUpperCase() === "BUTTON" || !!el.type && el.type.toUpperCase() === "FILE";
+}
+var PROCESS_SPACE = {
+  "CHECKBOX": true,
+  "FILE": true,
+  "OPTION": true,
+  "RADIO": true
+};
+var TEXT_CONTROLS = {
+  "COLOR": true,
+  "DATE": true,
+  "DATETIME": true,
+  "DATETIME-LOCAL": true,
+  "EMAIL": true,
+  "MONTH": true,
+  "NUMBER": true,
+  "PASSWORD": true,
+  "RANGE": true,
+  "SEARCH": true,
+  "TEL": true,
+  "TEXT": true,
+  "TEXTAREA": true,
+  "TIME": true,
+  "URL": true,
+  "WEEK": true
+};
+var NATIVE_HTML_CONTROLS = {
+  "A": true,
+  "AREA": true,
+  "BUTTON": true,
+  "DIALOG": true,
+  "IMG": true,
+  "INPUT": true,
+  "LINK": true,
+  "MENU": true,
+  "OPTGROUP": true,
+  "OPTION": true,
+  "PROGRESS": true,
+  "SELECT": true,
+  "TEXTAREA": true
+};
+var EMPTY_ACTION_MAP = {};
+var REGEXP_SEMICOLON = /\s*;\s*/;
+var DEFAULT_EVENT_TYPE = EventType.CLICK;
+var ActionResolver = class {
+  constructor({ syntheticMouseEventSupport = false } = {}) {
+    this.a11yClickSupport = false;
+    this.updateEventInfoForA11yClick = void 0;
+    this.preventDefaultForA11yClick = void 0;
+    this.populateClickOnlyAction = void 0;
+    this.syntheticMouseEventSupport = syntheticMouseEventSupport;
+  }
+  resolveEventType(eventInfo) {
+    if (getEventType(eventInfo) === EventType.CLICK && isModifiedClickEvent(getEvent(eventInfo))) {
+      setEventType(eventInfo, EventType.CLICKMOD);
+    } else if (this.a11yClickSupport) {
+      this.updateEventInfoForA11yClick(eventInfo);
+    }
+  }
+  resolveAction(eventInfo) {
+    if (getResolved(eventInfo)) {
+      return;
+    }
+    this.populateAction(eventInfo, getTargetElement(eventInfo));
+    setResolved(eventInfo, true);
+  }
+  resolveParentAction(eventInfo) {
+    const action = getAction(eventInfo);
+    const actionElement = action && getActionElement(action);
+    unsetAction(eventInfo);
+    const parentNode = actionElement && this.getParentNode(actionElement);
+    if (!parentNode) {
+      return;
+    }
+    this.populateAction(eventInfo, parentNode);
+  }
+  /**
+   * Searches for a jsaction that the DOM event maps to and creates an
+   * object containing event information used for dispatching by
+   * jsaction.Dispatcher. This method populates the `action` and `actionElement`
+   * fields of the EventInfo object passed in by finding the first
+   * jsaction attribute above the target Node of the event, and below
+   * the container Node, that specifies a jsaction for the event
+   * type. If no such jsaction is found, then action is undefined.
+   *
+   * @param eventInfo `EventInfo` to set `action` and `actionElement` if an
+   *    action is found on any `Element` in the path of the `Event`.
+   */
+  populateAction(eventInfo, currentTarget) {
+    let actionElement = currentTarget;
+    while (actionElement && actionElement !== getContainer(eventInfo)) {
+      if (actionElement.nodeType === Node.ELEMENT_NODE) {
+        this.populateActionOnElement(actionElement, eventInfo);
+      }
+      if (getAction(eventInfo)) {
+        break;
+      }
+      actionElement = this.getParentNode(actionElement);
+    }
+    const action = getAction(eventInfo);
+    if (!action) {
+      return;
+    }
+    if (this.a11yClickSupport) {
+      this.preventDefaultForA11yClick(eventInfo);
+    }
+    if (this.syntheticMouseEventSupport) {
+      if (getEventType(eventInfo) === EventType.MOUSEENTER || getEventType(eventInfo) === EventType.MOUSELEAVE || getEventType(eventInfo) === EventType.POINTERENTER || getEventType(eventInfo) === EventType.POINTERLEAVE) {
+        if (isMouseSpecialEvent(getEvent(eventInfo), getEventType(eventInfo), getActionElement(action))) {
+          const copiedEvent = createMouseSpecialEvent(getEvent(eventInfo), getActionElement(action));
+          setEvent(eventInfo, copiedEvent);
+          setTargetElement(eventInfo, getActionElement(action));
+        } else {
+          unsetAction(eventInfo);
+        }
+      }
+    }
+  }
+  /**
+   * Walk to the parent node, unless the node has a different owner in
+   * which case we walk to the owner. Attempt to walk to host of a
+   * shadow root if needed.
+   */
+  getParentNode(element) {
+    const owner = element[OWNER];
+    if (owner) {
+      return owner;
+    }
+    const parentNode = element.parentNode;
+    if (parentNode?.nodeName === "#document-fragment") {
+      return parentNode?.host ?? null;
+    }
+    return parentNode;
+  }
+  /**
+   * Accesses the jsaction map on a node and retrieves the name of the
+   * action the given event is mapped to, if any. It parses the
+   * attribute value and stores it in a property on the node for
+   * subsequent retrieval without re-parsing and re-accessing the
+   * attribute.
+   *
+   * @param actionElement The DOM node to retrieve the jsaction map from.
+   * @param eventInfo `EventInfo` to set `action` and `actionElement` if an
+   *    action is found on the `actionElement`.
+   */
+  populateActionOnElement(actionElement, eventInfo) {
+    const actionMap = this.parseActions(actionElement);
+    const actionName = actionMap[getEventType(eventInfo)];
+    if (actionName !== void 0) {
+      setAction(eventInfo, actionName, actionElement);
+    }
+    if (this.a11yClickSupport) {
+      this.populateClickOnlyAction(actionElement, eventInfo, actionMap);
+    }
+  }
+  /**
+   * Parses and caches an element's jsaction element into a map.
+   *
+   * This is primarily for internal use.
+   *
+   * @param actionElement The DOM node to retrieve the jsaction map from.
+   * @return Map from event to qualified name of the jsaction bound to it.
+   */
+  parseActions(actionElement) {
+    let actionMap = get(actionElement);
+    if (!actionMap) {
+      const jsactionAttribute = actionElement.getAttribute(Attribute.JSACTION);
+      if (!jsactionAttribute) {
+        actionMap = EMPTY_ACTION_MAP;
+        set(actionElement, actionMap);
+      } else {
+        actionMap = getParsed(jsactionAttribute);
+        if (!actionMap) {
+          actionMap = {};
+          const values = jsactionAttribute.split(REGEXP_SEMICOLON);
+          for (let idx = 0; idx < values.length; idx++) {
+            const value = values[idx];
+            if (!value) {
+              continue;
+            }
+            const colon = value.indexOf(Char.EVENT_ACTION_SEPARATOR);
+            const hasColon = colon !== -1;
+            const type = hasColon ? value.substr(0, colon).trim() : DEFAULT_EVENT_TYPE;
+            const action = hasColon ? value.substr(colon + 1).trim() : value;
+            actionMap[type] = action;
+          }
+          setParsed(jsactionAttribute, actionMap);
+        }
+        set(actionElement, actionMap);
+      }
+    }
+    return actionMap;
+  }
+  addA11yClickSupport(updateEventInfoForA11yClick2, preventDefaultForA11yClick2, populateClickOnlyAction2) {
+    this.a11yClickSupport = true;
+    this.updateEventInfoForA11yClick = updateEventInfoForA11yClick2;
+    this.preventDefaultForA11yClick = preventDefaultForA11yClick2;
+    this.populateClickOnlyAction = populateClickOnlyAction2;
+  }
+};
+var Restriction;
+(function(Restriction2) {
+  Restriction2[Restriction2["I_AM_THE_JSACTION_FRAMEWORK"] = 0] = "I_AM_THE_JSACTION_FRAMEWORK";
+})(Restriction || (Restriction = {}));
+var PROPAGATION_STOPPED_SYMBOL = Symbol.for("propagationStopped");
+var isIos = typeof navigator !== "undefined" && /iPhone|iPad|iPod/.test(navigator.userAgent);
+function updateEventInfoForA11yClick(eventInfo) {
+  if (!isActionKeyEvent(getEvent(eventInfo))) {
+    return;
+  }
+  setA11yClickKey(eventInfo, true);
+  setEventType(eventInfo, EventType.CLICK);
+}
+function preventDefaultForA11yClick(eventInfo) {
+  if (!getA11yClickKey(eventInfo) || !isSpaceKeyEvent(getEvent(eventInfo)) && !shouldCallPreventDefaultOnNativeHtmlControl(getEvent(eventInfo))) {
+    return;
+  }
+  preventDefault(getEvent(eventInfo));
+}
+function populateClickOnlyAction(actionElement, eventInfo, actionMap) {
+  if (
+    // If there's already an action, don't attempt to set a CLICKONLY
+    getAction(eventInfo) || // Only attempt CLICKONLY if the type is CLICK
+    getEventType(eventInfo) !== EventType.CLICK || // a11y clicks are never CLICKONLY
+    getA11yClickKey(eventInfo) || actionMap[EventType.CLICKONLY] === void 0
+  ) {
+    return;
+  }
+  setEventType(eventInfo, EventType.CLICKONLY);
+  setAction(eventInfo, actionMap[EventType.CLICKONLY], actionElement);
+}
+var A11Y_CLICK_SUPPORT = false;
+var MOUSE_SPECIAL_SUPPORT = false;
+var _EventContract = class _EventContract {
+  constructor(containerManager, useActionResolver = true) {
+    this.useActionResolver = useActionResolver;
+    this.eventHandlers = {};
+    this.browserEventTypeToExtraEventTypes = {};
+    this.dispatcher = null;
+    this.queuedEventInfos = [];
+    this.addA11yClickListener = false;
+    this.containerManager = containerManager;
+    if (this.useActionResolver) {
+      this.actionResolver = new ActionResolver({
+        syntheticMouseEventSupport: _EventContract.MOUSE_SPECIAL_SUPPORT
+      });
+    }
+    if (_EventContract.A11Y_CLICK_SUPPORT) {
+      this.addA11yClickSupport();
+    }
+  }
+  handleEvent(eventType, event, container) {
+    const eventInfo = createEventInfoFromParameters(
+      /* eventType= */
+      eventType,
+      /* event= */
+      event,
+      /* targetElement= */
+      event.target,
+      /* container= */
+      container,
+      /* timestamp= */
+      Date.now()
+    );
+    this.handleEventInfo(eventInfo);
+  }
+  /**
+   * Handle an `EventInfo`.
+   */
+  handleEventInfo(eventInfo) {
+    if (!this.dispatcher) {
+      setIsReplay(eventInfo, true);
+      this.queuedEventInfos?.push(eventInfo);
+      return;
+    }
+    if (this.useActionResolver) {
+      this.actionResolver.resolveEventType(eventInfo);
+      this.actionResolver.resolveAction(eventInfo);
+    }
+    this.dispatcher(eventInfo);
+  }
+  /**
+   * Enables jsaction handlers to be called for the event type given by
+   * name.
+   *
+   * If the event is already registered, this does nothing.
+   *
+   * @param prefixedEventType If supplied, this event is used in
+   *     the actual browser event registration instead of the name that is
+   *     exposed to jsaction. Use this if you e.g. want users to be able
+   *     to subscribe to jsaction="transitionEnd:foo" while the underlying
+   *     event is webkitTransitionEnd in one browser and mozTransitionEnd
+   *     in another.
+   */
+  addEvent(eventType, prefixedEventType) {
+    if (eventType in this.eventHandlers || !this.containerManager) {
+      return;
+    }
+    if (!_EventContract.MOUSE_SPECIAL_SUPPORT && NON_BUBBLING_MOUSE_EVENTS.indexOf(eventType) >= 0) {
+      return;
+    }
+    const eventHandler = (eventType2, event, container) => {
+      this.handleEvent(eventType2, event, container);
+    };
+    this.eventHandlers[eventType] = eventHandler;
+    const browserEventType = getBrowserEventType(prefixedEventType || eventType);
+    if (browserEventType !== eventType) {
+      const eventTypes = this.browserEventTypeToExtraEventTypes[browserEventType] || [];
+      eventTypes.push(eventType);
+      this.browserEventTypeToExtraEventTypes[browserEventType] = eventTypes;
+    }
+    this.containerManager.addEventListener(browserEventType, (element) => {
+      return (event) => {
+        eventHandler(eventType, event, element);
+      };
+    });
+    if (this.addA11yClickListener && eventType === EventType.CLICK) {
+      this.addEvent(EventType.KEYDOWN);
+    }
+  }
+  /**
+   * Gets the queued early events and replay them using the appropriate handler
+   * in the provided event contract. Once all the events are replayed, it cleans
+   * up the early contract.
+   */
+  replayEarlyEvents(earlyJsactionContainer = window) {
+    const earlyJsactionData = earlyJsactionContainer._ejsa;
+    if (!earlyJsactionData) {
+      return;
+    }
+    const earlyEventInfos = earlyJsactionData.q;
+    for (let idx = 0; idx < earlyEventInfos.length; idx++) {
+      const earlyEventInfo = earlyEventInfos[idx];
+      const eventTypes = this.getEventTypesForBrowserEventType(earlyEventInfo.eventType);
+      for (let i = 0; i < eventTypes.length; i++) {
+        const eventInfo = cloneEventInfo(earlyEventInfo);
+        setEventType(eventInfo, eventTypes[i]);
+        this.handleEventInfo(eventInfo);
+      }
+    }
+    const earlyEventHandler = earlyJsactionData.h;
+    removeEventListeners(earlyJsactionData.c, earlyJsactionData.et, earlyEventHandler);
+    removeEventListeners(earlyJsactionData.c, earlyJsactionData.etc, earlyEventHandler, true);
+    delete earlyJsactionContainer._ejsa;
+  }
+  /**
+   * Returns all JSAction event types that have been registered for a given
+   * browser event type.
+   */
+  getEventTypesForBrowserEventType(browserEventType) {
+    const eventTypes = [];
+    if (this.eventHandlers[browserEventType]) {
+      eventTypes.push(browserEventType);
+    }
+    if (this.browserEventTypeToExtraEventTypes[browserEventType]) {
+      eventTypes.push(...this.browserEventTypeToExtraEventTypes[browserEventType]);
+    }
+    return eventTypes;
+  }
+  /**
+   * Returns the event handler function for a given event type.
+   */
+  handler(eventType) {
+    return this.eventHandlers[eventType];
+  }
+  /**
+   * Cleans up the event contract. This resets all of the `EventContract`'s
+   * internal state. Users are responsible for not using this `EventContract`
+   * after it has been cleaned up.
+   */
+  cleanUp() {
+    this.containerManager.cleanUp();
+    this.containerManager = null;
+    this.eventHandlers = {};
+    this.browserEventTypeToExtraEventTypes = {};
+    this.dispatcher = null;
+    this.queuedEventInfos = [];
+  }
+  /**
+   * Register a dispatcher function. Event info of each event mapped to
+   * a jsaction is passed for handling to this callback. The queued
+   * events are passed as well to the dispatcher for later replaying
+   * once the dispatcher is registered. Clears the event queue to null.
+   *
+   * @param dispatcher The dispatcher function.
+   * @param restriction
+   */
+  registerDispatcher(dispatcher, restriction) {
+    this.ecrd(dispatcher, restriction);
+  }
+  /**
+   * Unrenamed alias for registerDispatcher. Necessary for any codebases that
+   * split the `EventContract` and `Dispatcher` code into different compilation
+   * units.
+   */
+  ecrd(dispatcher, restriction) {
+    this.dispatcher = dispatcher;
+    if (this.queuedEventInfos?.length) {
+      for (let i = 0; i < this.queuedEventInfos.length; i++) {
+        this.handleEventInfo(this.queuedEventInfos[i]);
+      }
+      this.queuedEventInfos = null;
+    }
+  }
+  /**
+   * Adds a11y click support to the given `EventContract`. Meant to be called in
+   * the same compilation unit as the `EventContract`.
+   */
+  addA11yClickSupport() {
+    this.addA11yClickSupportImpl(updateEventInfoForA11yClick, preventDefaultForA11yClick, populateClickOnlyAction);
+  }
+  /**
+   * Enables a11y click support to be deferred. Meant to be called in the same
+   * compilation unit as the `EventContract`.
+   */
+  exportAddA11yClickSupport() {
+    this.addA11yClickListener = true;
+    this.ecaacs = this.addA11yClickSupportImpl.bind(this);
+  }
+  /**
+   * Unrenamed function that loads a11yClickSupport.
+   */
+  addA11yClickSupportImpl(updateEventInfoForA11yClick2, preventDefaultForA11yClick2, populateClickOnlyAction2) {
+    this.addA11yClickListener = true;
+    if (this.useActionResolver) {
+      this.actionResolver.addA11yClickSupport(updateEventInfoForA11yClick2, preventDefaultForA11yClick2, populateClickOnlyAction2);
+    }
+  }
+};
+_EventContract.A11Y_CLICK_SUPPORT = A11Y_CLICK_SUPPORT;
+_EventContract.MOUSE_SPECIAL_SUPPORT = MOUSE_SPECIAL_SUPPORT;
+var EventContract = _EventContract;
+function removeEventListeners(container, eventTypes, earlyEventHandler, capture) {
+  for (let idx = 0; idx < eventTypes.length; idx++) {
+    container.removeEventListener(
+      eventTypes[idx],
+      earlyEventHandler,
+      /* useCapture */
+      capture
+    );
+  }
+}
+
 // node_modules/@angular/core/fesm2022/core.mjs
-var ERROR_DETAILS_PAGE_BASE_URL = "https://angular.io/errors";
+var ERROR_DETAILS_PAGE_BASE_URL = "https://angular.dev/errors";
 var XSS_SECURITY_URL = "https://g.co/ng/security#xss";
 var RuntimeError = class extends Error {
   constructor(code, message) {
@@ -7815,7 +8936,6 @@ function formatError(text, obj, injectorErrorName, source = null) {
 }
 var Inject = attachInjectFlag(
   // Disable tslint because `DecoratorFlags` is a const enum which gets inlined.
-  // tslint:disable-next-line: no-toplevel-property-access
   makeParamDecorator("Inject", (token) => ({ token })),
   -1
   /* DecoratorFlags.Inject */
@@ -8313,19 +9433,18 @@ function matchTemplateAttribute(attrs, name) {
   return -1;
 }
 function isSelectorInSelectorList(selector, list) {
-  selectorListLoop:
-    for (let i = 0; i < list.length; i++) {
-      const currentSelectorInList = list[i];
-      if (selector.length !== currentSelectorInList.length) {
-        continue;
-      }
-      for (let j = 0; j < selector.length; j++) {
-        if (selector[j] !== currentSelectorInList[j]) {
-          continue selectorListLoop;
-        }
-      }
-      return true;
+  selectorListLoop: for (let i = 0; i < list.length; i++) {
+    const currentSelectorInList = list[i];
+    if (selector.length !== currentSelectorInList.length) {
+      continue;
     }
+    for (let j = 0; j < selector.length; j++) {
+      if (selector[j] !== currentSelectorInList[j]) {
+        continue selectorListLoop;
+      }
+    }
+    return true;
+  }
   return false;
 }
 function maybeWrapInNotSelector(isNegativeMode, chunk) {
@@ -8736,7 +9855,10 @@ function deepForEachProvider(providers, fn) {
     }
   }
 }
-var USE_VALUE$1 = getClosureSafeProperty({ provide: String, useValue: getClosureSafeProperty });
+var USE_VALUE$1 = getClosureSafeProperty({
+  provide: String,
+  useValue: getClosureSafeProperty
+});
 function isValueProvider(value) {
   return value !== null && typeof value == "object" && USE_VALUE$1 in value;
 }
@@ -9597,10 +10719,6 @@ var profiler = function(event, instance, hookOrListener) {
 };
 var SVG_NAMESPACE = "svg";
 var MATH_ML_NAMESPACE = "math";
-var _ensureDirtyViewsAreAlwaysReachable = false;
-function getEnsureDirtyViewsAreAlwaysReachable() {
-  return _ensureDirtyViewsAreAlwaysReachable;
-}
 function unwrapRNode(value) {
   while (Array.isArray(value)) {
     value = value[HOST];
@@ -9683,22 +10801,21 @@ function requiresRefreshOrTraversal(lView) {
 }
 function updateAncestorTraversalFlagsOnAttach(lView) {
   lView[ENVIRONMENT].changeDetectionScheduler?.notify(
-    1
-    /* NotificationType.AfterRenderHooks */
+    7
+    /* NotificationSource.ViewAttached */
   );
+  if (lView[FLAGS] & 64) {
+    lView[FLAGS] |= 1024;
+  }
   if (requiresRefreshOrTraversal(lView)) {
     markAncestorsForTraversal(lView);
-  } else if (lView[FLAGS] & 64) {
-    if (getEnsureDirtyViewsAreAlwaysReachable()) {
-      lView[FLAGS] |= 1024;
-      markAncestorsForTraversal(lView);
-    } else {
-      lView[ENVIRONMENT].changeDetectionScheduler?.notify();
-    }
   }
 }
 function markAncestorsForTraversal(lView) {
-  lView[ENVIRONMENT].changeDetectionScheduler?.notify();
+  lView[ENVIRONMENT].changeDetectionScheduler?.notify(
+    0
+    /* NotificationSource.MarkAncestorsForTraversal */
+  );
   let parent = getLViewParent(lView);
   while (parent !== null) {
     if (parent[FLAGS] & 8192) {
@@ -9738,7 +10855,14 @@ var instructionState = {
   bindingsEnabled: true,
   skipHydrationRootTNode: null
 };
-var _isInCheckNoChangesMode = false;
+var CheckNoChangesMode;
+(function(CheckNoChangesMode2) {
+  CheckNoChangesMode2[CheckNoChangesMode2["Off"] = 0] = "Off";
+  CheckNoChangesMode2[CheckNoChangesMode2["Exhaustive"] = 1] = "Exhaustive";
+  CheckNoChangesMode2[CheckNoChangesMode2["OnlyDirtyViews"] = 2] = "OnlyDirtyViews";
+})(CheckNoChangesMode || (CheckNoChangesMode = {}));
+var _checkNoChangesMode = 0;
+var _isRefreshingViews = false;
 function getElementDepthCount() {
   return instructionState.lFrame.elementDepthCount;
 }
@@ -9814,11 +10938,21 @@ function getContextLView() {
 }
 function isInCheckNoChangesMode() {
   !ngDevMode && throwError2("Must never be called in production mode");
-  return _isInCheckNoChangesMode;
+  return _checkNoChangesMode !== CheckNoChangesMode.Off;
+}
+function isExhaustiveCheckNoChanges() {
+  !ngDevMode && throwError2("Must never be called in production mode");
+  return _checkNoChangesMode === CheckNoChangesMode.Exhaustive;
 }
 function setIsInCheckNoChangesMode(mode) {
   !ngDevMode && throwError2("Must never be called in production mode");
-  _isInCheckNoChangesMode = mode;
+  _checkNoChangesMode = mode;
+}
+function isRefreshingViews() {
+  return _isRefreshingViews;
+}
+function setIsRefreshingViews(mode) {
+  _isRefreshingViews = mode;
 }
 function getBindingRoot() {
   const lFrame = instructionState.lFrame;
@@ -10662,7 +11796,10 @@ function getTNodeFromLView(lView) {
 function \u0275\u0275injectAttribute(attrNameToInject) {
   return injectAttributeImpl(getCurrentTNode(), attrNameToInject);
 }
-var Attribute = makeParamDecorator("Attribute", (attributeName) => ({ attributeName, __NG_ELEMENT_ID__: () => \u0275\u0275injectAttribute(attributeName) }));
+var Attribute2 = makeParamDecorator("Attribute", (attributeName) => ({
+  attributeName,
+  __NG_ELEMENT_ID__: () => \u0275\u0275injectAttribute(attributeName)
+}));
 var _reflect = null;
 function getReflect() {
   return _reflect = _reflect || new ReflectionCapabilities();
@@ -10699,7 +11836,7 @@ function reflectDependency(dep) {
         meta.host = true;
       } else if (param instanceof Inject) {
         meta.token = param.token;
-      } else if (param instanceof Attribute) {
+      } else if (param instanceof Attribute2) {
         if (param.attributeName === void 0) {
           throw new RuntimeError(204, ngDevMode && `Attribute name must be defined.`);
         }
@@ -10722,7 +11859,11 @@ function compileInjectable(type, meta) {
     Object.defineProperty(type, NG_PROV_DEF, {
       get: () => {
         if (ngInjectableDef === null) {
-          const compiler = getCompilerFacade({ usage: 0, kind: "injectable", type });
+          const compiler = getCompilerFacade({
+            usage: 0,
+            kind: "injectable",
+            type
+          });
           ngInjectableDef = compiler.compileInjectable(angularCoreDiEnv, `ng:///${type.name}/\u0275prov.js`, getInjectableMetadata(type, meta));
         }
         return ngInjectableDef;
@@ -10733,7 +11874,11 @@ function compileInjectable(type, meta) {
     Object.defineProperty(type, NG_FACTORY_DEF, {
       get: () => {
         if (ngFactoryDef === null) {
-          const compiler = getCompilerFacade({ usage: 0, kind: "injectable", type });
+          const compiler = getCompilerFacade({
+            usage: 0,
+            kind: "injectable",
+            type
+          });
           ngFactoryDef = compiler.compileFactory(angularCoreDiEnv, `ng:///${type.name}/\u0275fac.js`, {
             name: type.name,
             type,
@@ -10750,7 +11895,10 @@ function compileInjectable(type, meta) {
     });
   }
 }
-var USE_VALUE = getClosureSafeProperty({ provide: String, useValue: getClosureSafeProperty });
+var USE_VALUE = getClosureSafeProperty({
+  provide: String,
+  useValue: getClosureSafeProperty
+});
 function isUseClassProvider(meta) {
   return meta.useClass !== void 0;
 }
@@ -10792,10 +11940,7 @@ function createInjector(defType, parent = null, additionalProviders = null, name
   return injector;
 }
 function createInjectorWithoutInjectorInstances(defType, parent = null, additionalProviders = null, name, scopes = /* @__PURE__ */ new Set()) {
-  const providers = [
-    additionalProviders || EMPTY_ARRAY,
-    importProvidersFrom(defType)
-  ];
+  const providers = [additionalProviders || EMPTY_ARRAY, importProvidersFrom(defType)];
   name = name || (typeof defType === "object" ? void 0 : stringify(defType));
   return new R3Injector(providers, parent || getNullInjector(), name || null, scopes);
 }
@@ -10810,7 +11955,7 @@ var _Injector = class _Injector {
   }
 };
 _Injector.THROW_IF_NOT_FOUND = THROW_IF_NOT_FOUND;
-_Injector.NULL = /* @__PURE__ */ new NullInjector();
+_Injector.NULL = new NullInjector();
 _Injector.\u0275prov = \u0275\u0275defineInjectable({
   token: _Injector,
   providedIn: "any",
@@ -10818,6 +11963,29 @@ _Injector.\u0275prov = \u0275\u0275defineInjectable({
 });
 _Injector.__NG_ELEMENT_ID__ = -1;
 var Injector = _Injector;
+var HOST_TAG_NAME = new InjectionToken(ngDevMode ? "HOST_TAG_NAME" : "");
+HOST_TAG_NAME.__NG_ELEMENT_ID__ = (flags) => {
+  const tNode = getCurrentTNode();
+  if (tNode === null) {
+    throw new RuntimeError(204, ngDevMode && "HOST_TAG_NAME can only be injected in directives and components during construction time (in a class constructor or as a class field initializer)");
+  }
+  if (tNode.type & 2) {
+    return tNode.value;
+  }
+  if (flags & InjectFlags.Optional) {
+    return null;
+  }
+  throw new RuntimeError(204, ngDevMode && `HOST_TAG_NAME was used on ${getDevModeNodeName(tNode)} which doesn't have an underlying element in the DOM. This is invalid, and so the dependency should be marked as optional.`);
+};
+function getDevModeNodeName(tNode) {
+  if (tNode.type & 8) {
+    return "an <ng-container>";
+  } else if (tNode.type & 4) {
+    return "an <ng-template>";
+  } else {
+    return "a node";
+  }
+}
 var ERROR_ORIGINAL_ERROR = "ngOriginalError";
 function getOriginalError(error) {
   return error[ERROR_ORIGINAL_ERROR];
@@ -10942,13 +12110,70 @@ var ElementRef = _ElementRef;
 function unwrapElementRef(value) {
   return value instanceof ElementRef ? value.nativeElement : value;
 }
+var _PendingTasks = class _PendingTasks {
+  constructor() {
+    this.taskId = 0;
+    this.pendingTasks = /* @__PURE__ */ new Set();
+    this.hasPendingTasks = new BehaviorSubject(false);
+  }
+  get _hasPendingTasks() {
+    return this.hasPendingTasks.value;
+  }
+  add() {
+    if (!this._hasPendingTasks) {
+      this.hasPendingTasks.next(true);
+    }
+    const taskId = this.taskId++;
+    this.pendingTasks.add(taskId);
+    return taskId;
+  }
+  remove(taskId) {
+    this.pendingTasks.delete(taskId);
+    if (this.pendingTasks.size === 0 && this._hasPendingTasks) {
+      this.hasPendingTasks.next(false);
+    }
+  }
+  ngOnDestroy() {
+    this.pendingTasks.clear();
+    if (this._hasPendingTasks) {
+      this.hasPendingTasks.next(false);
+    }
+  }
+};
+_PendingTasks.\u0275prov = \u0275\u0275defineInjectable({
+  token: _PendingTasks,
+  providedIn: "root",
+  factory: () => new _PendingTasks()
+});
+var PendingTasks = _PendingTasks;
+var _ExperimentalPendingTasks = class _ExperimentalPendingTasks {
+  constructor() {
+    this.internalPendingTasks = inject(PendingTasks);
+  }
+  /**
+   * Adds a new task that should block application's stability.
+   * @returns A cleanup function that removes a task when called.
+   */
+  add() {
+    const taskId = this.internalPendingTasks.add();
+    return () => this.internalPendingTasks.remove(taskId);
+  }
+};
+_ExperimentalPendingTasks.\u0275prov = \u0275\u0275defineInjectable({
+  token: _ExperimentalPendingTasks,
+  providedIn: "root",
+  factory: () => new _ExperimentalPendingTasks()
+});
+var ExperimentalPendingTasks = _ExperimentalPendingTasks;
 var EventEmitter_ = class extends Subject {
   constructor(isAsync = false) {
     super();
     this.destroyRef = void 0;
+    this.pendingTasks = void 0;
     this.__isAsync = isAsync;
     if (isInInjectionContext()) {
       this.destroyRef = inject(DestroyRef, { optional: true }) ?? void 0;
+      this.pendingTasks = inject(PendingTasks, { optional: true }) ?? void 0;
     }
   }
   emit(value) {
@@ -10970,12 +12195,12 @@ var EventEmitter_ = class extends Subject {
       completeFn = observer.complete?.bind(observer);
     }
     if (this.__isAsync) {
-      errorFn = _wrapInTimeout(errorFn);
+      errorFn = this.wrapInTimeout(errorFn);
       if (nextFn) {
-        nextFn = _wrapInTimeout(nextFn);
+        nextFn = this.wrapInTimeout(nextFn);
       }
       if (completeFn) {
-        completeFn = _wrapInTimeout(completeFn);
+        completeFn = this.wrapInTimeout(completeFn);
       }
     }
     const sink = super.subscribe({ next: nextFn, error: errorFn, complete: completeFn });
@@ -10984,12 +12209,18 @@ var EventEmitter_ = class extends Subject {
     }
     return sink;
   }
+  wrapInTimeout(fn) {
+    return (value) => {
+      const taskId = this.pendingTasks?.add();
+      setTimeout(() => {
+        fn(value);
+        if (taskId !== void 0) {
+          this.pendingTasks?.remove(taskId);
+        }
+      });
+    };
+  }
 };
-function _wrapInTimeout(fn) {
-  return (value) => {
-    setTimeout(fn, void 0, value);
-  };
-}
 var EventEmitter = EventEmitter_;
 function symbolIterator() {
   return this._results[Symbol.iterator]();
@@ -11550,7 +12781,10 @@ var IMAGE_CONFIG_DEFAULTS = {
   disableImageSizeWarning: false,
   disableImageLazyLoadWarning: false
 };
-var IMAGE_CONFIG = new InjectionToken(ngDevMode ? "ImageConfig" : "", { providedIn: "root", factory: () => IMAGE_CONFIG_DEFAULTS });
+var IMAGE_CONFIG = new InjectionToken(ngDevMode ? "ImageConfig" : "", {
+  providedIn: "root",
+  factory: () => IMAGE_CONFIG_DEFAULTS
+});
 function makeStateKey(key) {
   return key;
 }
@@ -11618,8 +12852,7 @@ var _TransferState = class _TransferState {
     return JSON.stringify(this.store).replace(/</g, "\\u003C");
   }
 };
-_TransferState.\u0275prov = /** @pureOrBreakMyCode */
-\u0275\u0275defineInjectable({
+_TransferState.\u0275prov = \u0275\u0275defineInjectable({
   token: _TransferState,
   providedIn: "root",
   factory: initTransferState
@@ -11662,6 +12895,8 @@ var PRESERVE_HOST_CONTENT = new InjectionToken(typeof ngDevMode === "undefined" 
   factory: () => PRESERVE_HOST_CONTENT_DEFAULT
 });
 var IS_I18N_HYDRATION_ENABLED = new InjectionToken(typeof ngDevMode === "undefined" || !!ngDevMode ? "IS_I18N_HYDRATION_ENABLED" : "");
+var IS_EVENT_REPLAY_ENABLED = new InjectionToken(typeof ngDevMode === "undefined" || !!ngDevMode ? "IS_EVENT_REPLAY_ENABLED" : "");
+var IS_GLOBAL_EVENT_DELEGATION_ENABLED = new InjectionToken(typeof ngDevMode === "undefined" || !!ngDevMode ? "IS_GLOBAL_EVENT_DELEGATION_ENABLED" : "");
 var policy$1;
 function getPolicy$1() {
   if (policy$1 === void 0) {
@@ -12426,8 +13661,8 @@ function addViewToDOM(tView, parentTNode, renderer, lView, parentNativeNode, bef
 }
 function detachViewFromDOM(tView, lView) {
   lView[ENVIRONMENT].changeDetectionScheduler?.notify(
-    1
-    /* NotificationType.AfterRenderHooks */
+    8
+    /* NotificationSource.ViewDetachedFromDOM */
   );
   applyView(tView, lView, lView[RENDERER], 2, null, null);
 }
@@ -12494,14 +13729,18 @@ function trackMovedView(declarationContainer, lView) {
   ngDevMode && assertDefined(lView, "LView required");
   ngDevMode && assertLContainer(declarationContainer);
   const movedViews = declarationContainer[MOVED_VIEWS];
-  const insertedLContainer = lView[PARENT];
-  ngDevMode && assertLContainer(insertedLContainer);
-  const insertedComponentLView = insertedLContainer[PARENT][DECLARATION_COMPONENT_VIEW];
-  ngDevMode && assertDefined(insertedComponentLView, "Missing insertedComponentLView");
-  const declaredComponentLView = lView[DECLARATION_COMPONENT_VIEW];
-  ngDevMode && assertDefined(declaredComponentLView, "Missing declaredComponentLView");
-  if (declaredComponentLView !== insertedComponentLView) {
+  const parent = lView[PARENT];
+  ngDevMode && assertDefined(parent, "missing parent");
+  if (isLView(parent)) {
     declarationContainer[FLAGS] |= LContainerFlags.HasTransplantedViews;
+  } else {
+    const insertedComponentLView = parent[PARENT][DECLARATION_COMPONENT_VIEW];
+    ngDevMode && assertDefined(insertedComponentLView, "Missing insertedComponentLView");
+    const declaredComponentLView = lView[DECLARATION_COMPONENT_VIEW];
+    ngDevMode && assertDefined(declaredComponentLView, "Missing declaredComponentLView");
+    if (declaredComponentLView !== insertedComponentLView) {
+      declarationContainer[FLAGS] |= LContainerFlags.HasTransplantedViews;
+    }
   }
   if (movedViews === null) {
     declarationContainer[MOVED_VIEWS] = [lView];
@@ -12514,7 +13753,6 @@ function detachMovedView(declarationContainer, lView) {
   ngDevMode && assertDefined(declarationContainer[MOVED_VIEWS], "A projected view should belong to a non-empty projected views collection");
   const movedViews = declarationContainer[MOVED_VIEWS];
   const declarationViewIndex = movedViews.indexOf(lView);
-  ngDevMode && assertLContainer(lView[PARENT]);
   movedViews.splice(declarationViewIndex, 1);
 }
 function detachView(lContainer, removeIndex) {
@@ -13829,10 +15067,10 @@ function storePropertyBindingMetadata(tData, tNode, propertyName, bindingIndex, 
   }
 }
 function getOrCreateLViewCleanup(view) {
-  return view[CLEANUP] || (view[CLEANUP] = []);
+  return view[CLEANUP] ??= [];
 }
 function getOrCreateTViewCleanup(tView) {
-  return tView.cleanup || (tView.cleanup = []);
+  return tView.cleanup ??= [];
 }
 function loadComponentRenderer(currentDef, tNode, lView) {
   if (currentDef === null || isComponentDef(currentDef)) {
@@ -14054,7 +15292,31 @@ var REACTIVE_LVIEW_CONSUMER_NODE = __spreadProps(__spreadValues({}, REACTIVE_NOD
     this.lView[REACTIVE_TEMPLATE_CONSUMER] = this;
   }
 });
-var MAXIMUM_REFRESH_RERUNS = 100;
+function getOrCreateTemporaryConsumer(lView) {
+  const consumer = lView[REACTIVE_TEMPLATE_CONSUMER] ?? Object.create(TEMPORARY_CONSUMER_NODE);
+  consumer.lView = lView;
+  return consumer;
+}
+var TEMPORARY_CONSUMER_NODE = __spreadProps(__spreadValues({}, REACTIVE_NODE), {
+  consumerIsAlwaysLive: true,
+  consumerMarkedDirty: (node) => {
+    let parent = getLViewParent(node.lView);
+    while (parent && !viewShouldHaveReactiveConsumer(parent[TVIEW])) {
+      parent = getLViewParent(parent);
+    }
+    if (!parent) {
+      return;
+    }
+    markViewForRefresh(parent);
+  },
+  consumerOnSignalRead() {
+    this.lView[REACTIVE_TEMPLATE_CONSUMER] = this;
+  }
+});
+function viewShouldHaveReactiveConsumer(tView) {
+  return tView.type !== 2;
+}
+var MAXIMUM_REFRESH_RERUNS$1 = 100;
 function detectChangesInternal(lView, notifyErrorHandler = true, mode = 0) {
   const environment2 = lView[ENVIRONMENT];
   const rendererFactory = environment2.rendererFactory;
@@ -14077,26 +15339,35 @@ function detectChangesInternal(lView, notifyErrorHandler = true, mode = 0) {
   }
 }
 function detectChangesInViewWhileDirty(lView, mode) {
-  detectChangesInView$1(lView, mode);
-  let retries = 0;
-  while (requiresRefreshOrTraversal(lView)) {
-    if (retries === MAXIMUM_REFRESH_RERUNS) {
-      throw new RuntimeError(103, ngDevMode && "Infinite change detection while trying to refresh views. There may be components which each cause the other to require a refresh, causing an infinite loop.");
+  const lastIsRefreshingViewsValue = isRefreshingViews();
+  try {
+    setIsRefreshingViews(true);
+    detectChangesInView(lView, mode);
+    if (ngDevMode && isExhaustiveCheckNoChanges()) {
+      return;
     }
-    retries++;
-    detectChangesInView$1(
-      lView,
-      1
-      /* ChangeDetectionMode.Targeted */
-    );
+    let retries = 0;
+    while (requiresRefreshOrTraversal(lView)) {
+      if (retries === MAXIMUM_REFRESH_RERUNS$1) {
+        throw new RuntimeError(103, ngDevMode && "Infinite change detection while trying to refresh views. There may be components which each cause the other to require a refresh, causing an infinite loop.");
+      }
+      retries++;
+      detectChangesInView(
+        lView,
+        1
+        /* ChangeDetectionMode.Targeted */
+      );
+    }
+  } finally {
+    setIsRefreshingViews(lastIsRefreshingViewsValue);
   }
 }
-function checkNoChangesInternal(lView, notifyErrorHandler = true) {
-  setIsInCheckNoChangesMode(true);
+function checkNoChangesInternal(lView, mode, notifyErrorHandler = true) {
+  setIsInCheckNoChangesMode(mode);
   try {
     detectChangesInternal(lView, notifyErrorHandler);
   } finally {
-    setIsInCheckNoChangesMode(false);
+    setIsInCheckNoChangesMode(CheckNoChangesMode.Off);
   }
 }
 function refreshView(tView, lView, templateFn, context2) {
@@ -14105,13 +15376,24 @@ function refreshView(tView, lView, templateFn, context2) {
   if ((flags & 256) === 256)
     return;
   const isInCheckNoChangesPass = ngDevMode && isInCheckNoChangesMode();
+  const isInExhaustiveCheckNoChangesPass = ngDevMode && isExhaustiveCheckNoChanges();
   !isInCheckNoChangesPass && lView[ENVIRONMENT].inlineEffectRunner?.flush();
   enterView(lView);
+  let returnConsumerToPool = true;
   let prevConsumer = null;
   let currentConsumer = null;
-  if (!isInCheckNoChangesPass && viewShouldHaveReactiveConsumer(tView)) {
-    currentConsumer = getOrBorrowReactiveLViewConsumer(lView);
-    prevConsumer = consumerBeforeComputation(currentConsumer);
+  if (!isInCheckNoChangesPass) {
+    if (viewShouldHaveReactiveConsumer(tView)) {
+      currentConsumer = getOrBorrowReactiveLViewConsumer(lView);
+      prevConsumer = consumerBeforeComputation(currentConsumer);
+    } else if (getActiveConsumer() === null) {
+      returnConsumerToPool = false;
+      currentConsumer = getOrCreateTemporaryConsumer(lView);
+      prevConsumer = consumerBeforeComputation(currentConsumer);
+    } else if (lView[REACTIVE_TEMPLATE_CONSUMER]) {
+      consumerDestroy(lView[REACTIVE_TEMPLATE_CONSUMER]);
+      lView[REACTIVE_TEMPLATE_CONSUMER] = null;
+    }
   }
   try {
     resetPreOrderHookFlags(lView);
@@ -14138,7 +15420,9 @@ function refreshView(tView, lView, templateFn, context2) {
         );
       }
     }
-    markTransplantedViewsForRefresh(lView);
+    if (!isInExhaustiveCheckNoChangesPass) {
+      markTransplantedViewsForRefresh(lView);
+    }
     detectChangesInEmbeddedViews(
       lView,
       0
@@ -14220,18 +15504,19 @@ function refreshView(tView, lView, templateFn, context2) {
       lView[FLAGS] &= ~(64 | 8);
     }
   } catch (e) {
-    markAncestorsForTraversal(lView);
+    if (!isInCheckNoChangesPass) {
+      markAncestorsForTraversal(lView);
+    }
     throw e;
   } finally {
     if (currentConsumer !== null) {
       consumerAfterComputation(currentConsumer, prevConsumer);
-      maybeReturnReactiveLViewConsumer(currentConsumer);
+      if (returnConsumerToPool) {
+        maybeReturnReactiveLViewConsumer(currentConsumer);
+      }
     }
     leaveView();
   }
-}
-function viewShouldHaveReactiveConsumer(tView) {
-  return tView.type !== 2;
 }
 function detectChangesInEmbeddedViews(lView, mode) {
   for (let lContainer = getFirstLContainer(lView); lContainer !== null; lContainer = getNextLContainer(lContainer)) {
@@ -14249,8 +15534,6 @@ function markTransplantedViewsForRefresh(lView) {
     ngDevMode && assertDefined(movedViews, "Transplanted View flags set but missing MOVED_VIEWS");
     for (let i = 0; i < movedViews.length; i++) {
       const movedLView = movedViews[i];
-      const insertionLContainer = movedLView[PARENT];
-      ngDevMode && assertLContainer(insertionLContainer);
       markViewForRefresh(movedLView);
     }
   }
@@ -14264,9 +15547,9 @@ function detectChangesInViewIfAttached(lView, mode) {
   if (!viewAttachedToChangeDetector(lView)) {
     return;
   }
-  detectChangesInView$1(lView, mode);
+  detectChangesInView(lView, mode);
 }
-function detectChangesInView$1(lView, mode) {
+function detectChangesInView(lView, mode) {
   const isInCheckNoChangesPass = ngDevMode && isInCheckNoChangesMode();
   const tView = lView[TVIEW];
   const flags = lView[FLAGS];
@@ -14275,6 +15558,7 @@ function detectChangesInView$1(lView, mode) {
   shouldRefreshView ||= !!(flags & 64 && mode === 0 && !isInCheckNoChangesPass);
   shouldRefreshView ||= !!(flags & 1024);
   shouldRefreshView ||= !!(consumer?.dirty && consumerPollProducersForChange(consumer));
+  shouldRefreshView ||= !!(ngDevMode && isExhaustiveCheckNoChanges());
   if (consumer) {
     consumer.dirty = false;
   }
@@ -14303,10 +15587,21 @@ function detectChangesInChildComponents(hostLView, components, mode) {
     detectChangesInComponent(hostLView, components[i], mode);
   }
 }
-function markViewDirty(lView) {
-  lView[ENVIRONMENT].changeDetectionScheduler?.notify();
+function markViewDirty(lView, source) {
+  const dirtyBitsToUse = isRefreshingViews() ? (
+    // When we are actively refreshing views, we only use the `Dirty` bit to mark a view
+    64
+  ) : (
+    // When we are not actively refreshing a view tree, it is absolutely
+    // valid to update state and mark views dirty. We use the `RefreshView` flag in this
+    // case to allow synchronously rerunning change detection. This applies today to
+    // afterRender hooks as well as animation listeners which execute after detecting
+    // changes in a view when the render factory flushes.
+    1024 | 64
+  );
+  lView[ENVIRONMENT].changeDetectionScheduler?.notify(source);
   while (lView) {
-    lView[FLAGS] |= 64;
+    lView[FLAGS] |= dirtyBitsToUse;
     const parent = getLViewParent(lView);
     if (isRootView(lView) && !parent) {
       return lView;
@@ -14398,7 +15693,11 @@ var ViewRef$1 = class {
    * ```
    */
   markForCheck() {
-    markViewDirty(this._cdRefInjectingView || this._lView);
+    markViewDirty(
+      this._cdRefInjectingView || this._lView,
+      4
+      /* NotificationSource.MarkForCheck */
+    );
   }
   /**
    * Detaches the view from the change detection tree.
@@ -14549,7 +15848,7 @@ var ViewRef$1 = class {
    */
   checkNoChanges() {
     if (ngDevMode) {
-      checkNoChangesInternal(this._lView, this.notifyErrorHandler);
+      checkNoChangesInternal(this._lView, CheckNoChangesMode.OnlyDirtyViews, this.notifyErrorHandler);
     }
   }
   attachToViewContainerRef() {
@@ -14560,6 +15859,11 @@ var ViewRef$1 = class {
   }
   detachFromAppRef() {
     this._appRef = null;
+    const isRoot = isRootView(this._lView);
+    const declarationContainer = this._lView[DECLARATION_LCONTAINER];
+    if (declarationContainer !== null && !isRoot) {
+      detachMovedView(declarationContainer, this._lView);
+    }
     detachViewFromDOM(this._lView[TVIEW], this._lView);
   }
   attachToAppRef(appRef) {
@@ -14567,6 +15871,11 @@ var ViewRef$1 = class {
       throw new RuntimeError(902, ngDevMode && "This view is already attached to a ViewContainer!");
     }
     this._appRef = appRef;
+    const isRoot = isRootView(this._lView);
+    const declarationContainer = this._lView[DECLARATION_LCONTAINER];
+    if (declarationContainer !== null && !isRoot) {
+      trackMovedView(declarationContainer, this._lView);
+    }
     updateAncestorTraversalFlagsOnAttach(this._lView);
   }
 };
@@ -14612,13 +15921,152 @@ function createTemplateRef(hostTNode, hostLView) {
   }
   return null;
 }
+function getInsertInFrontOfRNodeWithI18n(parentTNode, currentTNode, lView) {
+  const tNodeInsertBeforeIndex = currentTNode.insertBeforeIndex;
+  const insertBeforeIndex = Array.isArray(tNodeInsertBeforeIndex) ? tNodeInsertBeforeIndex[0] : tNodeInsertBeforeIndex;
+  if (insertBeforeIndex === null) {
+    return getInsertInFrontOfRNodeWithNoI18n(parentTNode, currentTNode, lView);
+  } else {
+    ngDevMode && assertIndexInRange(lView, insertBeforeIndex);
+    return unwrapRNode(lView[insertBeforeIndex]);
+  }
+}
+function processI18nInsertBefore(renderer, childTNode, lView, childRNode, parentRElement) {
+  const tNodeInsertBeforeIndex = childTNode.insertBeforeIndex;
+  if (Array.isArray(tNodeInsertBeforeIndex)) {
+    ngDevMode && assertDomNode(childRNode);
+    let i18nParent = childRNode;
+    let anchorRNode = null;
+    if (!(childTNode.type & 3)) {
+      anchorRNode = i18nParent;
+      i18nParent = parentRElement;
+    }
+    if (i18nParent !== null && childTNode.componentOffset === -1) {
+      for (let i = 1; i < tNodeInsertBeforeIndex.length; i++) {
+        const i18nChild = lView[tNodeInsertBeforeIndex[i]];
+        nativeInsertBefore(renderer, i18nParent, i18nChild, anchorRNode, false);
+      }
+    }
+  }
+}
+function addTNodeAndUpdateInsertBeforeIndex(previousTNodes, newTNode) {
+  ngDevMode && assertEqual(newTNode.insertBeforeIndex, null, "We expect that insertBeforeIndex is not set");
+  previousTNodes.push(newTNode);
+  if (previousTNodes.length > 1) {
+    for (let i = previousTNodes.length - 2; i >= 0; i--) {
+      const existingTNode = previousTNodes[i];
+      if (!isI18nText(existingTNode)) {
+        if (isNewTNodeCreatedBefore(existingTNode, newTNode) && getInsertBeforeIndex(existingTNode) === null) {
+          setInsertBeforeIndex(existingTNode, newTNode.index);
+        }
+      }
+    }
+  }
+}
+function isI18nText(tNode) {
+  return !(tNode.type & 64);
+}
+function isNewTNodeCreatedBefore(existingTNode, newTNode) {
+  return isI18nText(newTNode) || existingTNode.index > newTNode.index;
+}
+function getInsertBeforeIndex(tNode) {
+  const index = tNode.insertBeforeIndex;
+  return Array.isArray(index) ? index[0] : index;
+}
+function setInsertBeforeIndex(tNode, value) {
+  const index = tNode.insertBeforeIndex;
+  if (Array.isArray(index)) {
+    index[0] = value;
+  } else {
+    setI18nHandling(getInsertInFrontOfRNodeWithI18n, processI18nInsertBefore);
+    tNode.insertBeforeIndex = value;
+  }
+}
+function getTIcu(tView, index) {
+  const value = tView.data[index];
+  if (value === null || typeof value === "string")
+    return null;
+  if (ngDevMode && !(value.hasOwnProperty("tView") || value.hasOwnProperty("currentCaseLViewIndex"))) {
+    throwError2("We expect to get 'null'|'TIcu'|'TIcuContainer', but got: " + value);
+  }
+  const tIcu = value.hasOwnProperty("currentCaseLViewIndex") ? value : value.value;
+  ngDevMode && assertTIcu(tIcu);
+  return tIcu;
+}
+function setTIcu(tView, index, tIcu) {
+  const tNode = tView.data[index];
+  ngDevMode && assertEqual(tNode === null || tNode.hasOwnProperty("tView"), true, "We expect to get 'null'|'TIcuContainer'");
+  if (tNode === null) {
+    tView.data[index] = tIcu;
+  } else {
+    ngDevMode && assertTNodeType(
+      tNode,
+      32
+      /* TNodeType.Icu */
+    );
+    tNode.value = tIcu;
+  }
+}
+function setTNodeInsertBeforeIndex(tNode, index) {
+  ngDevMode && assertTNode(tNode);
+  let insertBeforeIndex = tNode.insertBeforeIndex;
+  if (insertBeforeIndex === null) {
+    setI18nHandling(getInsertInFrontOfRNodeWithI18n, processI18nInsertBefore);
+    insertBeforeIndex = tNode.insertBeforeIndex = [
+      null,
+      index
+    ];
+  } else {
+    assertEqual(Array.isArray(insertBeforeIndex), true, "Expecting array here");
+    insertBeforeIndex.push(index);
+  }
+}
+function createTNodePlaceholder(tView, previousTNodes, index) {
+  const tNode = createTNodeAtIndex(tView, index, 64, null, null);
+  addTNodeAndUpdateInsertBeforeIndex(previousTNodes, tNode);
+  return tNode;
+}
+function getCurrentICUCaseIndex(tIcu, lView) {
+  const currentCase = lView[tIcu.currentCaseLViewIndex];
+  return currentCase === null ? currentCase : currentCase < 0 ? ~currentCase : currentCase;
+}
+function getParentFromIcuCreateOpCode(mergedCode) {
+  return mergedCode >>> 17;
+}
+function getRefFromIcuCreateOpCode(mergedCode) {
+  return (mergedCode & 131070) >>> 1;
+}
+function getInstructionFromIcuCreateOpCode(mergedCode) {
+  return mergedCode & 1;
+}
+function icuCreateOpCode(opCode, parentIdx, refIdx) {
+  ngDevMode && assertGreaterThanOrEqual(parentIdx, 0, "Missing parent index");
+  ngDevMode && assertGreaterThan(refIdx, 0, "Missing ref index");
+  return opCode | parentIdx << 17 | refIdx << 1;
+}
+function isRootTemplateMessage(subTemplateIndex) {
+  return subTemplateIndex === -1;
+}
 var REF_EXTRACTOR_REGEXP = new RegExp(`^(\\d+)*(${REFERENCE_NODE_BODY}|${REFERENCE_NODE_HOST})*(.*)`);
+var _prepareI18nBlockForHydrationImpl = () => {
+};
+function prepareI18nBlockForHydration(lView, index, parentTNode, subTemplateIndex) {
+  _prepareI18nBlockForHydrationImpl(lView, index, parentTNode, subTemplateIndex);
+}
+var _claimDehydratedIcuCaseImpl = () => {
+};
+function claimDehydratedIcuCase(lView, icuIndex, caseIndex) {
+  _claimDehydratedIcuCaseImpl(lView, icuIndex, caseIndex);
+}
 var _findMatchingDehydratedViewImpl = () => null;
 function findMatchingDehydratedView(lContainer, template) {
   return _findMatchingDehydratedViewImpl(lContainer, template);
 }
 var ChangeDetectionScheduler = class {
 };
+var ZONELESS_ENABLED = new InjectionToken(typeof ngDevMode === "undefined" || ngDevMode ? "Zoneless enabled" : "", { providedIn: "root", factory: () => false });
+var PROVIDED_ZONELESS = new InjectionToken(typeof ngDevMode === "undefined" || ngDevMode ? "Zoneless provided" : "", { providedIn: "root", factory: () => false });
+var ZONELESS_SCHEDULER_DISABLED = new InjectionToken(typeof ngDevMode === "undefined" || ngDevMode ? "scheduler disabled" : "");
 var ComponentRef$1 = class {
 };
 var ComponentFactory$1 = class {
@@ -14636,7 +16084,7 @@ var _NullComponentFactoryResolver = class {
 };
 var _ComponentFactoryResolver$1 = class _ComponentFactoryResolver$1 {
 };
-_ComponentFactoryResolver$1.NULL = /* @__PURE__ */ new _NullComponentFactoryResolver();
+_ComponentFactoryResolver$1.NULL = new _NullComponentFactoryResolver();
 var ComponentFactoryResolver$1 = _ComponentFactoryResolver$1;
 var RendererFactory2 = class {
 };
@@ -14675,23 +16123,40 @@ function performanceMarkFeature(feature) {
   markedFeatures.add(feature);
   performance?.mark?.("mark_feature_usage", { detail: { feature } });
 }
-function noop2(...args) {
-}
-function getNativeRequestAnimationFrame() {
-  const isBrowser = typeof _global["requestAnimationFrame"] === "function";
-  let nativeRequestAnimationFrame = _global[isBrowser ? "requestAnimationFrame" : "setTimeout"];
-  let nativeCancelAnimationFrame = _global[isBrowser ? "cancelAnimationFrame" : "clearTimeout"];
-  if (typeof Zone !== "undefined" && nativeRequestAnimationFrame && nativeCancelAnimationFrame) {
-    const unpatchedRequestAnimationFrame = nativeRequestAnimationFrame[Zone.__symbol__("OriginalDelegate")];
-    if (unpatchedRequestAnimationFrame) {
-      nativeRequestAnimationFrame = unpatchedRequestAnimationFrame;
+function scheduleCallbackWithRafRace(callback) {
+  let executeCallback = true;
+  setTimeout(() => {
+    if (!executeCallback) {
+      return;
     }
-    const unpatchedCancelAnimationFrame = nativeCancelAnimationFrame[Zone.__symbol__("OriginalDelegate")];
-    if (unpatchedCancelAnimationFrame) {
-      nativeCancelAnimationFrame = unpatchedCancelAnimationFrame;
-    }
+    executeCallback = false;
+    callback();
+  });
+  if (typeof _global["requestAnimationFrame"] === "function") {
+    _global["requestAnimationFrame"](() => {
+      if (!executeCallback) {
+        return;
+      }
+      executeCallback = false;
+      callback();
+    });
   }
-  return { nativeRequestAnimationFrame, nativeCancelAnimationFrame };
+  return () => {
+    executeCallback = false;
+  };
+}
+function scheduleCallbackWithMicrotask(callback) {
+  let executeCallback = true;
+  queueMicrotask(() => {
+    if (executeCallback) {
+      callback();
+    }
+  });
+  return () => {
+    executeCallback = false;
+  };
+}
+function noop2(...args) {
 }
 var AsyncStackTaggingZoneSpec = class {
   constructor(namePrefix, consoleAsyncStackTaggingImpl = console) {
@@ -14739,8 +16204,7 @@ var NgZone = class _NgZone {
     }
     self2.shouldCoalesceEventChangeDetection = !shouldCoalesceRunChangeDetection && shouldCoalesceEventChangeDetection;
     self2.shouldCoalesceRunChangeDetection = shouldCoalesceRunChangeDetection;
-    self2.lastRequestAnimationFrameId = -1;
-    self2.nativeRequestAnimationFrame = getNativeRequestAnimationFrame().nativeRequestAnimationFrame;
+    self2.callbackScheduled = false;
     forkInnerZoneWithAngularBehavior(self2);
   }
   /**
@@ -14844,22 +16308,18 @@ function checkStable(zone) {
   }
 }
 function delayChangeDetectionForEvents(zone) {
-  if (zone.isCheckStableRunning || zone.lastRequestAnimationFrameId !== -1) {
+  if (zone.isCheckStableRunning || zone.callbackScheduled) {
     return;
   }
-  zone.lastRequestAnimationFrameId = zone.nativeRequestAnimationFrame.call(_global, () => {
-    if (!zone.fakeTopEventTask) {
-      zone.fakeTopEventTask = Zone.root.scheduleEventTask("fakeTopEventTask", () => {
-        zone.lastRequestAnimationFrameId = -1;
-        updateMicroTaskStatus(zone);
-        zone.isCheckStableRunning = true;
-        checkStable(zone);
-        zone.isCheckStableRunning = false;
-      }, void 0, () => {
-      }, () => {
-      });
-    }
-    zone.fakeTopEventTask.invoke();
+  zone.callbackScheduled = true;
+  Zone.root.run(() => {
+    scheduleCallbackWithRafRace(() => {
+      zone.callbackScheduled = false;
+      updateMicroTaskStatus(zone);
+      zone.isCheckStableRunning = true;
+      checkStable(zone);
+      zone.isCheckStableRunning = false;
+    });
   });
   updateMicroTaskStatus(zone);
 }
@@ -14889,7 +16349,16 @@ function forkInnerZoneWithAngularBehavior(zone) {
         onEnter(zone);
         return delegate.invoke(target, callback, applyThis, applyArgs, source);
       } finally {
-        if (zone.shouldCoalesceRunChangeDetection) {
+        if (zone.shouldCoalesceRunChangeDetection && // Do not delay change detection when the task is the scheduler's tick.
+        // We need to synchronously trigger the stability logic so that the
+        // zone-based scheduler can prevent a duplicate ApplicationRef.tick
+        // by first checking if the scheduler tick is running. This does seem a bit roundabout,
+        // but we _do_ still want to trigger all the correct events when we exit the zone.run
+        // (`onMicrotaskEmpty` and `onStable` _should_ emit; developers can have code which
+        // relies on these events happening after change detection runs).
+        // Note: `zone.callbackScheduled` is already in delayChangeDetectionForEventsDelegate
+        // but is added here as well to prevent reads of applyArgs when not necessary
+        !zone.callbackScheduled && !isSchedulerTick(applyArgs)) {
           delayChangeDetectionForEventsDelegate();
         }
         onLeave(zone);
@@ -14915,7 +16384,7 @@ function forkInnerZoneWithAngularBehavior(zone) {
   });
 }
 function updateMicroTaskStatus(zone) {
-  if (zone._hasPendingMicrotasks || (zone.shouldCoalesceEventChangeDetection || zone.shouldCoalesceRunChangeDetection) && zone.lastRequestAnimationFrameId !== -1) {
+  if (zone._hasPendingMicrotasks || (zone.shouldCoalesceEventChangeDetection || zone.shouldCoalesceRunChangeDetection) && zone.callbackScheduled === true) {
     zone.hasPendingMicrotasks = true;
   } else {
     zone.hasPendingMicrotasks = false;
@@ -14956,13 +16425,19 @@ var NoopNgZone = class {
   }
 };
 function shouldBeIgnoredByZone(applyArgs) {
+  return hasApplyArgsData(applyArgs, "__ignore_ng_zone__");
+}
+function isSchedulerTick(applyArgs) {
+  return hasApplyArgsData(applyArgs, "__scheduler_tick__");
+}
+function hasApplyArgsData(applyArgs, key) {
   if (!Array.isArray(applyArgs)) {
     return false;
   }
   if (applyArgs.length !== 1) {
     return false;
   }
-  return applyArgs[0].data?.["__ignore_ng_zone__"] === true;
+  return applyArgs[0]?.data?.[key] === true;
 }
 function getNgZone(ngZoneToUse = "zone.js", options) {
   if (ngZoneToUse === "noop") {
@@ -14990,6 +16465,26 @@ function internalAfterNextRender(callback, options) {
     return;
   const afterRenderEventManager = injector.get(AfterRenderEventManager);
   afterRenderEventManager.internalCallbacks.push(callback);
+}
+function afterRender(callback, options) {
+  ngDevMode && assertNotInReactiveContext(afterRender, "Call `afterRender` outside of a reactive context. For example, schedule the render callback inside the component constructor`.");
+  !options && assertInInjectionContext(afterRender);
+  const injector = options?.injector ?? inject(Injector);
+  if (!isPlatformBrowser(injector)) {
+    return NOOP_AFTER_RENDER_REF;
+  }
+  performanceMarkFeature("NgAfterRender");
+  const afterRenderEventManager = injector.get(AfterRenderEventManager);
+  const callbackHandler = afterRenderEventManager.handler ??= new AfterRenderCallbackHandlerImpl();
+  const phase = options?.phase ?? AfterRenderPhase.MixedReadWrite;
+  const destroy = () => {
+    callbackHandler.unregister(instance);
+    unregisterFn();
+  };
+  const unregisterFn = injector.get(DestroyRef).onDestroy(destroy);
+  const instance = runInInjectionContext(injector, () => new AfterRenderCallback(phase, callback));
+  callbackHandler.register(instance);
+  return { destroy };
 }
 function afterNextRender(callback, options) {
   !options && assertInInjectionContext(afterNextRender);
@@ -15020,8 +16515,8 @@ var AfterRenderCallback = class {
     this.zone = inject(NgZone);
     this.errorHandler = inject(ErrorHandler, { optional: true });
     inject(ChangeDetectionScheduler, { optional: true })?.notify(
-      1
-      /* NotificationType.AfterRenderHooks */
+      6
+      /* NotificationSource.NewRenderHook */
     );
   }
   invoke() {
@@ -15206,10 +16701,7 @@ var DepsTracker = class {
         return { dependencies: [] };
       }
       return {
-        dependencies: [
-          ...scope.compilation.directives,
-          ...scope.compilation.pipes
-        ]
+        dependencies: [...scope.compilation.directives, ...scope.compilation.pipes]
       };
     }
   }
@@ -15550,8 +17042,8 @@ var ComponentRef = class extends ComponentRef$1 {
     this.hostView = this.changeDetectorRef = new ViewRef$1(
       _rootLView,
       void 0,
-      /* _cdRefInjectingView */
       false
+      /* notifyErrorHandler */
     );
     this.componentType = componentType;
   }
@@ -15567,7 +17059,11 @@ var ComponentRef = class extends ComponentRef$1 {
       setInputsForProperty(lView[TVIEW], lView, dataValue, name, value);
       this.previousInputValues.set(name, value);
       const childComponentLView = getComponentLViewByIndex(this._tNode.index, lView);
-      markViewDirty(childComponentLView);
+      markViewDirty(
+        childComponentLView,
+        1
+        /* NotificationSource.SetInput */
+      );
     } else {
       if (ngDevMode) {
         const cmpNameForError = stringifyForError(this.componentType);
@@ -15654,7 +17150,7 @@ function createRootComponent(componentView, rootComponentDef, rootDirectives, ho
 }
 function setRootNodeAttributes(hostRenderer, componentDef, hostRNode, rootSelectorOrNode) {
   if (rootSelectorOrNode) {
-    setUpAttributes(hostRenderer, hostRNode, ["ng-version", "17.3.10"]);
+    setUpAttributes(hostRenderer, hostRNode, ["ng-version", "18.0.3"]);
   } else {
     const { attrs, classes } = extractAttrsAndClassesFromSelector(componentDef.selectors[0]);
     if (attrs) {
@@ -16416,7 +17912,12 @@ var ContentChildren = makePropDecorator("ContentChildren", (selector, opts = {})
   descendants: false,
   emitDistinctChangesOnly: emitDistinctChangesOnlyDefaultValue
 }, opts), Query);
-var ContentChild = makePropDecorator("ContentChild", (selector, opts = {}) => __spreadValues({ selector, first: true, isViewQuery: false, descendants: true }, opts), Query);
+var ContentChild = makePropDecorator("ContentChild", (selector, opts = {}) => __spreadValues({
+  selector,
+  first: true,
+  isViewQuery: false,
+  descendants: true
+}, opts), Query);
 var ViewChildren = makePropDecorator("ViewChildren", (selector, opts = {}) => __spreadValues({
   selector,
   first: false,
@@ -16424,7 +17925,12 @@ var ViewChildren = makePropDecorator("ViewChildren", (selector, opts = {}) => __
   descendants: true,
   emitDistinctChangesOnly: emitDistinctChangesOnlyDefaultValue
 }, opts), Query);
-var ViewChild = makePropDecorator("ViewChild", (selector, opts) => __spreadValues({ selector, first: true, isViewQuery: true, descendants: true }, opts), Query);
+var ViewChild = makePropDecorator("ViewChild", (selector, opts) => __spreadValues({
+  selector,
+  first: true,
+  isViewQuery: true,
+  descendants: true
+}, opts), Query);
 function resolveComponentResources(resourceResolver) {
   const componentResolved = [];
   const urlMap = /* @__PURE__ */ new Map();
@@ -16868,7 +18374,12 @@ var EnvironmentNgModuleRefAdapter = class extends NgModuleRef$1 {
   }
 };
 function createEnvironmentInjector(providers, parent, debugName = null) {
-  const adapter = new EnvironmentNgModuleRefAdapter({ providers, parent, debugName, runEnvironmentInitializers: true });
+  const adapter = new EnvironmentNgModuleRefAdapter({
+    providers,
+    parent,
+    debugName,
+    runEnvironmentInitializers: true
+  });
   return adapter.injector;
 }
 var _CachedInjectorService = class _CachedInjectorService {
@@ -16900,69 +18411,6 @@ _CachedInjectorService.\u0275prov = \u0275\u0275defineInjectable({
   factory: () => new _CachedInjectorService()
 });
 var CachedInjectorService = _CachedInjectorService;
-function setClassMetadata(type, decorators, ctorParameters, propDecorators) {
-  return noSideEffects(() => {
-    const clazz = type;
-    if (decorators !== null) {
-      if (clazz.hasOwnProperty("decorators") && clazz.decorators !== void 0) {
-        clazz.decorators.push(...decorators);
-      } else {
-        clazz.decorators = decorators;
-      }
-    }
-    if (ctorParameters !== null) {
-      clazz.ctorParameters = ctorParameters;
-    }
-    if (propDecorators !== null) {
-      if (clazz.hasOwnProperty("propDecorators") && clazz.propDecorators !== void 0) {
-        clazz.propDecorators = __spreadValues(__spreadValues({}, clazz.propDecorators), propDecorators);
-      } else {
-        clazz.propDecorators = propDecorators;
-      }
-    }
-  });
-}
-var _PendingTasks = class _PendingTasks {
-  constructor() {
-    this.taskId = 0;
-    this.pendingTasks = /* @__PURE__ */ new Set();
-    this.hasPendingTasks = new BehaviorSubject(false);
-  }
-  get _hasPendingTasks() {
-    return this.hasPendingTasks.value;
-  }
-  add() {
-    if (!this._hasPendingTasks) {
-      this.hasPendingTasks.next(true);
-    }
-    const taskId = this.taskId++;
-    this.pendingTasks.add(taskId);
-    return taskId;
-  }
-  remove(taskId) {
-    this.pendingTasks.delete(taskId);
-    if (this.pendingTasks.size === 0 && this._hasPendingTasks) {
-      this.hasPendingTasks.next(false);
-    }
-  }
-  ngOnDestroy() {
-    this.pendingTasks.clear();
-    if (this._hasPendingTasks) {
-      this.hasPendingTasks.next(false);
-    }
-  }
-};
-_PendingTasks.\u0275fac = function PendingTasks_Factory(t) {
-  return new (t || _PendingTasks)();
-};
-_PendingTasks.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _PendingTasks, factory: _PendingTasks.\u0275fac, providedIn: "root" });
-var PendingTasks = _PendingTasks;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(PendingTasks, [{
-    type: Injectable,
-    args: [{ providedIn: "root" }]
-  }], null, null);
-})();
 function isListLikeIterable(obj) {
   if (!isJsObject(obj))
     return false;
@@ -17056,11 +18504,11 @@ function bindingUpdated4(lView, bindingIndex, exp1, exp2, exp3, exp4) {
 function isDetachedByI18n(tNode) {
   return (tNode.flags & 32) === 32;
 }
-function templateFirstCreatePass(index, tView, lView, templateFn, decls, vars, tagName, attrsIndex, localRefsIndex) {
+function templateFirstCreatePass(index, tView, lView, templateFn, decls, vars, tagName, attrs, localRefsIndex) {
   ngDevMode && assertFirstCreatePass(tView);
   ngDevMode && ngDevMode.firstCreatePass++;
   const tViewConsts = tView.consts;
-  const tNode = getOrCreateTNode(tView, index, 4, tagName || null, getConstant(tViewConsts, attrsIndex));
+  const tNode = getOrCreateTNode(tView, index, 4, tagName || null, attrs || null);
   resolveDirectives(tView, lView, tNode, getConstant(tViewConsts, localRefsIndex));
   registerPostOrderHooks(tView, tNode);
   const embeddedTView = tNode.tView = createTView(
@@ -17083,27 +18531,32 @@ function templateFirstCreatePass(index, tView, lView, templateFn, decls, vars, t
   }
   return tNode;
 }
+function declareTemplate(declarationLView, declarationTView, index, templateFn, decls, vars, tagName, attrs, localRefsIndex, localRefExtractor) {
+  const adjustedIndex = index + HEADER_OFFSET;
+  const tNode = declarationTView.firstCreatePass ? templateFirstCreatePass(adjustedIndex, declarationTView, declarationLView, templateFn, decls, vars, tagName, attrs, localRefsIndex) : declarationTView.data[adjustedIndex];
+  setCurrentTNode(tNode, false);
+  const comment = _locateOrCreateContainerAnchor(declarationTView, declarationLView, tNode, index);
+  if (wasLastNodeCreated()) {
+    appendChild(declarationTView, declarationLView, comment, tNode);
+  }
+  attachPatchData(comment, declarationLView);
+  const lContainer = createLContainer(comment, declarationLView, comment, tNode);
+  declarationLView[adjustedIndex] = lContainer;
+  addToViewTree(declarationLView, lContainer);
+  populateDehydratedViewsInLContainer(lContainer, tNode, declarationLView);
+  if (isDirectiveHost(tNode)) {
+    createDirectivesInstances(declarationTView, declarationLView, tNode);
+  }
+  if (localRefsIndex != null) {
+    saveResolvedLocalsInData(declarationLView, tNode, localRefExtractor);
+  }
+  return tNode;
+}
 function \u0275\u0275template(index, templateFn, decls, vars, tagName, attrsIndex, localRefsIndex, localRefExtractor) {
   const lView = getLView();
   const tView = getTView();
-  const adjustedIndex = index + HEADER_OFFSET;
-  const tNode = tView.firstCreatePass ? templateFirstCreatePass(adjustedIndex, tView, lView, templateFn, decls, vars, tagName, attrsIndex, localRefsIndex) : tView.data[adjustedIndex];
-  setCurrentTNode(tNode, false);
-  const comment = _locateOrCreateContainerAnchor(tView, lView, tNode, index);
-  if (wasLastNodeCreated()) {
-    appendChild(tView, lView, comment, tNode);
-  }
-  attachPatchData(comment, lView);
-  const lContainer = createLContainer(comment, lView, comment, tNode);
-  lView[adjustedIndex] = lContainer;
-  addToViewTree(lView, lContainer);
-  populateDehydratedViewsInLContainer(lContainer, tNode, lView);
-  if (isDirectiveHost(tNode)) {
-    createDirectivesInstances(tView, lView, tNode);
-  }
-  if (localRefsIndex != null) {
-    saveResolvedLocalsInData(lView, tNode, localRefExtractor);
-  }
+  const attrs = getConstant(tView.consts, attrsIndex);
+  declareTemplate(lView, tView, index, templateFn, decls, vars, tagName, attrs, localRefsIndex, localRefExtractor);
   return \u0275\u0275template;
 }
 var _locateOrCreateContainerAnchor = createContainerAnchorImpl;
@@ -17613,7 +19066,7 @@ function \u0275\u0275defer(index, primaryTmplIndex, dependencyResolverFn, loadin
   const lView = getLView();
   const tView = getTView();
   const adjustedIndex = index + HEADER_OFFSET;
-  \u0275\u0275template(index, null, 0, 0);
+  const tNode = declareTemplate(lView, tView, index, null, 0, 0);
   if (tView.firstCreatePass) {
     performanceMarkFeature("NgDefer");
     const tDetails = {
@@ -17631,7 +19084,6 @@ function \u0275\u0275defer(index, primaryTmplIndex, dependencyResolverFn, loadin
     enableTimerScheduling?.(tView, tDetails, placeholderConfigIndex, loadingConfigIndex);
     setTDeferBlockDetails(tView, adjustedIndex, tDetails);
   }
-  const tNode = getCurrentTNode();
   const lContainer = lView[adjustedIndex];
   populateDehydratedViewsInLContainer(lContainer, tNode, lView);
   const lDetails = [
@@ -17901,9 +19353,16 @@ function applyDeferBlockState(newState, lDetails, lContainer, tNode, hostLView) 
       }
     }
     const dehydratedView = findMatchingDehydratedView(lContainer, activeBlockTNode.tView.ssrId);
-    const embeddedLView = createAndRenderEmbeddedLView(hostLView, activeBlockTNode, null, { dehydratedView, injector });
+    const embeddedLView = createAndRenderEmbeddedLView(hostLView, activeBlockTNode, null, {
+      dehydratedView,
+      injector
+    });
     addLViewToLContainer(lContainer, embeddedLView, viewIndex, shouldAddViewToDom(activeBlockTNode, dehydratedView));
-    markViewDirty(embeddedLView);
+    markViewDirty(
+      embeddedLView,
+      2
+      /* NotificationSource.DeferBlockStateUpdate */
+    );
   }
 }
 function applyDeferBlockStateWithScheduling(newState, lDetails, lContainer, tNode, hostLView) {
@@ -17966,7 +19425,9 @@ function triggerResourceLoading(tDetails, lView, tNode) {
   invokeTriggerCleanupFns(1, lDetails);
   let dependenciesFn = tDetails.dependencyResolverFn;
   if (ngDevMode) {
-    const deferDependencyInterceptor = injector.get(DEFER_BLOCK_DEPENDENCY_INTERCEPTOR, null, { optional: true });
+    const deferDependencyInterceptor = injector.get(DEFER_BLOCK_DEPENDENCY_INTERCEPTOR, null, {
+      optional: true
+    });
     if (deferDependencyInterceptor) {
       dependenciesFn = deferDependencyInterceptor.intercept(dependenciesFn);
     }
@@ -18946,16 +20407,28 @@ function valuesMatching(liveIdx, liveValue, newIdx, newValue, trackBy) {
   }
   return 0;
 }
+function recordDuplicateKeys(keyToIdx, key, idx) {
+  const idxSoFar = keyToIdx.get(key);
+  if (idxSoFar !== void 0) {
+    idxSoFar.add(idx);
+  } else {
+    keyToIdx.set(key, /* @__PURE__ */ new Set([idx]));
+  }
+}
 function reconcile(liveCollection, newCollection, trackByFn) {
   let detachedItems = void 0;
   let liveKeysInTheFuture = void 0;
   let liveStartIdx = 0;
   let liveEndIdx = liveCollection.length - 1;
+  const duplicateKeys = ngDevMode ? /* @__PURE__ */ new Map() : void 0;
   if (Array.isArray(newCollection)) {
     let newEndIdx = newCollection.length - 1;
     while (liveStartIdx <= liveEndIdx && liveStartIdx <= newEndIdx) {
       const liveStartValue = liveCollection.at(liveStartIdx);
       const newStartValue = newCollection[liveStartIdx];
+      if (ngDevMode) {
+        recordDuplicateKeys(duplicateKeys, trackByFn(liveStartIdx, newStartValue), liveStartIdx);
+      }
       const isStartMatching = valuesMatching(liveStartIdx, liveStartValue, liveStartIdx, newStartValue, trackByFn);
       if (isStartMatching !== 0) {
         if (isStartMatching < 0) {
@@ -18966,6 +20439,9 @@ function reconcile(liveCollection, newCollection, trackByFn) {
       }
       const liveEndValue = liveCollection.at(liveEndIdx);
       const newEndValue = newCollection[newEndIdx];
+      if (ngDevMode) {
+        recordDuplicateKeys(duplicateKeys, trackByFn(newEndIdx, newEndValue), newEndIdx);
+      }
       const isEndMatching = valuesMatching(liveEndIdx, liveEndValue, newEndIdx, newEndValue, trackByFn);
       if (isEndMatching !== 0) {
         if (isEndMatching < 0) {
@@ -19018,6 +20494,9 @@ function reconcile(liveCollection, newCollection, trackByFn) {
     while (!newIterationResult.done && liveStartIdx <= liveEndIdx) {
       const liveValue = liveCollection.at(liveStartIdx);
       const newValue = newIterationResult.value;
+      if (ngDevMode) {
+        recordDuplicateKeys(duplicateKeys, trackByFn(liveStartIdx, newValue), liveStartIdx);
+      }
       const isStartMatching = valuesMatching(liveStartIdx, liveValue, liveStartIdx, newValue, trackByFn);
       if (isStartMatching !== 0) {
         if (isStartMatching < 0) {
@@ -19057,6 +20536,21 @@ function reconcile(liveCollection, newCollection, trackByFn) {
   detachedItems?.forEach((item) => {
     liveCollection.destroy(item);
   });
+  if (ngDevMode) {
+    let duplicatedKeysMsg = [];
+    for (const [key, idxSet] of duplicateKeys) {
+      if (idxSet.size > 1) {
+        const idx = [...idxSet].sort((a, b) => a - b);
+        for (let i = 1; i < idx.length; i++) {
+          duplicatedKeysMsg.push(`key "${stringifyForError(key)}" at index "${idx[i - 1]}" and "${idx[i]}"`);
+        }
+      }
+    }
+    if (duplicatedKeysMsg.length > 0) {
+      const message = formatRuntimeError(-955, "The provided track expression resulted in duplicated keys for a given collection. Adjust the tracking expression such that it uniquely identifies all the items in the collection. Duplicated keys were: \n" + duplicatedKeysMsg.join(", \n") + ".");
+      console.warn(message);
+    }
+  }
 }
 function attachPreviouslyDetached(prevCollection, detachedItems, index, key) {
   if (detachedItems !== void 0 && detachedItems.has(key)) {
@@ -19133,29 +20627,36 @@ var UniqueValueMultiKeyMap = class {
     }
   }
 };
-function \u0275\u0275conditional(containerIndex, matchingTemplateIndex, value) {
+function \u0275\u0275conditional(matchingTemplateIndex, contextValue) {
   performanceMarkFeature("NgControlFlow");
   const hostLView = getLView();
   const bindingIndex = nextBindingIndex();
-  const lContainer = getLContainer(hostLView, HEADER_OFFSET + containerIndex);
+  const prevMatchingTemplateIndex = hostLView[bindingIndex] !== NO_CHANGE ? hostLView[bindingIndex] : -1;
+  const prevContainer = prevMatchingTemplateIndex !== -1 ? getLContainer(hostLView, HEADER_OFFSET + prevMatchingTemplateIndex) : void 0;
   const viewInContainerIdx = 0;
   if (bindingUpdated(hostLView, bindingIndex, matchingTemplateIndex)) {
     const prevConsumer = setActiveConsumer(null);
     try {
-      removeLViewFromLContainer(lContainer, viewInContainerIdx);
+      if (prevContainer !== void 0) {
+        removeLViewFromLContainer(prevContainer, viewInContainerIdx);
+      }
       if (matchingTemplateIndex !== -1) {
-        const templateTNode = getExistingTNode(hostLView[TVIEW], HEADER_OFFSET + matchingTemplateIndex);
-        const dehydratedView = findMatchingDehydratedView(lContainer, templateTNode.tView.ssrId);
-        const embeddedLView = createAndRenderEmbeddedLView(hostLView, templateTNode, value, { dehydratedView });
-        addLViewToLContainer(lContainer, embeddedLView, viewInContainerIdx, shouldAddViewToDom(templateTNode, dehydratedView));
+        const nextLContainerIndex = HEADER_OFFSET + matchingTemplateIndex;
+        const nextContainer = getLContainer(hostLView, nextLContainerIndex);
+        const templateTNode = getExistingTNode(hostLView[TVIEW], nextLContainerIndex);
+        const dehydratedView = findMatchingDehydratedView(nextContainer, templateTNode.tView.ssrId);
+        const embeddedLView = createAndRenderEmbeddedLView(hostLView, templateTNode, contextValue, {
+          dehydratedView
+        });
+        addLViewToLContainer(nextContainer, embeddedLView, viewInContainerIdx, shouldAddViewToDom(templateTNode, dehydratedView));
       }
     } finally {
       setActiveConsumer(prevConsumer);
     }
-  } else {
-    const lView = getLViewFromLContainer(lContainer, viewInContainerIdx);
+  } else if (prevContainer !== void 0) {
+    const lView = getLViewFromLContainer(prevContainer, viewInContainerIdx);
     if (lView !== void 0) {
-      lView[CONTEXT] = value;
+      lView[CONTEXT] = contextValue;
     }
   }
 }
@@ -19185,6 +20686,8 @@ var RepeaterMetadata = class {
 function \u0275\u0275repeaterCreate(index, templateFn, decls, vars, tagName, attrsIndex, trackByFn, trackByUsesComponentInstance, emptyTemplateFn, emptyDecls, emptyVars, emptyTagName, emptyAttrsIndex) {
   performanceMarkFeature("NgControlFlow");
   ngDevMode && assertFunction(trackByFn, `A track expression must be a function, was ${typeof trackByFn} instead.`);
+  const lView = getLView();
+  const tView = getTView();
   const hasEmptyBlock = emptyTemplateFn !== void 0;
   const hostLView = getLView();
   const boundTrackBy = trackByUsesComponentInstance ? (
@@ -19194,19 +20697,49 @@ function \u0275\u0275repeaterCreate(index, templateFn, decls, vars, tagName, att
   ) : trackByFn;
   const metadata = new RepeaterMetadata(hasEmptyBlock, boundTrackBy);
   hostLView[HEADER_OFFSET + index] = metadata;
-  \u0275\u0275template(index + 1, templateFn, decls, vars, tagName, attrsIndex);
+  declareTemplate(lView, tView, index + 1, templateFn, decls, vars, tagName, getConstant(tView.consts, attrsIndex));
   if (hasEmptyBlock) {
     ngDevMode && assertDefined(emptyDecls, "Missing number of declarations for the empty repeater block.");
     ngDevMode && assertDefined(emptyVars, "Missing number of bindings for the empty repeater block.");
-    \u0275\u0275template(index + 2, emptyTemplateFn, emptyDecls, emptyVars, emptyTagName, emptyAttrsIndex);
+    declareTemplate(lView, tView, index + 2, emptyTemplateFn, emptyDecls, emptyVars, emptyTagName, getConstant(tView.consts, emptyAttrsIndex));
   }
 }
+function isViewExpensiveToRecreate(lView) {
+  return lView.length - HEADER_OFFSET > 2;
+}
+var OperationsCounter = class {
+  constructor() {
+    this.created = 0;
+    this.destroyed = 0;
+  }
+  reset() {
+    this.created = 0;
+    this.destroyed = 0;
+  }
+  recordCreate() {
+    this.created++;
+  }
+  recordDestroy() {
+    this.destroyed++;
+  }
+  /**
+   * A method indicating if the entire collection was re-created as part of the reconciliation pass.
+   * Used to warn developers about the usage of a tracking function that might result in excessive
+   * amount of view creation / destroy operations.
+   *
+   * @returns boolean value indicating if a live collection was re-created
+   */
+  wasReCreated(collectionLen) {
+    return collectionLen > 0 && this.created === this.destroyed && this.created === collectionLen;
+  }
+};
 var LiveCollectionLContainerImpl = class extends LiveCollection {
   constructor(lContainer, hostLView, templateTNode) {
     super();
     this.lContainer = lContainer;
     this.hostLView = hostLView;
     this.templateTNode = templateTNode;
+    this.operationsCounter = ngDevMode ? new OperationsCounter() : void 0;
     this.needsIndexUpdate = false;
   }
   get length() {
@@ -19227,16 +20760,19 @@ var LiveCollectionLContainerImpl = class extends LiveCollection {
   create(index, value) {
     const dehydratedView = findMatchingDehydratedView(this.lContainer, this.templateTNode.tView.ssrId);
     const embeddedLView = createAndRenderEmbeddedLView(this.hostLView, this.templateTNode, new RepeaterContext(this.lContainer, value, index), { dehydratedView });
+    this.operationsCounter?.recordCreate();
     return embeddedLView;
   }
   destroy(lView) {
     destroyLView(lView[TVIEW], lView);
+    this.operationsCounter?.recordDestroy();
   }
   updateValue(index, value) {
     this.getLView(index)[CONTEXT].$implicit = value;
   }
   reset() {
     this.needsIndexUpdate = false;
+    this.operationsCounter?.reset();
   }
   updateIndexes() {
     if (this.needsIndexUpdate) {
@@ -19256,9 +20792,9 @@ function \u0275\u0275repeater(collection) {
     const hostLView = getLView();
     const hostTView = hostLView[TVIEW];
     const metadata = hostLView[metadataSlotIdx];
+    const containerIndex = metadataSlotIdx + 1;
+    const lContainer = getLContainer(hostLView, containerIndex);
     if (metadata.liveCollection === void 0) {
-      const containerIndex = metadataSlotIdx + 1;
-      const lContainer = getLContainer(hostLView, containerIndex);
       const itemTemplateTNode = getExistingTNode(hostTView, containerIndex);
       metadata.liveCollection = new LiveCollectionLContainerImpl(lContainer, hostLView, itemTemplateTNode);
     } else {
@@ -19266,6 +20802,10 @@ function \u0275\u0275repeater(collection) {
     }
     const liveCollection = metadata.liveCollection;
     reconcile(liveCollection, collection, metadata.trackByFn);
+    if (ngDevMode && metadata.trackByFn === \u0275\u0275repeaterTrackByIdentity && liveCollection.operationsCounter?.wasReCreated(liveCollection.length) && isViewExpensiveToRecreate(getExistingLViewFromLContainer(lContainer, 0))) {
+      const message = formatRuntimeError(-956, `The configured tracking expression (track by identity) caused re-creation of the entire collection of size ${liveCollection.length}. This is an expensive operation requiring destruction and subsequent creation of DOM nodes, directives, components etc. Please review the "track expression" and make sure that it uniquely identifies items in a collection.`);
+      console.warn(message);
+    }
     liveCollection.updateIndexes();
     if (metadata.hasEmptyBlock) {
       const bindingIndex = nextBindingIndex();
@@ -19598,126 +21138,6 @@ function setLocaleId(localeId) {
 function getLocaleId() {
   return LOCALE_ID$1;
 }
-function getInsertInFrontOfRNodeWithI18n(parentTNode, currentTNode, lView) {
-  const tNodeInsertBeforeIndex = currentTNode.insertBeforeIndex;
-  const insertBeforeIndex = Array.isArray(tNodeInsertBeforeIndex) ? tNodeInsertBeforeIndex[0] : tNodeInsertBeforeIndex;
-  if (insertBeforeIndex === null) {
-    return getInsertInFrontOfRNodeWithNoI18n(parentTNode, currentTNode, lView);
-  } else {
-    ngDevMode && assertIndexInRange(lView, insertBeforeIndex);
-    return unwrapRNode(lView[insertBeforeIndex]);
-  }
-}
-function processI18nInsertBefore(renderer, childTNode, lView, childRNode, parentRElement) {
-  const tNodeInsertBeforeIndex = childTNode.insertBeforeIndex;
-  if (Array.isArray(tNodeInsertBeforeIndex)) {
-    ngDevMode && assertDomNode(childRNode);
-    let i18nParent = childRNode;
-    let anchorRNode = null;
-    if (!(childTNode.type & 3)) {
-      anchorRNode = i18nParent;
-      i18nParent = parentRElement;
-    }
-    if (i18nParent !== null && childTNode.componentOffset === -1) {
-      for (let i = 1; i < tNodeInsertBeforeIndex.length; i++) {
-        const i18nChild = lView[tNodeInsertBeforeIndex[i]];
-        nativeInsertBefore(renderer, i18nParent, i18nChild, anchorRNode, false);
-      }
-    }
-  }
-}
-function addTNodeAndUpdateInsertBeforeIndex(previousTNodes, newTNode) {
-  ngDevMode && assertEqual(newTNode.insertBeforeIndex, null, "We expect that insertBeforeIndex is not set");
-  previousTNodes.push(newTNode);
-  if (previousTNodes.length > 1) {
-    for (let i = previousTNodes.length - 2; i >= 0; i--) {
-      const existingTNode = previousTNodes[i];
-      if (!isI18nText(existingTNode)) {
-        if (isNewTNodeCreatedBefore(existingTNode, newTNode) && getInsertBeforeIndex(existingTNode) === null) {
-          setInsertBeforeIndex(existingTNode, newTNode.index);
-        }
-      }
-    }
-  }
-}
-function isI18nText(tNode) {
-  return !(tNode.type & 64);
-}
-function isNewTNodeCreatedBefore(existingTNode, newTNode) {
-  return isI18nText(newTNode) || existingTNode.index > newTNode.index;
-}
-function getInsertBeforeIndex(tNode) {
-  const index = tNode.insertBeforeIndex;
-  return Array.isArray(index) ? index[0] : index;
-}
-function setInsertBeforeIndex(tNode, value) {
-  const index = tNode.insertBeforeIndex;
-  if (Array.isArray(index)) {
-    index[0] = value;
-  } else {
-    setI18nHandling(getInsertInFrontOfRNodeWithI18n, processI18nInsertBefore);
-    tNode.insertBeforeIndex = value;
-  }
-}
-function getTIcu(tView, index) {
-  const value = tView.data[index];
-  if (value === null || typeof value === "string")
-    return null;
-  if (ngDevMode && !(value.hasOwnProperty("tView") || value.hasOwnProperty("currentCaseLViewIndex"))) {
-    throwError2("We expect to get 'null'|'TIcu'|'TIcuContainer', but got: " + value);
-  }
-  const tIcu = value.hasOwnProperty("currentCaseLViewIndex") ? value : value.value;
-  ngDevMode && assertTIcu(tIcu);
-  return tIcu;
-}
-function setTIcu(tView, index, tIcu) {
-  const tNode = tView.data[index];
-  ngDevMode && assertEqual(tNode === null || tNode.hasOwnProperty("tView"), true, "We expect to get 'null'|'TIcuContainer'");
-  if (tNode === null) {
-    tView.data[index] = tIcu;
-  } else {
-    ngDevMode && assertTNodeType(
-      tNode,
-      32
-      /* TNodeType.Icu */
-    );
-    tNode.value = tIcu;
-  }
-}
-function setTNodeInsertBeforeIndex(tNode, index) {
-  ngDevMode && assertTNode(tNode);
-  let insertBeforeIndex = tNode.insertBeforeIndex;
-  if (insertBeforeIndex === null) {
-    setI18nHandling(getInsertInFrontOfRNodeWithI18n, processI18nInsertBefore);
-    insertBeforeIndex = tNode.insertBeforeIndex = [null, index];
-  } else {
-    assertEqual(Array.isArray(insertBeforeIndex), true, "Expecting array here");
-    insertBeforeIndex.push(index);
-  }
-}
-function createTNodePlaceholder(tView, previousTNodes, index) {
-  const tNode = createTNodeAtIndex(tView, index, 64, null, null);
-  addTNodeAndUpdateInsertBeforeIndex(previousTNodes, tNode);
-  return tNode;
-}
-function getCurrentICUCaseIndex(tIcu, lView) {
-  const currentCase = lView[tIcu.currentCaseLViewIndex];
-  return currentCase === null ? currentCase : currentCase < 0 ? ~currentCase : currentCase;
-}
-function getParentFromIcuCreateOpCode(mergedCode) {
-  return mergedCode >>> 17;
-}
-function getRefFromIcuCreateOpCode(mergedCode) {
-  return (mergedCode & 131070) >>> 1;
-}
-function getInstructionFromIcuCreateOpCode(mergedCode) {
-  return mergedCode & 1;
-}
-function icuCreateOpCode(opCode, parentIdx, refIdx) {
-  ngDevMode && assertGreaterThanOrEqual(parentIdx, 0, "Missing parent index");
-  ngDevMode && assertGreaterThan(refIdx, 0, "Missing ref index");
-  return opCode | parentIdx << 17 | refIdx << 1;
-}
 var changeMask = 0;
 var changeMaskCounter = 0;
 function setMaskBit(hasChange) {
@@ -19939,6 +21359,7 @@ function applyIcuSwitchCase(tView, tIcu, lView, value) {
         ngDevMode && assertDomNode(anchorRNode);
         applyMutableOpCodes(tView, tIcu.create[caseIndex], lView, anchorRNode);
       }
+      claimDehydratedIcuCase(lView, tIcu.anchorIdx, caseIndex);
     }
   }
 }
@@ -20367,9 +21788,6 @@ function countBindings(opCodes) {
 function toMaskBit(bindingIndex) {
   return 1 << Math.min(bindingIndex, 31);
 }
-function isRootTemplateMessage(subTemplateIndex) {
-  return subTemplateIndex === -1;
-}
 function removeInnerTemplateTranslation(message) {
   let match2;
   let res = "";
@@ -20723,6 +22141,7 @@ function \u0275\u0275i18nStart(index, messageIndex, subTemplateIndex = -1) {
   const sameViewParentTNode = parentTNode === lView[T_HOST] ? null : parentTNode;
   const parentRNode = getClosestRElement(tView, sameViewParentTNode, lView);
   const insertInFrontOf = parentTNode && parentTNode.type & 8 ? lView[parentTNode.index] : null;
+  prepareI18nBlockForHydration(lView, adjustedIndex, parentTNode, subTemplateIndex);
   applyCreateOpCodes(lView, tI18n.create, parentRNode, insertInFrontOf);
   setInI18nBlock(true);
 }
@@ -20750,6 +22169,8 @@ function \u0275\u0275i18nApply(index) {
 function \u0275\u0275i18nPostprocess(message, replacements = {}) {
   return i18nPostprocess(message, replacements);
 }
+var stashEventListener = (el, eventName, listenerFn) => {
+};
 function \u0275\u0275listener(eventName, listenerFn, useCapture, eventTargetResolver) {
   const lView = getLView();
   const tView = getTView();
@@ -20810,28 +22231,15 @@ function listenerInternal(tView, lView, renderer, tNode, eventName, listenerFn, 
       existingListener.__ngLastListenerFn__ = listenerFn;
       processOutputs = false;
     } else {
-      listenerFn = wrapListener(
-        tNode,
-        lView,
-        context2,
-        listenerFn,
-        false
-        /** preventDefault */
-      );
+      listenerFn = wrapListener(tNode, lView, context2, listenerFn);
+      stashEventListener(native, eventName, listenerFn);
       const cleanupFn = renderer.listen(target, eventName, listenerFn);
       ngDevMode && ngDevMode.rendererAddEventListener++;
       lCleanup.push(listenerFn, cleanupFn);
       tCleanup && tCleanup.push(eventName, idxOrTargetGetter, lCleanupIndex, lCleanupIndex + 1);
     }
   } else {
-    listenerFn = wrapListener(
-      tNode,
-      lView,
-      context2,
-      listenerFn,
-      false
-      /** preventDefault */
-    );
+    listenerFn = wrapListener(tNode, lView, context2, listenerFn);
   }
   const outputs = tNode.outputs;
   let props;
@@ -20868,21 +22276,22 @@ function executeListenerWithErrorHandling(lView, context2, listenerFn, e) {
     setActiveConsumer(prevConsumer);
   }
 }
-function wrapListener(tNode, lView, context2, listenerFn, wrapWithPreventDefault) {
+function wrapListener(tNode, lView, context2, listenerFn) {
   return function wrapListenerIn_markDirtyAndPreventDefault(e) {
     if (e === Function) {
       return listenerFn;
     }
     const startView = tNode.componentOffset > -1 ? getComponentLViewByIndex(tNode.index, lView) : lView;
-    markViewDirty(startView);
+    markViewDirty(
+      startView,
+      5
+      /* NotificationSource.Listener */
+    );
     let result = executeListenerWithErrorHandling(lView, context2, listenerFn, e);
     let nextListenerFn = wrapListenerIn_markDirtyAndPreventDefault.__ngNextListenerFn__;
     while (nextListenerFn) {
       result = executeListenerWithErrorHandling(lView, context2, nextListenerFn, e) && result;
       nextListenerFn = nextListenerFn.__ngNextListenerFn__;
-    }
-    if (wrapWithPreventDefault && result === false) {
-      e.preventDefault();
     }
     return result;
   };
@@ -20934,18 +22343,39 @@ function \u0275\u0275projectionDef(projectionSlots) {
     }
   }
 }
-function \u0275\u0275projection(nodeIndex, selectorIndex = 0, attrs) {
+function \u0275\u0275projection(nodeIndex, selectorIndex = 0, attrs, fallbackTemplateFn, fallbackDecls, fallbackVars) {
   const lView = getLView();
   const tView = getTView();
+  const fallbackIndex = fallbackTemplateFn ? nodeIndex + 1 : null;
+  if (fallbackIndex !== null) {
+    declareTemplate(lView, tView, fallbackIndex, fallbackTemplateFn, fallbackDecls, fallbackVars, null, attrs);
+  }
   const tProjectionNode = getOrCreateTNode(tView, HEADER_OFFSET + nodeIndex, 16, null, attrs || null);
-  if (tProjectionNode.projection === null)
+  if (tProjectionNode.projection === null) {
     tProjectionNode.projection = selectorIndex;
+  }
   setCurrentTNodeAsNotParent();
   const hydrationInfo = lView[HYDRATION];
   const isNodeCreationMode = !hydrationInfo || isInSkipHydrationBlock$1();
-  if (isNodeCreationMode && (tProjectionNode.flags & 32) !== 32) {
+  const componentHostNode = lView[DECLARATION_COMPONENT_VIEW][T_HOST];
+  const isEmpty = componentHostNode.projection[tProjectionNode.projection] === null;
+  if (isEmpty && fallbackIndex !== null) {
+    insertFallbackContent(lView, tView, fallbackIndex);
+  } else if (isNodeCreationMode && (tProjectionNode.flags & 32) !== 32) {
     applyProjection(tView, lView, tProjectionNode);
   }
+}
+function insertFallbackContent(lView, tView, fallbackIndex) {
+  const adjustedIndex = HEADER_OFFSET + fallbackIndex;
+  const fallbackTNode = tView.data[adjustedIndex];
+  const fallbackLContainer = lView[adjustedIndex];
+  ngDevMode && assertTNode(fallbackTNode);
+  ngDevMode && assertLContainer(fallbackLContainer);
+  const dehydratedView = findMatchingDehydratedView(fallbackLContainer, fallbackTNode.tView.ssrId);
+  const fallbackLView = createAndRenderEmbeddedLView(lView, fallbackTNode, void 0, {
+    dehydratedView
+  });
+  addLViewToLContainer(fallbackLContainer, fallbackLView, 0, shouldAddViewToDom(fallbackTNode, dehydratedView));
 }
 function \u0275\u0275propertyInterpolate(propName, v0, sanitizer) {
   \u0275\u0275propertyInterpolate1(propName, "", v0, "", sanitizer);
@@ -21562,6 +22992,28 @@ function convertToTypeArray(values) {
 function maybeUnwrapModuleWithProviders(value) {
   return isModuleWithProviders(value) ? value.ngModule : value;
 }
+function setClassMetadata(type, decorators, ctorParameters, propDecorators) {
+  return noSideEffects(() => {
+    const clazz = type;
+    if (decorators !== null) {
+      if (clazz.hasOwnProperty("decorators") && clazz.decorators !== void 0) {
+        clazz.decorators.push(...decorators);
+      } else {
+        clazz.decorators = decorators;
+      }
+    }
+    if (ctorParameters !== null) {
+      clazz.ctorParameters = ctorParameters;
+    }
+    if (propDecorators !== null) {
+      if (clazz.hasOwnProperty("propDecorators") && clazz.propDecorators !== void 0) {
+        clazz.propDecorators = __spreadValues(__spreadValues({}, clazz.propDecorators), propDecorators);
+      } else {
+        clazz.propDecorators = propDecorators;
+      }
+    }
+  });
+}
 function \u0275\u0275pureFunction0(slotOffset, pureFn, thisArg) {
   const bindingIndex = getBindingRoot() + slotOffset;
   const lView = getLView();
@@ -21941,8 +23393,7 @@ var angularCoreEnv = /* @__PURE__ */ (() => ({
   "resolveForwardRef": resolveForwardRef,
   "\u0275\u0275twoWayProperty": \u0275\u0275twoWayProperty,
   "\u0275\u0275twoWayBindingSet": \u0275\u0275twoWayBindingSet,
-  "\u0275\u0275twoWayListener": \u0275\u0275twoWayListener,
-  "\u0275\u0275InputFlags": InputFlags
+  "\u0275\u0275twoWayListener": \u0275\u0275twoWayListener
 }))();
 var jitOptions = null;
 function setJitOptions(options) {
@@ -22010,7 +23461,11 @@ function compileNgModuleDefs(moduleType, ngModule, allowDuplicateDeclarationsInR
         if (ngDevMode && ngModule.imports && ngModule.imports.indexOf(moduleType) > -1) {
           throw new Error(`'${stringifyForError(moduleType)}' module can't import itself`);
         }
-        const compiler = getCompilerFacade({ usage: 0, kind: "NgModule", type: moduleType });
+        const compiler = getCompilerFacade({
+          usage: 0,
+          kind: "NgModule",
+          type: moduleType
+        });
         ngModuleDef = compiler.compileNgModule(angularCoreEnv, `ng:///${moduleType.name}/\u0275mod.js`, {
           type: moduleType,
           bootstrap: flatten(ngModule.bootstrap || EMPTY_ARRAY).map(resolveForwardRef),
@@ -22031,7 +23486,11 @@ function compileNgModuleDefs(moduleType, ngModule, allowDuplicateDeclarationsInR
   Object.defineProperty(moduleType, NG_FACTORY_DEF, {
     get: () => {
       if (ngFactoryDef === null) {
-        const compiler = getCompilerFacade({ usage: 0, kind: "NgModule", type: moduleType });
+        const compiler = getCompilerFacade({
+          usage: 0,
+          kind: "NgModule",
+          type: moduleType
+        });
         ngFactoryDef = compiler.compileFactory(angularCoreEnv, `ng:///${moduleType.name}/\u0275fac.js`, {
           name: moduleType.name,
           type: moduleType,
@@ -22059,7 +23518,11 @@ function compileNgModuleDefs(moduleType, ngModule, allowDuplicateDeclarationsInR
             (ngModule.exports || EMPTY_ARRAY).map(resolveForwardRef)
           ]
         };
-        const compiler = getCompilerFacade({ usage: 0, kind: "NgModule", type: moduleType });
+        const compiler = getCompilerFacade({
+          usage: 0,
+          kind: "NgModule",
+          type: moduleType
+        });
         ngInjectorDef = compiler.compileInjector(angularCoreEnv, `ng:///${moduleType.name}/\u0275inj.js`, meta);
       }
       return ngInjectorDef;
@@ -22363,7 +23826,11 @@ function compileComponent(type, metadata) {
   Object.defineProperty(type, NG_COMP_DEF, {
     get: () => {
       if (ngComponentDef === null) {
-        const compiler = getCompilerFacade({ usage: 0, kind: "component", type });
+        const compiler = getCompilerFacade({
+          usage: 0,
+          kind: "component",
+          type
+        });
         if (componentNeedsResolution(metadata)) {
           const error = [`Component '${type.name}' is not resolved:`];
           if (metadata.templateUrl) {
@@ -22555,7 +24022,11 @@ function compileDirective(type, directive) {
     get: () => {
       if (ngDirectiveDef === null) {
         const meta = getDirectiveMetadata(type, directive || {});
-        const compiler = getCompilerFacade({ usage: 0, kind: "directive", type });
+        const compiler = getCompilerFacade({
+          usage: 0,
+          kind: "directive",
+          type
+        });
         ngDirectiveDef = compiler.compileDirective(angularCoreEnv, meta.sourceMapUrl, meta.metadata);
       }
       return ngDirectiveDef;
@@ -22581,7 +24052,11 @@ function addDirectiveFactoryDef(type, metadata) {
     get: () => {
       if (ngFactoryDef === null) {
         const meta = getDirectiveMetadata(type, metadata);
-        const compiler = getCompilerFacade({ usage: 0, kind: "directive", type });
+        const compiler = getCompilerFacade({
+          usage: 0,
+          kind: "directive",
+          type
+        });
         ngFactoryDef = compiler.compileFactory(angularCoreEnv, `ng:///${type.name}/\u0275fac.js`, {
           name: meta.metadata.name,
           type: meta.metadata.type,
@@ -22719,7 +24194,11 @@ function compilePipe(type, meta) {
     get: () => {
       if (ngFactoryDef === null) {
         const metadata = getPipeMetadata(type, meta);
-        const compiler = getCompilerFacade({ usage: 0, kind: "pipe", type: metadata.type });
+        const compiler = getCompilerFacade({
+          usage: 0,
+          kind: "pipe",
+          type: metadata.type
+        });
         ngFactoryDef = compiler.compileFactory(angularCoreEnv, `ng:///${metadata.name}/\u0275fac.js`, {
           name: metadata.name,
           type: metadata.type,
@@ -22737,7 +24216,11 @@ function compilePipe(type, meta) {
     get: () => {
       if (ngPipeDef === null) {
         const metadata = getPipeMetadata(type, meta);
-        const compiler = getCompilerFacade({ usage: 0, kind: "pipe", type: metadata.type });
+        const compiler = getCompilerFacade({
+          usage: 0,
+          kind: "pipe",
+          type: metadata.type
+        });
         ngPipeDef = compiler.compilePipe(angularCoreEnv, `ng:///${metadata.name}/\u0275pipe.js`, metadata);
       }
       return ngPipeDef;
@@ -22794,7 +24277,7 @@ var Version = class {
     this.patch = parts.slice(2).join(".");
   }
 };
-var VERSION = new Version("17.3.10");
+var VERSION = new Version("18.0.3");
 var _Console = class _Console {
   log(message) {
     console.log(message);
@@ -22942,7 +24425,11 @@ function canBeHeldWeakly(value) {
 }
 function applyChanges(component) {
   ngDevMode && assertDefined(component, "component");
-  markViewDirty(getComponentViewByInstance(component));
+  markViewDirty(
+    getComponentViewByInstance(component),
+    3
+    /* NotificationSource.DebugApplyChanges */
+  );
   getRootComponents(component).forEach((rootComponent) => detectChanges(rootComponent));
 }
 function detectChanges(component) {
@@ -22976,11 +24463,16 @@ function getDependenciesFromInjectable(injector, token) {
       if (formattedDependency.flags.host && injectorToCheck instanceof EnvironmentInjector) {
         break;
       }
-      const instance2 = injectorToCheck.get(dep.token, null, { self: true, optional: true });
+      const instance2 = injectorToCheck.get(dep.token, null, {
+        self: true,
+        optional: true
+      });
       if (instance2 !== null) {
         if (formattedDependency.flags.host) {
           const firstInjector = resolutionPath[0];
-          const lookupFromFirstInjector = firstInjector.get(dep.token, null, __spreadProps(__spreadValues({}, formattedDependency.flags), { optional: true }));
+          const lookupFromFirstInjector = firstInjector.get(dep.token, null, __spreadProps(__spreadValues({}, formattedDependency.flags), {
+            optional: true
+          }));
           if (lookupFromFirstInjector !== null) {
             formattedDependency.providedIn = injectorToCheck;
           }
@@ -23254,7 +24746,6 @@ var _Testability = class _Testability {
   constructor(_ngZone, registry, testabilityGetter) {
     this._ngZone = _ngZone;
     this.registry = registry;
-    this._pendingCount = 0;
     this._isZoneStable = true;
     this._callbacks = [];
     this.taskTrackingZone = null;
@@ -23286,30 +24777,10 @@ var _Testability = class _Testability {
     });
   }
   /**
-   * Increases the number of pending request
-   * @deprecated pending requests are now tracked with zones.
-   */
-  increasePendingRequestCount() {
-    this._pendingCount += 1;
-    return this._pendingCount;
-  }
-  /**
-   * Decreases the number of pending request
-   * @deprecated pending requests are now tracked with zones
-   */
-  decreasePendingRequestCount() {
-    this._pendingCount -= 1;
-    if (this._pendingCount < 0) {
-      throw new Error("pending async requests below zero");
-    }
-    this._runCallbacksIfReady();
-    return this._pendingCount;
-  }
-  /**
    * Whether an associated application is stable
    */
   isStable() {
-    return this._isZoneStable && this._pendingCount === 0 && !this._ngZone.hasPendingMacrotasks;
+    return this._isZoneStable && !this._ngZone.hasPendingMacrotasks;
   }
   _runCallbacksIfReady() {
     if (this.isStable()) {
@@ -23373,13 +24844,6 @@ var _Testability = class _Testability {
     }
     this.addCallback(doneCb, timeout, updateCb);
     this._runCallbacksIfReady();
-  }
-  /**
-   * Get the number of pending requests
-   * @deprecated pending requests are now tracked with zones
-   */
-  getPendingRequestCount() {
-    return this._pendingCount;
   }
   /**
    * Registers an application with a testability hook so that it can be tracked.
@@ -23566,6 +25030,7 @@ function publishSignalConfiguration() {
 function isBoundToModule(cf) {
   return cf.isBoundToModule;
 }
+var MAXIMUM_REFRESH_RERUNS = 10;
 function _callAndReportToErrorHandler(errorHandler2, ngZone, callback) {
   try {
     const result = callback();
@@ -23596,6 +25061,7 @@ var _ApplicationRef = class _ApplicationRef {
     this._views = [];
     this.internalErrorHandler = inject(INTERNAL_APPLICATION_ERROR_HANDLER);
     this.afterRenderEffectManager = inject(AfterRenderEventManager);
+    this.zonelessEnabled = inject(ZONELESS_ENABLED);
     this.externalTestViews = /* @__PURE__ */ new Set();
     this.beforeRender = new Subject();
     this.afterTick = new Subject();
@@ -23603,6 +25069,10 @@ var _ApplicationRef = class _ApplicationRef {
     this.components = [];
     this.isStable = inject(PendingTasks).hasPendingTasks.pipe(map((pending) => !pending));
     this._injector = inject(EnvironmentInjector);
+  }
+  /** @internal */
+  get allViews() {
+    return [...this.externalTestViews.keys(), ...this._views];
   }
   /**
    * Indicates whether this instance was destroyed.
@@ -23719,34 +25189,41 @@ var _ApplicationRef = class _ApplicationRef {
     } catch (e) {
       this.internalErrorHandler(e);
     } finally {
-      this.afterTick.next();
       this._runningTick = false;
       setActiveConsumer(prevConsumer);
+      this.afterTick.next();
     }
   }
   detectChangesInAttachedViews(refreshViews) {
+    let rendererFactory = null;
+    if (!this._injector.destroyed) {
+      rendererFactory = this._injector.get(RendererFactory2, null, { optional: true });
+    }
     let runs = 0;
     const afterRenderEffectManager = this.afterRenderEffectManager;
-    while (true) {
-      if (runs === MAXIMUM_REFRESH_RERUNS) {
-        throw new RuntimeError(103, ngDevMode && "Infinite change detection while refreshing application views. Ensure afterRender or queueStateUpdate hooks are not continuously causing updates.");
-      }
-      if (refreshViews) {
-        const isFirstPass = runs === 0;
+    while (runs < MAXIMUM_REFRESH_RERUNS) {
+      const isFirstPass = runs === 0;
+      if (refreshViews || !isFirstPass) {
         this.beforeRender.next(isFirstPass);
         for (let { _lView, notifyErrorHandler } of this._views) {
-          detectChangesInViewIfRequired(_lView, isFirstPass, notifyErrorHandler);
+          detectChangesInViewIfRequired(_lView, notifyErrorHandler, isFirstPass, this.zonelessEnabled);
         }
+      } else {
+        rendererFactory?.begin?.();
+        rendererFactory?.end?.();
       }
       runs++;
       afterRenderEffectManager.executeInternalCallbacks();
-      if ([...this.externalTestViews.keys(), ...this._views].some(({ _lView }) => shouldRecheckView(_lView))) {
+      if (this.allViews.some(({ _lView }) => requiresRefreshOrTraversal(_lView))) {
         continue;
       }
       afterRenderEffectManager.execute();
-      if (![...this.externalTestViews.keys(), ...this._views].some(({ _lView }) => shouldRecheckView(_lView))) {
+      if (!this.allViews.some(({ _lView }) => requiresRefreshOrTraversal(_lView))) {
         break;
       }
+    }
+    if ((typeof ngDevMode === "undefined" || ngDevMode) && runs >= MAXIMUM_REFRESH_RERUNS) {
+      throw new RuntimeError(103, ngDevMode && "Infinite change detection while refreshing application views. Ensure views are not calling `markForCheck` on every template execution or that afterRender hooks always mark views for check.");
     }
   }
   /**
@@ -23847,25 +25324,17 @@ function remove(list, el) {
     list.splice(index, 1);
   }
 }
-function detectChangesInViewIfRequired(lView, isFirstPass, notifyErrorHandler) {
-  if (!isFirstPass && !shouldRecheckView(lView)) {
+function detectChangesInViewIfRequired(lView, notifyErrorHandler, isFirstPass, zonelessEnabled) {
+  if (!isFirstPass && !requiresRefreshOrTraversal(lView)) {
     return;
   }
-  detectChangesInView(lView, notifyErrorHandler, isFirstPass);
-}
-function shouldRecheckView(view) {
-  return requiresRefreshOrTraversal(view);
-}
-function detectChangesInView(lView, notifyErrorHandler, isFirstPass) {
-  let mode;
-  if (isFirstPass) {
-    mode = 0;
-    lView[FLAGS] |= 1024;
-  } else if (lView[FLAGS] & 64) {
-    mode = 0;
-  } else {
-    mode = 1;
-  }
+  const mode = isFirstPass && !zonelessEnabled ? (
+    // The first pass is always in Global mode, which includes `CheckAlways` views.
+    0
+  ) : (
+    // Only refresh views with the `RefreshView` flag or views is a changed signal
+    1
+  );
   detectChangesInternal(lView, notifyErrorHandler, mode);
 }
 var ModuleWithComponentFactories = class {
@@ -23974,6 +25443,7 @@ function _lastDefined(args) {
 var _NgZoneChangeDetectionScheduler = class _NgZoneChangeDetectionScheduler {
   constructor() {
     this.zone = inject(NgZone);
+    this.changeDetectionScheduler = inject(ChangeDetectionScheduler);
     this.applicationRef = inject(ApplicationRef);
   }
   initialize() {
@@ -23982,6 +25452,9 @@ var _NgZoneChangeDetectionScheduler = class _NgZoneChangeDetectionScheduler {
     }
     this._onMicrotaskEmptySubscription = this.zone.onMicrotaskEmpty.subscribe({
       next: () => {
+        if (this.changeDetectionScheduler.runningTick) {
+          return;
+        }
         this.zone.run(() => {
           this.applicationRef.tick();
         });
@@ -24003,15 +25476,18 @@ var NgZoneChangeDetectionScheduler = _NgZoneChangeDetectionScheduler;
     args: [{ providedIn: "root" }]
   }], null, null);
 })();
-var PROVIDED_NG_ZONE = new InjectionToken(typeof ngDevMode === "undefined" || ngDevMode ? "provideZoneChangeDetection token" : "");
-function internalProvideZoneChangeDetection(ngZoneFactory) {
+var PROVIDED_NG_ZONE = new InjectionToken(typeof ngDevMode === "undefined" || ngDevMode ? "provideZoneChangeDetection token" : "", { factory: () => false });
+function internalProvideZoneChangeDetection({ ngZoneFactory, ignoreChangesOutsideZone }) {
+  ngZoneFactory ??= () => new NgZone(getNgZoneOptions());
   return [
     { provide: NgZone, useFactory: ngZoneFactory },
     {
       provide: ENVIRONMENT_INITIALIZER,
       multi: true,
       useFactory: () => {
-        const ngZoneChangeDetectionScheduler = inject(NgZoneChangeDetectionScheduler, { optional: true });
+        const ngZoneChangeDetectionScheduler = inject(NgZoneChangeDetectionScheduler, {
+          optional: true
+        });
         if ((typeof ngDevMode === "undefined" || ngDevMode) && ngZoneChangeDetectionScheduler === null) {
           throw new RuntimeError(402, `A required Injectable was not found in the dependency injection tree. If you are bootstrapping an NgModule, make sure that the \`BrowserModule\` is imported.`);
         }
@@ -24028,20 +25504,16 @@ function internalProvideZoneChangeDetection(ngZoneFactory) {
         };
       }
     },
-    { provide: INTERNAL_APPLICATION_ERROR_HANDLER, useFactory: ngZoneApplicationErrorHandlerFactory }
+    { provide: INTERNAL_APPLICATION_ERROR_HANDLER, useFactory: ngZoneApplicationErrorHandlerFactory },
+    // Always disable scheduler whenever explicitly disabled, even if another place called
+    // `provideZoneChangeDetection` without the 'ignore' option.
+    ignoreChangesOutsideZone === true ? { provide: ZONELESS_SCHEDULER_DISABLED, useValue: true } : []
   ];
 }
 function ngZoneApplicationErrorHandlerFactory() {
   const zone = inject(NgZone);
   const userErrorHandler = inject(ErrorHandler);
   return (e) => zone.runOutsideAngular(() => userErrorHandler.handleError(e));
-}
-function provideZoneChangeDetection(options) {
-  const zoneProviders = internalProvideZoneChangeDetection(() => new NgZone(getNgZoneOptions(options)));
-  return makeEnvironmentProviders([
-    typeof ngDevMode === "undefined" || ngDevMode ? { provide: PROVIDED_NG_ZONE, useValue: true } : [],
-    zoneProviders
-  ]);
 }
 function getNgZoneOptions(options) {
   return {
@@ -24097,6 +25569,166 @@ var ZoneStablePendingTask = _ZoneStablePendingTask;
     args: [{ providedIn: "root" }]
   }], null, null);
 })();
+var CONSECUTIVE_MICROTASK_NOTIFICATION_LIMIT = 100;
+var consecutiveMicrotaskNotifications = 0;
+var stackFromLastFewNotifications = [];
+function trackMicrotaskNotificationForDebugging() {
+  consecutiveMicrotaskNotifications++;
+  if (CONSECUTIVE_MICROTASK_NOTIFICATION_LIMIT - consecutiveMicrotaskNotifications < 5) {
+    const stack = new Error().stack;
+    if (stack) {
+      stackFromLastFewNotifications.push(stack);
+    }
+  }
+  if (consecutiveMicrotaskNotifications === CONSECUTIVE_MICROTASK_NOTIFICATION_LIMIT) {
+    throw new RuntimeError(103, "Angular could not stabilize because there were endless change notifications within the browser event loop. The stack from the last several notifications: \n" + stackFromLastFewNotifications.join("\n"));
+  }
+}
+var _ChangeDetectionSchedulerImpl = class _ChangeDetectionSchedulerImpl {
+  constructor() {
+    this.appRef = inject(ApplicationRef);
+    this.taskService = inject(PendingTasks);
+    this.ngZone = inject(NgZone);
+    this.zonelessEnabled = inject(ZONELESS_ENABLED);
+    this.disableScheduling = inject(ZONELESS_SCHEDULER_DISABLED, { optional: true }) ?? false;
+    this.zoneIsDefined = typeof Zone !== "undefined" && !!Zone.root.run;
+    this.schedulerTickApplyArgs = [{ data: { "__scheduler_tick__": true } }];
+    this.subscriptions = new Subscription();
+    this.cancelScheduledCallback = null;
+    this.shouldRefreshViews = false;
+    this.useMicrotaskScheduler = false;
+    this.runningTick = false;
+    this.pendingRenderTaskId = null;
+    this.subscriptions.add(this.appRef.afterTick.subscribe(() => {
+      if (!this.runningTick) {
+        this.cleanup();
+      }
+    }));
+    this.subscriptions.add(this.ngZone.onUnstable.subscribe(() => {
+      if (!this.runningTick) {
+        this.cleanup();
+      }
+    }));
+    this.disableScheduling ||= !this.zonelessEnabled && // NoopNgZone without enabling zoneless means no scheduling whatsoever
+    (this.ngZone instanceof NoopNgZone || // The same goes for the lack of Zone without enabling zoneless scheduling
+    !this.zoneIsDefined);
+  }
+  notify(source) {
+    if (!this.zonelessEnabled && source === 5) {
+      return;
+    }
+    switch (source) {
+      case 3:
+      case 2:
+      case 0:
+      case 4:
+      case 5:
+      case 1: {
+        this.shouldRefreshViews = true;
+        break;
+      }
+      case 8:
+      case 7:
+      case 6:
+      case 9:
+      default: {
+      }
+    }
+    if (!this.shouldScheduleTick()) {
+      return;
+    }
+    if (typeof ngDevMode === "undefined" || ngDevMode) {
+      if (this.useMicrotaskScheduler) {
+        trackMicrotaskNotificationForDebugging();
+      } else {
+        consecutiveMicrotaskNotifications = 0;
+        stackFromLastFewNotifications.length = 0;
+      }
+    }
+    const scheduleCallback = this.useMicrotaskScheduler ? scheduleCallbackWithMicrotask : scheduleCallbackWithRafRace;
+    this.pendingRenderTaskId = this.taskService.add();
+    if (this.zoneIsDefined) {
+      Zone.root.run(() => {
+        this.cancelScheduledCallback = scheduleCallback(() => {
+          this.tick(this.shouldRefreshViews);
+        });
+      });
+    } else {
+      this.cancelScheduledCallback = scheduleCallback(() => {
+        this.tick(this.shouldRefreshViews);
+      });
+    }
+  }
+  shouldScheduleTick() {
+    if (this.disableScheduling) {
+      return false;
+    }
+    if (this.pendingRenderTaskId !== null || this.runningTick || this.appRef._runningTick) {
+      return false;
+    }
+    if (!this.zonelessEnabled && this.zoneIsDefined && NgZone.isInAngularZone()) {
+      return false;
+    }
+    return true;
+  }
+  /**
+   * Calls ApplicationRef._tick inside the `NgZone`.
+   *
+   * Calling `tick` directly runs change detection and cancels any change detection that had been
+   * scheduled previously.
+   *
+   * @param shouldRefreshViews Passed directly to `ApplicationRef._tick` and skips straight to
+   *     render hooks when `false`.
+   */
+  tick(shouldRefreshViews) {
+    if (this.runningTick || this.appRef.destroyed) {
+      return;
+    }
+    const task = this.taskService.add();
+    try {
+      this.ngZone.run(() => {
+        this.runningTick = true;
+        this.appRef._tick(shouldRefreshViews);
+      }, void 0, this.schedulerTickApplyArgs);
+    } catch (e) {
+      this.taskService.remove(task);
+      throw e;
+    } finally {
+      this.cleanup();
+    }
+    this.useMicrotaskScheduler = true;
+    scheduleCallbackWithMicrotask(() => {
+      this.useMicrotaskScheduler = false;
+      this.taskService.remove(task);
+    });
+  }
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+    this.cleanup();
+  }
+  cleanup() {
+    this.shouldRefreshViews = false;
+    this.runningTick = false;
+    this.cancelScheduledCallback?.();
+    this.cancelScheduledCallback = null;
+    if (this.pendingRenderTaskId !== null) {
+      const taskId = this.pendingRenderTaskId;
+      this.pendingRenderTaskId = null;
+      this.taskService.remove(taskId);
+    }
+  }
+};
+_ChangeDetectionSchedulerImpl.\u0275fac = function ChangeDetectionSchedulerImpl_Factory(t) {
+  return new (t || _ChangeDetectionSchedulerImpl)();
+};
+_ChangeDetectionSchedulerImpl.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _ChangeDetectionSchedulerImpl, factory: _ChangeDetectionSchedulerImpl.\u0275fac, providedIn: "root" });
+var ChangeDetectionSchedulerImpl = _ChangeDetectionSchedulerImpl;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ChangeDetectionSchedulerImpl, [{
+    type: Injectable,
+    args: [{ providedIn: "root" }]
+  }], () => [], null);
+})();
 function getGlobalLocale() {
   if (false) {
     return goog.LOCALE;
@@ -24141,9 +25773,21 @@ var _PlatformRef = class _PlatformRef {
       runCoalescing: options?.ngZoneRunCoalescing
     }));
     return ngZone.run(() => {
-      const moduleRef = createNgModuleRefWithProviders(moduleFactory.moduleType, this.injector, internalProvideZoneChangeDetection(() => ngZone));
-      if ((typeof ngDevMode === "undefined" || ngDevMode) && moduleRef.injector.get(PROVIDED_NG_ZONE, null) !== null) {
-        throw new RuntimeError(207, "`bootstrapModule` does not support `provideZoneChangeDetection`. Use `BootstrapOptions` instead.");
+      const ignoreChangesOutsideZone = options?.ignoreChangesOutsideZone;
+      const moduleRef = createNgModuleRefWithProviders(moduleFactory.moduleType, this.injector, [
+        ...internalProvideZoneChangeDetection({
+          ngZoneFactory: () => ngZone,
+          ignoreChangesOutsideZone
+        }),
+        { provide: ChangeDetectionScheduler, useExisting: ChangeDetectionSchedulerImpl }
+      ]);
+      if (typeof ngDevMode === "undefined" || ngDevMode) {
+        if (moduleRef.injector.get(PROVIDED_NG_ZONE)) {
+          throw new RuntimeError(207, "`bootstrapModule` does not support `provideZoneChangeDetection`. Use `BootstrapOptions` instead.");
+        }
+        if (moduleRef.injector.get(ZONELESS_ENABLED) && options?.ngZone !== "noop") {
+          throw new RuntimeError(408, "Invalid change detection configuration: `ngZone: 'noop'` must be set in `BootstrapOptions` with provideExperimentalZonelessChangeDetection.");
+        }
       }
       const exceptionHandler = moduleRef.injector.get(ErrorHandler, null);
       if ((typeof ngDevMode === "undefined" || ngDevMode) && exceptionHandler === null) {
@@ -24270,7 +25914,11 @@ function createPlatformFactory(parentPlatformFactory, name, providers = []) {
   return (extraProviders = []) => {
     let platform = getPlatform();
     if (!platform || platform.injector.get(ALLOW_MULTIPLE_PLATFORMS, false)) {
-      const platformProviders = [...providers, ...extraProviders, { provide: marker, useValue: true }];
+      const platformProviders = [
+        ...providers,
+        ...extraProviders,
+        { provide: marker, useValue: true }
+      ];
       if (parentPlatformFactory) {
         parentPlatformFactory(platformProviders);
       } else {
@@ -24316,6 +25964,9 @@ function createOrReusePlatformInjector(providers = []) {
 function runPlatformInitializers(injector) {
   const inits = injector.get(PLATFORM_INITIALIZER, null);
   inits?.forEach((init) => init());
+}
+function isDevMode() {
+  return typeof ngDevMode === "undefined" || !!ngDevMode;
 }
 function enableProdMode() {
   if (typeof ngDevMode === "undefined" || ngDevMode) {
@@ -25173,7 +26824,11 @@ var _IterableDiffers = class _IterableDiffers {
     }
   }
 };
-_IterableDiffers.\u0275prov = \u0275\u0275defineInjectable({ token: _IterableDiffers, providedIn: "root", factory: defaultIterableDiffersFactory });
+_IterableDiffers.\u0275prov = \u0275\u0275defineInjectable({
+  token: _IterableDiffers,
+  providedIn: "root",
+  factory: defaultIterableDiffersFactory
+});
 var IterableDiffers = _IterableDiffers;
 function getTypeNameForDebugging(type) {
   return type["name"] || typeof type;
@@ -25230,7 +26885,11 @@ var _KeyValueDiffers = class _KeyValueDiffers {
     throw new RuntimeError(901, ngDevMode && `Cannot find a differ supporting object '${kv}'`);
   }
 };
-_KeyValueDiffers.\u0275prov = \u0275\u0275defineInjectable({ token: _KeyValueDiffers, providedIn: "root", factory: defaultKeyValueDiffersFactory });
+_KeyValueDiffers.\u0275prov = \u0275\u0275defineInjectable({
+  token: _KeyValueDiffers,
+  providedIn: "root",
+  factory: defaultKeyValueDiffersFactory
+});
 var KeyValueDiffers = _KeyValueDiffers;
 var keyValDiff = [new DefaultKeyValueDifferFactory()];
 var iterableDiff = [new DefaultIterableDifferFactory()];
@@ -25368,10 +27027,10 @@ var ImagePerformanceWarning = _ImagePerformanceWarning;
   }], null, null);
 })();
 function logLazyLCPWarning(src) {
-  console.warn(formatRuntimeError(-913, `An image with src ${src} is the Largest Contentful Paint (LCP) element but was given a "loading" value of "lazy", which can negatively impact application loading performance. This warning can be addressed by changing the loading value of the LCP image to "eager", or by using the NgOptimizedImage directive's prioritization utilities. For more information about addressing or disabling this warning, see https://angular.io/errors/NG0913`));
+  console.warn(formatRuntimeError(-913, `An image with src ${src} is the Largest Contentful Paint (LCP) element but was given a "loading" value of "lazy", which can negatively impact application loading performance. This warning can be addressed by changing the loading value of the LCP image to "eager", or by using the NgOptimizedImage directive's prioritization utilities. For more information about addressing or disabling this warning, see https://angular.dev/errors/NG0913`));
 }
 function logOversizedImageWarning(src) {
-  console.warn(formatRuntimeError(-913, `An image with src ${src} has intrinsic file dimensions much larger than its rendered size. This can negatively impact application loading performance. For more information about addressing or disabling this warning, see https://angular.io/errors/NG0913`));
+  console.warn(formatRuntimeError(-913, `An image with src ${src} has intrinsic file dimensions much larger than its rendered size. This can negatively impact application loading performance. For more information about addressing or disabling this warning, see https://angular.dev/errors/NG0913`));
 }
 function internalCreateApplication(config2) {
   try {
@@ -25381,7 +27040,8 @@ function internalCreateApplication(config2) {
     }
     const platformInjector = createOrReusePlatformInjector(platformProviders);
     const allAppProviders = [
-      provideZoneChangeDetection(),
+      internalProvideZoneChangeDetection({}),
+      { provide: ChangeDetectionScheduler, useExisting: ChangeDetectionSchedulerImpl },
       ...appProviders || []
     ];
     const adapter = new EnvironmentNgModuleRefAdapter({
@@ -25397,8 +27057,13 @@ function internalCreateApplication(config2) {
     return ngZone.run(() => {
       envInjector.resolveInjectorInitializers();
       const exceptionHandler = envInjector.get(ErrorHandler, null);
-      if ((typeof ngDevMode === "undefined" || ngDevMode) && !exceptionHandler) {
-        throw new RuntimeError(402, "No `ErrorHandler` found in the Dependency Injection tree.");
+      if (typeof ngDevMode === "undefined" || ngDevMode) {
+        if (!exceptionHandler) {
+          throw new RuntimeError(402, "No `ErrorHandler` found in the Dependency Injection tree.");
+        }
+        if (envInjector.get(PROVIDED_ZONELESS) && envInjector.get(PROVIDED_NG_ZONE)) {
+          throw new RuntimeError(408, "Invalid change detection configuration: provideZoneChangeDetection and provideExperimentalZonelessChangeDetection cannot be used together.");
+        }
       }
       let onErrorSubscription;
       ngZone.runOutsideAngular(() => {
@@ -25437,72 +27102,31 @@ function internalCreateApplication(config2) {
     return Promise.reject(e);
   }
 }
-var _ChangeDetectionSchedulerImpl = class _ChangeDetectionSchedulerImpl {
-  constructor() {
-    this.appRef = inject(ApplicationRef);
-    this.taskService = inject(PendingTasks);
-    this.pendingRenderTaskId = null;
-    this.shouldRefreshViews = false;
+function setJSActionAttribute(nativeElement, eventTypes) {
+  if (!eventTypes.length) {
+    return;
   }
-  notify(type = 0) {
-    this.shouldRefreshViews ||= type === 0;
-    if (this.pendingRenderTaskId !== null) {
-      return;
+  const parts = eventTypes.reduce((prev, curr) => prev + curr + ":;", "");
+  const existingAttr = nativeElement.getAttribute(JSACTION$1);
+  nativeElement.setAttribute(JSACTION$1, `${existingAttr ?? ""}${parts}`);
+}
+var _GlobalEventDelegation = class _GlobalEventDelegation {
+  addEvent(el, eventName) {
+    if (this.eventContract) {
+      this.eventContract.addEvent(eventName);
+      setJSActionAttribute(el, [eventName]);
+      return true;
     }
-    this.pendingRenderTaskId = this.taskService.add();
-    this.raceTimeoutAndRequestAnimationFrame();
-  }
-  /**
-   * Run change detection after the first of setTimeout and requestAnimationFrame resolves.
-   *
-   * - `requestAnimationFrame` ensures that change detection runs ahead of a browser repaint.
-   * This ensures that the create and update passes of a change detection always happen
-   * in the same frame.
-   * - When the browser is resource-starved, `rAF` can execute _before_ a `setTimeout` because
-   * rendering is a very high priority process. This means that `setTimeout` cannot guarantee
-   * same-frame create and update pass, when `setTimeout` is used to schedule the update phase.
-   * - While `rAF` gives us the desirable same-frame updates, it has two limitations that
-   * prevent it from being used alone. First, it does not run in background tabs, which would
-   * prevent Angular from initializing an application when opened in a new tab (for example).
-   * Second, repeated calls to requestAnimationFrame will execute at the refresh rate of the
-   * hardware (~16ms for a 60Hz display). This would cause significant slowdown of tests that
-   * are written with several updates and asserts in the form of "update; await stable; assert;".
-   * - Both `setTimeout` and `rAF` are able to "coalesce" several events from a single user
-   * interaction into a single change detection. Importantly, this reduces view tree traversals when
-   * compared to an alternative timing mechanism like `queueMicrotask`, where change detection would
-   * then be interleaves between each event.
-   *
-   * By running change detection after the first of `setTimeout` and `rAF` to execute, we get the
-   * best of both worlds.
-   */
-  raceTimeoutAndRequestAnimationFrame() {
-    return __async(this, null, function* () {
-      const timeout = new Promise((resolve) => setTimeout(resolve));
-      const rAF = typeof _global["requestAnimationFrame"] === "function" ? new Promise((resolve) => requestAnimationFrame(() => resolve())) : null;
-      yield Promise.race([timeout, rAF]);
-      this.tick();
-    });
-  }
-  tick() {
-    try {
-      if (!this.appRef.destroyed) {
-        this.appRef._tick(this.shouldRefreshViews);
-      }
-    } finally {
-      this.shouldRefreshViews = false;
-      const taskId = this.pendingRenderTaskId;
-      this.pendingRenderTaskId = null;
-      this.taskService.remove(taskId);
-    }
+    return false;
   }
 };
-_ChangeDetectionSchedulerImpl.\u0275fac = function ChangeDetectionSchedulerImpl_Factory(t) {
-  return new (t || _ChangeDetectionSchedulerImpl)();
+_GlobalEventDelegation.\u0275fac = function GlobalEventDelegation_Factory(t) {
+  return new (t || _GlobalEventDelegation)();
 };
-_ChangeDetectionSchedulerImpl.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _ChangeDetectionSchedulerImpl, factory: _ChangeDetectionSchedulerImpl.\u0275fac, providedIn: "root" });
-var ChangeDetectionSchedulerImpl = _ChangeDetectionSchedulerImpl;
+_GlobalEventDelegation.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _GlobalEventDelegation, factory: _GlobalEventDelegation.\u0275fac, providedIn: "root" });
+var GlobalEventDelegation = _GlobalEventDelegation;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ChangeDetectionSchedulerImpl, [{
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(GlobalEventDelegation, [{
     type: Injectable,
     args: [{ providedIn: "root" }]
   }], null, null);
@@ -27379,8 +29003,7 @@ function parseNumber(num) {
     numStr = numStr.replace(DECIMAL_SEP, "");
   }
   if ((i = numStr.search(/e/i)) > 0) {
-    if (integerLen < 0)
-      integerLen = i;
+    if (integerLen < 0) integerLen = i;
     integerLen += +numStr.slice(i + 1);
     numStr = numStr.substring(0, i);
   } else if (integerLen < 0) {
@@ -27393,8 +29016,7 @@ function parseNumber(num) {
     integerLen = 1;
   } else {
     zeros--;
-    while (numStr.charAt(zeros) === ZERO_CHAR)
-      zeros--;
+    while (numStr.charAt(zeros) === ZERO_CHAR) zeros--;
     integerLen -= i;
     digits = [];
     for (j = 0; i <= zeros; i++, j++) {
@@ -27431,8 +29053,7 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
     parsedNumber.integerLen = 1;
     digits.length = Math.max(1, roundAt = fractionSize + 1);
     digits[0] = 0;
-    for (let i = 1; i < roundAt; i++)
-      digits[i] = 0;
+    for (let i = 1; i < roundAt; i++) digits[i] = 0;
   }
   if (digit >= 5) {
     if (roundAt - 1 < 0) {
@@ -27446,8 +29067,7 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
       digits[roundAt - 1]++;
     }
   }
-  for (; fractionLen < Math.max(0, fractionSize); fractionLen++)
-    digits.push(0);
+  for (; fractionLen < Math.max(0, fractionSize); fractionLen++) digits.push(0);
   let dropTrailingZeros = fractionSize !== 0;
   const minLen = minFrac + parsedNumber.integerLen;
   const carry = digits.reduceRight(function(carry2, d, i, digits2) {
@@ -27680,7 +29300,7 @@ _NgClass.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
   type: _NgClass,
   selectors: [["", "ngClass", ""]],
   inputs: {
-    klass: [InputFlags.None, "class", "klass"],
+    klass: [0, "class", "klass"],
     ngClass: "ngClass"
   },
   standalone: true
@@ -27848,7 +29468,7 @@ var NgForOfContext = class {
 var _NgForOf = class _NgForOf {
   /**
    * The value of the iterable expression, which can be used as a
-   * [template input variable](guide/structural-directives#shorthand).
+   * [template input variable](guide/directives/structural-directives#shorthand).
    */
   set ngForOf(ngForOf) {
     this._ngForOf = ngForOf;
@@ -27891,7 +29511,7 @@ var _NgForOf = class _NgForOf {
   }
   /**
    * A reference to the template that is stamped out for each item in the iterable.
-   * @see [template reference variable](guide/template-reference-variables)
+   * @see [template reference variable](guide/templates/reference-variables)
    */
   set ngForTemplate(value) {
     if (value) {
@@ -27924,8 +29544,7 @@ var _NgForOf = class _NgForOf {
     }
     if (this._differ) {
       const changes = this._differ.diff(this._ngForOf);
-      if (changes)
-        this._applyChanges(changes);
+      if (changes) this._applyChanges(changes);
     }
   }
   _applyChanges(changes) {
@@ -28329,8 +29948,7 @@ var _NgPlural = class _NgPlural {
     this._activateView(this._caseViews[key]);
   }
   _clearViews() {
-    if (this._activeView)
-      this._activeView.destroy();
+    if (this._activeView) this._activeView.destroy();
   }
   _activateView(view) {
     if (view) {
@@ -28392,7 +30010,7 @@ var NgPluralCase = _NgPluralCase;
   }], () => [{
     type: void 0,
     decorators: [{
-      type: Attribute,
+      type: Attribute2,
       args: ["ngPluralCase"]
     }]
   }, {
@@ -28679,8 +30297,7 @@ var AsyncPipe = _AsyncPipe;
 })();
 var _LowerCasePipe = class _LowerCasePipe {
   transform(value) {
-    if (value == null)
-      return null;
+    if (value == null) return null;
     if (typeof value !== "string") {
       throw invalidPipeArgumentError(_LowerCasePipe, value);
     }
@@ -28709,8 +30326,7 @@ var LowerCasePipe = _LowerCasePipe;
 var unicodeWordMatch = /(?:[0-9A-Za-z\xAA\xB5\xBA\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0370-\u0374\u0376\u0377\u037A-\u037D\u037F\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u052F\u0531-\u0556\u0559\u0560-\u0588\u05D0-\u05EA\u05EF-\u05F2\u0620-\u064A\u066E\u066F\u0671-\u06D3\u06D5\u06E5\u06E6\u06EE\u06EF\u06FA-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u07A5\u07B1\u07CA-\u07EA\u07F4\u07F5\u07FA\u0800-\u0815\u081A\u0824\u0828\u0840-\u0858\u0860-\u086A\u0870-\u0887\u0889-\u088E\u08A0-\u08C9\u0904-\u0939\u093D\u0950\u0958-\u0961\u0971-\u0980\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BD\u09CE\u09DC\u09DD\u09DF-\u09E1\u09F0\u09F1\u09FC\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A59-\u0A5C\u0A5E\u0A72-\u0A74\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABD\u0AD0\u0AE0\u0AE1\u0AF9\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3D\u0B5C\u0B5D\u0B5F-\u0B61\u0B71\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BD0\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C39\u0C3D\u0C58-\u0C5A\u0C5D\u0C60\u0C61\u0C80\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBD\u0CDD\u0CDE\u0CE0\u0CE1\u0CF1\u0CF2\u0D04-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D\u0D4E\u0D54-\u0D56\u0D5F-\u0D61\u0D7A-\u0D7F\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0E01-\u0E30\u0E32\u0E33\u0E40-\u0E46\u0E81\u0E82\u0E84\u0E86-\u0E8A\u0E8C-\u0EA3\u0EA5\u0EA7-\u0EB0\u0EB2\u0EB3\u0EBD\u0EC0-\u0EC4\u0EC6\u0EDC-\u0EDF\u0F00\u0F40-\u0F47\u0F49-\u0F6C\u0F88-\u0F8C\u1000-\u102A\u103F\u1050-\u1055\u105A-\u105D\u1061\u1065\u1066\u106E-\u1070\u1075-\u1081\u108E\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u1380-\u138F\u13A0-\u13F5\u13F8-\u13FD\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u16F1-\u16F8\u1700-\u1711\u171F-\u1731\u1740-\u1751\u1760-\u176C\u176E-\u1770\u1780-\u17B3\u17D7\u17DC\u1820-\u1878\u1880-\u1884\u1887-\u18A8\u18AA\u18B0-\u18F5\u1900-\u191E\u1950-\u196D\u1970-\u1974\u1980-\u19AB\u19B0-\u19C9\u1A00-\u1A16\u1A20-\u1A54\u1AA7\u1B05-\u1B33\u1B45-\u1B4C\u1B83-\u1BA0\u1BAE\u1BAF\u1BBA-\u1BE5\u1C00-\u1C23\u1C4D-\u1C4F\u1C5A-\u1C7D\u1C80-\u1C88\u1C90-\u1CBA\u1CBD-\u1CBF\u1CE9-\u1CEC\u1CEE-\u1CF3\u1CF5\u1CF6\u1CFA\u1D00-\u1DBF\u1E00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2071\u207F\u2090-\u209C\u2102\u2107\u210A-\u2113\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u212F-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2183\u2184\u2C00-\u2CE4\u2CEB-\u2CEE\u2CF2\u2CF3\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D80-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2E2F\u3005\u3006\u3031-\u3035\u303B\u303C\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312F\u3131-\u318E\u31A0-\u31BF\u31F0-\u31FF\u3400-\u4DBF\u4E00-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA61F\uA62A\uA62B\uA640-\uA66E\uA67F-\uA69D\uA6A0-\uA6E5\uA717-\uA71F\uA722-\uA788\uA78B-\uA7CA\uA7D0\uA7D1\uA7D3\uA7D5-\uA7D9\uA7F2-\uA801\uA803-\uA805\uA807-\uA80A\uA80C-\uA822\uA840-\uA873\uA882-\uA8B3\uA8F2-\uA8F7\uA8FB\uA8FD\uA8FE\uA90A-\uA925\uA930-\uA946\uA960-\uA97C\uA984-\uA9B2\uA9CF\uA9E0-\uA9E4\uA9E6-\uA9EF\uA9FA-\uA9FE\uAA00-\uAA28\uAA40-\uAA42\uAA44-\uAA4B\uAA60-\uAA76\uAA7A\uAA7E-\uAAAF\uAAB1\uAAB5\uAAB6\uAAB9-\uAABD\uAAC0\uAAC2\uAADB-\uAADD\uAAE0-\uAAEA\uAAF2-\uAAF4\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uAB30-\uAB5A\uAB5C-\uAB69\uAB70-\uABE2\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D\uFB1F-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE70-\uFE74\uFE76-\uFEFC\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC]|\uD800[\uDC00-\uDC0B\uDC0D-\uDC26\uDC28-\uDC3A\uDC3C\uDC3D\uDC3F-\uDC4D\uDC50-\uDC5D\uDC80-\uDCFA\uDE80-\uDE9C\uDEA0-\uDED0\uDF00-\uDF1F\uDF2D-\uDF40\uDF42-\uDF49\uDF50-\uDF75\uDF80-\uDF9D\uDFA0-\uDFC3\uDFC8-\uDFCF]|\uD801[\uDC00-\uDC9D\uDCB0-\uDCD3\uDCD8-\uDCFB\uDD00-\uDD27\uDD30-\uDD63\uDD70-\uDD7A\uDD7C-\uDD8A\uDD8C-\uDD92\uDD94\uDD95\uDD97-\uDDA1\uDDA3-\uDDB1\uDDB3-\uDDB9\uDDBB\uDDBC\uDE00-\uDF36\uDF40-\uDF55\uDF60-\uDF67\uDF80-\uDF85\uDF87-\uDFB0\uDFB2-\uDFBA]|\uD802[\uDC00-\uDC05\uDC08\uDC0A-\uDC35\uDC37\uDC38\uDC3C\uDC3F-\uDC55\uDC60-\uDC76\uDC80-\uDC9E\uDCE0-\uDCF2\uDCF4\uDCF5\uDD00-\uDD15\uDD20-\uDD39\uDD80-\uDDB7\uDDBE\uDDBF\uDE00\uDE10-\uDE13\uDE15-\uDE17\uDE19-\uDE35\uDE60-\uDE7C\uDE80-\uDE9C\uDEC0-\uDEC7\uDEC9-\uDEE4\uDF00-\uDF35\uDF40-\uDF55\uDF60-\uDF72\uDF80-\uDF91]|\uD803[\uDC00-\uDC48\uDC80-\uDCB2\uDCC0-\uDCF2\uDD00-\uDD23\uDE80-\uDEA9\uDEB0\uDEB1\uDF00-\uDF1C\uDF27\uDF30-\uDF45\uDF70-\uDF81\uDFB0-\uDFC4\uDFE0-\uDFF6]|\uD804[\uDC03-\uDC37\uDC71\uDC72\uDC75\uDC83-\uDCAF\uDCD0-\uDCE8\uDD03-\uDD26\uDD44\uDD47\uDD50-\uDD72\uDD76\uDD83-\uDDB2\uDDC1-\uDDC4\uDDDA\uDDDC\uDE00-\uDE11\uDE13-\uDE2B\uDE80-\uDE86\uDE88\uDE8A-\uDE8D\uDE8F-\uDE9D\uDE9F-\uDEA8\uDEB0-\uDEDE\uDF05-\uDF0C\uDF0F\uDF10\uDF13-\uDF28\uDF2A-\uDF30\uDF32\uDF33\uDF35-\uDF39\uDF3D\uDF50\uDF5D-\uDF61]|\uD805[\uDC00-\uDC34\uDC47-\uDC4A\uDC5F-\uDC61\uDC80-\uDCAF\uDCC4\uDCC5\uDCC7\uDD80-\uDDAE\uDDD8-\uDDDB\uDE00-\uDE2F\uDE44\uDE80-\uDEAA\uDEB8\uDF00-\uDF1A\uDF40-\uDF46]|\uD806[\uDC00-\uDC2B\uDCA0-\uDCDF\uDCFF-\uDD06\uDD09\uDD0C-\uDD13\uDD15\uDD16\uDD18-\uDD2F\uDD3F\uDD41\uDDA0-\uDDA7\uDDAA-\uDDD0\uDDE1\uDDE3\uDE00\uDE0B-\uDE32\uDE3A\uDE50\uDE5C-\uDE89\uDE9D\uDEB0-\uDEF8]|\uD807[\uDC00-\uDC08\uDC0A-\uDC2E\uDC40\uDC72-\uDC8F\uDD00-\uDD06\uDD08\uDD09\uDD0B-\uDD30\uDD46\uDD60-\uDD65\uDD67\uDD68\uDD6A-\uDD89\uDD98\uDEE0-\uDEF2\uDFB0]|\uD808[\uDC00-\uDF99]|\uD809[\uDC80-\uDD43]|\uD80B[\uDF90-\uDFF0]|[\uD80C\uD81C-\uD820\uD822\uD840-\uD868\uD86A-\uD86C\uD86F-\uD872\uD874-\uD879\uD880-\uD883][\uDC00-\uDFFF]|\uD80D[\uDC00-\uDC2E]|\uD811[\uDC00-\uDE46]|\uD81A[\uDC00-\uDE38\uDE40-\uDE5E\uDE70-\uDEBE\uDED0-\uDEED\uDF00-\uDF2F\uDF40-\uDF43\uDF63-\uDF77\uDF7D-\uDF8F]|\uD81B[\uDE40-\uDE7F\uDF00-\uDF4A\uDF50\uDF93-\uDF9F\uDFE0\uDFE1\uDFE3]|\uD821[\uDC00-\uDFF7]|\uD823[\uDC00-\uDCD5\uDD00-\uDD08]|\uD82B[\uDFF0-\uDFF3\uDFF5-\uDFFB\uDFFD\uDFFE]|\uD82C[\uDC00-\uDD22\uDD50-\uDD52\uDD64-\uDD67\uDD70-\uDEFB]|\uD82F[\uDC00-\uDC6A\uDC70-\uDC7C\uDC80-\uDC88\uDC90-\uDC99]|\uD835[\uDC00-\uDC54\uDC56-\uDC9C\uDC9E\uDC9F\uDCA2\uDCA5\uDCA6\uDCA9-\uDCAC\uDCAE-\uDCB9\uDCBB\uDCBD-\uDCC3\uDCC5-\uDD05\uDD07-\uDD0A\uDD0D-\uDD14\uDD16-\uDD1C\uDD1E-\uDD39\uDD3B-\uDD3E\uDD40-\uDD44\uDD46\uDD4A-\uDD50\uDD52-\uDEA5\uDEA8-\uDEC0\uDEC2-\uDEDA\uDEDC-\uDEFA\uDEFC-\uDF14\uDF16-\uDF34\uDF36-\uDF4E\uDF50-\uDF6E\uDF70-\uDF88\uDF8A-\uDFA8\uDFAA-\uDFC2\uDFC4-\uDFCB]|\uD837[\uDF00-\uDF1E]|\uD838[\uDD00-\uDD2C\uDD37-\uDD3D\uDD4E\uDE90-\uDEAD\uDEC0-\uDEEB]|\uD839[\uDFE0-\uDFE6\uDFE8-\uDFEB\uDFED\uDFEE\uDFF0-\uDFFE]|\uD83A[\uDC00-\uDCC4\uDD00-\uDD43\uDD4B]|\uD83B[\uDE00-\uDE03\uDE05-\uDE1F\uDE21\uDE22\uDE24\uDE27\uDE29-\uDE32\uDE34-\uDE37\uDE39\uDE3B\uDE42\uDE47\uDE49\uDE4B\uDE4D-\uDE4F\uDE51\uDE52\uDE54\uDE57\uDE59\uDE5B\uDE5D\uDE5F\uDE61\uDE62\uDE64\uDE67-\uDE6A\uDE6C-\uDE72\uDE74-\uDE77\uDE79-\uDE7C\uDE7E\uDE80-\uDE89\uDE8B-\uDE9B\uDEA1-\uDEA3\uDEA5-\uDEA9\uDEAB-\uDEBB]|\uD869[\uDC00-\uDEDF\uDF00-\uDFFF]|\uD86D[\uDC00-\uDF38\uDF40-\uDFFF]|\uD86E[\uDC00-\uDC1D\uDC20-\uDFFF]|\uD873[\uDC00-\uDEA1\uDEB0-\uDFFF]|\uD87A[\uDC00-\uDFE0]|\uD87E[\uDC00-\uDE1D]|\uD884[\uDC00-\uDF4A])\S*/g;
 var _TitleCasePipe = class _TitleCasePipe {
   transform(value) {
-    if (value == null)
-      return null;
+    if (value == null) return null;
     if (typeof value !== "string") {
       throw invalidPipeArgumentError(_TitleCasePipe, value);
     }
@@ -28738,8 +30354,7 @@ var TitleCasePipe = _TitleCasePipe;
 })();
 var _UpperCasePipe = class _UpperCasePipe {
   transform(value) {
-    if (value == null)
-      return null;
+    if (value == null) return null;
     if (typeof value !== "string") {
       throw invalidPipeArgumentError(_UpperCasePipe, value);
     }
@@ -28775,8 +30390,7 @@ var _DatePipe = class _DatePipe {
     this.defaultOptions = defaultOptions;
   }
   transform(value, format, timezone, locale) {
-    if (value == null || value === "" || value !== value)
-      return null;
+    if (value == null || value === "" || value !== value) return null;
     try {
       const _format = format ?? this.defaultOptions?.dateFormat ?? DEFAULT_DATE_FORMAT;
       const _timezone = timezone ?? this.defaultOptions?.timezone ?? this.defaultTimezone ?? void 0;
@@ -28840,8 +30454,7 @@ var _I18nPluralPipe = class _I18nPluralPipe {
    * default).
    */
   transform(value, pluralMap, locale) {
-    if (value == null)
-      return "";
+    if (value == null) return "";
     if (typeof pluralMap !== "object" || pluralMap === null) {
       throw invalidPipeArgumentError(_I18nPluralPipe, pluralMap);
     }
@@ -28877,8 +30490,7 @@ var _I18nSelectPipe = class _I18nSelectPipe {
    * for different values of the provided `value`.
    */
   transform(value, mapping) {
-    if (value == null)
-      return "";
+    if (value == null) return "";
     if (typeof mapping !== "object" || typeof value !== "string") {
       throw invalidPipeArgumentError(_I18nSelectPipe, mapping);
     }
@@ -28995,16 +30607,11 @@ var KeyValuePipe = _KeyValuePipe;
 function defaultComparator(keyValueA, keyValueB) {
   const a = keyValueA.key;
   const b = keyValueB.key;
-  if (a === b)
-    return 0;
-  if (a === void 0)
-    return 1;
-  if (b === void 0)
-    return -1;
-  if (a === null)
-    return 1;
-  if (b === null)
-    return -1;
+  if (a === b) return 0;
+  if (a === void 0) return 1;
+  if (b === void 0) return -1;
+  if (a === null) return 1;
+  if (b === null) return -1;
   if (typeof a == "string" && typeof b == "string") {
     return a < b ? -1 : 1;
   }
@@ -29030,8 +30637,7 @@ var _DecimalPipe = class _DecimalPipe {
    * [See more](#locale).
    */
   transform(value, digitsInfo, locale) {
-    if (!isValue(value))
-      return null;
+    if (!isValue(value)) return null;
     locale ||= this._locale;
     try {
       const num = strToNumber(value);
@@ -29084,11 +30690,10 @@ var _PercentPipe = class _PercentPipe {
    * Default is `0`.
    * @param locale A locale code for the locale format rules to use.
    * When not supplied, uses the value of `LOCALE_ID`, which is `en-US` by default.
-   * See [Setting your app locale](guide/i18n-common-locale-id).
+   * See [Setting your app locale](guide/i18n/locale-id).
    */
   transform(value, digitsInfo, locale) {
-    if (!isValue(value))
-      return null;
+    if (!isValue(value)) return null;
     locale ||= this._locale;
     try {
       const num = strToNumber(value);
@@ -29159,11 +30764,10 @@ var _CurrencyPipe = class _CurrencyPipe {
    * For example, the Canadian dollar has 2 digits, whereas the Chilean peso has none.
    * @param locale A locale code for the locale format rules to use.
    * When not supplied, uses the value of `LOCALE_ID`, which is `en-US` by default.
-   * See [Setting your app locale](guide/i18n-common-locale-id).
+   * See [Setting your app locale](guide/i18n/locale-id).
    */
   transform(value, currencyCode = this._defaultCurrencyCode, display = "symbol", digitsInfo, locale) {
-    if (!isValue(value))
-      return null;
+    if (!isValue(value)) return null;
     locale ||= this._locale;
     if (typeof display === "boolean") {
       if ((typeof ngDevMode === "undefined" || ngDevMode) && console && console.warn) {
@@ -29232,8 +30836,7 @@ function strToNumber(value) {
 }
 var _SlicePipe = class _SlicePipe {
   transform(value, start, end) {
-    if (value == null)
-      return null;
+    if (value == null) return null;
     if (!this.supports(value)) {
       throw invalidPipeArgumentError(_SlicePipe, value);
     }
@@ -29291,7 +30894,7 @@ function isPlatformBrowser2(platformId) {
 function isPlatformServer(platformId) {
   return platformId === PLATFORM_SERVER_ID;
 }
-var VERSION2 = new Version("17.3.10");
+var VERSION2 = new Version("18.0.3");
 var _ViewportScroller = class _ViewportScroller {
 };
 _ViewportScroller.\u0275prov = \u0275\u0275defineInjectable({
@@ -29591,15 +31194,12 @@ var _LCPImageObserver = class _LCPImageObserver {
   initPerformanceObserver() {
     const observer = new PerformanceObserver((entryList) => {
       const entries = entryList.getEntries();
-      if (entries.length === 0)
-        return;
+      if (entries.length === 0) return;
       const lcpElement = entries[entries.length - 1];
       const imgSrc = lcpElement.element?.src ?? "";
-      if (imgSrc.startsWith("data:") || imgSrc.startsWith("blob:"))
-        return;
+      if (imgSrc.startsWith("data:") || imgSrc.startsWith("blob:")) return;
       const img = this.images.get(imgSrc);
-      if (!img)
-        return;
+      if (!img) return;
       if (!img.priority && !img.alreadyWarnedPriority) {
         img.alreadyWarnedPriority = true;
         logMissingPriorityError(imgSrc);
@@ -29616,8 +31216,7 @@ var _LCPImageObserver = class _LCPImageObserver {
     return observer;
   }
   registerImage(rewrittenSrc, originalNgSrc, isPriority) {
-    if (!this.observer)
-      return;
+    if (!this.observer) return;
     const newObservedImageState = {
       priority: isPriority,
       modified: false,
@@ -29627,8 +31226,7 @@ var _LCPImageObserver = class _LCPImageObserver {
     this.images.set(getUrl(rewrittenSrc, this.window).href, newObservedImageState);
   }
   unregisterImage(rewrittenSrc) {
-    if (!this.observer)
-      return;
+    if (!this.observer) return;
     this.images.delete(getUrl(rewrittenSrc, this.window).href);
   }
   updateImage(originalSrc, newSrc) {
@@ -29641,8 +31239,7 @@ var _LCPImageObserver = class _LCPImageObserver {
     }
   }
   ngOnDestroy() {
-    if (!this.observer)
-      return;
+    if (!this.observer) return;
     this.observer.disconnect();
     this.images.clear();
   }
@@ -29710,11 +31307,9 @@ var _PreconnectLinkChecker = class _PreconnectLinkChecker {
    * @param originalNgSrc ngSrc value
    */
   assertPreconnect(rewrittenSrc, originalNgSrc) {
-    if (!this.window)
-      return;
+    if (!this.window) return;
     const imgUrl = getUrl(rewrittenSrc, this.window);
-    if (this.blocklist.has(imgUrl.hostname) || this.alreadySeen.has(imgUrl.origin))
-      return;
+    if (this.blocklist.has(imgUrl.hostname) || this.alreadySeen.has(imgUrl.origin)) return;
     this.alreadySeen.add(imgUrl.origin);
     this.preconnectLinks ??= this.queryPreconnectLinks();
     if (!this.preconnectLinks.has(imgUrl.origin)) {
@@ -30096,17 +31691,17 @@ _NgOptimizedImage.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
     }
   },
   inputs: {
-    ngSrc: [InputFlags.HasDecoratorInputTransform, "ngSrc", "ngSrc", unwrapSafeUrl],
+    ngSrc: [2, "ngSrc", "ngSrc", unwrapSafeUrl],
     ngSrcset: "ngSrcset",
     sizes: "sizes",
-    width: [InputFlags.HasDecoratorInputTransform, "width", "width", numberAttribute],
-    height: [InputFlags.HasDecoratorInputTransform, "height", "height", numberAttribute],
+    width: [2, "width", "width", numberAttribute],
+    height: [2, "height", "height", numberAttribute],
     loading: "loading",
-    priority: [InputFlags.HasDecoratorInputTransform, "priority", "priority", booleanAttribute],
+    priority: [2, "priority", "priority", booleanAttribute],
     loaderParams: "loaderParams",
-    disableOptimizedSrcset: [InputFlags.HasDecoratorInputTransform, "disableOptimizedSrcset", "disableOptimizedSrcset", booleanAttribute],
-    fill: [InputFlags.HasDecoratorInputTransform, "fill", "fill", booleanAttribute],
-    placeholder: [InputFlags.HasDecoratorInputTransform, "placeholder", "placeholder", booleanOrDataUrlAttribute],
+    disableOptimizedSrcset: [2, "disableOptimizedSrcset", "disableOptimizedSrcset", booleanAttribute],
+    fill: [2, "fill", "fill", booleanAttribute],
+    placeholder: [2, "placeholder", "placeholder", booleanOrDataUrlAttribute],
     placeholderConfig: "placeholderConfig",
     src: "src",
     srcset: "srcset"
@@ -30271,8 +31866,7 @@ function assertNonEmptyInput(dir, name, value) {
   }
 }
 function assertValidNgSrcset(dir, value) {
-  if (value == null)
-    return;
+  if (value == null) return;
   assertNonEmptyInput(dir, "ngSrcset", value);
   const stringVal = value;
   const isValidWidthDescriptor = VALID_WIDTH_DESCRIPTOR_SRCSET.test(stringVal);
@@ -30377,10 +31971,8 @@ Note: Recommended intrinsic image size is calculated assuming a maximum DPR of $
 }
 function assertNonEmptyWidthAndHeight(dir) {
   let missingAttributes = [];
-  if (dir.width === void 0)
-    missingAttributes.push("width");
-  if (dir.height === void 0)
-    missingAttributes.push("height");
+  if (dir.width === void 0) missingAttributes.push("width");
+  if (dir.height === void 0) missingAttributes.push("height");
   if (missingAttributes.length > 0) {
     throw new RuntimeError(2954, `${imgDirectiveDetails(dir.ngSrc)} these required attributes are missing: ${missingAttributes.map((attr) => `"${attr}"`).join(", ")}. Including "width" and "height" attributes will prevent image-related layout shifts. To fix this, include "width" and "height" attributes on the image tag or turn on "fill" mode with the \`fill\` attribute.`);
   }
@@ -31152,7 +32744,7 @@ var HttpResponseBase = class {
    * The single parameter accepted is an initialization hash. Any properties
    * of the response passed there will override the default values.
    */
-  constructor(init, defaultStatus = HttpStatusCode.Ok, defaultStatusText = "OK") {
+  constructor(init, defaultStatus = 200, defaultStatusText = "OK") {
     this.headers = init.headers || new HttpHeaders();
     this.status = init.status !== void 0 ? init.status : defaultStatus;
     this.statusText = init.statusText || defaultStatusText;
@@ -31213,6 +32805,8 @@ var HttpErrorResponse = class extends HttpResponseBase {
     this.error = init.error || null;
   }
 };
+var HTTP_STATUS_CODE_OK = 200;
+var HTTP_STATUS_CODE_NO_CONTENT = 204;
 var HttpStatusCode;
 (function(HttpStatusCode2) {
   HttpStatusCode2[HttpStatusCode2["Continue"] = 100] = "Continue";
@@ -31610,7 +33204,7 @@ var _FetchBackend = class _FetchBackend {
         }
       }
       if (status === 0) {
-        status = body ? HttpStatusCode.Ok : 0;
+        status = body ? HTTP_STATUS_CODE_OK : 0;
       }
       const ok = status >= 200 && status < 300;
       if (ok) {
@@ -31710,7 +33304,10 @@ function chainedInterceptorFn(chainTailFn, interceptorFn, injector) {
 var HTTP_INTERCEPTORS = new InjectionToken(ngDevMode ? "HTTP_INTERCEPTORS" : "");
 var HTTP_INTERCEPTOR_FNS = new InjectionToken(ngDevMode ? "HTTP_INTERCEPTOR_FNS" : "");
 var HTTP_ROOT_INTERCEPTOR_FNS = new InjectionToken(ngDevMode ? "HTTP_ROOT_INTERCEPTOR_FNS" : "");
-var PRIMARY_HTTP_BACKEND = new InjectionToken(ngDevMode ? "PRIMARY_HTTP_BACKEND" : "");
+var REQUESTS_CONTRIBUTE_TO_STABILITY = new InjectionToken(ngDevMode ? "REQUESTS_CONTRIBUTE_TO_STABILITY" : "", {
+  providedIn: "root",
+  factory: () => true
+});
 function legacyInterceptorFnFactory() {
   let chain = null;
   return (req, handler) => {
@@ -31721,8 +33318,13 @@ function legacyInterceptorFnFactory() {
       chain = interceptors.reduceRight(adaptLegacyInterceptorToChain, interceptorChainEndFn);
     }
     const pendingTasks = inject(PendingTasks);
-    const taskId = pendingTasks.add();
-    return chain(req, handler).pipe(finalize(() => pendingTasks.remove(taskId)));
+    const contributeToStability = inject(REQUESTS_CONTRIBUTE_TO_STABILITY);
+    if (contributeToStability) {
+      const taskId = pendingTasks.add();
+      return chain(req, handler).pipe(finalize(() => pendingTasks.remove(taskId)));
+    } else {
+      return chain(req, handler);
+    }
   };
 }
 var fetchBackendWarningDisplayed = false;
@@ -31733,10 +33335,7 @@ var _HttpInterceptorHandler = class _HttpInterceptorHandler extends HttpHandler 
     this.injector = injector;
     this.chain = null;
     this.pendingTasks = inject(PendingTasks);
-    const primaryHttpBackend = inject(PRIMARY_HTTP_BACKEND, {
-      optional: true
-    });
-    this.backend = primaryHttpBackend ?? backend;
+    this.contributeToStability = inject(REQUESTS_CONTRIBUTE_TO_STABILITY);
     if ((typeof ngDevMode === "undefined" || ngDevMode) && !fetchBackendWarningDisplayed) {
       const isServer = isPlatformServer(injector.get(PLATFORM_ID));
       if (isServer && !(this.backend instanceof FetchBackend)) {
@@ -31750,8 +33349,12 @@ var _HttpInterceptorHandler = class _HttpInterceptorHandler extends HttpHandler 
       const dedupedInterceptorFns = Array.from(/* @__PURE__ */ new Set([...this.injector.get(HTTP_INTERCEPTOR_FNS), ...this.injector.get(HTTP_ROOT_INTERCEPTOR_FNS, [])]));
       this.chain = dedupedInterceptorFns.reduceRight((nextSequencedFn, interceptorFn) => chainedInterceptorFn(nextSequencedFn, interceptorFn, this.injector), interceptorChainEndFn);
     }
-    const taskId = this.pendingTasks.add();
-    return this.chain(initialRequest, (downstreamRequest) => this.backend.handle(downstreamRequest)).pipe(finalize(() => this.pendingTasks.remove(taskId)));
+    if (this.contributeToStability) {
+      const taskId = this.pendingTasks.add();
+      return this.chain(initialRequest, (downstreamRequest) => this.backend.handle(downstreamRequest)).pipe(finalize(() => this.pendingTasks.remove(taskId)));
+    } else {
+      return this.chain(initialRequest, (downstreamRequest) => this.backend.handle(downstreamRequest));
+    }
   }
 };
 _HttpInterceptorHandler.\u0275fac = function HttpInterceptorHandler_Factory(t) {
@@ -31844,7 +33447,7 @@ var _JsonpClientBackend = class _JsonpClientBackend {
           }
           observer.next(new HttpResponse({
             body,
-            status: HttpStatusCode.Ok,
+            status: HTTP_STATUS_CODE_OK,
             statusText: "OK",
             url
           }));
@@ -32007,11 +33610,11 @@ var _HttpXhrBackend = class _HttpXhrBackend {
             url
           } = partialFromXhr();
           let body = null;
-          if (status !== HttpStatusCode.NoContent) {
+          if (status !== HTTP_STATUS_CODE_NO_CONTENT) {
             body = typeof xhr.response === "undefined" ? xhr.responseText : xhr.response;
           }
           if (status === 0) {
-            status = !!body ? HttpStatusCode.Ok : 0;
+            status = !!body ? HTTP_STATUS_CODE_OK : 0;
           }
           let ok = status >= 200 && status < 300;
           if (req.responseType === "json" && typeof body === "string") {
@@ -32269,7 +33872,11 @@ function provideHttpClient(...features) {
     useExisting: HttpInterceptorHandler
   }, {
     provide: HttpBackend,
-    useExisting: HttpXhrBackend
+    useFactory: () => {
+      return inject(FetchBackend, {
+        optional: true
+      }) ?? inject(HttpXhrBackend);
+    }
   }, {
     provide: HTTP_INTERCEPTOR_FNS,
     useValue: xsrfInterceptorFn,
@@ -32427,7 +34034,7 @@ var HttpClientModule = _HttpClientModule;
     type: NgModule,
     args: [{
       /**
-       * Configures the [dependency injector](guide/glossary#injector) where it is imported
+       * Configures the dependency injector where it is imported
        * with supporting services for HTTP communications.
        */
       providers: [provideHttpClient(withInterceptorsFromDi())]
@@ -32454,6 +34061,7 @@ var HttpClientJsonpModule = _HttpClientJsonpModule;
     }]
   }], null, null);
 })();
+var HTTP_TRANSFER_CACHE_ORIGIN_MAP = new InjectionToken(ngDevMode ? "HTTP_TRANSFER_CACHE_ORIGIN_MAP" : "");
 var CACHE_OPTIONS = new InjectionToken(ngDevMode ? "HTTP_TRANSFER_STATE_CACHE_OPTIONS" : "");
 
 // node_modules/@angular/platform-browser/fesm2022/platform-browser.mjs
@@ -32844,7 +34452,7 @@ var NAMESPACE_URIS = {
   "xlink": "http://www.w3.org/1999/xlink",
   "xml": "http://www.w3.org/XML/1998/namespace",
   "xmlns": "http://www.w3.org/2000/xmlns/",
-  "math": "http://www.w3.org/1998/MathML/"
+  "math": "http://www.w3.org/1998/Math/MathML"
 };
 var COMPONENT_REGEX = /%COMP%/g;
 var COMPONENT_VARIABLE = "%COMP%";
@@ -33332,8 +34940,7 @@ var _KeyEventsPlugin = class _KeyEventsPlugin extends EventManagerPlugin {
       keycode = event.code;
       key = "code.";
     }
-    if (keycode == null || !keycode)
-      return false;
+    if (keycode == null || !keycode) return false;
     keycode = keycode.toLowerCase();
     if (keycode === " ") {
       keycode = "space";
@@ -33538,8 +35145,7 @@ var _Meta = class _Meta {
    * the new element if no match is found, or `null` if the tag parameter is not defined.
    */
   addTag(tag, forceCreation = false) {
-    if (!tag)
-      return null;
+    if (!tag) return null;
     return this._getOrCreateElement(tag, forceCreation);
   }
   /**
@@ -33551,8 +35157,7 @@ var _Meta = class _Meta {
    * @returns The matching elements if found, or the new elements.
    */
   addTags(tags, forceCreation = false) {
-    if (!tags)
-      return [];
+    if (!tags) return [];
     return tags.reduce((result, tag) => {
       if (tag) {
         result.push(this._getOrCreateElement(tag, forceCreation));
@@ -33567,8 +35172,7 @@ var _Meta = class _Meta {
    * @returns The matching element, if any.
    */
   getTag(attrSelector) {
-    if (!attrSelector)
-      return null;
+    if (!attrSelector) return null;
     return this._doc.querySelector(`meta[${attrSelector}]`) || null;
   }
   /**
@@ -33578,8 +35182,7 @@ var _Meta = class _Meta {
    * @returns The matching elements, if any.
    */
   getTags(attrSelector) {
-    if (!attrSelector)
-      return [];
+    if (!attrSelector) return [];
     const list = this._doc.querySelectorAll(`meta[${attrSelector}]`);
     return list ? [].slice.call(list) : [];
   }
@@ -33593,8 +35196,7 @@ var _Meta = class _Meta {
    * @return The modified element.
    */
   updateTag(tag, selector) {
-    if (!tag)
-      return null;
+    if (!tag) return null;
     selector = selector || this._parseSelector(tag);
     const meta = this.getTag(selector);
     if (meta) {
@@ -33623,8 +35225,7 @@ var _Meta = class _Meta {
     if (!forceCreation) {
       const selector = this._parseSelector(meta);
       const elem = this.getTags(selector).filter((elem2) => this._containsAttributes(meta, elem2))[0];
-      if (elem !== void 0)
-        return elem;
+      if (elem !== void 0) return elem;
     }
     const element = this._dom.createElement("meta");
     this._setMetaElementAttributes(meta, element);
@@ -33971,8 +35572,7 @@ var _DomSanitizerImpl = class _DomSanitizerImpl extends DomSanitizer {
     this._doc = _doc;
   }
   sanitize(ctx, value) {
-    if (value == null)
-      return null;
+    if (value == null) return null;
     switch (ctx) {
       case SecurityContext.NONE:
         return value;
@@ -34068,8 +35668,10 @@ var HydrationFeatureKind;
 (function(HydrationFeatureKind2) {
   HydrationFeatureKind2[HydrationFeatureKind2["NoHttpTransferCache"] = 0] = "NoHttpTransferCache";
   HydrationFeatureKind2[HydrationFeatureKind2["HttpTransferCacheOptions"] = 1] = "HttpTransferCacheOptions";
+  HydrationFeatureKind2[HydrationFeatureKind2["I18nSupport"] = 2] = "I18nSupport";
+  HydrationFeatureKind2[HydrationFeatureKind2["EventReplay"] = 3] = "EventReplay";
 })(HydrationFeatureKind || (HydrationFeatureKind = {}));
-var VERSION3 = new Version("17.3.10");
+var VERSION3 = new Version("18.0.3");
 
 // node_modules/@angular/router/fesm2022/router.mjs
 var PRIMARY_OUTLET = "primary";
@@ -34114,7 +35716,7 @@ function defaultUrlMatcher(segments, segmentGroup, route) {
   for (let index = 0; index < parts.length; index++) {
     const part = parts[index];
     const segment = segments[index];
-    const isParameter = part.startsWith(":");
+    const isParameter = part[0] === ":";
     if (isParameter) {
       posParams[part.substring(1)] = segment;
     } else if (part !== segment.path) {
@@ -34127,11 +35729,9 @@ function defaultUrlMatcher(segments, segmentGroup, route) {
   };
 }
 function shallowEqualArrays(a, b) {
-  if (a.length !== b.length)
-    return false;
+  if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; ++i) {
-    if (!shallowEqual(a[i], b[i]))
-      return false;
+    if (!shallowEqual(a[i], b[i])) return false;
   }
   return true;
 }
@@ -34155,8 +35755,7 @@ function getDataKeys(obj) {
 }
 function equalArraysOrString(a, b) {
   if (Array.isArray(a) && Array.isArray(b)) {
-    if (a.length !== b.length)
-      return false;
+    if (a.length !== b.length) return false;
     const aSorted = [...a].sort();
     const bSorted = [...b].sort();
     return aSorted.every((val, index) => bSorted[index] === val);
@@ -34192,18 +35791,14 @@ function equalParams(container, containee) {
   return shallowEqual(container, containee);
 }
 function equalSegmentGroups(container, containee, matrixParams) {
-  if (!equalPath(container.segments, containee.segments))
-    return false;
+  if (!equalPath(container.segments, containee.segments)) return false;
   if (!matrixParamsMatch(container.segments, containee.segments, matrixParams)) {
     return false;
   }
-  if (container.numberOfChildren !== containee.numberOfChildren)
-    return false;
+  if (container.numberOfChildren !== containee.numberOfChildren) return false;
   for (const c in containee.children) {
-    if (!container.children[c])
-      return false;
-    if (!equalSegmentGroups(container.children[c], containee.children[c], matrixParams))
-      return false;
+    if (!container.children[c]) return false;
+    if (!equalSegmentGroups(container.children[c], containee.children[c], matrixParams)) return false;
   }
   return true;
 }
@@ -34216,21 +35811,15 @@ function containsSegmentGroup(container, containee, matrixParams) {
 function containsSegmentGroupHelper(container, containee, containeePaths, matrixParams) {
   if (container.segments.length > containeePaths.length) {
     const current = container.segments.slice(0, containeePaths.length);
-    if (!equalPath(current, containeePaths))
-      return false;
-    if (containee.hasChildren())
-      return false;
-    if (!matrixParamsMatch(current, containeePaths, matrixParams))
-      return false;
+    if (!equalPath(current, containeePaths)) return false;
+    if (containee.hasChildren()) return false;
+    if (!matrixParamsMatch(current, containeePaths, matrixParams)) return false;
     return true;
   } else if (container.segments.length === containeePaths.length) {
-    if (!equalPath(container.segments, containeePaths))
-      return false;
-    if (!matrixParamsMatch(container.segments, containeePaths, matrixParams))
-      return false;
+    if (!equalPath(container.segments, containeePaths)) return false;
+    if (!matrixParamsMatch(container.segments, containeePaths, matrixParams)) return false;
     for (const c in containee.children) {
-      if (!container.children[c])
-        return false;
+      if (!container.children[c]) return false;
       if (!containsSegmentGroup(container.children[c], containee.children[c], matrixParams)) {
         return false;
       }
@@ -34239,12 +35828,9 @@ function containsSegmentGroupHelper(container, containee, containeePaths, matrix
   } else {
     const current = containeePaths.slice(0, container.segments.length);
     const next = containeePaths.slice(container.segments.length);
-    if (!equalPath(container.segments, current))
-      return false;
-    if (!matrixParamsMatch(container.segments, current, matrixParams))
-      return false;
-    if (!container.children[PRIMARY_OUTLET])
-      return false;
+    if (!equalPath(container.segments, current)) return false;
+    if (!matrixParamsMatch(container.segments, current, matrixParams)) return false;
+    if (!container.children[PRIMARY_OUTLET]) return false;
     return containsSegmentGroupHelper(container.children[PRIMARY_OUTLET], containee, next, matrixParams);
   }
 }
@@ -34311,8 +35897,7 @@ function equalSegments(as, bs) {
   return equalPath(as, bs) && as.every((a, i) => shallowEqual(a.parameters, bs[i].parameters));
 }
 function equalPath(as, bs) {
-  if (as.length !== bs.length)
-    return false;
+  if (as.length !== bs.length) return false;
   return as.every((a, i) => a.path === bs[i].path);
 }
 function mapChildrenIntoArray(segment, fn) {
@@ -34854,8 +36439,7 @@ function prefixedWith(segmentGroup, startIndex, commands) {
     commandIndex: 0
   };
   while (currentPathIndex < segmentGroup.segments.length) {
-    if (currentCommandIndex >= commands.length)
-      return noMatch2;
+    if (currentCommandIndex >= commands.length) return noMatch2;
     const path = segmentGroup.segments[currentPathIndex];
     const command = commands[currentCommandIndex];
     if (isCommandWithOutlets(command)) {
@@ -34863,15 +36447,12 @@ function prefixedWith(segmentGroup, startIndex, commands) {
     }
     const curr = `${command}`;
     const next = currentCommandIndex < commands.length - 1 ? commands[currentCommandIndex + 1] : null;
-    if (currentPathIndex > 0 && curr === void 0)
-      break;
+    if (currentPathIndex > 0 && curr === void 0) break;
     if (curr && next && typeof next === "object" && next.outlets === void 0) {
-      if (!compare(curr, next, path))
-        return noMatch2;
+      if (!compare(curr, next, path)) return noMatch2;
       currentCommandIndex += 2;
     } else {
-      if (!compare(curr, {}, path))
-        return noMatch2;
+      if (!compare(curr, {}, path)) return noMatch2;
       currentCommandIndex++;
     }
     currentPathIndex++;
@@ -34930,26 +36511,26 @@ function compare(path, params, segment) {
   return path == segment.path && shallowEqual(params, segment.parameters);
 }
 var IMPERATIVE_NAVIGATION = "imperative";
-var EventType;
-(function(EventType2) {
-  EventType2[EventType2["NavigationStart"] = 0] = "NavigationStart";
-  EventType2[EventType2["NavigationEnd"] = 1] = "NavigationEnd";
-  EventType2[EventType2["NavigationCancel"] = 2] = "NavigationCancel";
-  EventType2[EventType2["NavigationError"] = 3] = "NavigationError";
-  EventType2[EventType2["RoutesRecognized"] = 4] = "RoutesRecognized";
-  EventType2[EventType2["ResolveStart"] = 5] = "ResolveStart";
-  EventType2[EventType2["ResolveEnd"] = 6] = "ResolveEnd";
-  EventType2[EventType2["GuardsCheckStart"] = 7] = "GuardsCheckStart";
-  EventType2[EventType2["GuardsCheckEnd"] = 8] = "GuardsCheckEnd";
-  EventType2[EventType2["RouteConfigLoadStart"] = 9] = "RouteConfigLoadStart";
-  EventType2[EventType2["RouteConfigLoadEnd"] = 10] = "RouteConfigLoadEnd";
-  EventType2[EventType2["ChildActivationStart"] = 11] = "ChildActivationStart";
-  EventType2[EventType2["ChildActivationEnd"] = 12] = "ChildActivationEnd";
-  EventType2[EventType2["ActivationStart"] = 13] = "ActivationStart";
-  EventType2[EventType2["ActivationEnd"] = 14] = "ActivationEnd";
-  EventType2[EventType2["Scroll"] = 15] = "Scroll";
-  EventType2[EventType2["NavigationSkipped"] = 16] = "NavigationSkipped";
-})(EventType || (EventType = {}));
+var EventType2;
+(function(EventType3) {
+  EventType3[EventType3["NavigationStart"] = 0] = "NavigationStart";
+  EventType3[EventType3["NavigationEnd"] = 1] = "NavigationEnd";
+  EventType3[EventType3["NavigationCancel"] = 2] = "NavigationCancel";
+  EventType3[EventType3["NavigationError"] = 3] = "NavigationError";
+  EventType3[EventType3["RoutesRecognized"] = 4] = "RoutesRecognized";
+  EventType3[EventType3["ResolveStart"] = 5] = "ResolveStart";
+  EventType3[EventType3["ResolveEnd"] = 6] = "ResolveEnd";
+  EventType3[EventType3["GuardsCheckStart"] = 7] = "GuardsCheckStart";
+  EventType3[EventType3["GuardsCheckEnd"] = 8] = "GuardsCheckEnd";
+  EventType3[EventType3["RouteConfigLoadStart"] = 9] = "RouteConfigLoadStart";
+  EventType3[EventType3["RouteConfigLoadEnd"] = 10] = "RouteConfigLoadEnd";
+  EventType3[EventType3["ChildActivationStart"] = 11] = "ChildActivationStart";
+  EventType3[EventType3["ChildActivationEnd"] = 12] = "ChildActivationEnd";
+  EventType3[EventType3["ActivationStart"] = 13] = "ActivationStart";
+  EventType3[EventType3["ActivationEnd"] = 14] = "ActivationEnd";
+  EventType3[EventType3["Scroll"] = 15] = "Scroll";
+  EventType3[EventType3["NavigationSkipped"] = 16] = "NavigationSkipped";
+})(EventType2 || (EventType2 = {}));
 var RouterEvent = class {
   constructor(id, url) {
     this.id = id;
@@ -34959,7 +36540,7 @@ var RouterEvent = class {
 var NavigationStart = class extends RouterEvent {
   constructor(id, url, navigationTrigger = "imperative", restoredState = null) {
     super(id, url);
-    this.type = EventType.NavigationStart;
+    this.type = EventType2.NavigationStart;
     this.navigationTrigger = navigationTrigger;
     this.restoredState = restoredState;
   }
@@ -34972,7 +36553,7 @@ var NavigationEnd = class extends RouterEvent {
   constructor(id, url, urlAfterRedirects) {
     super(id, url);
     this.urlAfterRedirects = urlAfterRedirects;
-    this.type = EventType.NavigationEnd;
+    this.type = EventType2.NavigationEnd;
   }
   /** @docsNotRequired */
   toString() {
@@ -34996,7 +36577,7 @@ var NavigationCancel = class extends RouterEvent {
     super(id, url);
     this.reason = reason;
     this.code = code;
-    this.type = EventType.NavigationCancel;
+    this.type = EventType2.NavigationCancel;
   }
   /** @docsNotRequired */
   toString() {
@@ -35008,7 +36589,7 @@ var NavigationSkipped = class extends RouterEvent {
     super(id, url);
     this.reason = reason;
     this.code = code;
-    this.type = EventType.NavigationSkipped;
+    this.type = EventType2.NavigationSkipped;
   }
 };
 var NavigationError = class extends RouterEvent {
@@ -35016,7 +36597,7 @@ var NavigationError = class extends RouterEvent {
     super(id, url);
     this.error = error;
     this.target = target;
-    this.type = EventType.NavigationError;
+    this.type = EventType2.NavigationError;
   }
   /** @docsNotRequired */
   toString() {
@@ -35028,7 +36609,7 @@ var RoutesRecognized = class extends RouterEvent {
     super(id, url);
     this.urlAfterRedirects = urlAfterRedirects;
     this.state = state2;
-    this.type = EventType.RoutesRecognized;
+    this.type = EventType2.RoutesRecognized;
   }
   /** @docsNotRequired */
   toString() {
@@ -35040,7 +36621,7 @@ var GuardsCheckStart = class extends RouterEvent {
     super(id, url);
     this.urlAfterRedirects = urlAfterRedirects;
     this.state = state2;
-    this.type = EventType.GuardsCheckStart;
+    this.type = EventType2.GuardsCheckStart;
   }
   toString() {
     return `GuardsCheckStart(id: ${this.id}, url: '${this.url}', urlAfterRedirects: '${this.urlAfterRedirects}', state: ${this.state})`;
@@ -35052,7 +36633,7 @@ var GuardsCheckEnd = class extends RouterEvent {
     this.urlAfterRedirects = urlAfterRedirects;
     this.state = state2;
     this.shouldActivate = shouldActivate;
-    this.type = EventType.GuardsCheckEnd;
+    this.type = EventType2.GuardsCheckEnd;
   }
   toString() {
     return `GuardsCheckEnd(id: ${this.id}, url: '${this.url}', urlAfterRedirects: '${this.urlAfterRedirects}', state: ${this.state}, shouldActivate: ${this.shouldActivate})`;
@@ -35063,7 +36644,7 @@ var ResolveStart = class extends RouterEvent {
     super(id, url);
     this.urlAfterRedirects = urlAfterRedirects;
     this.state = state2;
-    this.type = EventType.ResolveStart;
+    this.type = EventType2.ResolveStart;
   }
   toString() {
     return `ResolveStart(id: ${this.id}, url: '${this.url}', urlAfterRedirects: '${this.urlAfterRedirects}', state: ${this.state})`;
@@ -35074,7 +36655,7 @@ var ResolveEnd = class extends RouterEvent {
     super(id, url);
     this.urlAfterRedirects = urlAfterRedirects;
     this.state = state2;
-    this.type = EventType.ResolveEnd;
+    this.type = EventType2.ResolveEnd;
   }
   toString() {
     return `ResolveEnd(id: ${this.id}, url: '${this.url}', urlAfterRedirects: '${this.urlAfterRedirects}', state: ${this.state})`;
@@ -35083,7 +36664,7 @@ var ResolveEnd = class extends RouterEvent {
 var RouteConfigLoadStart = class {
   constructor(route) {
     this.route = route;
-    this.type = EventType.RouteConfigLoadStart;
+    this.type = EventType2.RouteConfigLoadStart;
   }
   toString() {
     return `RouteConfigLoadStart(path: ${this.route.path})`;
@@ -35092,7 +36673,7 @@ var RouteConfigLoadStart = class {
 var RouteConfigLoadEnd = class {
   constructor(route) {
     this.route = route;
-    this.type = EventType.RouteConfigLoadEnd;
+    this.type = EventType2.RouteConfigLoadEnd;
   }
   toString() {
     return `RouteConfigLoadEnd(path: ${this.route.path})`;
@@ -35101,7 +36682,7 @@ var RouteConfigLoadEnd = class {
 var ChildActivationStart = class {
   constructor(snapshot) {
     this.snapshot = snapshot;
-    this.type = EventType.ChildActivationStart;
+    this.type = EventType2.ChildActivationStart;
   }
   toString() {
     const path = this.snapshot.routeConfig && this.snapshot.routeConfig.path || "";
@@ -35111,7 +36692,7 @@ var ChildActivationStart = class {
 var ChildActivationEnd = class {
   constructor(snapshot) {
     this.snapshot = snapshot;
-    this.type = EventType.ChildActivationEnd;
+    this.type = EventType2.ChildActivationEnd;
   }
   toString() {
     const path = this.snapshot.routeConfig && this.snapshot.routeConfig.path || "";
@@ -35121,7 +36702,7 @@ var ChildActivationEnd = class {
 var ActivationStart = class {
   constructor(snapshot) {
     this.snapshot = snapshot;
-    this.type = EventType.ActivationStart;
+    this.type = EventType2.ActivationStart;
   }
   toString() {
     const path = this.snapshot.routeConfig && this.snapshot.routeConfig.path || "";
@@ -35131,7 +36712,7 @@ var ActivationStart = class {
 var ActivationEnd = class {
   constructor(snapshot) {
     this.snapshot = snapshot;
-    this.type = EventType.ActivationEnd;
+    this.type = EventType2.ActivationEnd;
   }
   toString() {
     const path = this.snapshot.routeConfig && this.snapshot.routeConfig.path || "";
@@ -35143,7 +36724,7 @@ var Scroll = class {
     this.routerEvent = routerEvent;
     this.position = position;
     this.anchor = anchor;
-    this.type = EventType.Scroll;
+    this.type = EventType2.Scroll;
   }
   toString() {
     const pos = this.position ? `${this.position[0]}, ${this.position[1]}` : null;
@@ -35153,60 +36734,63 @@ var Scroll = class {
 var BeforeActivateRoutes = class {
 };
 var RedirectRequest = class {
-  constructor(url) {
+  constructor(url, navigationBehaviorOptions) {
     this.url = url;
+    this.navigationBehaviorOptions = navigationBehaviorOptions;
   }
 };
 function stringifyEvent(routerEvent) {
   switch (routerEvent.type) {
-    case EventType.ActivationEnd:
+    case EventType2.ActivationEnd:
       return `ActivationEnd(path: '${routerEvent.snapshot.routeConfig?.path || ""}')`;
-    case EventType.ActivationStart:
+    case EventType2.ActivationStart:
       return `ActivationStart(path: '${routerEvent.snapshot.routeConfig?.path || ""}')`;
-    case EventType.ChildActivationEnd:
+    case EventType2.ChildActivationEnd:
       return `ChildActivationEnd(path: '${routerEvent.snapshot.routeConfig?.path || ""}')`;
-    case EventType.ChildActivationStart:
+    case EventType2.ChildActivationStart:
       return `ChildActivationStart(path: '${routerEvent.snapshot.routeConfig?.path || ""}')`;
-    case EventType.GuardsCheckEnd:
+    case EventType2.GuardsCheckEnd:
       return `GuardsCheckEnd(id: ${routerEvent.id}, url: '${routerEvent.url}', urlAfterRedirects: '${routerEvent.urlAfterRedirects}', state: ${routerEvent.state}, shouldActivate: ${routerEvent.shouldActivate})`;
-    case EventType.GuardsCheckStart:
+    case EventType2.GuardsCheckStart:
       return `GuardsCheckStart(id: ${routerEvent.id}, url: '${routerEvent.url}', urlAfterRedirects: '${routerEvent.urlAfterRedirects}', state: ${routerEvent.state})`;
-    case EventType.NavigationCancel:
+    case EventType2.NavigationCancel:
       return `NavigationCancel(id: ${routerEvent.id}, url: '${routerEvent.url}')`;
-    case EventType.NavigationSkipped:
+    case EventType2.NavigationSkipped:
       return `NavigationSkipped(id: ${routerEvent.id}, url: '${routerEvent.url}')`;
-    case EventType.NavigationEnd:
+    case EventType2.NavigationEnd:
       return `NavigationEnd(id: ${routerEvent.id}, url: '${routerEvent.url}', urlAfterRedirects: '${routerEvent.urlAfterRedirects}')`;
-    case EventType.NavigationError:
+    case EventType2.NavigationError:
       return `NavigationError(id: ${routerEvent.id}, url: '${routerEvent.url}', error: ${routerEvent.error})`;
-    case EventType.NavigationStart:
+    case EventType2.NavigationStart:
       return `NavigationStart(id: ${routerEvent.id}, url: '${routerEvent.url}')`;
-    case EventType.ResolveEnd:
+    case EventType2.ResolveEnd:
       return `ResolveEnd(id: ${routerEvent.id}, url: '${routerEvent.url}', urlAfterRedirects: '${routerEvent.urlAfterRedirects}', state: ${routerEvent.state})`;
-    case EventType.ResolveStart:
+    case EventType2.ResolveStart:
       return `ResolveStart(id: ${routerEvent.id}, url: '${routerEvent.url}', urlAfterRedirects: '${routerEvent.urlAfterRedirects}', state: ${routerEvent.state})`;
-    case EventType.RouteConfigLoadEnd:
+    case EventType2.RouteConfigLoadEnd:
       return `RouteConfigLoadEnd(path: ${routerEvent.route.path})`;
-    case EventType.RouteConfigLoadStart:
+    case EventType2.RouteConfigLoadStart:
       return `RouteConfigLoadStart(path: ${routerEvent.route.path})`;
-    case EventType.RoutesRecognized:
+    case EventType2.RoutesRecognized:
       return `RoutesRecognized(id: ${routerEvent.id}, url: '${routerEvent.url}', urlAfterRedirects: '${routerEvent.urlAfterRedirects}', state: ${routerEvent.state})`;
-    case EventType.Scroll:
+    case EventType2.Scroll:
       const pos = routerEvent.position ? `${routerEvent.position[0]}, ${routerEvent.position[1]}` : null;
       return `Scroll(anchor: '${routerEvent.anchor}', position: '${pos}')`;
   }
 }
 var OutletContext = class {
-  constructor() {
+  constructor(injector) {
+    this.injector = injector;
     this.outlet = null;
     this.route = null;
-    this.injector = null;
-    this.children = new ChildrenOutletContexts();
+    this.children = new ChildrenOutletContexts(this.injector);
     this.attachRef = null;
   }
 };
 var _ChildrenOutletContexts = class _ChildrenOutletContexts {
-  constructor() {
+  /** @nodoc */
+  constructor(parentInjector) {
+    this.parentInjector = parentInjector;
     this.contexts = /* @__PURE__ */ new Map();
   }
   /** Called when a `RouterOutlet` directive is instantiated */
@@ -35242,7 +36826,7 @@ var _ChildrenOutletContexts = class _ChildrenOutletContexts {
   getOrCreateContext(childName) {
     let context2 = this.getContext(childName);
     if (!context2) {
-      context2 = new OutletContext();
+      context2 = new OutletContext(this.parentInjector);
       this.contexts.set(childName, context2);
     }
     return context2;
@@ -35252,7 +36836,7 @@ var _ChildrenOutletContexts = class _ChildrenOutletContexts {
   }
 };
 _ChildrenOutletContexts.\u0275fac = function ChildrenOutletContexts_Factory(t) {
-  return new (t || _ChildrenOutletContexts)();
+  return new (t || _ChildrenOutletContexts)(\u0275\u0275inject(EnvironmentInjector));
 };
 _ChildrenOutletContexts.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
   token: _ChildrenOutletContexts,
@@ -35266,7 +36850,9 @@ var ChildrenOutletContexts = _ChildrenOutletContexts;
     args: [{
       providedIn: "root"
     }]
-  }], null, null);
+  }], () => [{
+    type: EnvironmentInjector
+  }], null);
 })();
 var Tree = class {
   constructor(root) {
@@ -35301,8 +36887,7 @@ var Tree = class {
    */
   siblings(t) {
     const p = findPath(t, this._root);
-    if (p.length < 2)
-      return [];
+    if (p.length < 2) return [];
     const c = p[p.length - 2].children.map((c2) => c2.value);
     return c.filter((cc) => cc !== t);
   }
@@ -35314,18 +36899,15 @@ var Tree = class {
   }
 };
 function findNode(value, node) {
-  if (value === node.value)
-    return node;
+  if (value === node.value) return node;
   for (const child of node.children) {
     const node2 = findNode(value, child);
-    if (node2)
-      return node2;
+    if (node2) return node2;
   }
   return null;
 }
 function findPath(value, node) {
-  if (value === node.value)
-    return [node];
+  if (value === node.value) return [node];
   for (const child of node.children) {
     const path = findPath(value, child);
     if (path.length) {
@@ -35584,7 +37166,6 @@ var _RouterOutlet = class _RouterOutlet {
     this.parentContexts = inject(ChildrenOutletContexts);
     this.location = inject(ViewContainerRef);
     this.changeDetector = inject(ChangeDetectorRef);
-    this.environmentInjector = inject(EnvironmentInjector);
     this.inputBinder = inject(INPUT_BINDER, {
       optional: true
     });
@@ -35647,13 +37228,11 @@ var _RouterOutlet = class _RouterOutlet {
    * @throws An error if the outlet is not activated.
    */
   get component() {
-    if (!this.activated)
-      throw new RuntimeError(4012, (typeof ngDevMode === "undefined" || ngDevMode) && "Outlet is not activated");
+    if (!this.activated) throw new RuntimeError(4012, (typeof ngDevMode === "undefined" || ngDevMode) && "Outlet is not activated");
     return this.activated.instance;
   }
   get activatedRoute() {
-    if (!this.activated)
-      throw new RuntimeError(4012, (typeof ngDevMode === "undefined" || ngDevMode) && "Outlet is not activated");
+    if (!this.activated) throw new RuntimeError(4012, (typeof ngDevMode === "undefined" || ngDevMode) && "Outlet is not activated");
     return this._activatedRoute;
   }
   get activatedRouteData() {
@@ -35666,8 +37245,7 @@ var _RouterOutlet = class _RouterOutlet {
    * Called when the `RouteReuseStrategy` instructs to detach the subtree
    */
   detach() {
-    if (!this.activated)
-      throw new RuntimeError(4012, (typeof ngDevMode === "undefined" || ngDevMode) && "Outlet is not activated");
+    if (!this.activated) throw new RuntimeError(4012, (typeof ngDevMode === "undefined" || ngDevMode) && "Outlet is not activated");
     this.location.detach();
     const cmp = this.activated;
     this.activated = null;
@@ -35707,7 +37285,7 @@ var _RouterOutlet = class _RouterOutlet {
     this.activated = location2.createComponent(component, {
       index: location2.length,
       injector,
-      environmentInjector: environmentInjector ?? this.environmentInjector
+      environmentInjector
     });
     this.changeDetector.markForCheck();
     this.inputBinder?.bindActivatedRouteToOutletComponent(this);
@@ -35891,6 +37469,12 @@ function createOrReuseChildren(routeReuseStrategy, curr, prevState) {
 function createActivatedRoute(c) {
   return new ActivatedRoute(new BehaviorSubject(c.url), new BehaviorSubject(c.params), new BehaviorSubject(c.queryParams), new BehaviorSubject(c.fragment), new BehaviorSubject(c.data), c.outlet, c.component, c);
 }
+var RedirectCommand = class {
+  constructor(redirectTo, navigationBehaviorOptions) {
+    this.redirectTo = redirectTo;
+    this.navigationBehaviorOptions = navigationBehaviorOptions;
+  }
+};
 var NAVIGATION_CANCELING_ERROR = "ngNavigationCancelingError";
 function redirectingNavigationError(urlSerializer, redirect) {
   const {
@@ -36064,17 +37648,14 @@ function sortByMatchingOutlets(routes2, outletName) {
   return sortedConfig;
 }
 function getClosestRouteInjector(snapshot) {
-  if (!snapshot)
-    return null;
+  if (!snapshot) return null;
   if (snapshot.routeConfig?._injector) {
     return snapshot.routeConfig._injector;
   }
   for (let s = snapshot.parent; s; s = s.parent) {
     const route = s.routeConfig;
-    if (route?._loadedInjector)
-      return route._loadedInjector;
-    if (route?._injector)
-      return route._injector;
+    if (route?._loadedInjector) return route._loadedInjector;
+    if (route?._injector) return route._injector;
   }
   return null;
 }
@@ -36207,7 +37788,7 @@ var ActivateRoutes = class {
           const injector = getClosestRouteInjector(future.snapshot);
           context2.attachRef = null;
           context2.route = future;
-          context2.injector = injector;
+          context2.injector = injector ?? context2.injector;
           if (context2.outlet) {
             context2.outlet.activateWith(future, context2.injector);
           }
@@ -36246,8 +37827,7 @@ function getAllRouteGuards(future, curr, parentContexts) {
 }
 function getCanActivateChild(p) {
   const canActivateChild = p.routeConfig ? p.routeConfig.canActivateChild : null;
-  if (!canActivateChild || canActivateChild.length === 0)
-    return null;
+  if (!canActivateChild || canActivateChild.length === 0) return null;
   return {
     node: p,
     guards: canActivateChild
@@ -36384,13 +37964,16 @@ function prioritizedGuardValue() {
           continue;
         } else if (result === INITIAL_VALUE) {
           return INITIAL_VALUE;
-        } else if (result === false || result instanceof UrlTree) {
+        } else if (result === false || isRedirect(result)) {
           return result;
         }
       }
       return true;
     }), filter((item) => item !== INITIAL_VALUE), take(1));
   });
+}
+function isRedirect(val) {
+  return isUrlTree(val) || val instanceof RedirectCommand;
 }
 function checkGuards(injector, forwardEvent) {
   return mergeMap((t) => {
@@ -36440,8 +38023,7 @@ function fireChildActivationStart(snapshot, forwardEvent) {
 }
 function runCanActivate(futureRSS, futureARS, injector) {
   const canActivate = futureARS.routeConfig ? futureARS.routeConfig.canActivate : null;
-  if (!canActivate || canActivate.length === 0)
-    return of(true);
+  if (!canActivate || canActivate.length === 0) return of(true);
   const canActivateObservables = canActivate.map((canActivate2) => {
     return defer(() => {
       const closestInjector = getClosestRouteInjector(futureARS) ?? injector;
@@ -36470,8 +38052,7 @@ function runCanActivateChild(futureRSS, path, injector) {
 }
 function runCanDeactivate(component, currARS, currRSS, futureRSS, injector) {
   const canDeactivate = currARS && currARS.routeConfig ? currARS.routeConfig.canDeactivate : null;
-  if (!canDeactivate || canDeactivate.length === 0)
-    return of(true);
+  if (!canDeactivate || canDeactivate.length === 0) return of(true);
   const canDeactivateObservables = canDeactivate.map((c) => {
     const closestInjector = getClosestRouteInjector(currARS) ?? injector;
     const guard = getTokenOrFunctionIdentity(c, closestInjector);
@@ -36494,15 +38075,13 @@ function runCanLoadGuards(injector, route, segments, urlSerializer) {
 }
 function redirectIfUrlTree(urlSerializer) {
   return pipe(tap((result) => {
-    if (!isUrlTree(result))
-      return;
+    if (typeof result === "boolean") return;
     throw redirectingNavigationError(urlSerializer, result);
   }), map((result) => result === true));
 }
 function runCanMatchGuards(injector, route, segments, urlSerializer) {
   const canMatch = route.canMatch;
-  if (!canMatch || canMatch.length === 0)
-    return of(true);
+  if (!canMatch || canMatch.length === 0) return of(true);
   const canMatchObservables = canMatch.map((injectionToken) => {
     const guard = getTokenOrFunctionIdentity(injectionToken, injector);
     const guardVal = isCanMatch(guard) ? guard.canMatch(route, segments) : runInInjectionContext(injector, () => guard(route, segments));
@@ -36544,14 +38123,41 @@ var ApplyRedirects = class {
         return of(res);
       }
       if (c.numberOfChildren > 1 || !c.children[PRIMARY_OUTLET]) {
-        return namedOutletsRedirect(route.redirectTo);
+        return namedOutletsRedirect(`${route.redirectTo}`);
       }
       c = c.children[PRIMARY_OUTLET];
     }
   }
-  applyRedirectCommands(segments, redirectTo, posParams) {
+  applyRedirectCommands(segments, redirectTo, posParams, currentSnapshot, injector) {
+    if (typeof redirectTo !== "string") {
+      const redirectToFn = redirectTo;
+      const {
+        queryParams,
+        fragment,
+        routeConfig,
+        url,
+        outlet,
+        params,
+        data,
+        title
+      } = currentSnapshot;
+      const newRedirect = runInInjectionContext(injector, () => redirectToFn({
+        params,
+        data,
+        queryParams,
+        fragment,
+        routeConfig,
+        url,
+        outlet,
+        title
+      }));
+      if (newRedirect instanceof UrlTree) {
+        throw new AbsoluteRedirect(newRedirect);
+      }
+      redirectTo = newRedirect;
+    }
     const newTree = this.applyRedirectCreateUrlTree(redirectTo, this.urlSerializer.parse(redirectTo), segments, posParams);
-    if (redirectTo.startsWith("/")) {
+    if (redirectTo[0] === "/") {
       throw new AbsoluteRedirect(newTree);
     }
     return newTree;
@@ -36563,7 +38169,7 @@ var ApplyRedirects = class {
   createQueryParams(redirectToParams, actualParams) {
     const res = {};
     Object.entries(redirectToParams).forEach(([k, v]) => {
-      const copySourceValue = typeof v === "string" && v.startsWith(":");
+      const copySourceValue = typeof v === "string" && v[0] === ":";
       if (copySourceValue) {
         const sourceName = v.substring(1);
         res[k] = actualParams[sourceName];
@@ -36582,12 +38188,11 @@ var ApplyRedirects = class {
     return new UrlSegmentGroup(updatedSegments, children);
   }
   createSegments(redirectTo, redirectToSegments, actualSegments, posParams) {
-    return redirectToSegments.map((s) => s.path.startsWith(":") ? this.findPosParam(redirectTo, s, posParams) : this.findOrReturn(s, actualSegments));
+    return redirectToSegments.map((s) => s.path[0] === ":" ? this.findPosParam(redirectTo, s, posParams) : this.findOrReturn(s, actualSegments));
   }
   findPosParam(redirectTo, redirectToUrlSegment, posParams) {
     const pos = posParams[redirectToUrlSegment.path.substring(1)];
-    if (!pos)
-      throw new RuntimeError(4001, (typeof ngDevMode === "undefined" || ngDevMode) && `Cannot redirect to '${redirectTo}'. Cannot find '${redirectToUrlSegment.path}'.`);
+    if (!pos) throw new RuntimeError(4001, (typeof ngDevMode === "undefined" || ngDevMode) && `Cannot redirect to '${redirectTo}'. Cannot find '${redirectToUrlSegment.path}'.`);
     return pos;
   }
   findOrReturn(redirectToUrlSegment, actualSegments) {
@@ -36635,8 +38240,7 @@ function match(segmentGroup, route, segments) {
   }
   const matcher = route.matcher || defaultUrlMatcher;
   const res = matcher(segments, segmentGroup, route);
-  if (!res)
-    return __spreadValues({}, noMatch);
+  if (!res) return __spreadValues({}, noMatch);
   const posParams = {};
   Object.entries(res.posParams ?? {}).forEach(([k, v]) => {
     posParams[k] = v.path;
@@ -36747,14 +38351,15 @@ var Recognizer = class {
   }
   recognize() {
     const rootSegmentGroup = split(this.urlTree.root, [], [], this.config).segmentGroup;
-    return this.match(rootSegmentGroup).pipe(map((children) => {
-      const root = new ActivatedRouteSnapshot([], Object.freeze({}), Object.freeze(__spreadValues({}, this.urlTree.queryParams)), this.urlTree.fragment, {}, PRIMARY_OUTLET, this.rootComponentType, null, {});
-      const rootNode = new TreeNode(root, children);
+    return this.match(rootSegmentGroup).pipe(map(({
+      children,
+      rootSnapshot
+    }) => {
+      const rootNode = new TreeNode(rootSnapshot, children);
       const routeState = new RouterStateSnapshot("", rootNode);
-      const tree2 = createUrlTreeFromSnapshot(root, [], this.urlTree.queryParams, this.urlTree.fragment);
+      const tree2 = createUrlTreeFromSnapshot(rootSnapshot, [], this.urlTree.queryParams, this.urlTree.fragment);
       tree2.queryParams = this.urlTree.queryParams;
       routeState.url = this.urlSerializer.serialize(tree2);
-      this.inheritParamsAndData(routeState._root, null);
       return {
         state: routeState,
         tree: tree2
@@ -36762,8 +38367,13 @@ var Recognizer = class {
     }));
   }
   match(rootSegmentGroup) {
-    const expanded$ = this.processSegmentGroup(this.injector, this.config, rootSegmentGroup, PRIMARY_OUTLET);
-    return expanded$.pipe(catchError((e) => {
+    const rootSnapshot = new ActivatedRouteSnapshot([], Object.freeze({}), Object.freeze(__spreadValues({}, this.urlTree.queryParams)), this.urlTree.fragment, Object.freeze({}), PRIMARY_OUTLET, this.rootComponentType, null, {});
+    return this.processSegmentGroup(this.injector, this.config, rootSegmentGroup, PRIMARY_OUTLET, rootSnapshot).pipe(map((children) => {
+      return {
+        children,
+        rootSnapshot
+      };
+    }), catchError((e) => {
       if (e instanceof AbsoluteRedirect) {
         this.urlTree = e.urlTree;
         return this.match(e.urlTree.root);
@@ -36774,18 +38384,11 @@ var Recognizer = class {
       throw e;
     }));
   }
-  inheritParamsAndData(routeNode, parent) {
-    const route = routeNode.value;
-    const i = getInherited(route, parent, this.paramsInheritanceStrategy);
-    route.params = Object.freeze(i.params);
-    route.data = Object.freeze(i.data);
-    routeNode.children.forEach((n) => this.inheritParamsAndData(n, route));
-  }
-  processSegmentGroup(injector, config2, segmentGroup, outlet) {
+  processSegmentGroup(injector, config2, segmentGroup, outlet, parentRoute) {
     if (segmentGroup.segments.length === 0 && segmentGroup.hasChildren()) {
-      return this.processChildren(injector, config2, segmentGroup);
+      return this.processChildren(injector, config2, segmentGroup, parentRoute);
     }
-    return this.processSegment(injector, config2, segmentGroup, segmentGroup.segments, outlet, true).pipe(map((child) => child instanceof TreeNode ? [child] : []));
+    return this.processSegment(injector, config2, segmentGroup, segmentGroup.segments, outlet, true, parentRoute).pipe(map((child) => child instanceof TreeNode ? [child] : []));
   }
   /**
    * Matches every child outlet in the `segmentGroup` to a `Route` in the config. Returns `null` if
@@ -36795,7 +38398,7 @@ var Recognizer = class {
    * @param segmentGroup - The `UrlSegmentGroup` whose children need to be matched against the
    *     config.
    */
-  processChildren(injector, config2, segmentGroup) {
+  processChildren(injector, config2, segmentGroup, parentRoute) {
     const childOutlets = [];
     for (const child of Object.keys(segmentGroup.children)) {
       if (child === "primary") {
@@ -36807,13 +38410,12 @@ var Recognizer = class {
     return from(childOutlets).pipe(concatMap((childOutlet) => {
       const child = segmentGroup.children[childOutlet];
       const sortedConfig = sortByMatchingOutlets(config2, childOutlet);
-      return this.processSegmentGroup(injector, sortedConfig, child, childOutlet);
+      return this.processSegmentGroup(injector, sortedConfig, child, childOutlet, parentRoute);
     }), scan((children, outletChildren) => {
       children.push(...outletChildren);
       return children;
     }), defaultIfEmpty(null), last2(), mergeMap((children) => {
-      if (children === null)
-        return noMatch$1(segmentGroup);
+      if (children === null) return noMatch$1(segmentGroup);
       const mergedChildren = mergeEmptyPathMatches(children);
       if (typeof ngDevMode === "undefined" || ngDevMode) {
         checkOutletNameUniqueness(mergedChildren);
@@ -36822,9 +38424,9 @@ var Recognizer = class {
       return of(mergedChildren);
     }));
   }
-  processSegment(injector, routes2, segmentGroup, segments, outlet, allowRedirects) {
+  processSegment(injector, routes2, segmentGroup, segments, outlet, allowRedirects, parentRoute) {
     return from(routes2).pipe(concatMap((r) => {
-      return this.processSegmentAgainstRoute(r._injector ?? injector, routes2, r, segmentGroup, segments, outlet, allowRedirects).pipe(catchError((e) => {
+      return this.processSegmentAgainstRoute(r._injector ?? injector, routes2, r, segmentGroup, segments, outlet, allowRedirects, parentRoute).pipe(catchError((e) => {
         if (e instanceof NoMatch) {
           return of(null);
         }
@@ -36840,27 +38442,26 @@ var Recognizer = class {
       throw e;
     }));
   }
-  processSegmentAgainstRoute(injector, routes2, route, rawSegment, segments, outlet, allowRedirects) {
-    if (!isImmediateMatch(route, rawSegment, segments, outlet))
-      return noMatch$1(rawSegment);
+  processSegmentAgainstRoute(injector, routes2, route, rawSegment, segments, outlet, allowRedirects, parentRoute) {
+    if (!isImmediateMatch(route, rawSegment, segments, outlet)) return noMatch$1(rawSegment);
     if (route.redirectTo === void 0) {
-      return this.matchSegmentAgainstRoute(injector, rawSegment, route, segments, outlet);
+      return this.matchSegmentAgainstRoute(injector, rawSegment, route, segments, outlet, parentRoute);
     }
     if (this.allowRedirects && allowRedirects) {
-      return this.expandSegmentAgainstRouteUsingRedirect(injector, rawSegment, routes2, route, segments, outlet);
+      return this.expandSegmentAgainstRouteUsingRedirect(injector, rawSegment, routes2, route, segments, outlet, parentRoute);
     }
     return noMatch$1(rawSegment);
   }
-  expandSegmentAgainstRouteUsingRedirect(injector, segmentGroup, routes2, route, segments, outlet) {
+  expandSegmentAgainstRouteUsingRedirect(injector, segmentGroup, routes2, route, segments, outlet, parentRoute) {
     const {
       matched,
+      parameters,
       consumedSegments,
       positionalParamSegments,
       remainingSegments
     } = match(segmentGroup, route, segments);
-    if (!matched)
-      return noMatch$1(segmentGroup);
-    if (route.redirectTo.startsWith("/")) {
+    if (!matched) return noMatch$1(segmentGroup);
+    if (typeof route.redirectTo === "string" && route.redirectTo[0] === "/") {
       this.absoluteRedirectCount++;
       if (this.absoluteRedirectCount > MAX_ALLOWED_REDIRECTS) {
         if (ngDevMode) {
@@ -36870,12 +38471,16 @@ This is currently a dev mode only error but will become a call stack size exceed
         this.allowRedirects = false;
       }
     }
-    const newTree = this.applyRedirects.applyRedirectCommands(consumedSegments, route.redirectTo, positionalParamSegments);
+    const currentSnapshot = new ActivatedRouteSnapshot(segments, parameters, Object.freeze(__spreadValues({}, this.urlTree.queryParams)), this.urlTree.fragment, getData(route), getOutlet(route), route.component ?? route._loadedComponent ?? null, route, getResolve(route));
+    const inherited = getInherited(currentSnapshot, parentRoute, this.paramsInheritanceStrategy);
+    currentSnapshot.params = Object.freeze(inherited.params);
+    currentSnapshot.data = Object.freeze(inherited.data);
+    const newTree = this.applyRedirects.applyRedirectCommands(consumedSegments, route.redirectTo, positionalParamSegments, currentSnapshot, injector);
     return this.applyRedirects.lineralizeSegments(route, newTree).pipe(mergeMap((newSegments) => {
-      return this.processSegment(injector, routes2, segmentGroup, newSegments.concat(remainingSegments), outlet, false);
+      return this.processSegment(injector, routes2, segmentGroup, newSegments.concat(remainingSegments), outlet, false, parentRoute);
     }));
   }
-  matchSegmentAgainstRoute(injector, rawSegment, route, segments, outlet) {
+  matchSegmentAgainstRoute(injector, rawSegment, route, segments, outlet, parentRoute) {
     const matchResult = matchWithChecks(rawSegment, route, segments, injector, this.urlSerializer);
     if (route.path === "**") {
       rawSegment.children = {};
@@ -36890,20 +38495,20 @@ This is currently a dev mode only error but will become a call stack size exceed
       }) => {
         const childInjector = route._loadedInjector ?? injector;
         const {
+          parameters,
           consumedSegments,
-          remainingSegments,
-          parameters
+          remainingSegments
         } = result;
         const snapshot = new ActivatedRouteSnapshot(consumedSegments, parameters, Object.freeze(__spreadValues({}, this.urlTree.queryParams)), this.urlTree.fragment, getData(route), getOutlet(route), route.component ?? route._loadedComponent ?? null, route, getResolve(route));
+        const inherited = getInherited(snapshot, parentRoute, this.paramsInheritanceStrategy);
+        snapshot.params = Object.freeze(inherited.params);
+        snapshot.data = Object.freeze(inherited.data);
         const {
           segmentGroup,
           slicedSegments
         } = split(rawSegment, consumedSegments, remainingSegments, childConfig);
         if (slicedSegments.length === 0 && segmentGroup.hasChildren()) {
-          return this.processChildren(childInjector, childConfig, segmentGroup).pipe(map((children) => {
-            if (children === null) {
-              return null;
-            }
+          return this.processChildren(childInjector, childConfig, segmentGroup, snapshot).pipe(map((children) => {
             return new TreeNode(snapshot, children);
           }));
         }
@@ -36911,7 +38516,7 @@ This is currently a dev mode only error but will become a call stack size exceed
           return of(new TreeNode(snapshot, []));
         }
         const matchedOnOutlet = getOutlet(route) === outlet;
-        return this.processSegment(childInjector, childConfig, segmentGroup, slicedSegments, matchedOnOutlet ? PRIMARY_OUTLET : outlet, true).pipe(map((child) => {
+        return this.processSegment(childInjector, childConfig, segmentGroup, slicedSegments, matchedOnOutlet ? PRIMARY_OUTLET : outlet, true, snapshot).pipe(map((child) => {
           return new TreeNode(snapshot, child instanceof TreeNode ? [child] : []);
         }));
       }));
@@ -36949,10 +38554,8 @@ This is currently a dev mode only error but will become a call stack size exceed
 };
 function sortActivatedRouteSnapshots(nodes) {
   nodes.sort((a, b) => {
-    if (a.value.outlet === PRIMARY_OUTLET)
-      return -1;
-    if (b.value.outlet === PRIMARY_OUTLET)
-      return 1;
+    if (a.value.outlet === PRIMARY_OUTLET) return -1;
+    if (b.value.outlet === PRIMARY_OUTLET) return 1;
     return a.value.outlet.localeCompare(b.value.outlet);
   });
 }
@@ -37066,6 +38669,9 @@ function resolveNode(resolve, futureARS, futureRSS, injector) {
   }
   const data = {};
   return from(keys).pipe(mergeMap((key) => getResolver(resolve[key], futureARS, futureRSS, injector).pipe(first(), tap((value) => {
+    if (value instanceof RedirectCommand) {
+      throw redirectingNavigationError(new DefaultUrlSerializer(), value);
+    }
     data[key] = value;
   }))), takeLast(1), mapTo(data), catchError((e) => isEmptyError(e) ? EMPTY : throwError(e)));
 }
@@ -37354,6 +38960,7 @@ function createRenderPromise(injector) {
     });
   });
 }
+var NAVIGATION_ERROR_HANDLER = new InjectionToken(typeof ngDevMode === "undefined" || ngDevMode ? "navigation error handler" : "");
 var _NavigationTransitions = class _NavigationTransitions {
   get hasRequestedNavigation() {
     return this.navigationId !== 0;
@@ -37379,6 +38986,9 @@ var _NavigationTransitions = class _NavigationTransitions {
     this.paramsInheritanceStrategy = this.options.paramsInheritanceStrategy || "emptyOnly";
     this.urlHandlingStrategy = inject(UrlHandlingStrategy);
     this.createViewTransition = inject(CREATE_VIEW_TRANSITION, {
+      optional: true
+    });
+    this.navigationErrorHandler = inject(NAVIGATION_ERROR_HANDLER, {
       optional: true
     });
     this.navigationId = 0;
@@ -37407,8 +39017,10 @@ var _NavigationTransitions = class _NavigationTransitions {
       urlAfterRedirects: this.urlHandlingStrategy.extract(initialUrlTree),
       rawUrl: initialUrlTree,
       extras: {},
-      resolve: null,
-      reject: null,
+      resolve: () => {
+      },
+      reject: () => {
+      },
       promise: Promise.resolve(true),
       source: IMPERATIVE_NAVIGATION,
       restoredState: null,
@@ -37455,7 +39067,7 @@ var _NavigationTransitions = class _NavigationTransitions {
             if (!urlTransition && onSameUrlNavigation !== "reload") {
               const reason = typeof ngDevMode === "undefined" || ngDevMode ? `Navigation to ${t.rawUrl} was ignored because it is the same as the current Router URL.` : "";
               this.events.next(new NavigationSkipped(t.id, this.urlSerializer.serialize(t.rawUrl), reason, NavigationSkippedCode.IgnoredSameUrlNavigation));
-              t.resolve(null);
+              t.resolve(false);
               return EMPTY;
             }
             if (this.urlHandlingStrategy.shouldProcessUrl(t.rawUrl)) {
@@ -37506,7 +39118,7 @@ var _NavigationTransitions = class _NavigationTransitions {
             } else {
               const reason = typeof ngDevMode === "undefined" || ngDevMode ? `Navigation was ignored because the UrlHandlingStrategy indicated neither the current URL ${t.currentRawUrl} nor target URL ${t.rawUrl} should be processed.` : "";
               this.events.next(new NavigationSkipped(t.id, this.urlSerializer.serialize(t.extractedUrl), reason, NavigationSkippedCode.IgnoredByUrlHandlingStrategy));
-              t.resolve(null);
+              t.resolve(false);
               return EMPTY;
             }
           }),
@@ -37524,7 +39136,7 @@ var _NavigationTransitions = class _NavigationTransitions {
           checkGuards(this.environmentInjector, (evt) => this.events.next(evt)),
           tap((t) => {
             overallTransitionState.guardsResult = t.guardsResult;
-            if (isUrlTree(t.guardsResult)) {
+            if (t.guardsResult && typeof t.guardsResult !== "boolean") {
               throw redirectingNavigationError(this.urlSerializer, t.guardsResult);
             }
             const guardsEnd = new GuardsCheckEnd(t.id, this.urlSerializer.serialize(t.extractedUrl), this.urlSerializer.serialize(t.urlAfterRedirects), t.targetSnapshot, !!t.guardsResult);
@@ -37640,12 +39252,24 @@ var _NavigationTransitions = class _NavigationTransitions {
               if (!isRedirectingNavigationCancelingError(e)) {
                 overallTransitionState.resolve(false);
               } else {
-                this.events.next(new RedirectRequest(e.url));
+                this.events.next(new RedirectRequest(e.url, e.navigationBehaviorOptions));
               }
             } else {
-              this.events.next(new NavigationError(overallTransitionState.id, this.urlSerializer.serialize(overallTransitionState.extractedUrl), e, overallTransitionState.targetSnapshot ?? void 0));
+              const navigationError = new NavigationError(overallTransitionState.id, this.urlSerializer.serialize(overallTransitionState.extractedUrl), e, overallTransitionState.targetSnapshot ?? void 0);
               try {
-                overallTransitionState.resolve(router.errorHandler(e));
+                const navigationErrorHandlerResult = runInInjectionContext(this.environmentInjector, () => this.navigationErrorHandler?.(navigationError));
+                if (navigationErrorHandlerResult instanceof RedirectCommand) {
+                  const {
+                    message,
+                    cancellationCode
+                  } = redirectingNavigationError(this.urlSerializer, navigationErrorHandlerResult);
+                  this.events.next(new NavigationCancel(overallTransitionState.id, this.urlSerializer.serialize(overallTransitionState.extractedUrl), message, cancellationCode));
+                  this.events.next(new RedirectRequest(navigationErrorHandlerResult.redirectTo, navigationErrorHandlerResult.navigationBehaviorOptions));
+                } else {
+                  this.events.next(navigationError);
+                  const errorHandlerResult = router.errorHandler(e);
+                  overallTransitionState.resolve(!!errorHandlerResult);
+                }
               } catch (ee) {
                 if (this.options.resolveNavigationPromiseOnError) {
                   overallTransitionState.resolve(false);
@@ -38005,7 +39629,6 @@ var _Router = class _Router {
   }
   constructor() {
     this.disposed = false;
-    this.isNgZoneEnabled = false;
     this.console = inject(Console);
     this.stateManager = inject(StateManager);
     this.options = inject(ROUTER_CONFIGURATION, {
@@ -38029,7 +39652,6 @@ var _Router = class _Router {
       optional: true
     });
     this.eventsSubscription = new Subscription();
-    this.isNgZoneEnabled = inject(NgZone) instanceof NgZone && NgZone.isInAngularZone();
     this.resetConfig(this.config);
     this.navigationTransitions.setupNavigations(this, this.currentUrlTree, this.routerState).subscribe({
       error: (e) => {
@@ -38050,8 +39672,9 @@ var _Router = class _Router {
           } else if (e instanceof NavigationEnd) {
             this.navigated = true;
           } else if (e instanceof RedirectRequest) {
+            const opts = e.navigationBehaviorOptions;
             const mergedTree = this.urlHandlingStrategy.merge(e.url, currentTransition.currentRawUrl);
-            const extras = {
+            const extras = __spreadValues({
               // Persist transient navigation info from the original navigation request.
               info: currentTransition.extras.info,
               skipLocationChange: currentTransition.extras.skipLocationChange,
@@ -38059,8 +39682,8 @@ var _Router = class _Router {
               // updates or if the navigation was triggered by the browser (back
               // button, URL bar, etc). We want to replace that item in history
               // if the navigation is rejected.
-              replaceUrl: this.urlUpdateStrategy === "eager" || isBrowserTriggeredNavigation(currentTransition.source)
-            };
+              replaceUrl: currentTransition.extras.replaceUrl || this.urlUpdateStrategy === "eager" || isBrowserTriggeredNavigation(currentTransition.source)
+            }, opts);
             this.scheduleNavigation(mergedTree, IMPERATIVE_NAVIGATION, null, extras, {
               resolve: currentTransition.resolve,
               reject: currentTransition.reject,
@@ -38255,7 +39878,7 @@ var _Router = class _Router {
       const relativeToSnapshot = relativeTo ? relativeTo.snapshot : this.routerState.snapshot.root;
       relativeToUrlSegmentGroup = createSegmentGroupFromRoute(relativeToSnapshot);
     } catch (e) {
-      if (typeof commands[0] !== "string" || !commands[0].startsWith("/")) {
+      if (typeof commands[0] !== "string" || commands[0][0] !== "/") {
         commands = [];
       }
       relativeToUrlSegmentGroup = this.currentUrlTree.root;
@@ -38283,17 +39906,12 @@ var _Router = class _Router {
    * router.navigateByUrl("/team/33/user/11", { skipLocationChange: true });
    * ```
    *
-   * @see [Routing and Navigation guide](guide/router)
+   * @see [Routing and Navigation guide](guide/routing/common-router-tasks)
    *
    */
   navigateByUrl(url, extras = {
     skipLocationChange: false
   }) {
-    if (typeof ngDevMode === "undefined" || ngDevMode) {
-      if (this.isNgZoneEnabled && !NgZone.isInAngularZone()) {
-        this.console.warn(`Navigation triggered outside Angular zone, did you forget to call 'ngZone.run()'?`);
-      }
-    }
     const urlTree = isUrlTree(url) ? url : this.parseUrl(url);
     const mergedTree = this.urlHandlingStrategy.merge(urlTree, this.rawUrlTree);
     return this.scheduleNavigation(mergedTree, IMPERATIVE_NAVIGATION, null, extras);
@@ -38325,7 +39943,7 @@ var _Router = class _Router {
    * router.navigate(['team', 33, 'user', 11], {relativeTo: route, skipLocationChange: true});
    * ```
    *
-   * @see [Routing and Navigation guide](guide/router)
+   * @see [Routing and Navigation guide](guide/routing/common-router-tasks)
    *
    */
   navigate(commands, extras = {
@@ -38589,9 +40207,9 @@ _RouterLink.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
     state: "state",
     info: "info",
     relativeTo: "relativeTo",
-    preserveFragment: [InputFlags.HasDecoratorInputTransform, "preserveFragment", "preserveFragment", booleanAttribute],
-    skipLocationChange: [InputFlags.HasDecoratorInputTransform, "skipLocationChange", "skipLocationChange", booleanAttribute],
-    replaceUrl: [InputFlags.HasDecoratorInputTransform, "replaceUrl", "replaceUrl", booleanAttribute],
+    preserveFragment: [2, "preserveFragment", "preserveFragment", booleanAttribute],
+    skipLocationChange: [2, "skipLocationChange", "skipLocationChange", booleanAttribute],
+    replaceUrl: [2, "replaceUrl", "replaceUrl", booleanAttribute],
     routerLink: "routerLink"
   },
   standalone: true,
@@ -38612,7 +40230,7 @@ var RouterLink = _RouterLink;
   }, {
     type: void 0,
     decorators: [{
-      type: Attribute,
+      type: Attribute2,
       args: ["tabindex"]
     }]
   }, {
@@ -38725,8 +40343,7 @@ var _RouterLinkActive = class _RouterLinkActive {
     this.linkInputChangesSubscription?.unsubscribe();
   }
   update() {
-    if (!this.links || !this.router.navigated)
-      return;
+    if (!this.links || !this.router.navigated) return;
     queueMicrotask(() => {
       const hasActiveLinks = this.hasActiveLinks();
       this.classes.forEach((c) => {
@@ -39013,8 +40630,7 @@ var _RouterScroller = class _RouterScroller {
   }
   consumeScrollEvents() {
     return this.transitions.events.subscribe((e) => {
-      if (!(e instanceof Scroll))
-        return;
+      if (!(e instanceof Scroll)) return;
       if (e.position) {
         if (this.options.scrollPositionRestoration === "top") {
           this.viewportScroller.scrollToPosition([0, 0]);
@@ -39404,7 +41020,7 @@ function provideRouterInitializer() {
     }
   ];
 }
-var VERSION4 = new Version("17.3.10");
+var VERSION4 = new Version("18.0.3");
 
 // node_modules/@angular/animations/fesm2022/animations.mjs
 var AnimationMetadataType;
@@ -40135,12 +41751,6 @@ var _NoopAnimationDriver = class _NoopAnimationDriver {
     return validateStyleProperty(prop);
   }
   /**
-   * @deprecated unused
-   */
-  matchesElement(_element, _selector) {
-    return false;
-  }
-  /**
    *
    * @returns Whether elm1 contains elm2.
    */
@@ -40202,11 +41812,9 @@ var NG_TRIGGER_SELECTOR = ".ng-trigger";
 var NG_ANIMATING_CLASSNAME = "ng-animating";
 var NG_ANIMATING_SELECTOR = ".ng-animating";
 function resolveTimingValue(value) {
-  if (typeof value == "number")
-    return value;
+  if (typeof value == "number") return value;
   const matches = value.match(/^(-?[\.\d]+)(m?s)/);
-  if (!matches || matches.length < 2)
-    return 0;
+  if (!matches || matches.length < 2) return 0;
   return _convertTimeValueToMS(parseFloat(matches[1]), matches[2]);
 }
 function _convertTimeValueToMS(value, unit) {
@@ -40294,8 +41902,7 @@ function eraseStyles(element, styles) {
 }
 function normalizeAnimationEntry(steps) {
   if (Array.isArray(steps)) {
-    if (steps.length == 1)
-      return steps[0];
+    if (steps.length == 1) return steps[0];
     return sequence(steps);
   }
   return steps;
@@ -40717,8 +42324,7 @@ var AnimationAstBuilderVisitor = class {
       startTime -= timings.duration + timings.delay;
     }
     ast.styles.forEach((tuple) => {
-      if (typeof tuple === "string")
-        return;
+      if (typeof tuple === "string") return;
       tuple.forEach((value, prop) => {
         if (typeof ngDevMode === "undefined" || ngDevMode) {
           if (!this._driver.validateStyleProperty(prop)) {
@@ -40894,8 +42500,7 @@ var AnimationAstBuilderContext = class {
   }
 };
 function consumeOffset(styles) {
-  if (typeof styles == "string")
-    return null;
+  if (typeof styles == "string") return null;
   let offset = null;
   if (Array.isArray(styles)) {
     styles.forEach((styleTuple) => {
@@ -41260,8 +42865,7 @@ var AnimationTimelineContext = class _AnimationTimelineContext {
     return this.options.params;
   }
   updateOptions(options, skipIfExists) {
-    if (!options)
-      return;
+    if (!options) return;
     const newOptions = options;
     let optionsToUpdate = this.options;
     if (newOptions.duration != null) {
@@ -41467,8 +43071,7 @@ var TimelineBuilder = class _TimelineBuilder {
     }
   }
   applyStylesToKeyframe() {
-    if (this._pendingStyles.size == 0)
-      return;
+    if (this._pendingStyles.size == 0) return;
     this._pendingStyles.forEach((val, prop) => {
       this._currentKeyframe.set(prop, val);
     });
@@ -42097,8 +43700,7 @@ var AnimationTransitionNamespace = class {
     let transition2 = trigger2.matchTransition(fromState.value, toState.value, element, toState.params);
     let isFallbackTransition = false;
     if (!transition2) {
-      if (!defaultToFallback)
-        return;
+      if (!defaultToFallback) return;
       transition2 = trigger2.fallbackTransition;
       isFallbackTransition = true;
     }
@@ -42156,8 +43758,7 @@ var AnimationTransitionNamespace = class {
   _signalRemovalForInnerTriggers(rootElement, context2) {
     const elements = this._engine.driver.query(rootElement, NG_TRIGGER_SELECTOR, true);
     elements.forEach((elm) => {
-      if (elm[REMOVAL_FLAG])
-        return;
+      if (elm[REMOVAL_FLAG]) return;
       const namespaces = this._engine.fetchNamespacesByElement(elm);
       if (namespaces.size) {
         namespaces.forEach((ns) => ns.triggerLeaveAnimation(elm, context2, false, true));
@@ -42198,8 +43799,7 @@ var AnimationTransitionNamespace = class {
       const visitedTriggers = /* @__PURE__ */ new Set();
       listeners.forEach((listener) => {
         const triggerName = listener.name;
-        if (visitedTriggers.has(triggerName))
-          return;
+        if (visitedTriggers.has(triggerName)) return;
         visitedTriggers.add(triggerName);
         const trigger2 = this._triggers.get(triggerName);
         const transition2 = trigger2.fallbackTransition;
@@ -42224,8 +43824,7 @@ var AnimationTransitionNamespace = class {
     if (element.childElementCount) {
       this._signalRemovalForInnerTriggers(element, context2);
     }
-    if (this.triggerLeaveAnimation(element, context2, true))
-      return;
+    if (this.triggerLeaveAnimation(element, context2, true)) return;
     let containsPotentialParentTransition = false;
     if (engine.totalAnimations) {
       const currentPlayers = engine.players.length ? engine.playersByQueriedElement.get(element) : [];
@@ -42261,8 +43860,7 @@ var AnimationTransitionNamespace = class {
     const instructions = [];
     this._queue.forEach((entry) => {
       const player = entry.player;
-      if (player.destroyed)
-        return;
+      if (player.destroyed) return;
       const element = entry.element;
       const listeners = this._elementListeners.get(element);
       if (listeners) {
@@ -42302,11 +43900,10 @@ var TransitionAnimationEngine = class {
   _onRemovalComplete(element, context2) {
     this.onRemovalComplete(element, context2);
   }
-  constructor(bodyNode, driver, _normalizer, scheduler) {
+  constructor(bodyNode, driver, _normalizer) {
     this.bodyNode = bodyNode;
     this.driver = driver;
     this._normalizer = _normalizer;
-    this.scheduler = scheduler;
     this.players = [];
     this.newHostElements = /* @__PURE__ */ new Map();
     this.playersByElement = /* @__PURE__ */ new Map();
@@ -42386,8 +43983,7 @@ var TransitionAnimationEngine = class {
     }
   }
   destroy(namespaceId, context2) {
-    if (!namespaceId)
-      return;
+    if (!namespaceId) return;
     this.afterFlush(() => {
     });
     this.afterFlushAnimationsDone(() => {
@@ -42430,8 +44026,7 @@ var TransitionAnimationEngine = class {
     return false;
   }
   insertNode(namespaceId, element, parent, insertBefore) {
-    if (!isElementNode(element))
-      return;
+    if (!isElementNode(element)) return;
     const details = element[REMOVAL_FLAG];
     if (details && details.setForRemoval) {
       details.setForRemoval = false;
@@ -42467,7 +44062,6 @@ var TransitionAnimationEngine = class {
   }
   removeNode(namespaceId, element, context2) {
     if (isElementNode(element)) {
-      this.scheduler?.notify();
       const ns = namespaceId ? this._fetchNamespace(namespaceId) : null;
       if (ns) {
         ns.removeNode(element, context2);
@@ -42505,8 +44099,7 @@ var TransitionAnimationEngine = class {
   destroyInnerAnimations(containerElement) {
     let elements = this.driver.query(containerElement, NG_TRIGGER_SELECTOR, true);
     elements.forEach((element) => this.destroyActiveAnimationsForElement(element));
-    if (this.playersByQueriedElement.size == 0)
-      return;
+    if (this.playersByQueriedElement.size == 0) return;
     elements = this.driver.query(containerElement, NG_ANIMATING_SELECTOR, true);
     elements.forEach((element) => this.finishActiveQueriedAnimationOnElement(element));
   }
@@ -42857,8 +44450,7 @@ var TransitionAnimationEngine = class {
       const element = allLeaveNodes[i2];
       const details = element[REMOVAL_FLAG];
       removeClass(element, LEAVE_CLASSNAME);
-      if (details && details.hasAnimation)
-        continue;
+      if (details && details.hasAnimation) continue;
       let players = [];
       if (queriedElements.size) {
         let queriedPlayerResults = queriedElements.get(element);
@@ -42910,20 +44502,16 @@ var TransitionAnimationEngine = class {
       if (elementPlayers) {
         const isRemovalAnimation = !toStateValue || toStateValue == VOID_VALUE;
         elementPlayers.forEach((player) => {
-          if (player.queued)
-            return;
-          if (!isRemovalAnimation && player.triggerName != triggerName)
-            return;
+          if (player.queued) return;
+          if (!isRemovalAnimation && player.triggerName != triggerName) return;
           players.push(player);
         });
       }
     }
     if (namespaceId || triggerName) {
       players = players.filter((player) => {
-        if (namespaceId && namespaceId != player.namespaceId)
-          return false;
-        if (triggerName && triggerName != player.triggerName)
-          return false;
+        if (namespaceId && namespaceId != player.namespaceId) return false;
+        if (triggerName && triggerName != player.triggerName) return false;
         return true;
       });
     }
@@ -42960,8 +44548,7 @@ var TransitionAnimationEngine = class {
       const element = timelineInstruction.element;
       allConsumedElements.add(element);
       const details = element[REMOVAL_FLAG];
-      if (details && details.removedBeforeQueried)
-        return new NoopAnimationPlayer(timelineInstruction.duration, timelineInstruction.delay);
+      if (details && details.removedBeforeQueried) return new NoopAnimationPlayer(timelineInstruction.duration, timelineInstruction.delay);
       const isQueriedElement = element !== rootElement;
       const previousPlayers = flattenGroupPlayers((allPreviousPlayersMap.get(element) || EMPTY_PLAYER_ARRAY).map((p) => p.getRealPlayer())).filter((p) => {
         const pp = p;
@@ -43019,8 +44606,7 @@ var TransitionAnimationPlayer = class {
     this.totalTime = 0;
   }
   setRealPlayer(player) {
-    if (this._containsRealPlayer)
-      return;
+    if (this._containsRealPlayer) return;
     this._player = player;
     this._queuedCallbacks.forEach((callbacks, phase) => {
       callbacks.forEach((callback) => listenOnPlayer(player, phase, void 0, callback));
@@ -43156,17 +44742,14 @@ function cloakAndComputeStyles(valuesMap, driver, elements, elementPropsMap, def
 function buildRootMap(roots, nodes) {
   const rootMap = /* @__PURE__ */ new Map();
   roots.forEach((root) => rootMap.set(root, []));
-  if (nodes.length == 0)
-    return rootMap;
+  if (nodes.length == 0) return rootMap;
   const NULL_NODE = 1;
   const nodeSet = new Set(nodes);
   const localRootMap = /* @__PURE__ */ new Map();
   function getRoot(node) {
-    if (!node)
-      return NULL_NODE;
+    if (!node) return NULL_NODE;
     let root = localRootMap.get(node);
-    if (root)
-      return root;
+    if (root) return root;
     const parent = node.parentNode;
     if (rootMap.has(parent)) {
       root = parent;
@@ -43213,19 +44796,16 @@ function _flattenGroupPlayersRecur(players, finalPlayers) {
 function objEquals(a, b) {
   const k1 = Object.keys(a);
   const k2 = Object.keys(b);
-  if (k1.length != k2.length)
-    return false;
+  if (k1.length != k2.length) return false;
   for (let i = 0; i < k1.length; i++) {
     const prop = k1[i];
-    if (!b.hasOwnProperty(prop) || a[prop] !== b[prop])
-      return false;
+    if (!b.hasOwnProperty(prop) || a[prop] !== b[prop]) return false;
   }
   return true;
 }
 function replacePostStylesAsPre(element, allPreStyleElements, allPostStyleElements) {
   const postEntry = allPostStyleElements.get(element);
-  if (!postEntry)
-    return false;
+  if (!postEntry) return false;
   let preEntry = allPreStyleElements.get(element);
   if (preEntry) {
     postEntry.forEach((data) => preEntry.add(data));
@@ -43236,13 +44816,13 @@ function replacePostStylesAsPre(element, allPreStyleElements, allPostStyleElemen
   return true;
 }
 var AnimationEngine = class {
-  constructor(doc, _driver, _normalizer, scheduler) {
+  constructor(doc, _driver, _normalizer) {
     this._driver = _driver;
     this._normalizer = _normalizer;
     this._triggerCache = {};
     this.onRemovalComplete = (element, context2) => {
     };
-    this._transitionEngine = new TransitionAnimationEngine(doc.body, _driver, _normalizer, scheduler);
+    this._transitionEngine = new TransitionAnimationEngine(doc.body, _driver, _normalizer);
     this._timelineEngine = new TimelineAnimationEngine(doc.body, _driver, _normalizer);
     this._transitionEngine.onRemovalComplete = (element, context2) => this.onRemovalComplete(element, context2);
   }
@@ -43418,8 +44998,7 @@ var WebAnimationsPlayer = class {
     this._preparePlayerBeforeStart();
   }
   _buildPlayer() {
-    if (this._initialized)
-      return;
+    if (this._initialized) return;
     this._initialized = true;
     const keyframes2 = this.keyframes;
     this.domPlayer = this._triggerWebAnimation(this.element, keyframes2, this.options);
@@ -43559,9 +45138,6 @@ var WebAnimationsDriver = class {
       return validateWebAnimatableStyleProperty(cssProp);
     }
     return true;
-  }
-  matchesElement(_element, _selector) {
-    return false;
   }
   containsElement(elm1, elm2) {
     return containsElement(elm1, elm2);
@@ -43838,9 +45414,7 @@ var _InjectableAnimationEngine = class _InjectableAnimationEngine extends Animat
   // Since the `ApplicationRef` should be created earlier before the `AnimationEngine`, they
   // both have `ngOnDestroy` hooks and `flush()` must be called after all views are destroyed.
   constructor(doc, driver, normalizer) {
-    super(doc, driver, normalizer, inject(ChangeDetectionScheduler, {
-      optional: true
-    }));
+    super(doc, driver, normalizer);
   }
   ngOnDestroy() {
     this.flush();
@@ -44544,17 +46118,14 @@ function maxLengthValidator(maxLength) {
   };
 }
 function patternValidator(pattern) {
-  if (!pattern)
-    return nullValidator;
+  if (!pattern) return nullValidator;
   let regex;
   let regexStr;
   if (typeof pattern === "string") {
     regexStr = "";
-    if (pattern.charAt(0) !== "^")
-      regexStr += "^";
+    if (pattern.charAt(0) !== "^") regexStr += "^";
     regexStr += pattern;
-    if (pattern.charAt(pattern.length - 1) !== "$")
-      regexStr += "$";
+    if (pattern.charAt(pattern.length - 1) !== "$") regexStr += "$";
     regex = new RegExp(regexStr);
   } else {
     regexStr = pattern.toString();
@@ -44609,11 +46180,9 @@ function normalizeValidators(validators) {
   });
 }
 function compose(validators) {
-  if (!validators)
-    return null;
+  if (!validators) return null;
   const presentValidators = validators.filter(isPresent);
-  if (presentValidators.length == 0)
-    return null;
+  if (presentValidators.length == 0) return null;
   return function(control) {
     return mergeErrors(executeValidators(control, presentValidators));
   };
@@ -44622,11 +46191,9 @@ function composeValidators(validators) {
   return validators != null ? compose(normalizeValidators(validators)) : null;
 }
 function composeAsync(validators) {
-  if (!validators)
-    return null;
+  if (!validators) return null;
   const presentValidators = validators.filter(isPresent);
-  if (presentValidators.length == 0)
-    return null;
+  if (presentValidators.length == 0) return null;
   return function(control) {
     const observables = executeValidators(control, presentValidators).map(toObservable);
     return forkJoin(observables).pipe(map(mergeErrors));
@@ -44636,8 +46203,7 @@ function composeAsyncValidators(validators) {
   return validators != null ? composeAsync(normalizeValidators(validators)) : null;
 }
 function mergeValidators(controlValidators, dirValidator) {
-  if (controlValidators === null)
-    return [dirValidator];
+  if (controlValidators === null) return [dirValidator];
   return Array.isArray(controlValidators) ? [...controlValidators, dirValidator] : [controlValidators, dirValidator];
 }
 function getControlValidators(control) {
@@ -44647,8 +46213,7 @@ function getControlAsyncValidators(control) {
   return control._rawAsyncValidators;
 }
 function makeValidatorsArray(validators) {
-  if (!validators)
-    return [];
+  if (!validators) return [];
   return Array.isArray(validators) ? validators : [validators];
 }
 function hasValidator(validators, validator) {
@@ -44850,8 +46415,7 @@ var AbstractControlDirective = class {
    * Resets the control with the provided value if the control is present.
    */
   reset(value = void 0) {
-    if (this.control)
-      this.control.reset(value);
+    if (this.control) this.control.reset(value);
   }
   /**
    * @description
@@ -45101,13 +46665,22 @@ var ngModelWithFormGroupExample = `
       <input [(ngModel)]="showMoreControls" [ngModelOptions]="{standalone: true}">
   </div>
 `;
-function controlParentException() {
-  return new RuntimeError(1050, `formControlName must be used with a parent formGroup directive.  You'll want to add a formGroup
+function controlParentException(nameOrIndex) {
+  return new RuntimeError(1050, `formControlName must be used with a parent formGroup directive. You'll want to add a formGroup
       directive and pass it an existing FormGroup instance (you can create one in your class).
+
+      ${describeFormControl(nameOrIndex)}
 
     Example:
 
     ${formControlNameExample}`);
+}
+function describeFormControl(nameOrIndex) {
+  if (nameOrIndex == null || nameOrIndex === "") {
+    return "";
+  }
+  const valueType = typeof nameOrIndex === "string" ? "name" : "index";
+  return `Affected Form Control ${valueType}: "${nameOrIndex}"`;
 }
 function ngModelGroupException() {
   return new RuntimeError(1051, `formControlName cannot be used with an ngModelGroup parent. It is only compatible with parents
@@ -45205,6 +46778,48 @@ var VALID = "VALID";
 var INVALID = "INVALID";
 var PENDING = "PENDING";
 var DISABLED = "DISABLED";
+var ControlEvent = class {
+};
+var ValueChangeEvent = class extends ControlEvent {
+  constructor(value, source) {
+    super();
+    this.value = value;
+    this.source = source;
+  }
+};
+var PristineChangeEvent = class extends ControlEvent {
+  constructor(pristine, source) {
+    super();
+    this.pristine = pristine;
+    this.source = source;
+  }
+};
+var TouchedChangeEvent = class extends ControlEvent {
+  constructor(touched, source) {
+    super();
+    this.touched = touched;
+    this.source = source;
+  }
+};
+var StatusChangeEvent = class extends ControlEvent {
+  constructor(status, source) {
+    super();
+    this.status = status;
+    this.source = source;
+  }
+};
+var FormSubmittedEvent = class extends ControlEvent {
+  constructor(source) {
+    super();
+    this.source = source;
+  }
+};
+var FormResetEvent = class extends ControlEvent {
+  constructor(source) {
+    super();
+    this.source = source;
+  }
+};
 function pickValidators(validatorOrOpts) {
   return (isOptionsObj(validatorOrOpts) ? validatorOrOpts.validators : validatorOrOpts) || null;
 }
@@ -45253,13 +46868,15 @@ var AbstractControl = class {
    */
   constructor(validators, asyncValidators) {
     this._pendingDirty = false;
-    this._hasOwnPendingAsyncValidator = false;
+    this._hasOwnPendingAsyncValidator = null;
     this._pendingTouched = false;
     this._onCollectionChange = () => {
     };
     this._parent = null;
     this.pristine = true;
     this.touched = false;
+    this._events = new Subject();
+    this.events = this._events.asObservable();
     this._onDisabledChange = [];
     this._assignValidators(validators);
     this._assignAsyncValidators(asyncValidators);
@@ -45537,151 +47154,100 @@ var AbstractControl = class {
   clearAsyncValidators() {
     this.asyncValidator = null;
   }
-  /**
-   * Marks the control as `touched`. A control is touched by focus and
-   * blur events that do not change the value.
-   *
-   * @see {@link markAsUntouched()}
-   * @see {@link markAsDirty()}
-   * @see {@link markAsPristine()}
-   *
-   * @param opts Configuration options that determine how the control propagates changes
-   * and emits events after marking is applied.
-   * * `onlySelf`: When true, mark only this control. When false or not supplied,
-   * marks all direct ancestors. Default is false.
-   */
   markAsTouched(opts = {}) {
+    const changed = this.touched === false;
     this.touched = true;
+    const sourceControl = opts.sourceControl ?? this;
     if (this._parent && !opts.onlySelf) {
-      this._parent.markAsTouched(opts);
+      this._parent.markAsTouched(__spreadProps(__spreadValues({}, opts), {
+        sourceControl
+      }));
+    }
+    if (changed && opts.emitEvent !== false) {
+      this._events.next(new TouchedChangeEvent(true, sourceControl));
     }
   }
   /**
    * Marks the control and all its descendant controls as `touched`.
    * @see {@link markAsTouched()}
-   */
-  markAllAsTouched() {
-    this.markAsTouched({
-      onlySelf: true
-    });
-    this._forEachChild((control) => control.markAllAsTouched());
-  }
-  /**
-   * Marks the control as `untouched`.
-   *
-   * If the control has any children, also marks all children as `untouched`
-   * and recalculates the `touched` status of all parent controls.
-   *
-   * @see {@link markAsTouched()}
-   * @see {@link markAsDirty()}
-   * @see {@link markAsPristine()}
-   *
-   * @param opts Configuration options that determine how the control propagates changes
-   * and emits events after the marking is applied.
-   * * `onlySelf`: When true, mark only this control. When false or not supplied,
-   * marks all direct ancestors. Default is false.
-   */
-  markAsUntouched(opts = {}) {
-    this.touched = false;
-    this._pendingTouched = false;
-    this._forEachChild((control) => {
-      control.markAsUntouched({
-        onlySelf: true
-      });
-    });
-    if (this._parent && !opts.onlySelf) {
-      this._parent._updateTouched(opts);
-    }
-  }
-  /**
-   * Marks the control as `dirty`. A control becomes dirty when
-   * the control's value is changed through the UI; compare `markAsTouched`.
-   *
-   * @see {@link markAsTouched()}
-   * @see {@link markAsUntouched()}
-   * @see {@link markAsPristine()}
    *
    * @param opts Configuration options that determine how the control propagates changes
    * and emits events after marking is applied.
-   * * `onlySelf`: When true, mark only this control. When false or not supplied,
-   * marks all direct ancestors. Default is false.
+   * * `emitEvent`: When true or not supplied (the default), the `events`
+   * observable emits a `TouchedChangeEvent` with the `touched` property being `true`.
+   * When false, no events are emitted.
    */
-  markAsDirty(opts = {}) {
-    this.pristine = false;
-    if (this._parent && !opts.onlySelf) {
-      this._parent.markAsDirty(opts);
-    }
+  markAllAsTouched(opts = {}) {
+    this.markAsTouched({
+      onlySelf: true,
+      emitEvent: opts.emitEvent,
+      sourceControl: this
+    });
+    this._forEachChild((control) => control.markAllAsTouched(opts));
   }
-  /**
-   * Marks the control as `pristine`.
-   *
-   * If the control has any children, marks all children as `pristine`,
-   * and recalculates the `pristine` status of all parent
-   * controls.
-   *
-   * @see {@link markAsTouched()}
-   * @see {@link markAsUntouched()}
-   * @see {@link markAsDirty()}
-   *
-   * @param opts Configuration options that determine how the control emits events after
-   * marking is applied.
-   * * `onlySelf`: When true, mark only this control. When false or not supplied,
-   * marks all direct ancestors. Default is false.
-   */
-  markAsPristine(opts = {}) {
-    this.pristine = true;
-    this._pendingDirty = false;
+  markAsUntouched(opts = {}) {
+    const changed = this.touched === true;
+    this.touched = false;
+    this._pendingTouched = false;
+    const sourceControl = opts.sourceControl ?? this;
     this._forEachChild((control) => {
-      control.markAsPristine({
-        onlySelf: true
+      control.markAsUntouched({
+        onlySelf: true,
+        emitEvent: opts.emitEvent,
+        sourceControl
       });
     });
     if (this._parent && !opts.onlySelf) {
-      this._parent._updatePristine(opts);
+      this._parent._updateTouched(opts, sourceControl);
+    }
+    if (changed && opts.emitEvent !== false) {
+      this._events.next(new TouchedChangeEvent(false, sourceControl));
     }
   }
-  /**
-   * Marks the control as `pending`.
-   *
-   * A control is pending while the control performs async validation.
-   *
-   * @see {@link AbstractControl.status}
-   *
-   * @param opts Configuration options that determine how the control propagates changes and
-   * emits events after marking is applied.
-   * * `onlySelf`: When true, mark only this control. When false or not supplied,
-   * marks all direct ancestors. Default is false.
-   * * `emitEvent`: When true or not supplied (the default), the `statusChanges`
-   * observable emits an event with the latest status the control is marked pending.
-   * When false, no events are emitted.
-   *
-   */
+  markAsDirty(opts = {}) {
+    const changed = this.pristine === true;
+    this.pristine = false;
+    const sourceControl = opts.sourceControl ?? this;
+    if (this._parent && !opts.onlySelf) {
+      this._parent.markAsDirty(__spreadProps(__spreadValues({}, opts), {
+        sourceControl
+      }));
+    }
+    if (changed && opts.emitEvent !== false) {
+      this._events.next(new PristineChangeEvent(false, sourceControl));
+    }
+  }
+  markAsPristine(opts = {}) {
+    const changed = this.pristine === false;
+    this.pristine = true;
+    this._pendingDirty = false;
+    const sourceControl = opts.sourceControl ?? this;
+    this._forEachChild((control) => {
+      control.markAsPristine({
+        onlySelf: true,
+        emitEvent: opts.emitEvent
+      });
+    });
+    if (this._parent && !opts.onlySelf) {
+      this._parent._updatePristine(opts, sourceControl);
+    }
+    if (changed && opts.emitEvent !== false) {
+      this._events.next(new PristineChangeEvent(true, sourceControl));
+    }
+  }
   markAsPending(opts = {}) {
     this.status = PENDING;
+    const sourceControl = opts.sourceControl ?? this;
     if (opts.emitEvent !== false) {
+      this._events.next(new StatusChangeEvent(this.status, sourceControl));
       this.statusChanges.emit(this.status);
     }
     if (this._parent && !opts.onlySelf) {
-      this._parent.markAsPending(opts);
+      this._parent.markAsPending(__spreadProps(__spreadValues({}, opts), {
+        sourceControl
+      }));
     }
   }
-  /**
-   * Disables the control. This means the control is exempt from validation checks and
-   * excluded from the aggregate value of any parent. Its status is `DISABLED`.
-   *
-   * If the control has children, all children are also disabled.
-   *
-   * @see {@link AbstractControl.status}
-   *
-   * @param opts Configuration options that determine how the control propagates
-   * changes and emits events after the control is disabled.
-   * * `onlySelf`: When true, mark only this control. When false or not supplied,
-   * marks all direct ancestors. Default is false.
-   * * `emitEvent`: When true or not supplied (the default), both the `statusChanges` and
-   * `valueChanges`
-   * observables emit events with the latest status and value when the control is disabled.
-   * When false, no events are emitted.
-   */
   disable(opts = {}) {
     const skipPristineCheck = this._parentMarkedDirty(opts.onlySelf);
     this.status = DISABLED;
@@ -45692,13 +47258,16 @@ var AbstractControl = class {
       }));
     });
     this._updateValue();
+    const sourceControl = opts.sourceControl ?? this;
     if (opts.emitEvent !== false) {
+      this._events.next(new ValueChangeEvent(this.value, sourceControl));
+      this._events.next(new StatusChangeEvent(this.status, sourceControl));
       this.valueChanges.emit(this.value);
       this.statusChanges.emit(this.status);
     }
     this._updateAncestors(__spreadProps(__spreadValues({}, opts), {
       skipPristineCheck
-    }));
+    }), this);
     this._onDisabledChange.forEach((changeFn) => changeFn(true));
   }
   /**
@@ -45714,8 +47283,8 @@ var AbstractControl = class {
    * emits events when marked as untouched
    * * `onlySelf`: When true, mark only this control. When false or not supplied,
    * marks all direct ancestors. Default is false.
-   * * `emitEvent`: When true or not supplied (the default), both the `statusChanges` and
-   * `valueChanges`
+   * * `emitEvent`: When true or not supplied (the default), the `statusChanges`,
+   * `valueChanges` and `events`
    * observables emit events with the latest status and value when the control is enabled.
    * When false, no events are emitted.
    */
@@ -45733,16 +47302,16 @@ var AbstractControl = class {
     });
     this._updateAncestors(__spreadProps(__spreadValues({}, opts), {
       skipPristineCheck
-    }));
+    }), this);
     this._onDisabledChange.forEach((changeFn) => changeFn(false));
   }
-  _updateAncestors(opts) {
+  _updateAncestors(opts, sourceControl) {
     if (this._parent && !opts.onlySelf) {
       this._parent.updateValueAndValidity(opts);
       if (!opts.skipPristineCheck) {
-        this._parent._updatePristine();
+        this._parent._updatePristine({}, sourceControl);
       }
-      this._parent._updateTouched();
+      this._parent._updateTouched({}, sourceControl);
     }
   }
   /**
@@ -45760,37 +47329,28 @@ var AbstractControl = class {
   getRawValue() {
     return this.value;
   }
-  /**
-   * Recalculates the value and validation status of the control.
-   *
-   * By default, it also updates the value and validity of its ancestors.
-   *
-   * @param opts Configuration options determine how the control propagates changes and emits events
-   * after updates and validity checks are applied.
-   * * `onlySelf`: When true, only update this control. When false or not supplied,
-   * update all direct ancestors. Default is false.
-   * * `emitEvent`: When true or not supplied (the default), both the `statusChanges` and
-   * `valueChanges`
-   * observables emit events with the latest status and value when the control is updated.
-   * When false, no events are emitted.
-   */
   updateValueAndValidity(opts = {}) {
     this._setInitialStatus();
     this._updateValue();
     if (this.enabled) {
-      this._cancelExistingSubscription();
+      const shouldHaveEmitted = this._cancelExistingSubscription();
       this.errors = this._runValidator();
       this.status = this._calculateStatus();
       if (this.status === VALID || this.status === PENDING) {
-        this._runAsyncValidator(opts.emitEvent);
+        this._runAsyncValidator(shouldHaveEmitted, opts.emitEvent);
       }
     }
+    const sourceControl = opts.sourceControl ?? this;
     if (opts.emitEvent !== false) {
+      this._events.next(new ValueChangeEvent(this.value, sourceControl));
+      this._events.next(new StatusChangeEvent(this.status, sourceControl));
       this.valueChanges.emit(this.value);
       this.statusChanges.emit(this.status);
     }
     if (this._parent && !opts.onlySelf) {
-      this._parent.updateValueAndValidity(opts);
+      this._parent.updateValueAndValidity(__spreadProps(__spreadValues({}, opts), {
+        sourceControl
+      }));
     }
   }
   /** @internal */
@@ -45809,15 +47369,18 @@ var AbstractControl = class {
   _runValidator() {
     return this.validator ? this.validator(this) : null;
   }
-  _runAsyncValidator(emitEvent) {
+  _runAsyncValidator(shouldHaveEmitted, emitEvent) {
     if (this.asyncValidator) {
       this.status = PENDING;
-      this._hasOwnPendingAsyncValidator = true;
+      this._hasOwnPendingAsyncValidator = {
+        emitEvent: emitEvent !== false
+      };
       const obs = toObservable(this.asyncValidator(this));
       this._asyncValidationSubscription = obs.subscribe((errors) => {
-        this._hasOwnPendingAsyncValidator = false;
+        this._hasOwnPendingAsyncValidator = null;
         this.setErrors(errors, {
-          emitEvent
+          emitEvent,
+          shouldHaveEmitted
         });
       });
     }
@@ -45825,40 +47388,15 @@ var AbstractControl = class {
   _cancelExistingSubscription() {
     if (this._asyncValidationSubscription) {
       this._asyncValidationSubscription.unsubscribe();
-      this._hasOwnPendingAsyncValidator = false;
+      const shouldHaveEmitted = this._hasOwnPendingAsyncValidator?.emitEvent ?? false;
+      this._hasOwnPendingAsyncValidator = null;
+      return shouldHaveEmitted;
     }
+    return false;
   }
-  /**
-   * Sets errors on a form control when running validations manually, rather than automatically.
-   *
-   * Calling `setErrors` also updates the validity of the parent control.
-   *
-   * @param opts Configuration options that determine how the control propagates
-   * changes and emits events after the control errors are set.
-   * * `emitEvent`: When true or not supplied (the default), the `statusChanges`
-   * observable emits an event after the errors are set.
-   *
-   * @usageNotes
-   *
-   * ### Manually set the errors for a control
-   *
-   * ```
-   * const login = new FormControl('someLogin');
-   * login.setErrors({
-   *   notUnique: true
-   * });
-   *
-   * expect(login.valid).toEqual(false);
-   * expect(login.errors).toEqual({ notUnique: true });
-   *
-   * login.setValue('someOtherLogin');
-   *
-   * expect(login.valid).toEqual(true);
-   * ```
-   */
   setErrors(errors, opts = {}) {
     this.errors = errors;
-    this._updateControlsErrors(opts.emitEvent !== false);
+    this._updateControlsErrors(opts.emitEvent !== false, this, opts.shouldHaveEmitted);
   }
   /**
    * Retrieves a child control given the control's name or path.
@@ -45892,12 +47430,9 @@ var AbstractControl = class {
    */
   get(path) {
     let currPath = path;
-    if (currPath == null)
-      return null;
-    if (!Array.isArray(currPath))
-      currPath = currPath.split(".");
-    if (currPath.length === 0)
-      return null;
+    if (currPath == null) return null;
+    if (!Array.isArray(currPath)) currPath = currPath.split(".");
+    if (currPath.length === 0) return null;
     return currPath.reduce((control, name) => control && control._find(name), this);
   }
   /**
@@ -45975,13 +47510,16 @@ var AbstractControl = class {
     return x;
   }
   /** @internal */
-  _updateControlsErrors(emitEvent) {
+  _updateControlsErrors(emitEvent, changedControl, shouldHaveEmitted) {
     this.status = this._calculateStatus();
     if (emitEvent) {
       this.statusChanges.emit(this.status);
     }
+    if (emitEvent || shouldHaveEmitted) {
+      this._events.next(new StatusChangeEvent(this.status, changedControl));
+    }
     if (this._parent) {
-      this._parent._updateControlsErrors(emitEvent);
+      this._parent._updateControlsErrors(emitEvent, changedControl, shouldHaveEmitted);
     }
   }
   /** @internal */
@@ -45990,14 +47528,10 @@ var AbstractControl = class {
     this.statusChanges = new EventEmitter();
   }
   _calculateStatus() {
-    if (this._allControlsDisabled())
-      return DISABLED;
-    if (this.errors)
-      return INVALID;
-    if (this._hasOwnPendingAsyncValidator || this._anyControlsHaveStatus(PENDING))
-      return PENDING;
-    if (this._anyControlsHaveStatus(INVALID))
-      return INVALID;
+    if (this._allControlsDisabled()) return DISABLED;
+    if (this.errors) return INVALID;
+    if (this._hasOwnPendingAsyncValidator || this._anyControlsHaveStatus(PENDING)) return PENDING;
+    if (this._anyControlsHaveStatus(INVALID)) return INVALID;
     return VALID;
   }
   /** @internal */
@@ -46013,17 +47547,23 @@ var AbstractControl = class {
     return this._anyControls((control) => control.touched);
   }
   /** @internal */
-  _updatePristine(opts = {}) {
-    this.pristine = !this._anyControlsDirty();
+  _updatePristine(opts, changedControl) {
+    const newPristine = !this._anyControlsDirty();
+    const changed = this.pristine !== newPristine;
+    this.pristine = newPristine;
     if (this._parent && !opts.onlySelf) {
-      this._parent._updatePristine(opts);
+      this._parent._updatePristine(opts, changedControl);
+    }
+    if (changed) {
+      this._events.next(new PristineChangeEvent(this.pristine, changedControl));
     }
   }
   /** @internal */
-  _updateTouched(opts = {}) {
+  _updateTouched(opts = {}, changedControl) {
     this.touched = this._anyControlsTouched();
+    this._events.next(new TouchedChangeEvent(this.touched, changedControl));
     if (this._parent && !opts.onlySelf) {
-      this._parent._updateTouched(opts);
+      this._parent._updateTouched(opts, changedControl);
     }
   }
   /** @internal */
@@ -46098,8 +47638,7 @@ var FormGroup = class extends AbstractControl {
     });
   }
   registerControl(name, control) {
-    if (this.controls[name])
-      return this.controls[name];
+    if (this.controls[name]) return this.controls[name];
     this.controls[name] = control;
     control.setParent(this);
     control._registerOnCollectionChange(this._onCollectionChange);
@@ -46126,9 +47665,8 @@ var FormGroup = class extends AbstractControl {
    * removed. When false, no events are emitted.
    */
   removeControl(name, options = {}) {
-    if (this.controls[name])
-      this.controls[name]._registerOnCollectionChange(() => {
-      });
+    if (this.controls[name]) this.controls[name]._registerOnCollectionChange(() => {
+    });
     delete this.controls[name];
     this.updateValueAndValidity({
       emitEvent: options.emitEvent
@@ -46136,12 +47674,10 @@ var FormGroup = class extends AbstractControl {
     this._onCollectionChange();
   }
   setControl(name, control, options = {}) {
-    if (this.controls[name])
-      this.controls[name]._registerOnCollectionChange(() => {
-      });
+    if (this.controls[name]) this.controls[name]._registerOnCollectionChange(() => {
+    });
     delete this.controls[name];
-    if (control)
-      this.registerControl(name, control);
+    if (control) this.registerControl(name, control);
     this.updateValueAndValidity({
       emitEvent: options.emitEvent
     });
@@ -46228,8 +47764,7 @@ var FormGroup = class extends AbstractControl {
    * the {@link AbstractControl#updateValueAndValidity updateValueAndValidity} method.
    */
   patchValue(value, options = {}) {
-    if (value == null)
-      return;
+    if (value == null) return;
     Object.keys(value).forEach((name) => {
       const control = this.controls[name];
       if (control) {
@@ -46309,8 +47844,8 @@ var FormGroup = class extends AbstractControl {
         emitEvent: options.emitEvent
       });
     });
-    this._updatePristine(options);
-    this._updateTouched(options);
+    this._updatePristine(options, this);
+    this._updateTouched(options, this);
     this.updateValueAndValidity(options);
   }
   /**
@@ -46329,10 +47864,9 @@ var FormGroup = class extends AbstractControl {
     let subtreeUpdated = this._reduceChildren(false, (updated, child) => {
       return child._syncPendingControls() ? true : updated;
     });
-    if (subtreeUpdated)
-      this.updateValueAndValidity({
-        onlySelf: true
-      });
+    if (subtreeUpdated) this.updateValueAndValidity({
+      onlySelf: true
+    });
     return subtreeUpdated;
   }
   /** @internal */
@@ -46412,10 +47946,8 @@ function controlPath(name, parent) {
 }
 function setUpControl(control, dir, callSetDisabledState = setDisabledStateDefault) {
   if (typeof ngDevMode === "undefined" || ngDevMode) {
-    if (!control)
-      _throwError(dir, "Cannot find control with");
-    if (!dir.valueAccessor)
-      _throwMissingValueAccessorError(dir);
+    if (!control) _throwError(dir, "Cannot find control with");
+    if (!dir.valueAccessor) _throwMissingValueAccessorError(dir);
   }
   setUpValidators(control, dir);
   dir.valueAccessor.writeValue(control.value);
@@ -46446,8 +47978,7 @@ function cleanUpControl(control, dir, validateControlPresenceOnChange = true) {
 }
 function registerOnValidatorChange(validators, onChange) {
   validators.forEach((validator) => {
-    if (validator.registerOnValidatorChange)
-      validator.registerOnValidatorChange(onChange);
+    if (validator.registerOnValidatorChange) validator.registerOnValidatorChange(onChange);
   });
 }
 function setUpDisabledChangeHandler(control, dir) {
@@ -46513,22 +48044,18 @@ function setUpViewChangePipeline(control, dir) {
     control._pendingValue = newValue;
     control._pendingChange = true;
     control._pendingDirty = true;
-    if (control.updateOn === "change")
-      updateControl(control, dir);
+    if (control.updateOn === "change") updateControl(control, dir);
   });
 }
 function setUpBlurPipeline(control, dir) {
   dir.valueAccessor.registerOnTouched(() => {
     control._pendingTouched = true;
-    if (control.updateOn === "blur" && control._pendingChange)
-      updateControl(control, dir);
-    if (control.updateOn !== "submit")
-      control.markAsTouched();
+    if (control.updateOn === "blur" && control._pendingChange) updateControl(control, dir);
+    if (control.updateOn !== "submit") control.markAsTouched();
   });
 }
 function updateControl(control, dir) {
-  if (control._pendingDirty)
-    control.markAsDirty();
+  if (control._pendingDirty) control.markAsDirty();
   control.setValue(control._pendingValue, {
     emitModelToViewChange: false
   });
@@ -46538,8 +48065,7 @@ function updateControl(control, dir) {
 function setUpModelChangePipeline(control, dir) {
   const onChange = (newValue, emitModelEvent) => {
     dir.valueAccessor.writeValue(newValue);
-    if (emitModelEvent)
-      dir.viewToModelUpdate(newValue);
+    if (emitModelEvent) dir.viewToModelUpdate(newValue);
   };
   control.registerOnChange(onChange);
   dir._registerOnDestroy(() => {
@@ -46547,8 +48073,7 @@ function setUpModelChangePipeline(control, dir) {
   });
 }
 function setUpFormContainer(control, dir) {
-  if (control == null && (typeof ngDevMode === "undefined" || ngDevMode))
-    _throwError(dir, "Cannot find control with");
+  if (control == null && (typeof ngDevMode === "undefined" || ngDevMode)) _throwError(dir, "Cannot find control with");
   setUpValidators(control, dir);
 }
 function cleanUpFormContainer(control, dir) {
@@ -46563,10 +48088,8 @@ function _throwError(dir, message) {
 }
 function _describeControlLocation(dir) {
   const path = dir.path;
-  if (path && path.length > 1)
-    return `path: '${path.join(" -> ")}'`;
-  if (path?.[0])
-    return `name: '${path}'`;
+  if (path && path.length > 1) return `path: '${path.join(" -> ")}'`;
+  if (path?.[0]) return `name: '${path}'`;
   return "unspecified name attribute";
 }
 function _throwMissingValueAccessorError(dir) {
@@ -46578,11 +48101,9 @@ function _throwInvalidValueAccessorError(dir) {
   throw new RuntimeError(1200, `Value accessor was not provided as an array for form control with ${loc}. Check that the \`NG_VALUE_ACCESSOR\` token is configured as a \`multi: true\` provider.`);
 }
 function isPropertyUpdated(changes, viewModel) {
-  if (!changes.hasOwnProperty("model"))
-    return false;
+  if (!changes.hasOwnProperty("model")) return false;
   const change = changes["model"];
-  if (change.isFirstChange())
-    return true;
+  if (change.isFirstChange()) return true;
   return !Object.is(viewModel, change.currentValue);
 }
 function isBuiltInAccessor(valueAccessor) {
@@ -46599,10 +48120,8 @@ function syncPendingControls(form, directives) {
   });
 }
 function selectValueAccessor(dir, valueAccessors) {
-  if (!valueAccessors)
-    return null;
-  if (!Array.isArray(valueAccessors) && (typeof ngDevMode === "undefined" || ngDevMode))
-    _throwInvalidValueAccessorError(dir);
+  if (!valueAccessors) return null;
+  if (!Array.isArray(valueAccessors) && (typeof ngDevMode === "undefined" || ngDevMode)) _throwInvalidValueAccessorError(dir);
   let defaultAccessor = void 0;
   let builtinAccessor = void 0;
   let customAccessor = void 0;
@@ -46610,21 +48129,16 @@ function selectValueAccessor(dir, valueAccessors) {
     if (v.constructor === DefaultValueAccessor) {
       defaultAccessor = v;
     } else if (isBuiltInAccessor(v)) {
-      if (builtinAccessor && (typeof ngDevMode === "undefined" || ngDevMode))
-        _throwError(dir, "More than one built-in value accessor matches form control with");
+      if (builtinAccessor && (typeof ngDevMode === "undefined" || ngDevMode)) _throwError(dir, "More than one built-in value accessor matches form control with");
       builtinAccessor = v;
     } else {
-      if (customAccessor && (typeof ngDevMode === "undefined" || ngDevMode))
-        _throwError(dir, "More than one custom value accessor matches form control with");
+      if (customAccessor && (typeof ngDevMode === "undefined" || ngDevMode)) _throwError(dir, "More than one custom value accessor matches form control with");
       customAccessor = v;
     }
   });
-  if (customAccessor)
-    return customAccessor;
-  if (builtinAccessor)
-    return builtinAccessor;
-  if (defaultAccessor)
-    return defaultAccessor;
+  if (customAccessor) return customAccessor;
+  if (builtinAccessor) return builtinAccessor;
+  if (defaultAccessor) return defaultAccessor;
   if (typeof ngDevMode === "undefined" || ngDevMode) {
     _throwError(dir, "No valid value accessor for form control with");
   }
@@ -46632,12 +48146,10 @@ function selectValueAccessor(dir, valueAccessors) {
 }
 function removeListItem$1(list, el) {
   const index = list.indexOf(el);
-  if (index > -1)
-    list.splice(index, 1);
+  if (index > -1) list.splice(index, 1);
 }
 function _ngModelWarning(name, type, instance, warningConfig) {
-  if (warningConfig === "never")
-    return;
+  if (warningConfig === "never") return;
   if ((warningConfig === null || warningConfig === "once") && !type._ngModelWarningSentOnce || warningConfig === "always" && !instance._ngModelWarningSent) {
     console.warn(ngModelWarning(name));
     type._ngModelWarningSentOnce = true;
@@ -46850,7 +48362,7 @@ _NgForm.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
     }
   },
   inputs: {
-    options: [InputFlags.None, "ngFormOptions", "options"]
+    options: [0, "ngFormOptions", "options"]
   },
   outputs: {
     ngSubmit: "ngSubmit"
@@ -46909,8 +48421,7 @@ var NgForm = _NgForm;
 })();
 function removeListItem(list, el) {
   const index = list.indexOf(el);
-  if (index > -1)
-    list.splice(index, 1);
+  if (index > -1) list.splice(index, 1);
 }
 function isFormControlState(formState) {
   return typeof formState === "object" && formState !== null && Object.keys(formState).length === 2 && "value" in formState && "disabled" in formState;
@@ -46988,10 +48499,8 @@ var FormControl = class FormControl2 extends AbstractControl {
   /** @internal */
   _syncPendingControls() {
     if (this.updateOn === "submit") {
-      if (this._pendingDirty)
-        this.markAsDirty();
-      if (this._pendingTouched)
-        this.markAsTouched();
+      if (this._pendingDirty) this.markAsDirty();
+      if (this._pendingTouched) this.markAsTouched();
       if (this._pendingChange) {
         this.setValue(this._pendingValue, {
           onlySelf: true,
@@ -47141,7 +48650,7 @@ _NgModelGroup.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
   type: _NgModelGroup,
   selectors: [["", "ngModelGroup", ""]],
   inputs: {
-    name: [InputFlags.None, "ngModelGroup", "name"]
+    name: [0, "ngModelGroup", "name"]
   },
   exportAs: ["ngModelGroup"],
   features: [\u0275\u0275ProvidersFeature([modelGroupProvider]), \u0275\u0275InheritDefinitionFeature]
@@ -47296,8 +48805,7 @@ var _NgModel = class _NgModel extends NgControl {
     }
   }
   _checkName() {
-    if (this.options && this.options.name)
-      this.name = this.options.name;
+    if (this.options && this.options.name) this.name = this.options.name;
     if (!this._isStandalone() && !this.name && (typeof ngDevMode === "undefined" || ngDevMode)) {
       throw missingNameException();
     }
@@ -47334,9 +48842,9 @@ _NgModel.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
   selectors: [["", "ngModel", "", 3, "formControlName", "", 3, "formControl", ""]],
   inputs: {
     name: "name",
-    isDisabled: [InputFlags.None, "disabled", "isDisabled"],
-    model: [InputFlags.None, "ngModel", "model"],
-    options: [InputFlags.None, "ngModelOptions", "options"]
+    isDisabled: [0, "disabled", "isDisabled"],
+    model: [0, "ngModel", "model"],
+    options: [0, "ngModelOptions", "options"]
   },
   outputs: {
     update: "ngModelChange"
@@ -47554,8 +49062,7 @@ var _RadioControlRegistry = class _RadioControlRegistry {
     });
   }
   _isSameGroup(controlPair, accessor) {
-    if (!controlPair[0].control)
-      return false;
+    if (!controlPair[0].control) return false;
     return controlPair[0]._parent === accessor._control._parent && controlPair[1].name === accessor.name;
   }
 };
@@ -47636,8 +49143,7 @@ var _RadioControlValueAccessor = class _RadioControlValueAccessor extends BuiltI
     if (this.name && this.formControlName && this.name !== this.formControlName && (typeof ngDevMode === "undefined" || ngDevMode)) {
       throwNameError();
     }
-    if (!this.name && this.formControlName)
-      this.name = this.formControlName;
+    if (!this.name && this.formControlName) this.name = this.formControlName;
   }
 };
 _RadioControlValueAccessor.\u0275fac = function RadioControlValueAccessor_Factory(t) {
@@ -47852,9 +49358,9 @@ _FormControlDirective.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
   type: _FormControlDirective,
   selectors: [["", "formControl", ""]],
   inputs: {
-    form: [InputFlags.None, "formControl", "form"],
-    isDisabled: [InputFlags.None, "disabled", "isDisabled"],
-    model: [InputFlags.None, "ngModel", "model"]
+    form: [0, "formControl", "form"],
+    isDisabled: [0, "disabled", "isDisabled"],
+    model: [0, "ngModel", "model"]
   },
   outputs: {
     update: "ngModelChange"
@@ -48107,6 +49613,7 @@ var _FormGroupDirective = class _FormGroupDirective extends ControlContainer {
     this.submitted = true;
     syncPendingControls(this.form, this.directives);
     this.ngSubmit.emit($event);
+    this.form._events.next(new FormSubmittedEvent(this.control));
     return $event?.target?.method === "dialog";
   }
   /**
@@ -48125,6 +49632,7 @@ var _FormGroupDirective = class _FormGroupDirective extends ControlContainer {
   resetForm(value = void 0) {
     this.form.reset(value);
     this.submitted = false;
+    this.form._events.next(new FormResetEvent(this.form));
   }
   /** @internal */
   _updateDomValue() {
@@ -48198,7 +49706,7 @@ _FormGroupDirective.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
     }
   },
   inputs: {
-    form: [InputFlags.None, "formGroup", "form"]
+    form: [0, "formGroup", "form"]
   },
   outputs: {
     ngSubmit: "ngSubmit"
@@ -48283,7 +49791,7 @@ _FormGroupName.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
   type: _FormGroupName,
   selectors: [["", "formGroupName", ""]],
   inputs: {
-    name: [InputFlags.None, "formGroupName", "name"]
+    name: [0, "formGroupName", "name"]
   },
   features: [\u0275\u0275ProvidersFeature([formGroupNameProvider]), \u0275\u0275InheritDefinitionFeature]
 });
@@ -48396,7 +49904,7 @@ _FormArrayName.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
   type: _FormArrayName,
   selectors: [["", "formArrayName", ""]],
   inputs: {
-    name: [InputFlags.None, "formArrayName", "name"]
+    name: [0, "formArrayName", "name"]
   },
   features: [\u0275\u0275ProvidersFeature([formArrayNameProvider]), \u0275\u0275InheritDefinitionFeature]
 });
@@ -48475,8 +49983,7 @@ var _FormControlName = class _FormControlName extends NgControl {
   }
   /** @nodoc */
   ngOnChanges(changes) {
-    if (!this._added)
-      this._setUpControl();
+    if (!this._added) this._setUpControl();
     if (isPropertyUpdated(changes, this.viewModel)) {
       if (typeof ngDevMode === "undefined" || ngDevMode) {
         _ngModelWarning("formControlName", _FormControlName, this, this._ngModelWarningConfig);
@@ -48521,7 +50028,7 @@ var _FormControlName = class _FormControlName extends NgControl {
       if (!(this._parent instanceof FormGroupName) && this._parent instanceof AbstractFormGroupDirective) {
         throw ngModelGroupException();
       } else if (!(this._parent instanceof FormGroupName) && !(this._parent instanceof FormGroupDirective) && !(this._parent instanceof FormArrayName)) {
-        throw controlParentException();
+        throw controlParentException(this.name);
       }
     }
   }
@@ -48539,9 +50046,9 @@ _FormControlName.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
   type: _FormControlName,
   selectors: [["", "formControlName", ""]],
   inputs: {
-    name: [InputFlags.None, "formControlName", "name"],
-    isDisabled: [InputFlags.None, "disabled", "isDisabled"],
-    model: [InputFlags.None, "ngModel", "model"]
+    name: [0, "formControlName", "name"],
+    isDisabled: [0, "disabled", "isDisabled"],
+    model: [0, "ngModel", "model"]
   },
   outputs: {
     update: "ngModelChange"
@@ -48628,10 +50135,8 @@ var SELECT_VALUE_ACCESSOR = {
   multi: true
 };
 function _buildValueString$1(id, value) {
-  if (id == null)
-    return `${value}`;
-  if (value && typeof value === "object")
-    value = "Object";
+  if (id == null) return `${value}`;
+  if (value && typeof value === "object") value = "Object";
   return `${id}: ${value}`.slice(0, 50);
 }
 function _extractId$1(valueString) {
@@ -48682,8 +50187,7 @@ var _SelectControlValueAccessor = class _SelectControlValueAccessor extends Buil
   /** @internal */
   _getOptionId(value) {
     for (const id of this._optionMap.keys()) {
-      if (this._compareWith(this._optionMap.get(id), value))
-        return id;
+      if (this._compareWith(this._optionMap.get(id), value)) return id;
     }
     return null;
   }
@@ -48739,8 +50243,7 @@ var _NgSelectOption = class _NgSelectOption {
     this._element = _element;
     this._renderer = _renderer;
     this._select = _select;
-    if (this._select)
-      this.id = this._select._registerOption();
+    if (this._select) this.id = this._select._registerOption();
   }
   /**
    * @description
@@ -48748,8 +50251,7 @@ var _NgSelectOption = class _NgSelectOption {
    * ngValue supports binding to objects.
    */
   set ngValue(value) {
-    if (this._select == null)
-      return;
+    if (this._select == null) return;
     this._select._optionMap.set(this.id, value);
     this._setElementValue(_buildValueString$1(this.id, value));
     this._select.writeValue(this._select.value);
@@ -48761,8 +50263,7 @@ var _NgSelectOption = class _NgSelectOption {
    */
   set value(value) {
     this._setElementValue(value);
-    if (this._select)
-      this._select.writeValue(this._select.value);
+    if (this._select) this._select.writeValue(this._select.value);
   }
   /** @internal */
   _setElementValue(value) {
@@ -48822,12 +50323,9 @@ var SELECT_MULTIPLE_VALUE_ACCESSOR = {
   multi: true
 };
 function _buildValueString(id, value) {
-  if (id == null)
-    return `${value}`;
-  if (typeof value === "string")
-    value = `'${value}'`;
-  if (value && typeof value === "object")
-    value = "Object";
+  if (id == null) return `${value}`;
+  if (typeof value === "string") value = `'${value}'`;
+  if (value && typeof value === "object") value = "Object";
   return `${id}: ${value}`.slice(0, 50);
 }
 function _extractId(valueString) {
@@ -48909,8 +50407,7 @@ var _SelectMultipleControlValueAccessor = class _SelectMultipleControlValueAcces
   /** @internal */
   _getOptionId(value) {
     for (const id of this._optionMap.keys()) {
-      if (this._compareWith(this._optionMap.get(id)._value, value))
-        return id;
+      if (this._compareWith(this._optionMap.get(id)._value, value)) return id;
     }
     return null;
   }
@@ -48976,8 +50473,7 @@ var _\u0275NgSelectMultipleOption = class _\u0275NgSelectMultipleOption {
    * ngValue supports binding to objects.
    */
   set ngValue(value) {
-    if (this._select == null)
-      return;
+    if (this._select == null) return;
     this._value = value;
     this._setElementValue(_buildValueString(this.id, value));
     this._select.writeValue(this._select.value);
@@ -49608,11 +51104,9 @@ var FormArray = class extends AbstractControl {
    */
   removeAt(index, options = {}) {
     let adjustedIndex = this._adjustIndex(index);
-    if (adjustedIndex < 0)
-      adjustedIndex = 0;
-    if (this.controls[adjustedIndex])
-      this.controls[adjustedIndex]._registerOnCollectionChange(() => {
-      });
+    if (adjustedIndex < 0) adjustedIndex = 0;
+    if (this.controls[adjustedIndex]) this.controls[adjustedIndex]._registerOnCollectionChange(() => {
+    });
     this.controls.splice(adjustedIndex, 1);
     this.updateValueAndValidity({
       emitEvent: options.emitEvent
@@ -49633,11 +51127,9 @@ var FormArray = class extends AbstractControl {
    */
   setControl(index, control, options = {}) {
     let adjustedIndex = this._adjustIndex(index);
-    if (adjustedIndex < 0)
-      adjustedIndex = 0;
-    if (this.controls[adjustedIndex])
-      this.controls[adjustedIndex]._registerOnCollectionChange(() => {
-      });
+    if (adjustedIndex < 0) adjustedIndex = 0;
+    if (this.controls[adjustedIndex]) this.controls[adjustedIndex]._registerOnCollectionChange(() => {
+    });
     this.controls.splice(adjustedIndex, 1);
     if (control) {
       this.controls.splice(adjustedIndex, 0, control);
@@ -49733,8 +51225,7 @@ var FormArray = class extends AbstractControl {
    * the {@link AbstractControl#updateValueAndValidity updateValueAndValidity} method.
    */
   patchValue(value, options = {}) {
-    if (value == null)
-      return;
+    if (value == null) return;
     value.forEach((newValue, index) => {
       if (this.at(index)) {
         this.at(index).patchValue(newValue, {
@@ -49798,8 +51289,8 @@ var FormArray = class extends AbstractControl {
         emitEvent: options.emitEvent
       });
     });
-    this._updatePristine(options);
-    this._updateTouched(options);
+    this._updatePristine(options, this);
+    this._updateTouched(options, this);
     this.updateValueAndValidity(options);
   }
   /**
@@ -49847,8 +51338,7 @@ var FormArray = class extends AbstractControl {
    * ```
    */
   clear(options = {}) {
-    if (this.controls.length < 1)
-      return;
+    if (this.controls.length < 1) return;
     this._forEachChild((control) => control._registerOnCollectionChange(() => {
     }));
     this.controls.splice(0);
@@ -49869,10 +51359,9 @@ var FormArray = class extends AbstractControl {
     let subtreeUpdated = this.controls.reduce((updated, child) => {
       return child._syncPendingControls() ? true : updated;
     }, false);
-    if (subtreeUpdated)
-      this.updateValueAndValidity({
-        onlySelf: true
-      });
+    if (subtreeUpdated) this.updateValueAndValidity({
+      onlySelf: true
+    });
     return subtreeUpdated;
   }
   /** @internal */
@@ -49896,8 +51385,7 @@ var FormArray = class extends AbstractControl {
   /** @internal */
   _allControlsDisabled() {
     for (const control of this.controls) {
-      if (control.enabled)
-        return false;
+      if (control.enabled) return false;
     }
     return this.controls.length > 0 || this.disabled;
   }
@@ -50151,7 +51639,7 @@ var UntypedFormBuilder = _UntypedFormBuilder;
     }]
   }], null, null);
 })();
-var VERSION5 = new Version("17.3.10");
+var VERSION5 = new Version("18.0.3");
 var _FormsModule = class _FormsModule {
   /**
    * @description
@@ -50454,12 +51942,12 @@ function _isTestEnvironment() {
 // node_modules/@angular/cdk/fesm2022/keycodes.mjs
 var BACKSPACE = 8;
 var TAB = 9;
-var ENTER = 13;
+var ENTER2 = 13;
 var SHIFT = 16;
 var CONTROL = 17;
 var ALT = 18;
 var ESCAPE = 27;
-var SPACE = 32;
+var SPACE2 = 32;
 var PAGE_UP = 33;
 var PAGE_DOWN = 34;
 var END = 35;
@@ -50475,7 +51963,7 @@ var A = 65;
 var Z = 90;
 var META = 91;
 var MAC_META = 224;
-function hasModifierKey(event, ...modifiers) {
+function hasModifierKey2(event, ...modifiers) {
   if (modifiers.length) {
     return modifiers.some((modifier) => event[modifier]);
   }
@@ -50564,6 +52052,7 @@ var _ContentObserver = class _ContentObserver {
   constructor(_mutationObserverFactory) {
     this._mutationObserverFactory = _mutationObserverFactory;
     this._observedElements = /* @__PURE__ */ new Map();
+    this._ngZone = inject(NgZone);
   }
   ngOnDestroy() {
     this._observedElements.forEach((_, element) => this._cleanupObserver(element));
@@ -50572,7 +52061,11 @@ var _ContentObserver = class _ContentObserver {
     const element = coerceElement(elementOrRef);
     return new Observable((observer) => {
       const stream = this._observeElement(element);
-      const subscription = stream.pipe(map((records) => records.filter((record) => !shouldIgnoreRecord(record))), filter((records) => !!records.length)).subscribe(observer);
+      const subscription = stream.pipe(map((records) => records.filter((record) => !shouldIgnoreRecord(record))), filter((records) => !!records.length)).subscribe((records) => {
+        this._ngZone.run(() => {
+          observer.next(records);
+        });
+      });
       return () => {
         subscription.unsubscribe();
         this._unobserveElement(element);
@@ -50584,25 +52077,27 @@ var _ContentObserver = class _ContentObserver {
    * new one if not.
    */
   _observeElement(element) {
-    if (!this._observedElements.has(element)) {
-      const stream = new Subject();
-      const observer = this._mutationObserverFactory.create((mutations) => stream.next(mutations));
-      if (observer) {
-        observer.observe(element, {
-          characterData: true,
-          childList: true,
-          subtree: true
+    return this._ngZone.runOutsideAngular(() => {
+      if (!this._observedElements.has(element)) {
+        const stream = new Subject();
+        const observer = this._mutationObserverFactory.create((mutations) => stream.next(mutations));
+        if (observer) {
+          observer.observe(element, {
+            characterData: true,
+            childList: true,
+            subtree: true
+          });
+        }
+        this._observedElements.set(element, {
+          observer,
+          stream,
+          count: 1
         });
+      } else {
+        this._observedElements.get(element).count++;
       }
-      this._observedElements.set(element, {
-        observer,
-        stream,
-        count: 1
-      });
-    } else {
-      this._observedElements.get(element).count++;
-    }
-    return this._observedElements.get(element).stream;
+      return this._observedElements.get(element).stream;
+    });
   }
   /**
    * Un-observes the given element and cleans up the underlying MutationObserver if nobody else is
@@ -50670,10 +52165,9 @@ var _CdkObserveContent = class _CdkObserveContent {
     this._debounce = coerceNumberProperty(value);
     this._subscribe();
   }
-  constructor(_contentObserver, _elementRef, _ngZone) {
+  constructor(_contentObserver, _elementRef) {
     this._contentObserver = _contentObserver;
     this._elementRef = _elementRef;
-    this._ngZone = _ngZone;
     this.event = new EventEmitter();
     this._disabled = false;
     this._currentSubscription = null;
@@ -50689,22 +52183,20 @@ var _CdkObserveContent = class _CdkObserveContent {
   _subscribe() {
     this._unsubscribe();
     const stream = this._contentObserver.observe(this._elementRef);
-    this._ngZone.runOutsideAngular(() => {
-      this._currentSubscription = (this.debounce ? stream.pipe(debounceTime(this.debounce)) : stream).subscribe(this.event);
-    });
+    this._currentSubscription = (this.debounce ? stream.pipe(debounceTime(this.debounce)) : stream).subscribe(this.event);
   }
   _unsubscribe() {
     this._currentSubscription?.unsubscribe();
   }
 };
 _CdkObserveContent.\u0275fac = function CdkObserveContent_Factory(t) {
-  return new (t || _CdkObserveContent)(\u0275\u0275directiveInject(ContentObserver), \u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(NgZone));
+  return new (t || _CdkObserveContent)(\u0275\u0275directiveInject(ContentObserver), \u0275\u0275directiveInject(ElementRef));
 };
 _CdkObserveContent.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
   type: _CdkObserveContent,
   selectors: [["", "cdkObserveContent", ""]],
   inputs: {
-    disabled: [InputFlags.HasDecoratorInputTransform, "cdkObserveContentDisabled", "disabled", booleanAttribute],
+    disabled: [2, "cdkObserveContentDisabled", "disabled", booleanAttribute],
     debounce: "debounce"
   },
   outputs: {
@@ -50727,8 +52219,6 @@ var CdkObserveContent = _CdkObserveContent;
     type: ContentObserver
   }, {
     type: ElementRef
-  }, {
-    type: NgZone
   }], {
     event: [{
       type: Output,
@@ -51400,7 +52890,7 @@ var ListKeyManager = class {
           return;
         }
       default:
-        if (isModifierAllowed || hasModifierKey(event, "shiftKey")) {
+        if (isModifierAllowed || hasModifierKey2(event, "shiftKey")) {
           if (event.key && event.key.length === 1) {
             this._letterKeyStream.next(event.key.toLocaleUpperCase());
           } else if (keyCode >= A && keyCode <= Z || keyCode >= ZERO && keyCode <= NINE) {
@@ -51723,11 +53213,12 @@ var FocusTrap = class {
       this._toggleAnchorTabIndex(value, this._endAnchor);
     }
   }
-  constructor(_element, _checker, _ngZone, _document2, deferAnchors = false) {
+  constructor(_element, _checker, _ngZone, _document2, deferAnchors = false, _injector) {
     this._element = _element;
     this._checker = _checker;
     this._ngZone = _ngZone;
     this._document = _document2;
+    this._injector = _injector;
     this._hasAttached = false;
     this.startAnchorListener = () => this.focusLastTabbableElement();
     this.endAnchorListener = () => this.focusFirstTabbableElement();
@@ -51939,10 +53430,16 @@ var FocusTrap = class {
   }
   /** Executes a function when the zone is stable. */
   _executeOnStable(fn) {
-    if (this._ngZone.isStable) {
-      fn();
-    } else {
+    if (!this._ngZone.isStable) {
       this._ngZone.onStable.pipe(take(1)).subscribe(fn);
+    } else {
+      if (this._injector) {
+        afterNextRender(fn, {
+          injector: this._injector
+        });
+      } else {
+        fn();
+      }
     }
   }
 };
@@ -51950,6 +53447,7 @@ var _FocusTrapFactory = class _FocusTrapFactory {
   constructor(_checker, _ngZone, _document2) {
     this._checker = _checker;
     this._ngZone = _ngZone;
+    this._injector = inject(Injector);
     this._document = _document2;
   }
   /**
@@ -51960,7 +53458,7 @@ var _FocusTrapFactory = class _FocusTrapFactory {
    * @returns The created focus trap instance.
    */
   create(element, deferCaptureElements = false) {
-    return new FocusTrap(element, this._checker, this._ngZone, this._document, deferCaptureElements);
+    return new FocusTrap(element, this._checker, this._ngZone, this._document, deferCaptureElements, this._injector);
   }
 };
 _FocusTrapFactory.\u0275fac = function FocusTrapFactory_Factory(t) {
@@ -52045,8 +53543,8 @@ _CdkTrapFocus.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
   type: _CdkTrapFocus,
   selectors: [["", "cdkTrapFocus", ""]],
   inputs: {
-    enabled: [InputFlags.HasDecoratorInputTransform, "cdkTrapFocus", "enabled", booleanAttribute],
-    autoCapture: [InputFlags.HasDecoratorInputTransform, "cdkTrapFocusAutoCapture", "autoCapture", booleanAttribute]
+    enabled: [2, "cdkTrapFocus", "enabled", booleanAttribute],
+    autoCapture: [2, "cdkTrapFocusAutoCapture", "autoCapture", booleanAttribute]
   },
   exportAs: ["cdkTrapFocus"],
   standalone: true,
@@ -52566,8 +54064,8 @@ _CdkAriaLive.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
   type: _CdkAriaLive,
   selectors: [["", "cdkAriaLive", ""]],
   inputs: {
-    politeness: [InputFlags.None, "cdkAriaLive", "politeness"],
-    duration: [InputFlags.None, "cdkAriaLiveDuration", "duration"]
+    politeness: [0, "cdkAriaLive", "politeness"],
+    duration: [0, "cdkAriaLiveDuration", "duration"]
   },
   exportAs: ["cdkAriaLive"],
   standalone: true
@@ -53239,7 +54737,7 @@ var BidiModule = _BidiModule;
 })();
 
 // node_modules/@angular/cdk/fesm2022/cdk.mjs
-var VERSION6 = new Version("17.3.10");
+var VERSION6 = new Version("18.0.3");
 
 // node_modules/@angular/material/fesm2022/core.mjs
 var _c0 = ["*", [["mat-option"], ["ng-container"]]];
@@ -53279,7 +54777,7 @@ function MatOption_Conditional_6_Template(rf, ctx) {
 }
 var _c5 = ["mat-internal-form-field", ""];
 var _c6 = ["*"];
-var VERSION7 = new Version("17.3.10");
+var VERSION7 = new Version("18.0.3");
 var _AnimationCurves = class _AnimationCurves {
 };
 _AnimationCurves.STANDARD_CURVE = "cubic-bezier(0.4,0.0,0.2,1)";
@@ -54290,13 +55788,13 @@ _MatRipple.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
     }
   },
   inputs: {
-    color: [InputFlags.None, "matRippleColor", "color"],
-    unbounded: [InputFlags.None, "matRippleUnbounded", "unbounded"],
-    centered: [InputFlags.None, "matRippleCentered", "centered"],
-    radius: [InputFlags.None, "matRippleRadius", "radius"],
-    animation: [InputFlags.None, "matRippleAnimation", "animation"],
-    disabled: [InputFlags.None, "matRippleDisabled", "disabled"],
-    trigger: [InputFlags.None, "matRippleTrigger", "trigger"]
+    color: [0, "matRippleColor", "color"],
+    unbounded: [0, "matRippleUnbounded", "unbounded"],
+    centered: [0, "matRippleCentered", "centered"],
+    radius: [0, "matRippleRadius", "radius"],
+    animation: [0, "matRippleAnimation", "animation"],
+    disabled: [0, "matRippleDisabled", "disabled"],
+    trigger: [0, "matRippleTrigger", "trigger"]
   },
   exportAs: ["matRipple"],
   standalone: true
@@ -54511,7 +56009,7 @@ _MatOptgroup.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   },
   inputs: {
     label: "label",
-    disabled: [InputFlags.HasDecoratorInputTransform, "disabled", "disabled", booleanAttribute]
+    disabled: [2, "disabled", "disabled", booleanAttribute]
   },
   exportAs: ["matOptgroup"],
   standalone: true,
@@ -54701,7 +56199,7 @@ var _MatOption = class _MatOption {
   }
   /** Ensures the option is selected when activated from the keyboard. */
   _handleKeydown(event) {
-    if ((event.keyCode === ENTER || event.keyCode === SPACE) && !hasModifierKey(event)) {
+    if ((event.keyCode === ENTER2 || event.keyCode === SPACE2) && !hasModifierKey2(event)) {
       this._selectViaInteraction();
       event.preventDefault();
     }
@@ -54781,7 +56279,7 @@ _MatOption.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   inputs: {
     value: "value",
     id: "id",
-    disabled: [InputFlags.HasDecoratorInputTransform, "disabled", "disabled", booleanAttribute]
+    disabled: [2, "disabled", "disabled", booleanAttribute]
   },
   outputs: {
     onSelectionChange: "onSelectionChange"
@@ -54805,11 +56303,11 @@ _MatOption.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
       \u0275\u0275element(7, "div", 5);
     }
     if (rf & 2) {
-      \u0275\u0275conditional(0, ctx.multiple ? 0 : -1);
+      \u0275\u0275conditional(ctx.multiple ? 0 : -1);
       \u0275\u0275advance(5);
-      \u0275\u0275conditional(5, !ctx.multiple && ctx.selected && !ctx.hideSingleSelectionIndicator ? 5 : -1);
+      \u0275\u0275conditional(!ctx.multiple && ctx.selected && !ctx.hideSingleSelectionIndicator ? 5 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(6, ctx.group && ctx.group._inert ? 6 : -1);
+      \u0275\u0275conditional(ctx.group && ctx.group._inert ? 6 : -1);
       \u0275\u0275advance();
       \u0275\u0275property("matRippleTrigger", ctx._getHostElement())("matRippleDisabled", ctx.disabled || ctx.disableRipple);
     }
@@ -54980,7 +56478,7 @@ var MatOptionModule = _MatOptionModule;
 var eventListenerOptions2 = {
   capture: true
 };
-var rippleInteractionEvents = ["focus", "click", "mouseenter", "touchstart"];
+var rippleInteractionEvents = ["focus", "mousedown", "mouseenter", "touchstart"];
 var matRippleUninitialized = "mat-ripple-loader-uninitialized";
 var matRippleClassName = "mat-ripple-loader-class-name";
 var matRippleCentered = "mat-ripple-loader-centered";
@@ -55000,13 +56498,12 @@ var _MatRippleLoader = class _MatRippleLoader {
     this._ngZone = inject(NgZone);
     this._hosts = /* @__PURE__ */ new Map();
     this._onInteraction = (event) => {
-      if (!(event.target instanceof HTMLElement)) {
-        return;
-      }
-      const eventTarget = event.target;
-      const element = eventTarget.closest(`[${matRippleUninitialized}]`);
-      if (element) {
-        this._createRipple(element);
+      const eventTarget = _getEventTarget(event);
+      if (eventTarget instanceof HTMLElement) {
+        const element = eventTarget.closest(`[${matRippleUninitialized}="${this._globalRippleOptions?.namespace ?? ""}"]`);
+        if (element) {
+          this._createRipple(element);
+        }
       }
     };
     this._ngZone.runOutsideAngular(() => {
@@ -55031,7 +56528,7 @@ var _MatRippleLoader = class _MatRippleLoader {
    * element so that it can later be retrived & used when the ripple is actually created.
    */
   configureRipple(host, config2) {
-    host.setAttribute(matRippleUninitialized, "");
+    host.setAttribute(matRippleUninitialized, this._globalRippleOptions?.namespace ?? "");
     if (config2.className || !host.hasAttribute(matRippleClassName)) {
       host.setAttribute(matRippleClassName, config2.className || "");
     }
@@ -55140,7 +56637,7 @@ __MatInternalFormField.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
       \u0275\u0275projection(0);
     }
   },
-  styles: [".mdc-form-field{display:inline-flex;align-items:center;vertical-align:middle}.mdc-form-field[hidden]{display:none}.mdc-form-field>label{margin-left:0;margin-right:auto;padding-left:4px;padding-right:0;order:0}[dir=rtl] .mdc-form-field>label,.mdc-form-field>label[dir=rtl]{margin-left:auto;margin-right:0}[dir=rtl] .mdc-form-field>label,.mdc-form-field>label[dir=rtl]{padding-left:0;padding-right:4px}.mdc-form-field--nowrap>label{text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.mdc-form-field--align-end>label{margin-left:auto;margin-right:0;padding-left:0;padding-right:4px;order:-1}[dir=rtl] .mdc-form-field--align-end>label,.mdc-form-field--align-end>label[dir=rtl]{margin-left:0;margin-right:auto}[dir=rtl] .mdc-form-field--align-end>label,.mdc-form-field--align-end>label[dir=rtl]{padding-left:4px;padding-right:0}.mdc-form-field--space-between{justify-content:space-between}.mdc-form-field--space-between>label{margin:0}[dir=rtl] .mdc-form-field--space-between>label,.mdc-form-field--space-between>label[dir=rtl]{margin:0}.mdc-form-field{font-family:var(--mdc-form-field-label-text-font);line-height:var(--mdc-form-field-label-text-line-height);font-size:var(--mdc-form-field-label-text-size);font-weight:var(--mdc-form-field-label-text-weight);letter-spacing:var(--mdc-form-field-label-text-tracking);color:var(--mdc-form-field-label-text-color)}.mat-internal-form-field{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}"],
+  styles: [".mdc-form-field{display:inline-flex;align-items:center;vertical-align:middle}.mdc-form-field[hidden]{display:none}.mdc-form-field>label{margin-left:0;margin-right:auto;padding-left:4px;padding-right:0;order:0}[dir=rtl] .mdc-form-field>label,.mdc-form-field>label[dir=rtl]{margin-left:auto;margin-right:0}[dir=rtl] .mdc-form-field>label,.mdc-form-field>label[dir=rtl]{padding-left:0;padding-right:4px}.mdc-form-field--nowrap>label{text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.mdc-form-field--align-end>label{margin-left:auto;margin-right:0;padding-left:0;padding-right:4px;order:-1}[dir=rtl] .mdc-form-field--align-end>label,.mdc-form-field--align-end>label[dir=rtl]{margin-left:0;margin-right:auto}[dir=rtl] .mdc-form-field--align-end>label,.mdc-form-field--align-end>label[dir=rtl]{padding-left:4px;padding-right:0}.mdc-form-field--space-between{justify-content:space-between}.mdc-form-field--space-between>label{margin:0}[dir=rtl] .mdc-form-field--space-between>label,.mdc-form-field--space-between>label[dir=rtl]{margin:0}.mat-internal-form-field{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}"],
   encapsulation: 2,
   changeDetection: 0
 });
@@ -55158,7 +56655,7 @@ var _MatInternalFormField = __MatInternalFormField;
         "class": "mdc-form-field mat-internal-form-field",
         "[class.mdc-form-field--align-end]": 'labelPosition === "before"'
       },
-      styles: [".mdc-form-field{display:inline-flex;align-items:center;vertical-align:middle}.mdc-form-field[hidden]{display:none}.mdc-form-field>label{margin-left:0;margin-right:auto;padding-left:4px;padding-right:0;order:0}[dir=rtl] .mdc-form-field>label,.mdc-form-field>label[dir=rtl]{margin-left:auto;margin-right:0}[dir=rtl] .mdc-form-field>label,.mdc-form-field>label[dir=rtl]{padding-left:0;padding-right:4px}.mdc-form-field--nowrap>label{text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.mdc-form-field--align-end>label{margin-left:auto;margin-right:0;padding-left:0;padding-right:4px;order:-1}[dir=rtl] .mdc-form-field--align-end>label,.mdc-form-field--align-end>label[dir=rtl]{margin-left:0;margin-right:auto}[dir=rtl] .mdc-form-field--align-end>label,.mdc-form-field--align-end>label[dir=rtl]{padding-left:4px;padding-right:0}.mdc-form-field--space-between{justify-content:space-between}.mdc-form-field--space-between>label{margin:0}[dir=rtl] .mdc-form-field--space-between>label,.mdc-form-field--space-between>label[dir=rtl]{margin:0}.mdc-form-field{font-family:var(--mdc-form-field-label-text-font);line-height:var(--mdc-form-field-label-text-line-height);font-size:var(--mdc-form-field-label-text-size);font-weight:var(--mdc-form-field-label-text-weight);letter-spacing:var(--mdc-form-field-label-text-tracking);color:var(--mdc-form-field-label-text-color)}.mat-internal-form-field{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}"]
+      styles: [".mdc-form-field{display:inline-flex;align-items:center;vertical-align:middle}.mdc-form-field[hidden]{display:none}.mdc-form-field>label{margin-left:0;margin-right:auto;padding-left:4px;padding-right:0;order:0}[dir=rtl] .mdc-form-field>label,.mdc-form-field>label[dir=rtl]{margin-left:auto;margin-right:0}[dir=rtl] .mdc-form-field>label,.mdc-form-field>label[dir=rtl]{padding-left:0;padding-right:4px}.mdc-form-field--nowrap>label{text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.mdc-form-field--align-end>label{margin-left:auto;margin-right:0;padding-left:0;padding-right:4px;order:-1}[dir=rtl] .mdc-form-field--align-end>label,.mdc-form-field--align-end>label[dir=rtl]{margin-left:0;margin-right:auto}[dir=rtl] .mdc-form-field--align-end>label,.mdc-form-field--align-end>label[dir=rtl]{padding-left:4px;padding-right:0}.mdc-form-field--space-between{justify-content:space-between}.mdc-form-field--space-between>label{margin:0}[dir=rtl] .mdc-form-field--space-between>label,.mdc-form-field--space-between>label[dir=rtl]{margin:0}.mat-internal-form-field{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}"]
     }]
   }], null, {
     labelPosition: [{
@@ -55311,10 +56808,10 @@ _MatButtonBase.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
   type: _MatButtonBase,
   inputs: {
     color: "color",
-    disableRipple: [InputFlags.HasDecoratorInputTransform, "disableRipple", "disableRipple", booleanAttribute],
-    disabled: [InputFlags.HasDecoratorInputTransform, "disabled", "disabled", booleanAttribute],
-    ariaDisabled: [InputFlags.HasDecoratorInputTransform, "aria-disabled", "ariaDisabled", booleanAttribute],
-    disabledInteractive: [InputFlags.HasDecoratorInputTransform, "disabledInteractive", "disabledInteractive", booleanAttribute]
+    disableRipple: [2, "disableRipple", "disableRipple", booleanAttribute],
+    disabled: [2, "disabled", "disabled", booleanAttribute],
+    ariaDisabled: [2, "aria-disabled", "ariaDisabled", booleanAttribute],
+    disabledInteractive: [2, "disabledInteractive", "disabledInteractive", booleanAttribute]
   },
   features: [\u0275\u0275InputTransformsFeature]
 });
@@ -55409,7 +56906,7 @@ _MatAnchorBase.\u0275fac = function MatAnchorBase_Factory(t) {
 _MatAnchorBase.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
   type: _MatAnchorBase,
   inputs: {
-    tabIndex: [InputFlags.HasDecoratorInputTransform, "tabIndex", "tabIndex", (value) => {
+    tabIndex: [2, "tabIndex", "tabIndex", (value) => {
       return value == null ? void 0 : numberAttribute(value);
     }]
   },
@@ -55668,7 +57165,7 @@ _MatFabButton.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     }
   },
   inputs: {
-    extended: [InputFlags.HasDecoratorInputTransform, "extended", "extended", booleanAttribute]
+    extended: [2, "extended", "extended", booleanAttribute]
   },
   exportAs: ["matButton"],
   standalone: true,
@@ -55897,7 +57394,7 @@ _MatFabAnchor.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     }
   },
   inputs: {
-    extended: [InputFlags.HasDecoratorInputTransform, "extended", "extended", booleanAttribute]
+    extended: [2, "extended", "extended", booleanAttribute]
   },
   exportAs: ["matButton", "matAnchor"],
   standalone: true,
@@ -56404,14 +57901,14 @@ var _c63 = ["*", [["mat-label"]], [["", "matPrefix", ""], ["", "matIconPrefix", 
 var _c72 = ["*", "mat-label", "[matPrefix], [matIconPrefix]", "[matTextPrefix]", "[matTextSuffix]", "[matSuffix], [matIconSuffix]", "mat-error, [matError]", "mat-hint:not([align='end'])", "mat-hint[align='end']"];
 function MatFormField_ng_template_0_Conditional_0_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "span", 17);
+    \u0275\u0275element(0, "span", 19);
   }
 }
 function MatFormField_ng_template_0_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "label", 16);
+    \u0275\u0275elementStart(0, "label", 18);
     \u0275\u0275projection(1, 1);
-    \u0275\u0275template(2, MatFormField_ng_template_0_Conditional_0_Conditional_2_Template, 1, 0, "span", 17);
+    \u0275\u0275template(2, MatFormField_ng_template_0_Conditional_0_Conditional_2_Template, 1, 0, "span", 19);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -56419,16 +57916,16 @@ function MatFormField_ng_template_0_Conditional_0_Template(rf, ctx) {
     \u0275\u0275property("floating", ctx_r1._shouldLabelFloat())("monitorResize", ctx_r1._hasOutline())("id", ctx_r1._labelId);
     \u0275\u0275attribute("for", ctx_r1._control.disableAutomaticLabeling ? null : ctx_r1._control.id);
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(2, !ctx_r1.hideRequiredMarker && ctx_r1._control.required ? 2 : -1);
+    \u0275\u0275conditional(!ctx_r1.hideRequiredMarker && ctx_r1._control.required ? 2 : -1);
   }
 }
 function MatFormField_ng_template_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, MatFormField_ng_template_0_Conditional_0_Template, 3, 5, "label", 16);
+    \u0275\u0275template(0, MatFormField_ng_template_0_Conditional_0_Template, 3, 5, "label", 18);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275conditional(0, ctx_r1._hasFloatingLabel() ? 0 : -1);
+    \u0275\u0275conditional(ctx_r1._hasFloatingLabel() ? 0 : -1);
   }
 }
 function MatFormField_Conditional_4_Template(rf, ctx) {
@@ -56458,7 +57955,7 @@ function MatFormField_Conditional_6_Template(rf, ctx) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275property("matFormFieldNotchedOutlineOpen", ctx_r1._shouldLabelFloat());
     \u0275\u0275advance();
-    \u0275\u0275conditional(1, !ctx_r1._forceDisplayInfixLabel() ? 1 : -1);
+    \u0275\u0275conditional(!ctx_r1._forceDisplayInfixLabel() ? 1 : -1);
   }
 }
 function MatFormField_Conditional_7_Template(rf, ctx) {
@@ -56508,7 +58005,7 @@ function MatFormField_Conditional_14_Template(rf, ctx) {
 }
 function MatFormField_Case_16_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 18);
+    \u0275\u0275elementStart(0, "div", 16);
     \u0275\u0275projection(1, 6);
     \u0275\u0275elementEnd();
   }
@@ -56532,7 +58029,7 @@ function MatFormField_Case_17_Conditional_1_Template(rf, ctx) {
 }
 function MatFormField_Case_17_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 19);
+    \u0275\u0275elementStart(0, "div", 17);
     \u0275\u0275template(1, MatFormField_Case_17_Conditional_1_Template, 2, 2, "mat-hint", 20);
     \u0275\u0275projection(2, 7);
     \u0275\u0275element(3, "div", 21);
@@ -56543,7 +58040,7 @@ function MatFormField_Case_17_Template(rf, ctx) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275property("@transitionMessages", ctx_r1._subscriptAnimationState);
     \u0275\u0275advance();
-    \u0275\u0275conditional(1, ctx_r1.hintLabel ? 1 : -1);
+    \u0275\u0275conditional(ctx_r1.hintLabel ? 1 : -1);
   }
 }
 var _MatLabel = class _MatLabel {
@@ -56618,7 +58115,7 @@ var MatError = _MatError;
   }], () => [{
     type: void 0,
     decorators: [{
-      type: Attribute,
+      type: Attribute2,
       args: ["aria-live"]
     }]
   }, {
@@ -56697,7 +58194,7 @@ _MatPrefix.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
   type: _MatPrefix,
   selectors: [["", "matPrefix", ""], ["", "matIconPrefix", ""], ["", "matTextPrefix", ""]],
   inputs: {
-    _isTextSelector: [InputFlags.None, "matTextPrefix", "_isTextSelector"]
+    _isTextSelector: [0, "matTextPrefix", "_isTextSelector"]
   },
   standalone: true,
   features: [\u0275\u0275ProvidersFeature([{
@@ -56740,7 +58237,7 @@ _MatSuffix.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
   type: _MatSuffix,
   selectors: [["", "matSuffix", ""], ["", "matIconSuffix", ""], ["", "matTextSuffix", ""]],
   inputs: {
-    _isTextSelector: [InputFlags.None, "matTextSuffix", "_isTextSelector"]
+    _isTextSelector: [0, "matTextSuffix", "_isTextSelector"]
   },
   standalone: true,
   features: [\u0275\u0275ProvidersFeature([{
@@ -56987,7 +58484,7 @@ _MatFormFieldNotchedOutline.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
     }
   },
   inputs: {
-    open: [InputFlags.None, "matFormFieldNotchedOutlineOpen", "open"]
+    open: [0, "matFormFieldNotchedOutlineOpen", "open"]
   },
   standalone: true,
   features: [\u0275\u0275StandaloneFeature],
@@ -57114,7 +58611,7 @@ var _MatFormField = class _MatFormField {
     }
     this._appearance = newAppearance;
     if (this._appearance === "outline" && this._appearance !== oldValue) {
-      this._needsOutlineLabelOffsetUpdateOnStable = true;
+      this._needsOutlineLabelOffsetUpdate = true;
     }
   }
   /**
@@ -57143,10 +58640,9 @@ var _MatFormField = class _MatFormField {
   set _control(value) {
     this._explicitFormFieldControl = value;
   }
-  constructor(_elementRef, _changeDetectorRef, _ngZone, _dir, _platform, _defaults, _animationMode, _unusedDocument) {
+  constructor(_elementRef, _changeDetectorRef, _unusedNgZone, _dir, _platform, _defaults, _animationMode, _unusedDocument) {
     this._elementRef = _elementRef;
     this._changeDetectorRef = _changeDetectorRef;
-    this._ngZone = _ngZone;
     this._dir = _dir;
     this._platform = _platform;
     this._defaults = _defaults;
@@ -57165,7 +58661,8 @@ var _MatFormField = class _MatFormField {
     this._subscriptAnimationState = "";
     this._destroyed = new Subject();
     this._isFocused = null;
-    this._needsOutlineLabelOffsetUpdateOnStable = false;
+    this._needsOutlineLabelOffsetUpdate = false;
+    this._injector = inject(Injector);
     if (_defaults) {
       if (_defaults.appearance) {
         this.appearance = _defaults.appearance;
@@ -57280,21 +58777,19 @@ var _MatFormField = class _MatFormField {
    * The floating label in the docked state needs to account for prefixes. The horizontal offset
    * is calculated whenever the appearance changes to `outline`, the prefixes change, or when the
    * form field is added to the DOM. This method sets up all subscriptions which are needed to
-   * trigger the label offset update. In general, we want to avoid performing measurements often,
-   * so we rely on the `NgZone` as indicator when the offset should be recalculated, instead of
-   * checking every change detection cycle.
+   * trigger the label offset update.
    */
   _initializeOutlineLabelOffsetSubscriptions() {
-    this._prefixChildren.changes.subscribe(() => this._needsOutlineLabelOffsetUpdateOnStable = true);
-    this._ngZone.runOutsideAngular(() => {
-      this._ngZone.onStable.pipe(takeUntil(this._destroyed)).subscribe(() => {
-        if (this._needsOutlineLabelOffsetUpdateOnStable) {
-          this._needsOutlineLabelOffsetUpdateOnStable = false;
-          this._updateOutlineLabelOffset();
-        }
-      });
+    this._prefixChildren.changes.subscribe(() => this._needsOutlineLabelOffsetUpdate = true);
+    afterRender(() => {
+      if (this._needsOutlineLabelOffsetUpdate) {
+        this._needsOutlineLabelOffsetUpdate = false;
+        this._updateOutlineLabelOffset();
+      }
+    }, {
+      injector: this._injector
     });
-    this._dir.change.pipe(takeUntil(this._destroyed)).subscribe(() => this._needsOutlineLabelOffsetUpdateOnStable = true);
+    this._dir.change.pipe(takeUntil(this._destroyed)).subscribe(() => this._needsOutlineLabelOffsetUpdate = true);
   }
   /** Whether the floating label should always float or not. */
   _shouldAlwaysFloat() {
@@ -57411,7 +58906,7 @@ var _MatFormField = class _MatFormField {
    * incorporate the horizontal offset into their default text-field styles.
    */
   _updateOutlineLabelOffset() {
-    if (!this._platform.isBrowser || !this._hasOutline() || !this._floatingLabel) {
+    if (!this._hasOutline() || !this._floatingLabel) {
       return;
     }
     const floatingLabel = this._floatingLabel.element;
@@ -57420,7 +58915,7 @@ var _MatFormField = class _MatFormField {
       return;
     }
     if (!this._isAttachedToDom()) {
-      this._needsOutlineLabelOffsetUpdateOnStable = true;
+      this._needsOutlineLabelOffsetUpdate = true;
       return;
     }
     const iconPrefixContainer = this._iconPrefixContainer?.nativeElement;
@@ -57519,7 +59014,7 @@ _MatFormField.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   ngContentSelectors: _c72,
   decls: 18,
   vars: 21,
-  consts: [["labelTemplate", ""], ["textField", ""], ["iconPrefixContainer", ""], ["textPrefixContainer", ""], [1, "mat-mdc-text-field-wrapper", "mdc-text-field", 3, "click"], [1, "mat-mdc-form-field-focus-overlay"], [1, "mat-mdc-form-field-flex"], ["matFormFieldNotchedOutline", "", 3, "matFormFieldNotchedOutlineOpen"], [1, "mat-mdc-form-field-icon-prefix"], [1, "mat-mdc-form-field-text-prefix"], [1, "mat-mdc-form-field-infix"], [3, "ngTemplateOutlet"], [1, "mat-mdc-form-field-text-suffix"], [1, "mat-mdc-form-field-icon-suffix"], ["matFormFieldLineRipple", ""], [1, "mat-mdc-form-field-subscript-wrapper", "mat-mdc-form-field-bottom-align"], ["matFormFieldFloatingLabel", "", 3, "floating", "monitorResize", "id"], ["aria-hidden", "true", 1, "mat-mdc-form-field-required-marker", "mdc-floating-label--required"], [1, "mat-mdc-form-field-error-wrapper"], [1, "mat-mdc-form-field-hint-wrapper"], [3, "id"], [1, "mat-mdc-form-field-hint-spacer"]],
+  consts: [["labelTemplate", ""], ["textField", ""], ["iconPrefixContainer", ""], ["textPrefixContainer", ""], [1, "mat-mdc-text-field-wrapper", "mdc-text-field", 3, "click"], [1, "mat-mdc-form-field-focus-overlay"], [1, "mat-mdc-form-field-flex"], ["matFormFieldNotchedOutline", "", 3, "matFormFieldNotchedOutlineOpen"], [1, "mat-mdc-form-field-icon-prefix"], [1, "mat-mdc-form-field-text-prefix"], [1, "mat-mdc-form-field-infix"], [3, "ngTemplateOutlet"], [1, "mat-mdc-form-field-text-suffix"], [1, "mat-mdc-form-field-icon-suffix"], ["matFormFieldLineRipple", ""], [1, "mat-mdc-form-field-subscript-wrapper", "mat-mdc-form-field-bottom-align"], [1, "mat-mdc-form-field-error-wrapper"], [1, "mat-mdc-form-field-hint-wrapper"], ["matFormFieldFloatingLabel", "", 3, "floating", "monitorResize", "id"], ["aria-hidden", "true", 1, "mat-mdc-form-field-required-marker", "mdc-floating-label--required"], [3, "id"], [1, "mat-mdc-form-field-hint-spacer"]],
   template: function MatFormField_Template(rf, ctx) {
     if (rf & 1) {
       const _r1 = \u0275\u0275getCurrentView();
@@ -57542,7 +59037,7 @@ _MatFormField.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
       \u0275\u0275template(14, MatFormField_Conditional_14_Template, 1, 0, "div", 14);
       \u0275\u0275elementEnd();
       \u0275\u0275elementStart(15, "div", 15);
-      \u0275\u0275template(16, MatFormField_Case_16_Template, 2, 1)(17, MatFormField_Case_17_Template, 5, 2);
+      \u0275\u0275template(16, MatFormField_Case_16_Template, 2, 1, "div", 16)(17, MatFormField_Case_17_Template, 5, 2, "div", 17);
       \u0275\u0275elementEnd();
     }
     if (rf & 2) {
@@ -57550,25 +59045,25 @@ _MatFormField.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
       \u0275\u0275advance(2);
       \u0275\u0275classProp("mdc-text-field--filled", !ctx._hasOutline())("mdc-text-field--outlined", ctx._hasOutline())("mdc-text-field--no-label", !ctx._hasFloatingLabel())("mdc-text-field--disabled", ctx._control.disabled)("mdc-text-field--invalid", ctx._control.errorState);
       \u0275\u0275advance(2);
-      \u0275\u0275conditional(4, !ctx._hasOutline() && !ctx._control.disabled ? 4 : -1);
+      \u0275\u0275conditional(!ctx._hasOutline() && !ctx._control.disabled ? 4 : -1);
       \u0275\u0275advance(2);
-      \u0275\u0275conditional(6, ctx._hasOutline() ? 6 : -1);
+      \u0275\u0275conditional(ctx._hasOutline() ? 6 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(7, ctx._hasIconPrefix ? 7 : -1);
+      \u0275\u0275conditional(ctx._hasIconPrefix ? 7 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(8, ctx._hasTextPrefix ? 8 : -1);
+      \u0275\u0275conditional(ctx._hasTextPrefix ? 8 : -1);
       \u0275\u0275advance(2);
-      \u0275\u0275conditional(10, !ctx._hasOutline() || ctx._forceDisplayInfixLabel() ? 10 : -1);
+      \u0275\u0275conditional(!ctx._hasOutline() || ctx._forceDisplayInfixLabel() ? 10 : -1);
       \u0275\u0275advance(2);
-      \u0275\u0275conditional(12, ctx._hasTextSuffix ? 12 : -1);
+      \u0275\u0275conditional(ctx._hasTextSuffix ? 12 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(13, ctx._hasIconSuffix ? 13 : -1);
+      \u0275\u0275conditional(ctx._hasIconSuffix ? 13 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(14, !ctx._hasOutline() ? 14 : -1);
+      \u0275\u0275conditional(!ctx._hasOutline() ? 14 : -1);
       \u0275\u0275advance();
       \u0275\u0275classProp("mat-mdc-form-field-subscript-dynamic-size", ctx.subscriptSizing === "dynamic");
       \u0275\u0275advance();
-      \u0275\u0275conditional(16, (tmp_16_0 = ctx._getDisplayedMessages()) === "error" ? 16 : tmp_16_0 === "hint" ? 17 : -1);
+      \u0275\u0275conditional((tmp_16_0 = ctx._getDisplayedMessages()) === "error" ? 16 : tmp_16_0 === "hint" ? 17 : -1);
     }
   },
   dependencies: [MatFormFieldFloatingLabel, MatFormFieldNotchedOutline, NgTemplateOutlet, MatFormFieldLineRipple, MatHint],
@@ -58120,9 +59615,9 @@ _CdkTextareaAutosize.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
     }
   },
   inputs: {
-    minRows: [InputFlags.None, "cdkAutosizeMinRows", "minRows"],
-    maxRows: [InputFlags.None, "cdkAutosizeMaxRows", "maxRows"],
-    enabled: [InputFlags.HasDecoratorInputTransform, "cdkTextareaAutosize", "enabled", booleanAttribute],
+    minRows: [0, "cdkAutosizeMinRows", "minRows"],
+    maxRows: [0, "cdkAutosizeMaxRows", "maxRows"],
+    enabled: [2, "cdkTextareaAutosize", "enabled", booleanAttribute],
     placeholder: "placeholder"
   },
   exportAs: ["cdkTextareaAutosize"],
@@ -58490,7 +59985,7 @@ _MatInput.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
     required: "required",
     type: "type",
     errorStateMatcher: "errorStateMatcher",
-    userAriaDescribedBy: [InputFlags.None, "aria-describedby", "userAriaDescribedBy"],
+    userAriaDescribedBy: [0, "aria-describedby", "userAriaDescribedBy"],
     value: "value",
     readonly: "readonly"
   },
@@ -59701,6 +61196,351 @@ function laravelInterceptor(req, next) {
   return next(newReq);
 }
 
+// node_modules/@angular/service-worker/fesm2022/service-worker.mjs
+var ERR_SW_NOT_SUPPORTED = "Service workers are disabled or not supported by this browser";
+function errorObservable(message) {
+  return defer(() => throwError(new Error(message)));
+}
+var NgswCommChannel = class {
+  constructor(serviceWorker) {
+    this.serviceWorker = serviceWorker;
+    if (!serviceWorker) {
+      this.worker = this.events = this.registration = errorObservable(ERR_SW_NOT_SUPPORTED);
+    } else {
+      const controllerChangeEvents = fromEvent(serviceWorker, "controllerchange");
+      const controllerChanges = controllerChangeEvents.pipe(map(() => serviceWorker.controller));
+      const currentController = defer(() => of(serviceWorker.controller));
+      const controllerWithChanges = concat(currentController, controllerChanges);
+      this.worker = controllerWithChanges.pipe(filter((c) => !!c));
+      this.registration = this.worker.pipe(switchMap(() => serviceWorker.getRegistration()));
+      const rawEvents = fromEvent(serviceWorker, "message");
+      const rawEventPayload = rawEvents.pipe(map((event) => event.data));
+      const eventsUnconnected = rawEventPayload.pipe(filter((event) => event && event.type));
+      const events = eventsUnconnected.pipe(publish());
+      events.connect();
+      this.events = events;
+    }
+  }
+  postMessage(action, payload) {
+    return this.worker.pipe(take(1), tap((sw) => {
+      sw.postMessage(__spreadValues({
+        action
+      }, payload));
+    })).toPromise().then(() => void 0);
+  }
+  postMessageWithOperation(type, payload, operationNonce) {
+    const waitForOperationCompleted = this.waitForOperationCompleted(operationNonce);
+    const postMessage = this.postMessage(type, payload);
+    return Promise.all([postMessage, waitForOperationCompleted]).then(([, result]) => result);
+  }
+  generateNonce() {
+    return Math.round(Math.random() * 1e7);
+  }
+  eventsOfType(type) {
+    let filterFn;
+    if (typeof type === "string") {
+      filterFn = (event) => event.type === type;
+    } else {
+      filterFn = (event) => type.includes(event.type);
+    }
+    return this.events.pipe(filter(filterFn));
+  }
+  nextEventOfType(type) {
+    return this.eventsOfType(type).pipe(take(1));
+  }
+  waitForOperationCompleted(nonce) {
+    return this.eventsOfType("OPERATION_COMPLETED").pipe(filter((event) => event.nonce === nonce), take(1), map((event) => {
+      if (event.result !== void 0) {
+        return event.result;
+      }
+      throw new Error(event.error);
+    })).toPromise();
+  }
+  get isEnabled() {
+    return !!this.serviceWorker;
+  }
+};
+var _SwPush = class _SwPush {
+  /**
+   * True if the Service Worker is enabled (supported by the browser and enabled via
+   * `ServiceWorkerModule`).
+   */
+  get isEnabled() {
+    return this.sw.isEnabled;
+  }
+  constructor(sw) {
+    this.sw = sw;
+    this.pushManager = null;
+    this.subscriptionChanges = new Subject();
+    if (!sw.isEnabled) {
+      this.messages = NEVER;
+      this.notificationClicks = NEVER;
+      this.subscription = NEVER;
+      return;
+    }
+    this.messages = this.sw.eventsOfType("PUSH").pipe(map((message) => message.data));
+    this.notificationClicks = this.sw.eventsOfType("NOTIFICATION_CLICK").pipe(map((message) => message.data));
+    this.pushManager = this.sw.registration.pipe(map((registration) => registration.pushManager));
+    const workerDrivenSubscriptions = this.pushManager.pipe(switchMap((pm) => pm.getSubscription()));
+    this.subscription = merge(workerDrivenSubscriptions, this.subscriptionChanges);
+  }
+  /**
+   * Subscribes to Web Push Notifications,
+   * after requesting and receiving user permission.
+   *
+   * @param options An object containing the `serverPublicKey` string.
+   * @returns A Promise that resolves to the new subscription object.
+   */
+  requestSubscription(options) {
+    if (!this.sw.isEnabled || this.pushManager === null) {
+      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
+    }
+    const pushOptions = {
+      userVisibleOnly: true
+    };
+    let key = this.decodeBase64(options.serverPublicKey.replace(/_/g, "/").replace(/-/g, "+"));
+    let applicationServerKey = new Uint8Array(new ArrayBuffer(key.length));
+    for (let i = 0; i < key.length; i++) {
+      applicationServerKey[i] = key.charCodeAt(i);
+    }
+    pushOptions.applicationServerKey = applicationServerKey;
+    return this.pushManager.pipe(switchMap((pm) => pm.subscribe(pushOptions)), take(1)).toPromise().then((sub) => {
+      this.subscriptionChanges.next(sub);
+      return sub;
+    });
+  }
+  /**
+   * Unsubscribes from Service Worker push notifications.
+   *
+   * @returns A Promise that is resolved when the operation succeeds, or is rejected if there is no
+   *          active subscription or the unsubscribe operation fails.
+   */
+  unsubscribe() {
+    if (!this.sw.isEnabled) {
+      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
+    }
+    const doUnsubscribe = (sub) => {
+      if (sub === null) {
+        throw new Error("Not subscribed to push notifications.");
+      }
+      return sub.unsubscribe().then((success) => {
+        if (!success) {
+          throw new Error("Unsubscribe failed!");
+        }
+        this.subscriptionChanges.next(null);
+      });
+    };
+    return this.subscription.pipe(take(1), switchMap(doUnsubscribe)).toPromise();
+  }
+  decodeBase64(input2) {
+    return atob(input2);
+  }
+};
+_SwPush.\u0275fac = function SwPush_Factory(t) {
+  return new (t || _SwPush)(\u0275\u0275inject(NgswCommChannel));
+};
+_SwPush.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
+  token: _SwPush,
+  factory: _SwPush.\u0275fac
+});
+var SwPush = _SwPush;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SwPush, [{
+    type: Injectable
+  }], () => [{
+    type: NgswCommChannel
+  }], null);
+})();
+var _SwUpdate = class _SwUpdate {
+  /**
+   * True if the Service Worker is enabled (supported by the browser and enabled via
+   * `ServiceWorkerModule`).
+   */
+  get isEnabled() {
+    return this.sw.isEnabled;
+  }
+  constructor(sw) {
+    this.sw = sw;
+    if (!sw.isEnabled) {
+      this.versionUpdates = NEVER;
+      this.unrecoverable = NEVER;
+      return;
+    }
+    this.versionUpdates = this.sw.eventsOfType(["VERSION_DETECTED", "VERSION_INSTALLATION_FAILED", "VERSION_READY", "NO_NEW_VERSION_DETECTED"]);
+    this.unrecoverable = this.sw.eventsOfType("UNRECOVERABLE_STATE");
+  }
+  /**
+   * Checks for an update and waits until the new version is downloaded from the server and ready
+   * for activation.
+   *
+   * @returns a promise that
+   * - resolves to `true` if a new version was found and is ready to be activated.
+   * - resolves to `false` if no new version was found
+   * - rejects if any error occurs
+   */
+  checkForUpdate() {
+    if (!this.sw.isEnabled) {
+      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
+    }
+    const nonce = this.sw.generateNonce();
+    return this.sw.postMessageWithOperation("CHECK_FOR_UPDATES", {
+      nonce
+    }, nonce);
+  }
+  /**
+   * Updates the current client (i.e. browser tab) to the latest version that is ready for
+   * activation.
+   *
+   * In most cases, you should not use this method and instead should update a client by reloading
+   * the page.
+   *
+   * <div class="alert is-important">
+   *
+   * Updating a client without reloading can easily result in a broken application due to a version
+   * mismatch between the application shell and other page resources,
+   * such as lazy-loaded chunks, whose filenames may change between
+   * versions.
+   *
+   * Only use this method, if you are certain it is safe for your specific use case.
+   *
+   * </div>
+   *
+   * @returns a promise that
+   *  - resolves to `true` if an update was activated successfully
+   *  - resolves to `false` if no update was available (for example, the client was already on the
+   *    latest version).
+   *  - rejects if any error occurs
+   */
+  activateUpdate() {
+    if (!this.sw.isEnabled) {
+      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
+    }
+    const nonce = this.sw.generateNonce();
+    return this.sw.postMessageWithOperation("ACTIVATE_UPDATE", {
+      nonce
+    }, nonce);
+  }
+};
+_SwUpdate.\u0275fac = function SwUpdate_Factory(t) {
+  return new (t || _SwUpdate)(\u0275\u0275inject(NgswCommChannel));
+};
+_SwUpdate.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
+  token: _SwUpdate,
+  factory: _SwUpdate.\u0275fac
+});
+var SwUpdate = _SwUpdate;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SwUpdate, [{
+    type: Injectable
+  }], () => [{
+    type: NgswCommChannel
+  }], null);
+})();
+var SCRIPT = new InjectionToken(ngDevMode ? "NGSW_REGISTER_SCRIPT" : "");
+function ngswAppInitializer(injector, script, options, platformId) {
+  return () => {
+    if (!(isPlatformBrowser2(platformId) && "serviceWorker" in navigator && options.enabled !== false)) {
+      return;
+    }
+    const ngZone = injector.get(NgZone);
+    const appRef = injector.get(ApplicationRef);
+    ngZone.runOutsideAngular(() => {
+      const sw = navigator.serviceWorker;
+      const onControllerChange = () => sw.controller?.postMessage({
+        action: "INITIALIZE"
+      });
+      sw.addEventListener("controllerchange", onControllerChange);
+      appRef.onDestroy(() => {
+        sw.removeEventListener("controllerchange", onControllerChange);
+      });
+    });
+    let readyToRegister$;
+    if (typeof options.registrationStrategy === "function") {
+      readyToRegister$ = options.registrationStrategy();
+    } else {
+      const [strategy, ...args] = (options.registrationStrategy || "registerWhenStable:30000").split(":");
+      switch (strategy) {
+        case "registerImmediately":
+          readyToRegister$ = of(null);
+          break;
+        case "registerWithDelay":
+          readyToRegister$ = delayWithTimeout(+args[0] || 0);
+          break;
+        case "registerWhenStable":
+          readyToRegister$ = !args[0] ? whenStable2(injector) : merge(whenStable2(injector), delayWithTimeout(+args[0]));
+          break;
+        default:
+          throw new Error(`Unknown ServiceWorker registration strategy: ${options.registrationStrategy}`);
+      }
+    }
+    ngZone.runOutsideAngular(() => readyToRegister$.pipe(take(1)).subscribe(() => navigator.serviceWorker.register(script, {
+      scope: options.scope
+    }).catch((err) => console.error("Service worker registration failed with:", err))));
+  };
+}
+function delayWithTimeout(timeout) {
+  return of(null).pipe(delay(timeout));
+}
+function whenStable2(injector) {
+  const appRef = injector.get(ApplicationRef);
+  return appRef.isStable.pipe(filter((stable) => stable));
+}
+function ngswCommChannelFactory(opts, platformId) {
+  return new NgswCommChannel(isPlatformBrowser2(platformId) && opts.enabled !== false ? navigator.serviceWorker : void 0);
+}
+var SwRegistrationOptions = class {
+};
+function provideServiceWorker(script, options = {}) {
+  return makeEnvironmentProviders([SwPush, SwUpdate, {
+    provide: SCRIPT,
+    useValue: script
+  }, {
+    provide: SwRegistrationOptions,
+    useValue: options
+  }, {
+    provide: NgswCommChannel,
+    useFactory: ngswCommChannelFactory,
+    deps: [SwRegistrationOptions, PLATFORM_ID]
+  }, {
+    provide: APP_INITIALIZER,
+    useFactory: ngswAppInitializer,
+    deps: [Injector, SCRIPT, SwRegistrationOptions, PLATFORM_ID],
+    multi: true
+  }]);
+}
+var _ServiceWorkerModule = class _ServiceWorkerModule {
+  /**
+   * Register the given Angular Service Worker script.
+   *
+   * If `enabled` is set to `false` in the given options, the module will behave as if service
+   * workers are not supported by the browser, and the service worker will not be registered.
+   */
+  static register(script, options = {}) {
+    return {
+      ngModule: _ServiceWorkerModule,
+      providers: [provideServiceWorker(script, options)]
+    };
+  }
+};
+_ServiceWorkerModule.\u0275fac = function ServiceWorkerModule_Factory(t) {
+  return new (t || _ServiceWorkerModule)();
+};
+_ServiceWorkerModule.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+  type: _ServiceWorkerModule
+});
+_ServiceWorkerModule.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
+  providers: [SwPush, SwUpdate]
+});
+var ServiceWorkerModule = _ServiceWorkerModule;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ServiceWorkerModule, [{
+    type: NgModule,
+    args: [{
+      providers: [SwPush, SwUpdate]
+    }]
+  }], null, null);
+})();
+
 // src/app/app.config.ts
 var appConfig = {
   providers: [
@@ -59708,7 +61548,11 @@ var appConfig = {
     importProvidersFrom(HttpClientModule),
     provideAnimations(),
     CookieService,
-    provideHttpClient(withInterceptors([laravelInterceptor]))
+    provideHttpClient(withInterceptors([laravelInterceptor])),
+    provideServiceWorker("ngsw-worker.js", {
+      enabled: !isDevMode(),
+      registrationStrategy: "registerWhenStable:30000"
+    })
   ]
 };
 
@@ -59797,7 +61641,10 @@ var _MatBadgeStyleLoader = __MatBadgeStyleLoader;
   }], null, null);
 })();
 var _MatBadge = class _MatBadge {
-  /** The color of the badge. Can be `primary`, `accent`, or `warn`. */
+  /**
+   * The color of the badge. Can be `primary`, `accent`, or `warn`.
+   * Not recommended in M3, for more information see https://material.angular.io/guide/material-2-theming#optional-add-backwards-compatibility-styles-for-color-variants.
+   */
   get color() {
     return this._color;
   }
@@ -59984,14 +61831,14 @@ _MatBadge.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
     }
   },
   inputs: {
-    color: [InputFlags.None, "matBadgeColor", "color"],
-    overlap: [InputFlags.HasDecoratorInputTransform, "matBadgeOverlap", "overlap", booleanAttribute],
-    disabled: [InputFlags.HasDecoratorInputTransform, "matBadgeDisabled", "disabled", booleanAttribute],
-    position: [InputFlags.None, "matBadgePosition", "position"],
-    content: [InputFlags.None, "matBadge", "content"],
-    description: [InputFlags.None, "matBadgeDescription", "description"],
-    size: [InputFlags.None, "matBadgeSize", "size"],
-    hidden: [InputFlags.HasDecoratorInputTransform, "matBadgeHidden", "hidden", booleanAttribute]
+    color: [0, "matBadgeColor", "color"],
+    overlap: [2, "matBadgeOverlap", "overlap", booleanAttribute],
+    disabled: [2, "matBadgeDisabled", "disabled", booleanAttribute],
+    position: [0, "matBadgePosition", "position"],
+    content: [0, "matBadge", "content"],
+    description: [0, "matBadgeDescription", "description"],
+    size: [0, "matBadgeSize", "size"],
+    hidden: [2, "matBadgeHidden", "hidden", booleanAttribute]
   },
   standalone: true,
   features: [\u0275\u0275InputTransformsFeature]
@@ -60163,11 +62010,11 @@ function MatChipRow_Conditional_4_Conditional_1_Template(rf, ctx) {
 }
 function MatChipRow_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, MatChipRow_Conditional_4_Conditional_0_Template, 1, 0)(1, MatChipRow_Conditional_4_Conditional_1_Template, 1, 0);
+    \u0275\u0275template(0, MatChipRow_Conditional_4_Conditional_0_Template, 1, 0)(1, MatChipRow_Conditional_4_Conditional_1_Template, 1, 0, "span", 7);
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275conditional(0, ctx_r0.contentEditInput ? 0 : 1);
+    \u0275\u0275conditional(ctx_r0.contentEditInput ? 0 : 1);
   }
 }
 function MatChipRow_Conditional_5_Template(rf, ctx) {
@@ -60187,7 +62034,7 @@ var _c64 = ".mdc-evolution-chip-set{display:flex}.mdc-evolution-chip-set:focus{o
 var MAT_CHIPS_DEFAULT_OPTIONS = new InjectionToken("mat-chips-default-options", {
   providedIn: "root",
   factory: () => ({
-    separatorKeyCodes: [ENTER]
+    separatorKeyCodes: [ENTER2]
   })
 });
 var MAT_CHIP_AVATAR = new InjectionToken("MatChipAvatar");
@@ -60236,7 +62083,7 @@ var _MatChipAction = class _MatChipAction {
     }
   }
   _handleKeydown(event) {
-    if ((event.keyCode === ENTER || event.keyCode === SPACE) && !this.disabled && this.isInteractive && this._isPrimary && !this._parentChip._isEditing) {
+    if ((event.keyCode === ENTER2 || event.keyCode === SPACE2) && !this.disabled && this.isInteractive && this._isPrimary && !this._parentChip._isEditing) {
       event.preventDefault();
       this._parentChip._handlePrimaryActionInteraction();
     }
@@ -60265,8 +62112,8 @@ _MatChipAction.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
   },
   inputs: {
     isInteractive: "isInteractive",
-    disabled: [InputFlags.HasDecoratorInputTransform, "disabled", "disabled", booleanAttribute],
-    tabIndex: [InputFlags.HasDecoratorInputTransform, "tabIndex", "tabIndex", (value) => value == null ? -1 : numberAttribute(value)],
+    disabled: [2, "disabled", "disabled", booleanAttribute],
+    tabIndex: [2, "tabIndex", "tabIndex", (value) => value == null ? -1 : numberAttribute(value)],
     _allowFocusWhenDisabled: "_allowFocusWhenDisabled"
   },
   standalone: true,
@@ -60407,7 +62254,7 @@ var _MatChipRemove = class _MatChipRemove extends MatChipAction {
     }
   }
   _handleKeydown(event) {
-    if ((event.keyCode === ENTER || event.keyCode === SPACE) && !this.disabled) {
+    if ((event.keyCode === ENTER2 || event.keyCode === SPACE2) && !this.disabled) {
       event.stopPropagation();
       event.preventDefault();
       this._parentChip.remove();
@@ -60504,6 +62351,7 @@ var _MatChip = class _MatChip {
     this.destroyed = new EventEmitter();
     this.basicChipAttrName = "mat-basic-chip";
     this._rippleLoader = inject(MatRippleLoader);
+    this._injector = inject(Injector);
     this._document = _document2;
     this._animationsDisabled = animationMode === "NoopAnimations";
     if (tabIndex != null) {
@@ -60620,9 +62468,11 @@ var _MatChip = class _MatChip {
             chip: this
           });
         } else {
-          this._ngZone.onStable.pipe(take(1)).subscribe(() => this._ngZone.run(() => this._onBlur.next({
+          afterNextRender(() => this._ngZone.run(() => this._onBlur.next({
             chip: this
-          })));
+          })), {
+            injector: this._injector
+          });
         }
       }
     });
@@ -60680,15 +62530,15 @@ _MatChip.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   inputs: {
     role: "role",
     id: "id",
-    ariaLabel: [InputFlags.None, "aria-label", "ariaLabel"],
-    ariaDescription: [InputFlags.None, "aria-description", "ariaDescription"],
+    ariaLabel: [0, "aria-label", "ariaLabel"],
+    ariaDescription: [0, "aria-description", "ariaDescription"],
     value: "value",
     color: "color",
-    removable: [InputFlags.HasDecoratorInputTransform, "removable", "removable", booleanAttribute],
-    highlighted: [InputFlags.HasDecoratorInputTransform, "highlighted", "highlighted", booleanAttribute],
-    disableRipple: [InputFlags.HasDecoratorInputTransform, "disableRipple", "disableRipple", booleanAttribute],
-    disabled: [InputFlags.HasDecoratorInputTransform, "disabled", "disabled", booleanAttribute],
-    tabIndex: [InputFlags.HasDecoratorInputTransform, "tabIndex", "tabIndex", (value) => value == null ? void 0 : numberAttribute(value)]
+    removable: [2, "removable", "removable", booleanAttribute],
+    highlighted: [2, "highlighted", "highlighted", booleanAttribute],
+    disableRipple: [2, "disableRipple", "disableRipple", booleanAttribute],
+    disabled: [2, "disabled", "disabled", booleanAttribute],
+    tabIndex: [2, "tabIndex", "tabIndex", (value) => value == null ? void 0 : numberAttribute(value)]
   },
   outputs: {
     removed: "removed",
@@ -60720,9 +62570,9 @@ _MatChip.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
       \u0275\u0275advance(2);
       \u0275\u0275property("isInteractive", false);
       \u0275\u0275advance();
-      \u0275\u0275conditional(3, ctx.leadingIcon ? 3 : -1);
+      \u0275\u0275conditional(ctx.leadingIcon ? 3 : -1);
       \u0275\u0275advance(4);
-      \u0275\u0275conditional(7, ctx._hasTrailingIcon() ? 7 : -1);
+      \u0275\u0275conditional(ctx._hasTrailingIcon() ? 7 : -1);
     }
   },
   dependencies: [MatChipAction],
@@ -60803,7 +62653,7 @@ var MatChip = _MatChip;
   }, {
     type: void 0,
     decorators: [{
-      type: Attribute,
+      type: Attribute2,
       args: ["tabindex"]
     }]
   }], {
@@ -61018,8 +62868,8 @@ _MatChipOption.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     }
   },
   inputs: {
-    selectable: [InputFlags.HasDecoratorInputTransform, "selectable", "selectable", booleanAttribute],
-    selected: [InputFlags.HasDecoratorInputTransform, "selected", "selected", booleanAttribute]
+    selectable: [2, "selectable", "selectable", booleanAttribute],
+    selected: [2, "selected", "selected", booleanAttribute]
   },
   outputs: {
     selectionChange: "selectionChange"
@@ -61056,9 +62906,9 @@ _MatChipOption.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
       \u0275\u0275property("tabIndex", ctx.tabIndex)("_allowFocusWhenDisabled", true);
       \u0275\u0275attribute("aria-selected", ctx.ariaSelected)("aria-label", ctx.ariaLabel)("aria-describedby", ctx._ariaDescriptionId);
       \u0275\u0275advance();
-      \u0275\u0275conditional(3, ctx._hasLeadingGraphic() ? 3 : -1);
+      \u0275\u0275conditional(ctx._hasLeadingGraphic() ? 3 : -1);
       \u0275\u0275advance(4);
-      \u0275\u0275conditional(7, ctx._hasTrailingIcon() ? 7 : -1);
+      \u0275\u0275conditional(ctx._hasTrailingIcon() ? 7 : -1);
       \u0275\u0275advance();
       \u0275\u0275property("id", ctx._ariaDescriptionId);
       \u0275\u0275advance();
@@ -61222,7 +63072,7 @@ var _MatChipRow = class _MatChipRow extends MatChip {
     }
   }
   _handleKeydown(event) {
-    if (event.keyCode === ENTER && !this.disabled) {
+    if (event.keyCode === ENTER2 && !this.disabled) {
       if (this._isEditing) {
         event.preventDefault();
         this._onEditFinish();
@@ -61347,16 +63197,16 @@ _MatChipRow.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
       \u0275\u0275elementEnd();
     }
     if (rf & 2) {
-      \u0275\u0275conditional(0, !ctx._isEditing ? 0 : -1);
+      \u0275\u0275conditional(!ctx._isEditing ? 0 : -1);
       \u0275\u0275advance();
       \u0275\u0275property("tabIndex", ctx.tabIndex)("disabled", ctx.disabled);
       \u0275\u0275attribute("aria-label", ctx.ariaLabel)("aria-describedby", ctx._ariaDescriptionId);
       \u0275\u0275advance();
-      \u0275\u0275conditional(2, ctx.leadingIcon ? 2 : -1);
+      \u0275\u0275conditional(ctx.leadingIcon ? 2 : -1);
       \u0275\u0275advance(2);
-      \u0275\u0275conditional(4, ctx._isEditing ? 4 : 5);
+      \u0275\u0275conditional(ctx._isEditing ? 4 : 5);
       \u0275\u0275advance(3);
-      \u0275\u0275conditional(7, ctx._hasTrailingIcon() ? 7 : -1);
+      \u0275\u0275conditional(ctx._hasTrailingIcon() ? 7 : -1);
       \u0275\u0275advance();
       \u0275\u0275property("id", ctx._ariaDescriptionId);
       \u0275\u0275advance();
@@ -61444,7 +63294,7 @@ var MatChipRow = _MatChipRow;
   }, {
     type: void 0,
     decorators: [{
-      type: Attribute,
+      type: Attribute2,
       args: ["tabindex"]
     }]
   }], {
@@ -61686,9 +63536,9 @@ _MatChipSet.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     }
   },
   inputs: {
-    disabled: [InputFlags.HasDecoratorInputTransform, "disabled", "disabled", booleanAttribute],
+    disabled: [2, "disabled", "disabled", booleanAttribute],
     role: "role",
-    tabIndex: [InputFlags.HasDecoratorInputTransform, "tabIndex", "tabIndex", (value) => value == null ? 0 : numberAttribute(value)]
+    tabIndex: [2, "tabIndex", "tabIndex", (value) => value == null ? 0 : numberAttribute(value)]
   },
   standalone: true,
   features: [\u0275\u0275InputTransformsFeature, \u0275\u0275StandaloneFeature],
@@ -62050,12 +63900,12 @@ _MatChipListbox.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     }
   },
   inputs: {
-    multiple: [InputFlags.HasDecoratorInputTransform, "multiple", "multiple", booleanAttribute],
-    ariaOrientation: [InputFlags.None, "aria-orientation", "ariaOrientation"],
-    selectable: [InputFlags.HasDecoratorInputTransform, "selectable", "selectable", booleanAttribute],
+    multiple: [2, "multiple", "multiple", booleanAttribute],
+    ariaOrientation: [0, "aria-orientation", "ariaOrientation"],
+    selectable: [2, "selectable", "selectable", booleanAttribute],
     compareWith: "compareWith",
-    required: [InputFlags.HasDecoratorInputTransform, "required", "required", booleanAttribute],
-    hideSingleSelectionIndicator: [InputFlags.HasDecoratorInputTransform, "hideSingleSelectionIndicator", "hideSingleSelectionIndicator", booleanAttribute],
+    required: [2, "required", "required", booleanAttribute],
+    hideSingleSelectionIndicator: [2, "hideSingleSelectionIndicator", "hideSingleSelectionIndicator", booleanAttribute],
     value: "value"
   },
   outputs: {
@@ -62389,7 +64239,7 @@ var _MatChipGrid = class _MatChipGrid extends MatChipSet {
   /** Handles custom keyboard events. */
   _handleKeydown(event) {
     if (event.keyCode === TAB) {
-      if (this._chipInput.focused && hasModifierKey(event, "shiftKey") && this._chips.length && !this._chips.last.disabled) {
+      if (this._chipInput.focused && hasModifierKey2(event, "shiftKey") && this._chips.length && !this._chips.last.disabled) {
         event.preventDefault();
         if (this._keyManager.activeItem) {
           this._keyManager.setActiveItem(this._keyManager.activeItem);
@@ -62456,9 +64306,9 @@ _MatChipGrid.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     }
   },
   inputs: {
-    disabled: [InputFlags.HasDecoratorInputTransform, "disabled", "disabled", booleanAttribute],
+    disabled: [2, "disabled", "disabled", booleanAttribute],
     placeholder: "placeholder",
-    required: [InputFlags.HasDecoratorInputTransform, "required", "required", booleanAttribute],
+    required: [2, "required", "required", booleanAttribute],
     value: "value",
     errorStateMatcher: "errorStateMatcher"
   },
@@ -62686,7 +64536,7 @@ var _MatChipInput = class _MatChipInput {
   }
   /** Checks whether a keycode is one of the configured separators. */
   _isSeparatorKey(event) {
-    return !hasModifierKey(event) && new Set(this.separatorKeyCodes).has(event.keyCode);
+    return !hasModifierKey2(event) && new Set(this.separatorKeyCodes).has(event.keyCode);
   }
 };
 _MatChipInput.\u0275fac = function MatChipInput_Factory(t) {
@@ -62715,12 +64565,12 @@ _MatChipInput.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
     }
   },
   inputs: {
-    chipGrid: [InputFlags.None, "matChipInputFor", "chipGrid"],
-    addOnBlur: [InputFlags.HasDecoratorInputTransform, "matChipInputAddOnBlur", "addOnBlur", booleanAttribute],
-    separatorKeyCodes: [InputFlags.None, "matChipInputSeparatorKeyCodes", "separatorKeyCodes"],
+    chipGrid: [0, "matChipInputFor", "chipGrid"],
+    addOnBlur: [2, "matChipInputAddOnBlur", "addOnBlur", booleanAttribute],
+    separatorKeyCodes: [0, "matChipInputSeparatorKeyCodes", "separatorKeyCodes"],
     placeholder: "placeholder",
     id: "id",
-    disabled: [InputFlags.HasDecoratorInputTransform, "disabled", "disabled", booleanAttribute]
+    disabled: [2, "disabled", "disabled", booleanAttribute]
   },
   outputs: {
     chipEnd: "matChipInputTokenEnd"
@@ -62817,7 +64667,7 @@ _MatChipsModule.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
   providers: [ErrorStateMatcher, {
     provide: MAT_CHIPS_DEFAULT_OPTIONS,
     useValue: {
-      separatorKeyCodes: [ENTER]
+      separatorKeyCodes: [ENTER2]
     }
   }],
   imports: [MatCommonModule, MatRippleModule, MatCommonModule]
@@ -62832,7 +64682,7 @@ var MatChipsModule = _MatChipsModule;
       providers: [ErrorStateMatcher, {
         provide: MAT_CHIPS_DEFAULT_OPTIONS,
         useValue: {
-          separatorKeyCodes: [ENTER]
+          separatorKeyCodes: [ENTER2]
         }
       }]
     }]
@@ -63154,20 +65004,20 @@ _MatCheckbox.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     }
   },
   inputs: {
-    ariaLabel: [InputFlags.None, "aria-label", "ariaLabel"],
-    ariaLabelledby: [InputFlags.None, "aria-labelledby", "ariaLabelledby"],
-    ariaDescribedby: [InputFlags.None, "aria-describedby", "ariaDescribedby"],
+    ariaLabel: [0, "aria-label", "ariaLabel"],
+    ariaLabelledby: [0, "aria-labelledby", "ariaLabelledby"],
+    ariaDescribedby: [0, "aria-describedby", "ariaDescribedby"],
     id: "id",
-    required: [InputFlags.HasDecoratorInputTransform, "required", "required", booleanAttribute],
+    required: [2, "required", "required", booleanAttribute],
     labelPosition: "labelPosition",
     name: "name",
     value: "value",
-    disableRipple: [InputFlags.HasDecoratorInputTransform, "disableRipple", "disableRipple", booleanAttribute],
-    tabIndex: [InputFlags.HasDecoratorInputTransform, "tabIndex", "tabIndex", (value) => value == null ? void 0 : numberAttribute(value)],
+    disableRipple: [2, "disableRipple", "disableRipple", booleanAttribute],
+    tabIndex: [2, "tabIndex", "tabIndex", (value) => value == null ? void 0 : numberAttribute(value)],
     color: "color",
-    checked: [InputFlags.HasDecoratorInputTransform, "checked", "checked", booleanAttribute],
-    disabled: [InputFlags.HasDecoratorInputTransform, "disabled", "disabled", booleanAttribute],
-    indeterminate: [InputFlags.HasDecoratorInputTransform, "indeterminate", "indeterminate", booleanAttribute]
+    checked: [2, "checked", "checked", booleanAttribute],
+    disabled: [2, "disabled", "disabled", booleanAttribute],
+    indeterminate: [2, "indeterminate", "indeterminate", booleanAttribute]
   },
   outputs: {
     change: "change",
@@ -63240,7 +65090,7 @@ _MatCheckbox.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     }
   },
   dependencies: [MatRipple, _MatInternalFormField],
-  styles: ['.mdc-touch-target-wrapper{display:inline}@keyframes mdc-checkbox-unchecked-checked-checkmark-path{0%,50%{stroke-dashoffset:29.7833385}50%{animation-timing-function:cubic-bezier(0, 0, 0.2, 1)}100%{stroke-dashoffset:0}}@keyframes mdc-checkbox-unchecked-indeterminate-mixedmark{0%,68.2%{transform:scaleX(0)}68.2%{animation-timing-function:cubic-bezier(0, 0, 0, 1)}100%{transform:scaleX(1)}}@keyframes mdc-checkbox-checked-unchecked-checkmark-path{from{animation-timing-function:cubic-bezier(0.4, 0, 1, 1);opacity:1;stroke-dashoffset:0}to{opacity:0;stroke-dashoffset:-29.7833385}}@keyframes mdc-checkbox-checked-indeterminate-checkmark{from{animation-timing-function:cubic-bezier(0, 0, 0.2, 1);transform:rotate(0deg);opacity:1}to{transform:rotate(45deg);opacity:0}}@keyframes mdc-checkbox-indeterminate-checked-checkmark{from{animation-timing-function:cubic-bezier(0.14, 0, 0, 1);transform:rotate(45deg);opacity:0}to{transform:rotate(360deg);opacity:1}}@keyframes mdc-checkbox-checked-indeterminate-mixedmark{from{animation-timing-function:mdc-animation-deceleration-curve-timing-function;transform:rotate(-45deg);opacity:0}to{transform:rotate(0deg);opacity:1}}@keyframes mdc-checkbox-indeterminate-checked-mixedmark{from{animation-timing-function:cubic-bezier(0.14, 0, 0, 1);transform:rotate(0deg);opacity:1}to{transform:rotate(315deg);opacity:0}}@keyframes mdc-checkbox-indeterminate-unchecked-mixedmark{0%{animation-timing-function:linear;transform:scaleX(1);opacity:1}32.8%,100%{transform:scaleX(0);opacity:0}}.mdc-checkbox{display:inline-block;position:relative;flex:0 0 18px;box-sizing:content-box;width:18px;height:18px;line-height:0;white-space:nowrap;cursor:pointer;vertical-align:bottom}.mdc-checkbox[hidden]{display:none}.mdc-checkbox.mdc-ripple-upgraded--background-focused .mdc-checkbox__focus-ring,.mdc-checkbox:not(.mdc-ripple-upgraded):focus .mdc-checkbox__focus-ring{pointer-events:none;border:2px solid rgba(0,0,0,0);border-radius:6px;box-sizing:content-box;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);height:100%;width:100%}@media screen and (forced-colors: active){.mdc-checkbox.mdc-ripple-upgraded--background-focused .mdc-checkbox__focus-ring,.mdc-checkbox:not(.mdc-ripple-upgraded):focus .mdc-checkbox__focus-ring{border-color:CanvasText}}.mdc-checkbox.mdc-ripple-upgraded--background-focused .mdc-checkbox__focus-ring::after,.mdc-checkbox:not(.mdc-ripple-upgraded):focus .mdc-checkbox__focus-ring::after{content:"";border:2px solid rgba(0,0,0,0);border-radius:8px;display:block;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);height:calc(100% + 4px);width:calc(100% + 4px)}@media screen and (forced-colors: active){.mdc-checkbox.mdc-ripple-upgraded--background-focused .mdc-checkbox__focus-ring::after,.mdc-checkbox:not(.mdc-ripple-upgraded):focus .mdc-checkbox__focus-ring::after{border-color:CanvasText}}@media all and (-ms-high-contrast: none){.mdc-checkbox .mdc-checkbox__focus-ring{display:none}}@media screen and (forced-colors: active),(-ms-high-contrast: active){.mdc-checkbox__mixedmark{margin:0 1px}}.mdc-checkbox--disabled{cursor:default;pointer-events:none}.mdc-checkbox__background{display:inline-flex;position:absolute;align-items:center;justify-content:center;box-sizing:border-box;width:18px;height:18px;border:2px solid currentColor;border-radius:2px;background-color:rgba(0,0,0,0);pointer-events:none;will-change:background-color,border-color;transition:background-color 90ms 0ms cubic-bezier(0.4, 0, 0.6, 1),border-color 90ms 0ms cubic-bezier(0.4, 0, 0.6, 1)}.mdc-checkbox__checkmark{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;opacity:0;transition:opacity 180ms 0ms cubic-bezier(0.4, 0, 0.6, 1)}.mdc-checkbox--upgraded .mdc-checkbox__checkmark{opacity:1}.mdc-checkbox__checkmark-path{transition:stroke-dashoffset 180ms 0ms cubic-bezier(0.4, 0, 0.6, 1);stroke:currentColor;stroke-width:3.12px;stroke-dashoffset:29.7833385;stroke-dasharray:29.7833385}.mdc-checkbox__mixedmark{width:100%;height:0;transform:scaleX(0) rotate(0deg);border-width:1px;border-style:solid;opacity:0;transition:opacity 90ms 0ms cubic-bezier(0.4, 0, 0.6, 1),transform 90ms 0ms cubic-bezier(0.4, 0, 0.6, 1)}.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__background,.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__background,.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__background,.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__background{animation-duration:180ms;animation-timing-function:linear}.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__checkmark-path{animation:mdc-checkbox-unchecked-checked-checkmark-path 180ms linear 0s;transition:none}.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__mixedmark{animation:mdc-checkbox-unchecked-indeterminate-mixedmark 90ms linear 0s;transition:none}.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__checkmark-path{animation:mdc-checkbox-checked-unchecked-checkmark-path 90ms linear 0s;transition:none}.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__checkmark{animation:mdc-checkbox-checked-indeterminate-checkmark 90ms linear 0s;transition:none}.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__mixedmark{animation:mdc-checkbox-checked-indeterminate-mixedmark 90ms linear 0s;transition:none}.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__checkmark{animation:mdc-checkbox-indeterminate-checked-checkmark 500ms linear 0s;transition:none}.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__mixedmark{animation:mdc-checkbox-indeterminate-checked-mixedmark 500ms linear 0s;transition:none}.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__mixedmark{animation:mdc-checkbox-indeterminate-unchecked-mixedmark 300ms linear 0s;transition:none}.mdc-checkbox__native-control:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background,.mdc-checkbox__native-control[data-indeterminate=true]~.mdc-checkbox__background{transition:border-color 90ms 0ms cubic-bezier(0, 0, 0.2, 1),background-color 90ms 0ms cubic-bezier(0, 0, 0.2, 1)}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__checkmark-path,.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__checkmark-path,.mdc-checkbox__native-control[data-indeterminate=true]~.mdc-checkbox__background .mdc-checkbox__checkmark-path{stroke-dashoffset:0}.mdc-checkbox__native-control{position:absolute;margin:0;padding:0;opacity:0;cursor:inherit}.mdc-checkbox__native-control:disabled{cursor:default;pointer-events:none}.mdc-checkbox--touch{margin:calc((var(--mdc-checkbox-state-layer-size) - var(--mdc-checkbox-state-layer-size)) / 2)}.mdc-checkbox--touch .mdc-checkbox__native-control{top:calc((var(--mdc-checkbox-state-layer-size) - var(--mdc-checkbox-state-layer-size)) / 2);right:calc((var(--mdc-checkbox-state-layer-size) - var(--mdc-checkbox-state-layer-size)) / 2);left:calc((var(--mdc-checkbox-state-layer-size) - var(--mdc-checkbox-state-layer-size)) / 2);width:var(--mdc-checkbox-state-layer-size);height:var(--mdc-checkbox-state-layer-size)}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__checkmark{transition:opacity 180ms 0ms cubic-bezier(0, 0, 0.2, 1),transform 180ms 0ms cubic-bezier(0, 0, 0.2, 1);opacity:1}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__mixedmark{transform:scaleX(1) rotate(-45deg)}.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__checkmark,.mdc-checkbox__native-control[data-indeterminate=true]~.mdc-checkbox__background .mdc-checkbox__checkmark{transform:rotate(45deg);opacity:0;transition:opacity 90ms 0ms cubic-bezier(0.4, 0, 0.6, 1),transform 90ms 0ms cubic-bezier(0.4, 0, 0.6, 1)}.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__mixedmark,.mdc-checkbox__native-control[data-indeterminate=true]~.mdc-checkbox__background .mdc-checkbox__mixedmark{transform:scaleX(1) rotate(0deg);opacity:1}.mdc-checkbox.mdc-checkbox--upgraded .mdc-checkbox__background,.mdc-checkbox.mdc-checkbox--upgraded .mdc-checkbox__checkmark,.mdc-checkbox.mdc-checkbox--upgraded .mdc-checkbox__checkmark-path,.mdc-checkbox.mdc-checkbox--upgraded .mdc-checkbox__mixedmark{transition:none}.mdc-checkbox{padding:calc((var(--mdc-checkbox-state-layer-size) - 18px) / 2);margin:calc((var(--mdc-checkbox-state-layer-size) - var(--mdc-checkbox-state-layer-size)) / 2)}.mdc-checkbox .mdc-checkbox__native-control[disabled]:not(:checked):not(:indeterminate):not([data-indeterminate=true])~.mdc-checkbox__background{border-color:var(--mdc-checkbox-disabled-unselected-icon-color);background-color:transparent}.mdc-checkbox .mdc-checkbox__native-control[disabled]:checked~.mdc-checkbox__background,.mdc-checkbox .mdc-checkbox__native-control[disabled]:indeterminate~.mdc-checkbox__background,.mdc-checkbox .mdc-checkbox__native-control[data-indeterminate=true][disabled]~.mdc-checkbox__background{border-color:transparent;background-color:var(--mdc-checkbox-disabled-selected-icon-color)}.mdc-checkbox .mdc-checkbox__native-control:enabled~.mdc-checkbox__background .mdc-checkbox__checkmark{color:var(--mdc-checkbox-selected-checkmark-color)}.mdc-checkbox .mdc-checkbox__native-control:enabled~.mdc-checkbox__background .mdc-checkbox__mixedmark{border-color:var(--mdc-checkbox-selected-checkmark-color)}.mdc-checkbox .mdc-checkbox__native-control:disabled~.mdc-checkbox__background .mdc-checkbox__checkmark{color:var(--mdc-checkbox-disabled-selected-checkmark-color)}.mdc-checkbox .mdc-checkbox__native-control:disabled~.mdc-checkbox__background .mdc-checkbox__mixedmark{border-color:var(--mdc-checkbox-disabled-selected-checkmark-color)}.mdc-checkbox .mdc-checkbox__native-control:enabled:not(:checked):not(:indeterminate):not([data-indeterminate=true])~.mdc-checkbox__background{border-color:var(--mdc-checkbox-unselected-icon-color);background-color:transparent}.mdc-checkbox .mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background,.mdc-checkbox .mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background,.mdc-checkbox .mdc-checkbox__native-control[data-indeterminate=true]:enabled~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-icon-color);background-color:var(--mdc-checkbox-selected-icon-color)}@keyframes mdc-checkbox-fade-in-background-8A000000FFF4433600000000FFF44336{0%{border-color:var(--mdc-checkbox-unselected-icon-color);background-color:transparent}50%{border-color:var(--mdc-checkbox-selected-icon-color);background-color:var(--mdc-checkbox-selected-icon-color)}}@keyframes mdc-checkbox-fade-out-background-8A000000FFF4433600000000FFF44336{0%,80%{border-color:var(--mdc-checkbox-selected-icon-color);background-color:var(--mdc-checkbox-selected-icon-color)}100%{border-color:var(--mdc-checkbox-unselected-icon-color);background-color:transparent}}.mdc-checkbox.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__native-control:enabled~.mdc-checkbox__background,.mdc-checkbox.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__native-control:enabled~.mdc-checkbox__background{animation-name:mdc-checkbox-fade-in-background-8A000000FFF4433600000000FFF44336}.mdc-checkbox.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__native-control:enabled~.mdc-checkbox__background,.mdc-checkbox.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__native-control:enabled~.mdc-checkbox__background{animation-name:mdc-checkbox-fade-out-background-8A000000FFF4433600000000FFF44336}.mdc-checkbox:hover .mdc-checkbox__native-control:enabled:not(:checked):not(:indeterminate):not([data-indeterminate=true])~.mdc-checkbox__background{border-color:var(--mdc-checkbox-unselected-hover-icon-color);background-color:transparent}.mdc-checkbox:hover .mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background,.mdc-checkbox:hover .mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background,.mdc-checkbox:hover .mdc-checkbox__native-control[data-indeterminate=true]:enabled~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-hover-icon-color);background-color:var(--mdc-checkbox-selected-hover-icon-color)}@keyframes mdc-checkbox-fade-in-background-FF212121FFF4433600000000FFF44336{0%{border-color:var(--mdc-checkbox-unselected-hover-icon-color);background-color:transparent}50%{border-color:var(--mdc-checkbox-selected-hover-icon-color);background-color:var(--mdc-checkbox-selected-hover-icon-color)}}@keyframes mdc-checkbox-fade-out-background-FF212121FFF4433600000000FFF44336{0%,80%{border-color:var(--mdc-checkbox-selected-hover-icon-color);background-color:var(--mdc-checkbox-selected-hover-icon-color)}100%{border-color:var(--mdc-checkbox-unselected-hover-icon-color);background-color:transparent}}.mdc-checkbox:hover.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__native-control:enabled~.mdc-checkbox__background,.mdc-checkbox:hover.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__native-control:enabled~.mdc-checkbox__background{animation-name:mdc-checkbox-fade-in-background-FF212121FFF4433600000000FFF44336}.mdc-checkbox:hover.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__native-control:enabled~.mdc-checkbox__background,.mdc-checkbox:hover.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__native-control:enabled~.mdc-checkbox__background{animation-name:mdc-checkbox-fade-out-background-FF212121FFF4433600000000FFF44336}.mdc-checkbox:not(:disabled):active .mdc-checkbox__native-control:enabled:not(:checked):not(:indeterminate):not([data-indeterminate=true])~.mdc-checkbox__background{border-color:var(--mdc-checkbox-unselected-pressed-icon-color);background-color:transparent}.mdc-checkbox:not(:disabled):active .mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background,.mdc-checkbox:not(:disabled):active .mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background,.mdc-checkbox:not(:disabled):active .mdc-checkbox__native-control[data-indeterminate=true]:enabled~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-pressed-icon-color);background-color:var(--mdc-checkbox-selected-pressed-icon-color)}@keyframes mdc-checkbox-fade-in-background-8A000000FFF4433600000000FFF44336{0%{border-color:var(--mdc-checkbox-unselected-pressed-icon-color);background-color:transparent}50%{border-color:var(--mdc-checkbox-selected-pressed-icon-color);background-color:var(--mdc-checkbox-selected-pressed-icon-color)}}@keyframes mdc-checkbox-fade-out-background-8A000000FFF4433600000000FFF44336{0%,80%{border-color:var(--mdc-checkbox-selected-pressed-icon-color);background-color:var(--mdc-checkbox-selected-pressed-icon-color)}100%{border-color:var(--mdc-checkbox-unselected-pressed-icon-color);background-color:transparent}}.mdc-checkbox:not(:disabled):active.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__native-control:enabled~.mdc-checkbox__background,.mdc-checkbox:not(:disabled):active.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__native-control:enabled~.mdc-checkbox__background{animation-name:mdc-checkbox-fade-in-background-8A000000FFF4433600000000FFF44336}.mdc-checkbox:not(:disabled):active.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__native-control:enabled~.mdc-checkbox__background,.mdc-checkbox:not(:disabled):active.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__native-control:enabled~.mdc-checkbox__background{animation-name:mdc-checkbox-fade-out-background-8A000000FFF4433600000000FFF44336}.mdc-checkbox .mdc-checkbox__background{top:calc((var(--mdc-checkbox-state-layer-size) - 18px) / 2);left:calc((var(--mdc-checkbox-state-layer-size) - 18px) / 2)}.mdc-checkbox .mdc-checkbox__native-control{top:calc((var(--mdc-checkbox-state-layer-size) - var(--mdc-checkbox-state-layer-size)) / 2);right:calc((var(--mdc-checkbox-state-layer-size) - var(--mdc-checkbox-state-layer-size)) / 2);left:calc((var(--mdc-checkbox-state-layer-size) - var(--mdc-checkbox-state-layer-size)) / 2);width:var(--mdc-checkbox-state-layer-size);height:var(--mdc-checkbox-state-layer-size)}.mdc-checkbox .mdc-checkbox__native-control:enabled:focus:focus:not(:checked):not(:indeterminate)~.mdc-checkbox__background{border-color:var(--mdc-checkbox-unselected-focus-icon-color)}.mdc-checkbox .mdc-checkbox__native-control:enabled:focus:checked~.mdc-checkbox__background,.mdc-checkbox .mdc-checkbox__native-control:enabled:focus:indeterminate~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-focus-icon-color);background-color:var(--mdc-checkbox-selected-focus-icon-color)}.mdc-checkbox:hover .mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-hover-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-hover-state-layer-color)}.mdc-checkbox:hover .mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-hover-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-focus-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-focus-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-focus-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-pressed-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-pressed-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-pressed-state-layer-color)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-hover-state-layer-opacity);background-color:var(--mdc-checkbox-selected-hover-state-layer-color)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-hover-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-focus-state-layer-opacity);background-color:var(--mdc-checkbox-selected-focus-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-focus-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-pressed-state-layer-opacity);background-color:var(--mdc-checkbox-selected-pressed-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-pressed-state-layer-color)}.mat-mdc-checkbox{display:inline-block;position:relative;-webkit-tap-highlight-color:rgba(0,0,0,0)}.mat-mdc-checkbox .mdc-checkbox__background{-webkit-print-color-adjust:exact;color-adjust:exact}.mat-mdc-checkbox._mat-animation-noopable *,.mat-mdc-checkbox._mat-animation-noopable *::before{transition:none !important;animation:none !important}.mat-mdc-checkbox label{cursor:pointer}.mat-mdc-checkbox.mat-mdc-checkbox-disabled label{cursor:default;color:var(--mat-checkbox-disabled-label-color)}.mat-mdc-checkbox label:empty{display:none}.cdk-high-contrast-active .mat-mdc-checkbox.mat-mdc-checkbox-disabled{opacity:.5}.cdk-high-contrast-active .mat-mdc-checkbox .mdc-checkbox__checkmark{--mdc-checkbox-selected-checkmark-color: CanvasText;--mdc-checkbox-disabled-selected-checkmark-color: CanvasText}.mat-mdc-checkbox .mdc-checkbox__ripple{opacity:0}.mat-mdc-checkbox-ripple,.mdc-checkbox__ripple{top:0;left:0;right:0;bottom:0;position:absolute;border-radius:50%;pointer-events:none}.mat-mdc-checkbox-ripple:not(:empty),.mdc-checkbox__ripple:not(:empty){transform:translateZ(0)}.mat-mdc-checkbox-ripple .mat-ripple-element{opacity:.1}.mat-mdc-checkbox-touch-target{position:absolute;top:50%;height:48px;left:50%;width:48px;transform:translate(-50%, -50%);display:var(--mat-checkbox-touch-target-display)}.mat-mdc-checkbox-ripple::before{border-radius:50%}.mdc-checkbox__native-control:focus~.mat-mdc-focus-indicator::before{content:""}'],
+  styles: ['.mdc-checkbox{display:inline-block;position:relative;flex:0 0 18px;box-sizing:content-box;width:18px;height:18px;line-height:0;white-space:nowrap;cursor:pointer;vertical-align:bottom;padding:calc((var(--mdc-checkbox-state-layer-size, 40px) - 18px)/2);margin:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2)}.mdc-checkbox:hover .mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-hover-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-hover-state-layer-color)}.mdc-checkbox:hover .mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-hover-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-focus-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-focus-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-focus-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-pressed-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-pressed-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-pressed-state-layer-color)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-hover-state-layer-opacity);background-color:var(--mdc-checkbox-selected-hover-state-layer-color)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-hover-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-focus-state-layer-opacity);background-color:var(--mdc-checkbox-selected-focus-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-focus-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-pressed-state-layer-opacity);background-color:var(--mdc-checkbox-selected-pressed-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-pressed-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control{position:absolute;margin:0;padding:0;opacity:0;cursor:inherit;width:var(--mdc-checkbox-state-layer-size, 40px);height:var(--mdc-checkbox-state-layer-size, 40px);top:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2);right:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2);left:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2)}.mdc-checkbox--disabled{cursor:default;pointer-events:none}.mdc-checkbox__background{display:inline-flex;position:absolute;align-items:center;justify-content:center;box-sizing:border-box;width:18px;height:18px;border:2px solid currentColor;border-radius:2px;background-color:rgba(0,0,0,0);pointer-events:none;will-change:background-color,border-color;transition:background-color 90ms cubic-bezier(0.4, 0, 0.6, 1),border-color 90ms cubic-bezier(0.4, 0, 0.6, 1);border-color:var(--mdc-checkbox-unselected-icon-color);top:calc((var(--mdc-checkbox-state-layer-size, 40px) - 18px)/2);left:calc((var(--mdc-checkbox-state-layer-size, 40px) - 18px)/2)}.mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-icon-color);background-color:var(--mdc-checkbox-selected-icon-color)}.mdc-checkbox--disabled .mdc-checkbox__background{border-color:var(--mdc-checkbox-disabled-unselected-icon-color)}.mdc-checkbox__native-control:disabled:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:disabled:indeterminate~.mdc-checkbox__background{background-color:var(--mdc-checkbox-disabled-selected-icon-color);border-color:rgba(0,0,0,0)}.mdc-checkbox:hover .mdc-checkbox__native-control:not(:checked)~.mdc-checkbox__background,.mdc-checkbox:hover .mdc-checkbox__native-control:not(:indeterminate)~.mdc-checkbox__background{border-color:var(--mdc-checkbox-unselected-hover-icon-color);background-color:rgba(0,0,0,0)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mdc-checkbox__background,.mdc-checkbox:hover .mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-hover-icon-color);background-color:var(--mdc-checkbox-selected-hover-icon-color)}.mdc-checkbox__native-control:focus:focus:not(:checked)~.mdc-checkbox__background,.mdc-checkbox__native-control:focus:focus:not(:indeterminate)~.mdc-checkbox__background{border-color:var(--mdc-checkbox-unselected-focus-icon-color)}.mdc-checkbox__native-control:focus:focus:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:focus:focus:indeterminate~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-focus-icon-color);background-color:var(--mdc-checkbox-selected-focus-icon-color)}.mdc-checkbox__checkmark{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;opacity:0;transition:opacity 180ms cubic-bezier(0.4, 0, 0.6, 1);color:var(--mdc-checkbox-selected-checkmark-color)}.mdc-checkbox--disabled .mdc-checkbox__checkmark{color:var(--mdc-checkbox-disabled-selected-checkmark-color)}.mdc-checkbox__checkmark-path{transition:stroke-dashoffset 180ms cubic-bezier(0.4, 0, 0.6, 1);stroke:currentColor;stroke-width:3.12px;stroke-dashoffset:29.7833385;stroke-dasharray:29.7833385}.mdc-checkbox__mixedmark{width:100%;height:0;transform:scaleX(0) rotate(0deg);border-width:1px;border-style:solid;opacity:0;transition:opacity 90ms cubic-bezier(0.4, 0, 0.6, 1),transform 90ms cubic-bezier(0.4, 0, 0.6, 1);border-color:var(--mdc-checkbox-selected-checkmark-color)}.cdk-high-contrast-active .mdc-checkbox__mixedmark{margin:0 1px}.mdc-checkbox--disabled .mdc-checkbox__mixedmark{border-color:var(--mdc-checkbox-disabled-selected-checkmark-color)}.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__background,.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__background,.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__background,.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__background{animation-duration:180ms;animation-timing-function:linear}.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__checkmark-path{animation:mdc-checkbox-unchecked-checked-checkmark-path 180ms linear;transition:none}.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__mixedmark{animation:mdc-checkbox-unchecked-indeterminate-mixedmark 90ms linear;transition:none}.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__checkmark-path{animation:mdc-checkbox-checked-unchecked-checkmark-path 90ms linear;transition:none}.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__checkmark{animation:mdc-checkbox-checked-indeterminate-checkmark 90ms linear;transition:none}.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__mixedmark{animation:mdc-checkbox-checked-indeterminate-mixedmark 90ms linear;transition:none}.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__checkmark{animation:mdc-checkbox-indeterminate-checked-checkmark 500ms linear;transition:none}.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__mixedmark{animation:mdc-checkbox-indeterminate-checked-mixedmark 500ms linear;transition:none}.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__mixedmark{animation:mdc-checkbox-indeterminate-unchecked-mixedmark 300ms linear;transition:none}.mdc-checkbox__native-control:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background{transition:border-color 90ms cubic-bezier(0, 0, 0.2, 1),background-color 90ms cubic-bezier(0, 0, 0.2, 1)}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__checkmark-path,.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__checkmark-path{stroke-dashoffset:0}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__checkmark{transition:opacity 180ms cubic-bezier(0, 0, 0.2, 1),transform 180ms cubic-bezier(0, 0, 0.2, 1);opacity:1}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__mixedmark{transform:scaleX(1) rotate(-45deg)}.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__checkmark{transform:rotate(45deg);opacity:0;transition:opacity 90ms cubic-bezier(0.4, 0, 0.6, 1),transform 90ms cubic-bezier(0.4, 0, 0.6, 1)}.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__mixedmark{transform:scaleX(1) rotate(0deg);opacity:1}@keyframes mdc-checkbox-unchecked-checked-checkmark-path{0%,50%{stroke-dashoffset:29.7833385}50%{animation-timing-function:cubic-bezier(0, 0, 0.2, 1)}100%{stroke-dashoffset:0}}@keyframes mdc-checkbox-unchecked-indeterminate-mixedmark{0%,68.2%{transform:scaleX(0)}68.2%{animation-timing-function:cubic-bezier(0, 0, 0, 1)}100%{transform:scaleX(1)}}@keyframes mdc-checkbox-checked-unchecked-checkmark-path{from{animation-timing-function:cubic-bezier(0.4, 0, 1, 1);opacity:1;stroke-dashoffset:0}to{opacity:0;stroke-dashoffset:-29.7833385}}@keyframes mdc-checkbox-checked-indeterminate-checkmark{from{animation-timing-function:cubic-bezier(0, 0, 0.2, 1);transform:rotate(0deg);opacity:1}to{transform:rotate(45deg);opacity:0}}@keyframes mdc-checkbox-indeterminate-checked-checkmark{from{animation-timing-function:cubic-bezier(0.14, 0, 0, 1);transform:rotate(45deg);opacity:0}to{transform:rotate(360deg);opacity:1}}@keyframes mdc-checkbox-checked-indeterminate-mixedmark{from{animation-timing-function:cubic-bezier(0, 0, 0.2, 1);transform:rotate(-45deg);opacity:0}to{transform:rotate(0deg);opacity:1}}@keyframes mdc-checkbox-indeterminate-checked-mixedmark{from{animation-timing-function:cubic-bezier(0.14, 0, 0, 1);transform:rotate(0deg);opacity:1}to{transform:rotate(315deg);opacity:0}}@keyframes mdc-checkbox-indeterminate-unchecked-mixedmark{0%{animation-timing-function:linear;transform:scaleX(1);opacity:1}32.8%,100%{transform:scaleX(0);opacity:0}}.mat-mdc-checkbox{display:inline-block;position:relative;-webkit-tap-highlight-color:rgba(0,0,0,0)}.mat-mdc-checkbox._mat-animation-noopable .mdc-checkbox *,.mat-mdc-checkbox._mat-animation-noopable .mdc-checkbox *::before{transition:none !important;animation:none !important}.mat-mdc-checkbox .mdc-checkbox__background{-webkit-print-color-adjust:exact;color-adjust:exact}.mat-mdc-checkbox label{cursor:pointer}.mat-mdc-checkbox .mat-internal-form-field{color:var(--mat-checkbox-label-text-color);font-family:var(--mat-checkbox-label-text-font);line-height:var(--mat-checkbox-label-text-line-height);font-size:var(--mat-checkbox-label-text-size);letter-spacing:var(--mat-checkbox-label-text-tracking);font-weight:var(--mat-checkbox-label-text-weight)}.mat-mdc-checkbox.mat-mdc-checkbox-disabled label{cursor:default;color:var(--mat-checkbox-disabled-label-color)}.mat-mdc-checkbox label:empty{display:none}.cdk-high-contrast-active .mat-mdc-checkbox.mat-mdc-checkbox-disabled{opacity:.5}.cdk-high-contrast-active .mat-mdc-checkbox .mdc-checkbox__checkmark{--mdc-checkbox-selected-checkmark-color: CanvasText;--mdc-checkbox-disabled-selected-checkmark-color: CanvasText}.mat-mdc-checkbox .mdc-checkbox__ripple{opacity:0}.mat-mdc-checkbox-ripple,.mdc-checkbox__ripple{top:0;left:0;right:0;bottom:0;position:absolute;border-radius:50%;pointer-events:none}.mat-mdc-checkbox-ripple:not(:empty),.mdc-checkbox__ripple:not(:empty){transform:translateZ(0)}.mat-mdc-checkbox-ripple .mat-ripple-element{opacity:.1}.mat-mdc-checkbox-touch-target{position:absolute;top:50%;left:50%;height:48px;width:48px;transform:translate(-50%, -50%);display:var(--mat-checkbox-touch-target-display)}.mat-mdc-checkbox-ripple::before{border-radius:50%}.mdc-checkbox__native-control:focus~.mat-mdc-focus-indicator::before{content:""}'],
   encapsulation: 2,
   changeDetection: 0
 });
@@ -63325,7 +65175,7 @@ var MatCheckbox = _MatCheckbox;
   </label>
 </div>
 `,
-      styles: ['.mdc-touch-target-wrapper{display:inline}@keyframes mdc-checkbox-unchecked-checked-checkmark-path{0%,50%{stroke-dashoffset:29.7833385}50%{animation-timing-function:cubic-bezier(0, 0, 0.2, 1)}100%{stroke-dashoffset:0}}@keyframes mdc-checkbox-unchecked-indeterminate-mixedmark{0%,68.2%{transform:scaleX(0)}68.2%{animation-timing-function:cubic-bezier(0, 0, 0, 1)}100%{transform:scaleX(1)}}@keyframes mdc-checkbox-checked-unchecked-checkmark-path{from{animation-timing-function:cubic-bezier(0.4, 0, 1, 1);opacity:1;stroke-dashoffset:0}to{opacity:0;stroke-dashoffset:-29.7833385}}@keyframes mdc-checkbox-checked-indeterminate-checkmark{from{animation-timing-function:cubic-bezier(0, 0, 0.2, 1);transform:rotate(0deg);opacity:1}to{transform:rotate(45deg);opacity:0}}@keyframes mdc-checkbox-indeterminate-checked-checkmark{from{animation-timing-function:cubic-bezier(0.14, 0, 0, 1);transform:rotate(45deg);opacity:0}to{transform:rotate(360deg);opacity:1}}@keyframes mdc-checkbox-checked-indeterminate-mixedmark{from{animation-timing-function:mdc-animation-deceleration-curve-timing-function;transform:rotate(-45deg);opacity:0}to{transform:rotate(0deg);opacity:1}}@keyframes mdc-checkbox-indeterminate-checked-mixedmark{from{animation-timing-function:cubic-bezier(0.14, 0, 0, 1);transform:rotate(0deg);opacity:1}to{transform:rotate(315deg);opacity:0}}@keyframes mdc-checkbox-indeterminate-unchecked-mixedmark{0%{animation-timing-function:linear;transform:scaleX(1);opacity:1}32.8%,100%{transform:scaleX(0);opacity:0}}.mdc-checkbox{display:inline-block;position:relative;flex:0 0 18px;box-sizing:content-box;width:18px;height:18px;line-height:0;white-space:nowrap;cursor:pointer;vertical-align:bottom}.mdc-checkbox[hidden]{display:none}.mdc-checkbox.mdc-ripple-upgraded--background-focused .mdc-checkbox__focus-ring,.mdc-checkbox:not(.mdc-ripple-upgraded):focus .mdc-checkbox__focus-ring{pointer-events:none;border:2px solid rgba(0,0,0,0);border-radius:6px;box-sizing:content-box;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);height:100%;width:100%}@media screen and (forced-colors: active){.mdc-checkbox.mdc-ripple-upgraded--background-focused .mdc-checkbox__focus-ring,.mdc-checkbox:not(.mdc-ripple-upgraded):focus .mdc-checkbox__focus-ring{border-color:CanvasText}}.mdc-checkbox.mdc-ripple-upgraded--background-focused .mdc-checkbox__focus-ring::after,.mdc-checkbox:not(.mdc-ripple-upgraded):focus .mdc-checkbox__focus-ring::after{content:"";border:2px solid rgba(0,0,0,0);border-radius:8px;display:block;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);height:calc(100% + 4px);width:calc(100% + 4px)}@media screen and (forced-colors: active){.mdc-checkbox.mdc-ripple-upgraded--background-focused .mdc-checkbox__focus-ring::after,.mdc-checkbox:not(.mdc-ripple-upgraded):focus .mdc-checkbox__focus-ring::after{border-color:CanvasText}}@media all and (-ms-high-contrast: none){.mdc-checkbox .mdc-checkbox__focus-ring{display:none}}@media screen and (forced-colors: active),(-ms-high-contrast: active){.mdc-checkbox__mixedmark{margin:0 1px}}.mdc-checkbox--disabled{cursor:default;pointer-events:none}.mdc-checkbox__background{display:inline-flex;position:absolute;align-items:center;justify-content:center;box-sizing:border-box;width:18px;height:18px;border:2px solid currentColor;border-radius:2px;background-color:rgba(0,0,0,0);pointer-events:none;will-change:background-color,border-color;transition:background-color 90ms 0ms cubic-bezier(0.4, 0, 0.6, 1),border-color 90ms 0ms cubic-bezier(0.4, 0, 0.6, 1)}.mdc-checkbox__checkmark{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;opacity:0;transition:opacity 180ms 0ms cubic-bezier(0.4, 0, 0.6, 1)}.mdc-checkbox--upgraded .mdc-checkbox__checkmark{opacity:1}.mdc-checkbox__checkmark-path{transition:stroke-dashoffset 180ms 0ms cubic-bezier(0.4, 0, 0.6, 1);stroke:currentColor;stroke-width:3.12px;stroke-dashoffset:29.7833385;stroke-dasharray:29.7833385}.mdc-checkbox__mixedmark{width:100%;height:0;transform:scaleX(0) rotate(0deg);border-width:1px;border-style:solid;opacity:0;transition:opacity 90ms 0ms cubic-bezier(0.4, 0, 0.6, 1),transform 90ms 0ms cubic-bezier(0.4, 0, 0.6, 1)}.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__background,.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__background,.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__background,.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__background{animation-duration:180ms;animation-timing-function:linear}.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__checkmark-path{animation:mdc-checkbox-unchecked-checked-checkmark-path 180ms linear 0s;transition:none}.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__mixedmark{animation:mdc-checkbox-unchecked-indeterminate-mixedmark 90ms linear 0s;transition:none}.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__checkmark-path{animation:mdc-checkbox-checked-unchecked-checkmark-path 90ms linear 0s;transition:none}.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__checkmark{animation:mdc-checkbox-checked-indeterminate-checkmark 90ms linear 0s;transition:none}.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__mixedmark{animation:mdc-checkbox-checked-indeterminate-mixedmark 90ms linear 0s;transition:none}.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__checkmark{animation:mdc-checkbox-indeterminate-checked-checkmark 500ms linear 0s;transition:none}.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__mixedmark{animation:mdc-checkbox-indeterminate-checked-mixedmark 500ms linear 0s;transition:none}.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__mixedmark{animation:mdc-checkbox-indeterminate-unchecked-mixedmark 300ms linear 0s;transition:none}.mdc-checkbox__native-control:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background,.mdc-checkbox__native-control[data-indeterminate=true]~.mdc-checkbox__background{transition:border-color 90ms 0ms cubic-bezier(0, 0, 0.2, 1),background-color 90ms 0ms cubic-bezier(0, 0, 0.2, 1)}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__checkmark-path,.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__checkmark-path,.mdc-checkbox__native-control[data-indeterminate=true]~.mdc-checkbox__background .mdc-checkbox__checkmark-path{stroke-dashoffset:0}.mdc-checkbox__native-control{position:absolute;margin:0;padding:0;opacity:0;cursor:inherit}.mdc-checkbox__native-control:disabled{cursor:default;pointer-events:none}.mdc-checkbox--touch{margin:calc((var(--mdc-checkbox-state-layer-size) - var(--mdc-checkbox-state-layer-size)) / 2)}.mdc-checkbox--touch .mdc-checkbox__native-control{top:calc((var(--mdc-checkbox-state-layer-size) - var(--mdc-checkbox-state-layer-size)) / 2);right:calc((var(--mdc-checkbox-state-layer-size) - var(--mdc-checkbox-state-layer-size)) / 2);left:calc((var(--mdc-checkbox-state-layer-size) - var(--mdc-checkbox-state-layer-size)) / 2);width:var(--mdc-checkbox-state-layer-size);height:var(--mdc-checkbox-state-layer-size)}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__checkmark{transition:opacity 180ms 0ms cubic-bezier(0, 0, 0.2, 1),transform 180ms 0ms cubic-bezier(0, 0, 0.2, 1);opacity:1}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__mixedmark{transform:scaleX(1) rotate(-45deg)}.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__checkmark,.mdc-checkbox__native-control[data-indeterminate=true]~.mdc-checkbox__background .mdc-checkbox__checkmark{transform:rotate(45deg);opacity:0;transition:opacity 90ms 0ms cubic-bezier(0.4, 0, 0.6, 1),transform 90ms 0ms cubic-bezier(0.4, 0, 0.6, 1)}.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__mixedmark,.mdc-checkbox__native-control[data-indeterminate=true]~.mdc-checkbox__background .mdc-checkbox__mixedmark{transform:scaleX(1) rotate(0deg);opacity:1}.mdc-checkbox.mdc-checkbox--upgraded .mdc-checkbox__background,.mdc-checkbox.mdc-checkbox--upgraded .mdc-checkbox__checkmark,.mdc-checkbox.mdc-checkbox--upgraded .mdc-checkbox__checkmark-path,.mdc-checkbox.mdc-checkbox--upgraded .mdc-checkbox__mixedmark{transition:none}.mdc-checkbox{padding:calc((var(--mdc-checkbox-state-layer-size) - 18px) / 2);margin:calc((var(--mdc-checkbox-state-layer-size) - var(--mdc-checkbox-state-layer-size)) / 2)}.mdc-checkbox .mdc-checkbox__native-control[disabled]:not(:checked):not(:indeterminate):not([data-indeterminate=true])~.mdc-checkbox__background{border-color:var(--mdc-checkbox-disabled-unselected-icon-color);background-color:transparent}.mdc-checkbox .mdc-checkbox__native-control[disabled]:checked~.mdc-checkbox__background,.mdc-checkbox .mdc-checkbox__native-control[disabled]:indeterminate~.mdc-checkbox__background,.mdc-checkbox .mdc-checkbox__native-control[data-indeterminate=true][disabled]~.mdc-checkbox__background{border-color:transparent;background-color:var(--mdc-checkbox-disabled-selected-icon-color)}.mdc-checkbox .mdc-checkbox__native-control:enabled~.mdc-checkbox__background .mdc-checkbox__checkmark{color:var(--mdc-checkbox-selected-checkmark-color)}.mdc-checkbox .mdc-checkbox__native-control:enabled~.mdc-checkbox__background .mdc-checkbox__mixedmark{border-color:var(--mdc-checkbox-selected-checkmark-color)}.mdc-checkbox .mdc-checkbox__native-control:disabled~.mdc-checkbox__background .mdc-checkbox__checkmark{color:var(--mdc-checkbox-disabled-selected-checkmark-color)}.mdc-checkbox .mdc-checkbox__native-control:disabled~.mdc-checkbox__background .mdc-checkbox__mixedmark{border-color:var(--mdc-checkbox-disabled-selected-checkmark-color)}.mdc-checkbox .mdc-checkbox__native-control:enabled:not(:checked):not(:indeterminate):not([data-indeterminate=true])~.mdc-checkbox__background{border-color:var(--mdc-checkbox-unselected-icon-color);background-color:transparent}.mdc-checkbox .mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background,.mdc-checkbox .mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background,.mdc-checkbox .mdc-checkbox__native-control[data-indeterminate=true]:enabled~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-icon-color);background-color:var(--mdc-checkbox-selected-icon-color)}@keyframes mdc-checkbox-fade-in-background-8A000000FFF4433600000000FFF44336{0%{border-color:var(--mdc-checkbox-unselected-icon-color);background-color:transparent}50%{border-color:var(--mdc-checkbox-selected-icon-color);background-color:var(--mdc-checkbox-selected-icon-color)}}@keyframes mdc-checkbox-fade-out-background-8A000000FFF4433600000000FFF44336{0%,80%{border-color:var(--mdc-checkbox-selected-icon-color);background-color:var(--mdc-checkbox-selected-icon-color)}100%{border-color:var(--mdc-checkbox-unselected-icon-color);background-color:transparent}}.mdc-checkbox.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__native-control:enabled~.mdc-checkbox__background,.mdc-checkbox.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__native-control:enabled~.mdc-checkbox__background{animation-name:mdc-checkbox-fade-in-background-8A000000FFF4433600000000FFF44336}.mdc-checkbox.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__native-control:enabled~.mdc-checkbox__background,.mdc-checkbox.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__native-control:enabled~.mdc-checkbox__background{animation-name:mdc-checkbox-fade-out-background-8A000000FFF4433600000000FFF44336}.mdc-checkbox:hover .mdc-checkbox__native-control:enabled:not(:checked):not(:indeterminate):not([data-indeterminate=true])~.mdc-checkbox__background{border-color:var(--mdc-checkbox-unselected-hover-icon-color);background-color:transparent}.mdc-checkbox:hover .mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background,.mdc-checkbox:hover .mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background,.mdc-checkbox:hover .mdc-checkbox__native-control[data-indeterminate=true]:enabled~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-hover-icon-color);background-color:var(--mdc-checkbox-selected-hover-icon-color)}@keyframes mdc-checkbox-fade-in-background-FF212121FFF4433600000000FFF44336{0%{border-color:var(--mdc-checkbox-unselected-hover-icon-color);background-color:transparent}50%{border-color:var(--mdc-checkbox-selected-hover-icon-color);background-color:var(--mdc-checkbox-selected-hover-icon-color)}}@keyframes mdc-checkbox-fade-out-background-FF212121FFF4433600000000FFF44336{0%,80%{border-color:var(--mdc-checkbox-selected-hover-icon-color);background-color:var(--mdc-checkbox-selected-hover-icon-color)}100%{border-color:var(--mdc-checkbox-unselected-hover-icon-color);background-color:transparent}}.mdc-checkbox:hover.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__native-control:enabled~.mdc-checkbox__background,.mdc-checkbox:hover.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__native-control:enabled~.mdc-checkbox__background{animation-name:mdc-checkbox-fade-in-background-FF212121FFF4433600000000FFF44336}.mdc-checkbox:hover.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__native-control:enabled~.mdc-checkbox__background,.mdc-checkbox:hover.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__native-control:enabled~.mdc-checkbox__background{animation-name:mdc-checkbox-fade-out-background-FF212121FFF4433600000000FFF44336}.mdc-checkbox:not(:disabled):active .mdc-checkbox__native-control:enabled:not(:checked):not(:indeterminate):not([data-indeterminate=true])~.mdc-checkbox__background{border-color:var(--mdc-checkbox-unselected-pressed-icon-color);background-color:transparent}.mdc-checkbox:not(:disabled):active .mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background,.mdc-checkbox:not(:disabled):active .mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background,.mdc-checkbox:not(:disabled):active .mdc-checkbox__native-control[data-indeterminate=true]:enabled~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-pressed-icon-color);background-color:var(--mdc-checkbox-selected-pressed-icon-color)}@keyframes mdc-checkbox-fade-in-background-8A000000FFF4433600000000FFF44336{0%{border-color:var(--mdc-checkbox-unselected-pressed-icon-color);background-color:transparent}50%{border-color:var(--mdc-checkbox-selected-pressed-icon-color);background-color:var(--mdc-checkbox-selected-pressed-icon-color)}}@keyframes mdc-checkbox-fade-out-background-8A000000FFF4433600000000FFF44336{0%,80%{border-color:var(--mdc-checkbox-selected-pressed-icon-color);background-color:var(--mdc-checkbox-selected-pressed-icon-color)}100%{border-color:var(--mdc-checkbox-unselected-pressed-icon-color);background-color:transparent}}.mdc-checkbox:not(:disabled):active.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__native-control:enabled~.mdc-checkbox__background,.mdc-checkbox:not(:disabled):active.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__native-control:enabled~.mdc-checkbox__background{animation-name:mdc-checkbox-fade-in-background-8A000000FFF4433600000000FFF44336}.mdc-checkbox:not(:disabled):active.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__native-control:enabled~.mdc-checkbox__background,.mdc-checkbox:not(:disabled):active.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__native-control:enabled~.mdc-checkbox__background{animation-name:mdc-checkbox-fade-out-background-8A000000FFF4433600000000FFF44336}.mdc-checkbox .mdc-checkbox__background{top:calc((var(--mdc-checkbox-state-layer-size) - 18px) / 2);left:calc((var(--mdc-checkbox-state-layer-size) - 18px) / 2)}.mdc-checkbox .mdc-checkbox__native-control{top:calc((var(--mdc-checkbox-state-layer-size) - var(--mdc-checkbox-state-layer-size)) / 2);right:calc((var(--mdc-checkbox-state-layer-size) - var(--mdc-checkbox-state-layer-size)) / 2);left:calc((var(--mdc-checkbox-state-layer-size) - var(--mdc-checkbox-state-layer-size)) / 2);width:var(--mdc-checkbox-state-layer-size);height:var(--mdc-checkbox-state-layer-size)}.mdc-checkbox .mdc-checkbox__native-control:enabled:focus:focus:not(:checked):not(:indeterminate)~.mdc-checkbox__background{border-color:var(--mdc-checkbox-unselected-focus-icon-color)}.mdc-checkbox .mdc-checkbox__native-control:enabled:focus:checked~.mdc-checkbox__background,.mdc-checkbox .mdc-checkbox__native-control:enabled:focus:indeterminate~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-focus-icon-color);background-color:var(--mdc-checkbox-selected-focus-icon-color)}.mdc-checkbox:hover .mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-hover-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-hover-state-layer-color)}.mdc-checkbox:hover .mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-hover-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-focus-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-focus-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-focus-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-pressed-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-pressed-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-pressed-state-layer-color)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-hover-state-layer-opacity);background-color:var(--mdc-checkbox-selected-hover-state-layer-color)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-hover-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-focus-state-layer-opacity);background-color:var(--mdc-checkbox-selected-focus-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-focus-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-pressed-state-layer-opacity);background-color:var(--mdc-checkbox-selected-pressed-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-pressed-state-layer-color)}.mat-mdc-checkbox{display:inline-block;position:relative;-webkit-tap-highlight-color:rgba(0,0,0,0)}.mat-mdc-checkbox .mdc-checkbox__background{-webkit-print-color-adjust:exact;color-adjust:exact}.mat-mdc-checkbox._mat-animation-noopable *,.mat-mdc-checkbox._mat-animation-noopable *::before{transition:none !important;animation:none !important}.mat-mdc-checkbox label{cursor:pointer}.mat-mdc-checkbox.mat-mdc-checkbox-disabled label{cursor:default;color:var(--mat-checkbox-disabled-label-color)}.mat-mdc-checkbox label:empty{display:none}.cdk-high-contrast-active .mat-mdc-checkbox.mat-mdc-checkbox-disabled{opacity:.5}.cdk-high-contrast-active .mat-mdc-checkbox .mdc-checkbox__checkmark{--mdc-checkbox-selected-checkmark-color: CanvasText;--mdc-checkbox-disabled-selected-checkmark-color: CanvasText}.mat-mdc-checkbox .mdc-checkbox__ripple{opacity:0}.mat-mdc-checkbox-ripple,.mdc-checkbox__ripple{top:0;left:0;right:0;bottom:0;position:absolute;border-radius:50%;pointer-events:none}.mat-mdc-checkbox-ripple:not(:empty),.mdc-checkbox__ripple:not(:empty){transform:translateZ(0)}.mat-mdc-checkbox-ripple .mat-ripple-element{opacity:.1}.mat-mdc-checkbox-touch-target{position:absolute;top:50%;height:48px;left:50%;width:48px;transform:translate(-50%, -50%);display:var(--mat-checkbox-touch-target-display)}.mat-mdc-checkbox-ripple::before{border-radius:50%}.mdc-checkbox__native-control:focus~.mat-mdc-focus-indicator::before{content:""}']
+      styles: ['.mdc-checkbox{display:inline-block;position:relative;flex:0 0 18px;box-sizing:content-box;width:18px;height:18px;line-height:0;white-space:nowrap;cursor:pointer;vertical-align:bottom;padding:calc((var(--mdc-checkbox-state-layer-size, 40px) - 18px)/2);margin:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2)}.mdc-checkbox:hover .mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-hover-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-hover-state-layer-color)}.mdc-checkbox:hover .mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-hover-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-focus-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-focus-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-focus-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-pressed-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-pressed-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-pressed-state-layer-color)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-hover-state-layer-opacity);background-color:var(--mdc-checkbox-selected-hover-state-layer-color)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-hover-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-focus-state-layer-opacity);background-color:var(--mdc-checkbox-selected-focus-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-focus-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-pressed-state-layer-opacity);background-color:var(--mdc-checkbox-selected-pressed-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-pressed-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control{position:absolute;margin:0;padding:0;opacity:0;cursor:inherit;width:var(--mdc-checkbox-state-layer-size, 40px);height:var(--mdc-checkbox-state-layer-size, 40px);top:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2);right:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2);left:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2)}.mdc-checkbox--disabled{cursor:default;pointer-events:none}.mdc-checkbox__background{display:inline-flex;position:absolute;align-items:center;justify-content:center;box-sizing:border-box;width:18px;height:18px;border:2px solid currentColor;border-radius:2px;background-color:rgba(0,0,0,0);pointer-events:none;will-change:background-color,border-color;transition:background-color 90ms cubic-bezier(0.4, 0, 0.6, 1),border-color 90ms cubic-bezier(0.4, 0, 0.6, 1);border-color:var(--mdc-checkbox-unselected-icon-color);top:calc((var(--mdc-checkbox-state-layer-size, 40px) - 18px)/2);left:calc((var(--mdc-checkbox-state-layer-size, 40px) - 18px)/2)}.mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-icon-color);background-color:var(--mdc-checkbox-selected-icon-color)}.mdc-checkbox--disabled .mdc-checkbox__background{border-color:var(--mdc-checkbox-disabled-unselected-icon-color)}.mdc-checkbox__native-control:disabled:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:disabled:indeterminate~.mdc-checkbox__background{background-color:var(--mdc-checkbox-disabled-selected-icon-color);border-color:rgba(0,0,0,0)}.mdc-checkbox:hover .mdc-checkbox__native-control:not(:checked)~.mdc-checkbox__background,.mdc-checkbox:hover .mdc-checkbox__native-control:not(:indeterminate)~.mdc-checkbox__background{border-color:var(--mdc-checkbox-unselected-hover-icon-color);background-color:rgba(0,0,0,0)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mdc-checkbox__background,.mdc-checkbox:hover .mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-hover-icon-color);background-color:var(--mdc-checkbox-selected-hover-icon-color)}.mdc-checkbox__native-control:focus:focus:not(:checked)~.mdc-checkbox__background,.mdc-checkbox__native-control:focus:focus:not(:indeterminate)~.mdc-checkbox__background{border-color:var(--mdc-checkbox-unselected-focus-icon-color)}.mdc-checkbox__native-control:focus:focus:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:focus:focus:indeterminate~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-focus-icon-color);background-color:var(--mdc-checkbox-selected-focus-icon-color)}.mdc-checkbox__checkmark{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;opacity:0;transition:opacity 180ms cubic-bezier(0.4, 0, 0.6, 1);color:var(--mdc-checkbox-selected-checkmark-color)}.mdc-checkbox--disabled .mdc-checkbox__checkmark{color:var(--mdc-checkbox-disabled-selected-checkmark-color)}.mdc-checkbox__checkmark-path{transition:stroke-dashoffset 180ms cubic-bezier(0.4, 0, 0.6, 1);stroke:currentColor;stroke-width:3.12px;stroke-dashoffset:29.7833385;stroke-dasharray:29.7833385}.mdc-checkbox__mixedmark{width:100%;height:0;transform:scaleX(0) rotate(0deg);border-width:1px;border-style:solid;opacity:0;transition:opacity 90ms cubic-bezier(0.4, 0, 0.6, 1),transform 90ms cubic-bezier(0.4, 0, 0.6, 1);border-color:var(--mdc-checkbox-selected-checkmark-color)}.cdk-high-contrast-active .mdc-checkbox__mixedmark{margin:0 1px}.mdc-checkbox--disabled .mdc-checkbox__mixedmark{border-color:var(--mdc-checkbox-disabled-selected-checkmark-color)}.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__background,.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__background,.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__background,.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__background{animation-duration:180ms;animation-timing-function:linear}.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__checkmark-path{animation:mdc-checkbox-unchecked-checked-checkmark-path 180ms linear;transition:none}.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__mixedmark{animation:mdc-checkbox-unchecked-indeterminate-mixedmark 90ms linear;transition:none}.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__checkmark-path{animation:mdc-checkbox-checked-unchecked-checkmark-path 90ms linear;transition:none}.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__checkmark{animation:mdc-checkbox-checked-indeterminate-checkmark 90ms linear;transition:none}.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__mixedmark{animation:mdc-checkbox-checked-indeterminate-mixedmark 90ms linear;transition:none}.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__checkmark{animation:mdc-checkbox-indeterminate-checked-checkmark 500ms linear;transition:none}.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__mixedmark{animation:mdc-checkbox-indeterminate-checked-mixedmark 500ms linear;transition:none}.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__mixedmark{animation:mdc-checkbox-indeterminate-unchecked-mixedmark 300ms linear;transition:none}.mdc-checkbox__native-control:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background{transition:border-color 90ms cubic-bezier(0, 0, 0.2, 1),background-color 90ms cubic-bezier(0, 0, 0.2, 1)}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__checkmark-path,.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__checkmark-path{stroke-dashoffset:0}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__checkmark{transition:opacity 180ms cubic-bezier(0, 0, 0.2, 1),transform 180ms cubic-bezier(0, 0, 0.2, 1);opacity:1}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__mixedmark{transform:scaleX(1) rotate(-45deg)}.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__checkmark{transform:rotate(45deg);opacity:0;transition:opacity 90ms cubic-bezier(0.4, 0, 0.6, 1),transform 90ms cubic-bezier(0.4, 0, 0.6, 1)}.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__mixedmark{transform:scaleX(1) rotate(0deg);opacity:1}@keyframes mdc-checkbox-unchecked-checked-checkmark-path{0%,50%{stroke-dashoffset:29.7833385}50%{animation-timing-function:cubic-bezier(0, 0, 0.2, 1)}100%{stroke-dashoffset:0}}@keyframes mdc-checkbox-unchecked-indeterminate-mixedmark{0%,68.2%{transform:scaleX(0)}68.2%{animation-timing-function:cubic-bezier(0, 0, 0, 1)}100%{transform:scaleX(1)}}@keyframes mdc-checkbox-checked-unchecked-checkmark-path{from{animation-timing-function:cubic-bezier(0.4, 0, 1, 1);opacity:1;stroke-dashoffset:0}to{opacity:0;stroke-dashoffset:-29.7833385}}@keyframes mdc-checkbox-checked-indeterminate-checkmark{from{animation-timing-function:cubic-bezier(0, 0, 0.2, 1);transform:rotate(0deg);opacity:1}to{transform:rotate(45deg);opacity:0}}@keyframes mdc-checkbox-indeterminate-checked-checkmark{from{animation-timing-function:cubic-bezier(0.14, 0, 0, 1);transform:rotate(45deg);opacity:0}to{transform:rotate(360deg);opacity:1}}@keyframes mdc-checkbox-checked-indeterminate-mixedmark{from{animation-timing-function:cubic-bezier(0, 0, 0.2, 1);transform:rotate(-45deg);opacity:0}to{transform:rotate(0deg);opacity:1}}@keyframes mdc-checkbox-indeterminate-checked-mixedmark{from{animation-timing-function:cubic-bezier(0.14, 0, 0, 1);transform:rotate(0deg);opacity:1}to{transform:rotate(315deg);opacity:0}}@keyframes mdc-checkbox-indeterminate-unchecked-mixedmark{0%{animation-timing-function:linear;transform:scaleX(1);opacity:1}32.8%,100%{transform:scaleX(0);opacity:0}}.mat-mdc-checkbox{display:inline-block;position:relative;-webkit-tap-highlight-color:rgba(0,0,0,0)}.mat-mdc-checkbox._mat-animation-noopable .mdc-checkbox *,.mat-mdc-checkbox._mat-animation-noopable .mdc-checkbox *::before{transition:none !important;animation:none !important}.mat-mdc-checkbox .mdc-checkbox__background{-webkit-print-color-adjust:exact;color-adjust:exact}.mat-mdc-checkbox label{cursor:pointer}.mat-mdc-checkbox .mat-internal-form-field{color:var(--mat-checkbox-label-text-color);font-family:var(--mat-checkbox-label-text-font);line-height:var(--mat-checkbox-label-text-line-height);font-size:var(--mat-checkbox-label-text-size);letter-spacing:var(--mat-checkbox-label-text-tracking);font-weight:var(--mat-checkbox-label-text-weight)}.mat-mdc-checkbox.mat-mdc-checkbox-disabled label{cursor:default;color:var(--mat-checkbox-disabled-label-color)}.mat-mdc-checkbox label:empty{display:none}.cdk-high-contrast-active .mat-mdc-checkbox.mat-mdc-checkbox-disabled{opacity:.5}.cdk-high-contrast-active .mat-mdc-checkbox .mdc-checkbox__checkmark{--mdc-checkbox-selected-checkmark-color: CanvasText;--mdc-checkbox-disabled-selected-checkmark-color: CanvasText}.mat-mdc-checkbox .mdc-checkbox__ripple{opacity:0}.mat-mdc-checkbox-ripple,.mdc-checkbox__ripple{top:0;left:0;right:0;bottom:0;position:absolute;border-radius:50%;pointer-events:none}.mat-mdc-checkbox-ripple:not(:empty),.mdc-checkbox__ripple:not(:empty){transform:translateZ(0)}.mat-mdc-checkbox-ripple .mat-ripple-element{opacity:.1}.mat-mdc-checkbox-touch-target{position:absolute;top:50%;left:50%;height:48px;width:48px;transform:translate(-50%, -50%);display:var(--mat-checkbox-touch-target-display)}.mat-mdc-checkbox-ripple::before{border-radius:50%}.mdc-checkbox__native-control:focus~.mat-mdc-focus-indicator::before{content:""}']
     }]
   }], () => [{
     type: ElementRef
@@ -63336,7 +65186,7 @@ var MatCheckbox = _MatCheckbox;
   }, {
     type: void 0,
     decorators: [{
-      type: Attribute,
+      type: Attribute2,
       args: ["tabindex"]
     }]
   }, {
@@ -64580,6 +66430,8 @@ var _CdkVirtualScrollViewport = class _CdkVirtualScrollViewport extends CdkVirtu
     this._isChangeDetectionPending = false;
     this._runAfterChangeDetection = [];
     this._viewportChanges = Subscription.EMPTY;
+    this._injector = inject(Injector);
+    this._isDestroyed = false;
     if (!_scrollStrategy && (typeof ngDevMode === "undefined" || ngDevMode)) {
       throw Error('Error: cdk-virtual-scroll-viewport requires the "itemSize" property to be set.');
     }
@@ -64622,6 +66474,7 @@ var _CdkVirtualScrollViewport = class _CdkVirtualScrollViewport extends CdkVirtu
     this._renderedRangeSubject.complete();
     this._detachedSubject.complete();
     this._viewportChanges.unsubscribe();
+    this._isDestroyed = true;
     super.ngOnDestroy();
   }
   /** Attaches a `CdkVirtualScrollRepeater` to this viewport. */
@@ -64824,14 +66677,23 @@ var _CdkVirtualScrollViewport = class _CdkVirtualScrollViewport extends CdkVirtu
   }
   /** Run change detection. */
   _doChangeDetection() {
-    this._isChangeDetectionPending = false;
-    this._contentWrapper.nativeElement.style.transform = this._renderedContentTransform;
-    this.ngZone.run(() => this._changeDetectorRef.markForCheck());
-    const runAfterChangeDetection = this._runAfterChangeDetection;
-    this._runAfterChangeDetection = [];
-    for (const fn of runAfterChangeDetection) {
-      fn();
+    if (this._isDestroyed) {
+      return;
     }
+    this.ngZone.run(() => {
+      this._changeDetectorRef.markForCheck();
+      this._contentWrapper.nativeElement.style.transform = this._renderedContentTransform;
+      afterNextRender(() => {
+        this._isChangeDetectionPending = false;
+        const runAfterChangeDetection = this._runAfterChangeDetection;
+        this._runAfterChangeDetection = [];
+        for (const fn of runAfterChangeDetection) {
+          fn();
+        }
+      }, {
+        injector: this._injector
+      });
+    });
   }
   /** Calculates the `style.width` and `style.height` for the spacer element. */
   _calculateSpacerSize() {
@@ -64863,7 +66725,7 @@ _CdkVirtualScrollViewport.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
   },
   inputs: {
     orientation: "orientation",
-    appendOnly: [InputFlags.HasDecoratorInputTransform, "appendOnly", "appendOnly", booleanAttribute]
+    appendOnly: [2, "appendOnly", "appendOnly", booleanAttribute]
   },
   outputs: {
     scrolledIndexChange: "scrolledIndexChange"
@@ -65812,7 +67674,7 @@ _CdkPortalOutlet.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
   type: _CdkPortalOutlet,
   selectors: [["", "cdkPortalOutlet", ""]],
   inputs: {
-    portal: [InputFlags.None, "cdkPortalOutlet", "portal"]
+    portal: [0, "cdkPortalOutlet", "portal"]
   },
   outputs: {
     attached: "attached"
@@ -65862,7 +67724,7 @@ _PortalHostDirective.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
   type: _PortalHostDirective,
   selectors: [["", "cdkPortalHost", ""], ["", "portalHost", ""]],
   inputs: {
-    portal: [InputFlags.None, "cdkPortalHost", "portal"]
+    portal: [0, "cdkPortalHost", "portal"]
   },
   exportAs: ["cdkPortalHost"],
   standalone: true,
@@ -66471,7 +68333,7 @@ var OverlayContainer = _OverlayContainer;
   }], null);
 })();
 var OverlayRef = class {
-  constructor(_portalOutlet, _host, _pane, _config, _ngZone, _keyboardDispatcher, _document2, _location, _outsideClickDispatcher, _animationsDisabled = false) {
+  constructor(_portalOutlet, _host, _pane, _config, _ngZone, _keyboardDispatcher, _document2, _location, _outsideClickDispatcher, _animationsDisabled = false, _injector) {
     this._portalOutlet = _portalOutlet;
     this._host = _host;
     this._pane = _pane;
@@ -66482,6 +68344,7 @@ var OverlayRef = class {
     this._location = _location;
     this._outsideClickDispatcher = _outsideClickDispatcher;
     this._animationsDisabled = _animationsDisabled;
+    this._injector = _injector;
     this._backdropElement = null;
     this._backdropClick = new Subject();
     this._attachments = new Subject();
@@ -66493,11 +68356,17 @@ var OverlayRef = class {
     };
     this._keydownEvents = new Subject();
     this._outsidePointerEvents = new Subject();
+    this._renders = new Subject();
     if (_config.scrollStrategy) {
       this._scrollStrategy = _config.scrollStrategy;
       this._scrollStrategy.attach(this);
     }
     this._positionStrategy = _config.positionStrategy;
+    this._afterRenderRef = untracked(() => afterRender(() => {
+      this._renders.next();
+    }, {
+      injector: this._injector
+    }));
   }
   /** The overlay's HTML element */
   get overlayElement() {
@@ -66536,10 +68405,12 @@ var OverlayRef = class {
     if (this._scrollStrategy) {
       this._scrollStrategy.enable();
     }
-    this._ngZone.onStable.pipe(take(1)).subscribe(() => {
+    afterNextRender(() => {
       if (this.hasAttached()) {
         this.updatePosition();
       }
+    }, {
+      injector: this._injector
     });
     this._togglePointerEvents(true);
     if (this._config.hasBackdrop) {
@@ -66582,7 +68453,7 @@ var OverlayRef = class {
     const detachmentResult = this._portalOutlet.detach();
     this._detachments.next();
     this._keyboardDispatcher.remove(this);
-    this._detachContentWhenStable();
+    this._detachContentWhenEmpty();
     this._locationChanges.unsubscribe();
     this._outsideClickDispatcher.remove(this);
     return detachmentResult;
@@ -66609,6 +68480,8 @@ var OverlayRef = class {
       this._detachments.next();
     }
     this._detachments.complete();
+    this._afterRenderRef.destroy();
+    this._renders.complete();
   }
   /** Whether the overlay has attached content. */
   hasAttached() {
@@ -66789,9 +68662,9 @@ var OverlayRef = class {
     }
   }
   /** Detaches the overlay content next time the zone stabilizes. */
-  _detachContentWhenStable() {
+  _detachContentWhenEmpty() {
     this._ngZone.runOutsideAngular(() => {
-      const subscription = this._ngZone.onStable.pipe(takeUntil(merge(this._attachments, this._detachments))).subscribe(() => {
+      const subscription = this._renders.pipe(takeUntil(merge(this._attachments, this._detachments))).subscribe(() => {
         if (!this._pane || !this._host || this._pane.children.length === 0) {
           if (this._pane && this._config.panelClass) {
             this._toggleClasses(this._pane, this._config.panelClass, false);
@@ -67935,7 +69808,7 @@ var _Overlay = class _Overlay {
     const portalOutlet = this._createPortalOutlet(pane);
     const overlayConfig = new OverlayConfig(config2);
     overlayConfig.direction = overlayConfig.direction || this._directionality.value;
-    return new OverlayRef(portalOutlet, host, pane, overlayConfig, this._ngZone, this._keyboardDispatcher, this._document, this._location, this._outsideClickDispatcher, this._animationsModuleType === "NoopAnimations");
+    return new OverlayRef(portalOutlet, host, pane, overlayConfig, this._ngZone, this._keyboardDispatcher, this._document, this._location, this._outsideClickDispatcher, this._animationsModuleType === "NoopAnimations", this._injector.get(EnvironmentInjector));
   }
   /**
    * Gets a position builder that can be used, via fluent API,
@@ -68184,7 +70057,7 @@ var _CdkConnectedOverlay = class _CdkConnectedOverlay {
     this._detachSubscription = overlayRef.detachments().subscribe(() => this.detach.emit());
     overlayRef.keydownEvents().subscribe((event) => {
       this.overlayKeydown.next(event);
-      if (event.keyCode === ESCAPE && !this.disableClose && !hasModifierKey(event)) {
+      if (event.keyCode === ESCAPE && !this.disableClose && !hasModifierKey2(event)) {
         event.preventDefault();
         this._detachOverlay();
       }
@@ -68308,28 +70181,28 @@ _CdkConnectedOverlay.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
   type: _CdkConnectedOverlay,
   selectors: [["", "cdk-connected-overlay", ""], ["", "connected-overlay", ""], ["", "cdkConnectedOverlay", ""]],
   inputs: {
-    origin: [InputFlags.None, "cdkConnectedOverlayOrigin", "origin"],
-    positions: [InputFlags.None, "cdkConnectedOverlayPositions", "positions"],
-    positionStrategy: [InputFlags.None, "cdkConnectedOverlayPositionStrategy", "positionStrategy"],
-    offsetX: [InputFlags.None, "cdkConnectedOverlayOffsetX", "offsetX"],
-    offsetY: [InputFlags.None, "cdkConnectedOverlayOffsetY", "offsetY"],
-    width: [InputFlags.None, "cdkConnectedOverlayWidth", "width"],
-    height: [InputFlags.None, "cdkConnectedOverlayHeight", "height"],
-    minWidth: [InputFlags.None, "cdkConnectedOverlayMinWidth", "minWidth"],
-    minHeight: [InputFlags.None, "cdkConnectedOverlayMinHeight", "minHeight"],
-    backdropClass: [InputFlags.None, "cdkConnectedOverlayBackdropClass", "backdropClass"],
-    panelClass: [InputFlags.None, "cdkConnectedOverlayPanelClass", "panelClass"],
-    viewportMargin: [InputFlags.None, "cdkConnectedOverlayViewportMargin", "viewportMargin"],
-    scrollStrategy: [InputFlags.None, "cdkConnectedOverlayScrollStrategy", "scrollStrategy"],
-    open: [InputFlags.None, "cdkConnectedOverlayOpen", "open"],
-    disableClose: [InputFlags.None, "cdkConnectedOverlayDisableClose", "disableClose"],
-    transformOriginSelector: [InputFlags.None, "cdkConnectedOverlayTransformOriginOn", "transformOriginSelector"],
-    hasBackdrop: [InputFlags.HasDecoratorInputTransform, "cdkConnectedOverlayHasBackdrop", "hasBackdrop", booleanAttribute],
-    lockPosition: [InputFlags.HasDecoratorInputTransform, "cdkConnectedOverlayLockPosition", "lockPosition", booleanAttribute],
-    flexibleDimensions: [InputFlags.HasDecoratorInputTransform, "cdkConnectedOverlayFlexibleDimensions", "flexibleDimensions", booleanAttribute],
-    growAfterOpen: [InputFlags.HasDecoratorInputTransform, "cdkConnectedOverlayGrowAfterOpen", "growAfterOpen", booleanAttribute],
-    push: [InputFlags.HasDecoratorInputTransform, "cdkConnectedOverlayPush", "push", booleanAttribute],
-    disposeOnNavigation: [InputFlags.HasDecoratorInputTransform, "cdkConnectedOverlayDisposeOnNavigation", "disposeOnNavigation", booleanAttribute]
+    origin: [0, "cdkConnectedOverlayOrigin", "origin"],
+    positions: [0, "cdkConnectedOverlayPositions", "positions"],
+    positionStrategy: [0, "cdkConnectedOverlayPositionStrategy", "positionStrategy"],
+    offsetX: [0, "cdkConnectedOverlayOffsetX", "offsetX"],
+    offsetY: [0, "cdkConnectedOverlayOffsetY", "offsetY"],
+    width: [0, "cdkConnectedOverlayWidth", "width"],
+    height: [0, "cdkConnectedOverlayHeight", "height"],
+    minWidth: [0, "cdkConnectedOverlayMinWidth", "minWidth"],
+    minHeight: [0, "cdkConnectedOverlayMinHeight", "minHeight"],
+    backdropClass: [0, "cdkConnectedOverlayBackdropClass", "backdropClass"],
+    panelClass: [0, "cdkConnectedOverlayPanelClass", "panelClass"],
+    viewportMargin: [0, "cdkConnectedOverlayViewportMargin", "viewportMargin"],
+    scrollStrategy: [0, "cdkConnectedOverlayScrollStrategy", "scrollStrategy"],
+    open: [0, "cdkConnectedOverlayOpen", "open"],
+    disableClose: [0, "cdkConnectedOverlayDisableClose", "disableClose"],
+    transformOriginSelector: [0, "cdkConnectedOverlayTransformOriginOn", "transformOriginSelector"],
+    hasBackdrop: [2, "cdkConnectedOverlayHasBackdrop", "hasBackdrop", booleanAttribute],
+    lockPosition: [2, "cdkConnectedOverlayLockPosition", "lockPosition", booleanAttribute],
+    flexibleDimensions: [2, "cdkConnectedOverlayFlexibleDimensions", "flexibleDimensions", booleanAttribute],
+    growAfterOpen: [2, "cdkConnectedOverlayGrowAfterOpen", "growAfterOpen", booleanAttribute],
+    push: [2, "cdkConnectedOverlayPush", "push", booleanAttribute],
+    disposeOnNavigation: [2, "cdkConnectedOverlayDisposeOnNavigation", "disposeOnNavigation", booleanAttribute]
   },
   outputs: {
     backdropClick: "backdropClick",
@@ -68653,6 +70526,8 @@ var _CdkDialogContainer = class _CdkDialogContainer extends BasePortalOutlet {
     this._closeInteractionType = null;
     this._ariaLabelledByQueue = [];
     this._changeDetectorRef = inject(ChangeDetectorRef);
+    this._injector = inject(Injector);
+    this._isDestroyed = false;
     this.attachDomPortal = (portal) => {
       if (this._portalOutlet.hasAttached() && (typeof ngDevMode === "undefined" || ngDevMode)) {
         throwDialogContentAlreadyAttachedError();
@@ -68690,6 +70565,7 @@ var _CdkDialogContainer = class _CdkDialogContainer extends BasePortalOutlet {
     this._trapFocus();
   }
   ngOnDestroy() {
+    this._isDestroyed = true;
     this._restoreFocus();
   }
   /**
@@ -68758,29 +70634,35 @@ var _CdkDialogContainer = class _CdkDialogContainer extends BasePortalOutlet {
    * cannot be moved then focus will go to the dialog container.
    */
   _trapFocus() {
-    const element = this._elementRef.nativeElement;
-    switch (this._config.autoFocus) {
-      case false:
-      case "dialog":
-        if (!this._containsFocus()) {
-          element.focus();
-        }
-        break;
-      case true:
-      case "first-tabbable":
-        this._focusTrap?.focusInitialElementWhenReady().then((focusedSuccessfully) => {
+    if (this._isDestroyed) {
+      return;
+    }
+    afterNextRender(() => {
+      const element = this._elementRef.nativeElement;
+      switch (this._config.autoFocus) {
+        case false:
+        case "dialog":
+          if (!this._containsFocus()) {
+            element.focus();
+          }
+          break;
+        case true:
+        case "first-tabbable":
+          const focusedSuccessfully = this._focusTrap?.focusInitialElement();
           if (!focusedSuccessfully) {
             this._focusDialogContainer();
           }
-        });
-        break;
-      case "first-heading":
-        this._focusByCssSelector('h1, h2, h3, h4, h5, h6, [role="heading"]');
-        break;
-      default:
-        this._focusByCssSelector(this._config.autoFocus);
-        break;
-    }
+          break;
+        case "first-heading":
+          this._focusByCssSelector('h1, h2, h3, h4, h5, h6, [role="heading"]');
+          break;
+        default:
+          this._focusByCssSelector(this._config.autoFocus);
+          break;
+      }
+    }, {
+      injector: this._injector
+    });
   }
   /** Restores focus to the element that was focused before the dialog opened. */
   _restoreFocus() {
@@ -68944,7 +70826,7 @@ var DialogRef = class {
     this.outsidePointerEvents = overlayRef.outsidePointerEvents();
     this.id = config2.id;
     this.keydownEvents.subscribe((event) => {
-      if (event.keyCode === ESCAPE && !this.disableClose && !hasModifierKey(event)) {
+      if (event.keyCode === ESCAPE && !this.disableClose && !hasModifierKey2(event)) {
         event.preventDefault();
         this.close(void 0, {
           focusOrigin: "keyboard"
@@ -69533,7 +71415,7 @@ var MatBottomSheetRef = class {
       this._ref.close(this._result);
     });
     merge(this.backdropClick(), this.keydownEvents().pipe(filter((event) => event.keyCode === ESCAPE))).subscribe((event) => {
-      if (!this.disableClose && (event.type !== "keydown" || !hasModifierKey(event))) {
+      if (!this.disableClose && (event.type !== "keydown" || !hasModifierKey2(event))) {
         event.preventDefault();
         this.dismiss();
       }
@@ -69716,6 +71598,10 @@ var MatBottomSheetModule = _MatBottomSheetModule;
 
 // node_modules/@angular/material/fesm2022/datepicker.mjs
 var _c09 = ["mat-calendar-body", ""];
+function _forTrack0($index, $item) {
+  return this._trackRow($item);
+}
+var _forTrack1 = ($index, $item) => $item.id;
 function MatCalendarBody_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "tr", 0)(1, "td", 3);
@@ -69766,14 +71652,14 @@ function MatCalendarBody_For_2_For_3_Template(rf, ctx) {
   }
   if (rf & 2) {
     const item_r3 = ctx.$implicit;
-    const colIndex_r4 = ctx.$index;
-    const rowIndex_r5 = \u0275\u0275nextContext().$index;
+    const \u0275$index_14_r4 = ctx.$index;
+    const \u0275$index_7_r5 = \u0275\u0275nextContext().$index;
     const ctx_r0 = \u0275\u0275nextContext();
     \u0275\u0275styleProp("width", ctx_r0._cellWidth)("padding-top", ctx_r0._cellPadding)("padding-bottom", ctx_r0._cellPadding);
-    \u0275\u0275attribute("data-mat-row", rowIndex_r5)("data-mat-col", colIndex_r4);
+    \u0275\u0275attribute("data-mat-row", \u0275$index_7_r5)("data-mat-col", \u0275$index_14_r4);
     \u0275\u0275advance();
-    \u0275\u0275classProp("mat-calendar-body-disabled", !item_r3.enabled)("mat-calendar-body-active", ctx_r0._isActiveCell(rowIndex_r5, colIndex_r4))("mat-calendar-body-range-start", ctx_r0._isRangeStart(item_r3.compareValue))("mat-calendar-body-range-end", ctx_r0._isRangeEnd(item_r3.compareValue))("mat-calendar-body-in-range", ctx_r0._isInRange(item_r3.compareValue))("mat-calendar-body-comparison-bridge-start", ctx_r0._isComparisonBridgeStart(item_r3.compareValue, rowIndex_r5, colIndex_r4))("mat-calendar-body-comparison-bridge-end", ctx_r0._isComparisonBridgeEnd(item_r3.compareValue, rowIndex_r5, colIndex_r4))("mat-calendar-body-comparison-start", ctx_r0._isComparisonStart(item_r3.compareValue))("mat-calendar-body-comparison-end", ctx_r0._isComparisonEnd(item_r3.compareValue))("mat-calendar-body-in-comparison-range", ctx_r0._isInComparisonRange(item_r3.compareValue))("mat-calendar-body-preview-start", ctx_r0._isPreviewStart(item_r3.compareValue))("mat-calendar-body-preview-end", ctx_r0._isPreviewEnd(item_r3.compareValue))("mat-calendar-body-in-preview", ctx_r0._isInPreview(item_r3.compareValue));
-    \u0275\u0275property("ngClass", item_r3.cssClasses)("tabindex", ctx_r0._isActiveCell(rowIndex_r5, colIndex_r4) ? 0 : -1);
+    \u0275\u0275classProp("mat-calendar-body-disabled", !item_r3.enabled)("mat-calendar-body-active", ctx_r0._isActiveCell(\u0275$index_7_r5, \u0275$index_14_r4))("mat-calendar-body-range-start", ctx_r0._isRangeStart(item_r3.compareValue))("mat-calendar-body-range-end", ctx_r0._isRangeEnd(item_r3.compareValue))("mat-calendar-body-in-range", ctx_r0._isInRange(item_r3.compareValue))("mat-calendar-body-comparison-bridge-start", ctx_r0._isComparisonBridgeStart(item_r3.compareValue, \u0275$index_7_r5, \u0275$index_14_r4))("mat-calendar-body-comparison-bridge-end", ctx_r0._isComparisonBridgeEnd(item_r3.compareValue, \u0275$index_7_r5, \u0275$index_14_r4))("mat-calendar-body-comparison-start", ctx_r0._isComparisonStart(item_r3.compareValue))("mat-calendar-body-comparison-end", ctx_r0._isComparisonEnd(item_r3.compareValue))("mat-calendar-body-in-comparison-range", ctx_r0._isInComparisonRange(item_r3.compareValue))("mat-calendar-body-preview-start", ctx_r0._isPreviewStart(item_r3.compareValue))("mat-calendar-body-preview-end", ctx_r0._isPreviewEnd(item_r3.compareValue))("mat-calendar-body-in-preview", ctx_r0._isInPreview(item_r3.compareValue));
+    \u0275\u0275property("ngClass", item_r3.cssClasses)("tabindex", ctx_r0._isActiveCell(\u0275$index_7_r5, \u0275$index_14_r4) ? 0 : -1);
     \u0275\u0275attribute("aria-label", item_r3.ariaLabel)("aria-disabled", !item_r3.enabled || null)("aria-pressed", ctx_r0._isSelected(item_r3.compareValue))("aria-current", ctx_r0.todayValue === item_r3.compareValue ? "date" : null)("aria-describedby", ctx_r0._getDescribedby(item_r3.compareValue));
     \u0275\u0275advance();
     \u0275\u0275classProp("mat-calendar-body-selected", ctx_r0._isSelected(item_r3.compareValue))("mat-calendar-body-comparison-identical", ctx_r0._isComparisonIdentical(item_r3.compareValue))("mat-calendar-body-today", ctx_r0.todayValue === item_r3.compareValue);
@@ -69785,15 +71671,15 @@ function MatCalendarBody_For_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "tr", 1);
     \u0275\u0275template(1, MatCalendarBody_For_2_Conditional_1_Template, 2, 6, "td", 4);
-    \u0275\u0275repeaterCreate(2, MatCalendarBody_For_2_For_3_Template, 5, 48, "td", 5, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(2, MatCalendarBody_For_2_For_3_Template, 5, 48, "td", 5, _forTrack1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const row_r6 = ctx.$implicit;
-    const rowIndex_r5 = ctx.$index;
+    const \u0275$index_7_r5 = ctx.$index;
     const ctx_r0 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275conditional(1, rowIndex_r5 === 0 && ctx_r0._firstRowOffset ? 1 : -1);
+    \u0275\u0275conditional(\u0275$index_7_r5 === 0 && ctx_r0._firstRowOffset ? 1 : -1);
     \u0275\u0275advance();
     \u0275\u0275repeater(row_r6);
   }
@@ -69821,7 +71707,7 @@ function MatCalendar_ng_template_0_Template(rf, ctx) {
 function MatCalendar_Case_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-month-view", 2);
+    \u0275\u0275elementStart(0, "mat-month-view", 4);
     \u0275\u0275twoWayListener("activeDateChange", function MatCalendar_Case_2_Template_mat_month_view_activeDateChange_0_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
@@ -69852,7 +71738,7 @@ function MatCalendar_Case_2_Template(rf, ctx) {
 function MatCalendar_Case_3_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-year-view", 3);
+    \u0275\u0275elementStart(0, "mat-year-view", 5);
     \u0275\u0275twoWayListener("activeDateChange", function MatCalendar_Case_3_Template_mat_year_view_activeDateChange_0_listener($event) {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext();
@@ -69879,7 +71765,7 @@ function MatCalendar_Case_3_Template(rf, ctx) {
 function MatCalendar_Case_4_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-multi-year-view", 4);
+    \u0275\u0275elementStart(0, "mat-multi-year-view", 6);
     \u0275\u0275twoWayListener("activeDateChange", function MatCalendar_Case_4_Template_mat_multi_year_view_activeDateChange_0_listener($event) {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext();
@@ -69971,6 +71857,7 @@ var MatDatepickerIntl = _MatDatepickerIntl;
     }]
   }], null, null);
 })();
+var uniqueIdCounter$1 = 0;
 var MatCalendarCell = class {
   constructor(value, displayValue, ariaLabel, enabled, cssClasses = {}, compareValue = value, rawValue) {
     this.value = value;
@@ -69980,6 +71867,7 @@ var MatCalendarCell = class {
     this.cssClasses = cssClasses;
     this.compareValue = compareValue;
     this.rawValue = rawValue;
+    this.id = uniqueIdCounter$1++;
   }
 };
 var calendarBodyId = 1;
@@ -70018,6 +71906,8 @@ var _MatCalendarBody = class _MatCalendarBody {
     this.dragStarted = new EventEmitter();
     this.dragEnded = new EventEmitter();
     this._didDragSinceMouseDown = false;
+    this._injector = inject(Injector);
+    this._trackRow = (row) => row;
     this._enterHandler = (event) => {
       if (this._skipNextFocus && event.type === "focus") {
         this._skipNextFocus = false;
@@ -70034,8 +71924,7 @@ var _MatCalendarBody = class _MatCalendarBody {
       }
     };
     this._touchmoveHandler = (event) => {
-      if (!this.isRange)
-        return;
+      if (!this.isRange) return;
       const target = getActualTouchTarget(event);
       const cell = target ? this._getCellFromElement(target) : null;
       if (target !== event.target) {
@@ -70063,8 +71952,7 @@ var _MatCalendarBody = class _MatCalendarBody {
       }
     };
     this._mousedownHandler = (event) => {
-      if (!this.isRange)
-        return;
+      if (!this.isRange) return;
       this._didDragSinceMouseDown = false;
       const cell = event.target && this._getCellFromElement(event.target);
       if (!cell || !this._isInRange(cell.compareValue)) {
@@ -70078,8 +71966,7 @@ var _MatCalendarBody = class _MatCalendarBody {
       });
     };
     this._mouseupHandler = (event) => {
-      if (!this.isRange)
-        return;
+      if (!this.isRange) return;
       const cellElement = getCellElement(event.target);
       if (!cellElement) {
         this._ngZone.run(() => {
@@ -70212,18 +72099,18 @@ var _MatCalendarBody = class _MatCalendarBody {
    * Adding delay also complicates writing tests.
    */
   _focusActiveCell(movePreview = true) {
-    this._ngZone.runOutsideAngular(() => {
-      this._ngZone.onStable.pipe(take(1)).subscribe(() => {
-        setTimeout(() => {
-          const activeCell = this._elementRef.nativeElement.querySelector(".mat-calendar-body-active");
-          if (activeCell) {
-            if (!movePreview) {
-              this._skipNextFocus = true;
-            }
-            activeCell.focus();
+    afterNextRender(() => {
+      setTimeout(() => {
+        const activeCell = this._elementRef.nativeElement.querySelector(".mat-calendar-body-active");
+        if (activeCell) {
+          if (!movePreview) {
+            this._skipNextFocus = true;
           }
-        });
+          activeCell.focus();
+        }
       });
+    }, {
+      injector: this._injector
     });
   }
   /** Focuses the active cell after change detection has run and the microtask queue is empty. */
@@ -70372,7 +72259,7 @@ _MatCalendarBody.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   template: function MatCalendarBody_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275template(0, MatCalendarBody_Conditional_0_Template, 3, 6, "tr", 0);
-      \u0275\u0275repeaterCreate(1, MatCalendarBody_For_2_Template, 4, 1, "tr", 1, \u0275\u0275repeaterTrackByIdentity);
+      \u0275\u0275repeaterCreate(1, MatCalendarBody_For_2_Template, 4, 1, "tr", 1, _forTrack0, true);
       \u0275\u0275elementStart(3, "label", 2);
       \u0275\u0275text(4);
       \u0275\u0275elementEnd();
@@ -70381,7 +72268,7 @@ _MatCalendarBody.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
       \u0275\u0275elementEnd();
     }
     if (rf & 2) {
-      \u0275\u0275conditional(0, ctx._firstRowOffset < ctx.labelMinRequiredCells ? 0 : -1);
+      \u0275\u0275conditional(ctx._firstRowOffset < ctx.labelMinRequiredCells ? 0 : -1);
       \u0275\u0275advance();
       \u0275\u0275repeater(ctx.rows);
       \u0275\u0275advance(2);
@@ -70429,7 +72316,7 @@ var MatCalendarBody = _MatCalendarBody;
 }
 
 <!-- Create the first row separately so we can include a special spacer cell. -->
-@for (row of rows; track row; let rowIndex = $index) {
+@for (row of rows; track _trackRow(row); let rowIndex = $index) {
   <tr role="row">
     <!--
       This cell is purely decorative, but we can't put \`aria-hidden\` or \`role="presentation"\` on it,
@@ -70451,7 +72338,7 @@ var MatCalendarBody = _MatCalendarBody;
       cell is interactable, as well as the selection state via \`aria-pressed\`. See #23476 for
       background.
     -->
-    @for (item of row; track item; let colIndex = $index) {
+    @for (item of row; track item.id; let colIndex = $index) {
       <td
         role="gridcell"
         class="mat-calendar-body-cell-container"
@@ -70873,6 +72760,7 @@ var MAT_CALENDAR_RANGE_STRATEGY_PROVIDER = {
   useFactory: MAT_CALENDAR_RANGE_STRATEGY_PROVIDER_FACTORY
 };
 var DAYS_PER_WEEK = 7;
+var uniqueIdCounter2 = 0;
 var _MatMonthView = class _MatMonthView {
   /**
    * The date to display in this month view (everything other than the month and year is ignored).
@@ -71021,15 +72909,15 @@ var _MatMonthView = class _MatMonthView {
       case PAGE_DOWN:
         this.activeDate = event.altKey ? this._dateAdapter.addCalendarYears(this._activeDate, 1) : this._dateAdapter.addCalendarMonths(this._activeDate, 1);
         break;
-      case ENTER:
-      case SPACE:
+      case ENTER2:
+      case SPACE2:
         this._selectionKeyPressed = true;
         if (this._canSelect(this._activeDate)) {
           event.preventDefault();
         }
         return;
       case ESCAPE:
-        if (this._previewEnd != null && !hasModifierKey(event)) {
+        if (this._previewEnd != null && !hasModifierKey2(event)) {
           this._clearPreview();
           if (this.activeDrag) {
             this.dragEnded.emit({
@@ -71058,7 +72946,7 @@ var _MatMonthView = class _MatMonthView {
   }
   /** Handles keyup events on the calendar body when calendar is in month view. */
   _handleCalendarBodyKeyup(event) {
-    if (event.keyCode === SPACE || event.keyCode === ENTER) {
+    if (event.keyCode === SPACE2 || event.keyCode === ENTER2) {
       if (this._selectionKeyPressed && this._canSelect(this._activeDate)) {
         this._dateSelected({
           value: this._dateAdapter.getDate(this._activeDate),
@@ -71112,8 +73000,7 @@ var _MatMonthView = class _MatMonthView {
    * computes and emits the new range selection.
    */
   _dragEnded(event) {
-    if (!this.activeDrag)
-      return;
+    if (!this.activeDrag) return;
     if (event.value) {
       const dragDropResult = this._rangeStrategy?.createDrag?.(this.activeDrag.value, this.selected, event.value, event.event);
       this.dragEnded.emit({
@@ -71142,7 +73029,8 @@ var _MatMonthView = class _MatMonthView {
     let weekdays = longWeekdays.map((long, i) => {
       return {
         long,
-        narrow: narrowWeekdays[i]
+        narrow: narrowWeekdays[i],
+        id: uniqueIdCounter2++
       };
     });
     this._weekdays = weekdays.slice(firstDayOfWeek).concat(weekdays.slice(0, firstDayOfWeek));
@@ -71259,7 +73147,7 @@ _MatMonthView.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   template: function MatMonthView_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "table", 0)(1, "thead", 1)(2, "tr");
-      \u0275\u0275repeaterCreate(3, MatMonthView_For_4_Template, 5, 2, "th", 2, \u0275\u0275repeaterTrackByIdentity);
+      \u0275\u0275repeaterCreate(3, MatMonthView_For_4_Template, 5, 2, "th", 2, _forTrack1);
       \u0275\u0275elementEnd();
       \u0275\u0275elementStart(5, "tr", 3);
       \u0275\u0275element(6, "th", 4);
@@ -71304,7 +73192,7 @@ var MatMonthView = _MatMonthView;
       changeDetection: ChangeDetectionStrategy.OnPush,
       standalone: true,
       imports: [MatCalendarBody],
-      template: '<table class="mat-calendar-table" role="grid">\n  <thead class="mat-calendar-table-header">\n    <tr>\n      @for (day of _weekdays; track day) {\n        <th scope="col">\n          <span class="cdk-visually-hidden">{{day.long}}</span>\n          <span aria-hidden="true">{{day.narrow}}</span>\n        </th>\n      }\n    </tr>\n    <tr aria-hidden="true"><th class="mat-calendar-table-header-divider" colspan="7"></th></tr>\n  </thead>\n  <tbody mat-calendar-body\n         [label]="_monthLabel"\n         [rows]="_weeks"\n         [todayValue]="_todayDate!"\n         [startValue]="_rangeStart!"\n         [endValue]="_rangeEnd!"\n         [comparisonStart]="_comparisonRangeStart"\n         [comparisonEnd]="_comparisonRangeEnd"\n         [previewStart]="_previewStart"\n         [previewEnd]="_previewEnd"\n         [isRange]="_isRange"\n         [labelMinRequiredCells]="3"\n         [activeCell]="_dateAdapter.getDate(activeDate) - 1"\n         [startDateAccessibleName]="startDateAccessibleName"\n         [endDateAccessibleName]="endDateAccessibleName"\n         (selectedValueChange)="_dateSelected($event)"\n         (activeDateChange)="_updateActiveDate($event)"\n         (previewChange)="_previewChanged($event)"\n         (dragStarted)="dragStarted.emit($event)"\n         (dragEnded)="_dragEnded($event)"\n         (keyup)="_handleCalendarBodyKeyup($event)"\n         (keydown)="_handleCalendarBodyKeydown($event)">\n  </tbody>\n</table>\n'
+      template: '<table class="mat-calendar-table" role="grid">\n  <thead class="mat-calendar-table-header">\n    <tr>\n      @for (day of _weekdays; track day.id) {\n        <th scope="col">\n          <span class="cdk-visually-hidden">{{day.long}}</span>\n          <span aria-hidden="true">{{day.narrow}}</span>\n        </th>\n      }\n    </tr>\n    <tr aria-hidden="true"><th class="mat-calendar-table-header-divider" colspan="7"></th></tr>\n  </thead>\n  <tbody mat-calendar-body\n         [label]="_monthLabel"\n         [rows]="_weeks"\n         [todayValue]="_todayDate!"\n         [startValue]="_rangeStart!"\n         [endValue]="_rangeEnd!"\n         [comparisonStart]="_comparisonRangeStart"\n         [comparisonEnd]="_comparisonRangeEnd"\n         [previewStart]="_previewStart"\n         [previewEnd]="_previewEnd"\n         [isRange]="_isRange"\n         [labelMinRequiredCells]="3"\n         [activeCell]="_dateAdapter.getDate(activeDate) - 1"\n         [startDateAccessibleName]="startDateAccessibleName"\n         [endDateAccessibleName]="endDateAccessibleName"\n         (selectedValueChange)="_dateSelected($event)"\n         (activeDateChange)="_updateActiveDate($event)"\n         (previewChange)="_previewChanged($event)"\n         (dragStarted)="dragStarted.emit($event)"\n         (dragEnded)="_dragEnded($event)"\n         (keyup)="_handleCalendarBodyKeyup($event)"\n         (keydown)="_handleCalendarBodyKeydown($event)">\n  </tbody>\n</table>\n'
     }]
   }], () => [{
     type: ChangeDetectorRef
@@ -71519,8 +73407,8 @@ var _MatMultiYearView = class _MatMultiYearView {
       case PAGE_DOWN:
         this.activeDate = this._dateAdapter.addCalendarYears(this._activeDate, event.altKey ? yearsPerPage * 10 : yearsPerPage);
         break;
-      case ENTER:
-      case SPACE:
+      case ENTER2:
+      case SPACE2:
         this._selectionKeyPressed = true;
         break;
       default:
@@ -71534,7 +73422,7 @@ var _MatMultiYearView = class _MatMultiYearView {
   }
   /** Handles keyup events on the calendar body when calendar is in multi-year view. */
   _handleCalendarBodyKeyup(event) {
-    if (event.keyCode === SPACE || event.keyCode === ENTER) {
+    if (event.keyCode === SPACE2 || event.keyCode === ENTER2) {
       if (this._selectionKeyPressed) {
         this._yearSelected({
           value: this._dateAdapter.getYear(this._activeDate),
@@ -71866,8 +73754,8 @@ var _MatYearView = class _MatYearView {
       case PAGE_DOWN:
         this.activeDate = this._dateAdapter.addCalendarYears(this._activeDate, event.altKey ? 10 : 1);
         break;
-      case ENTER:
-      case SPACE:
+      case ENTER2:
+      case SPACE2:
         this._selectionKeyPressed = true;
         break;
       default:
@@ -71881,7 +73769,7 @@ var _MatYearView = class _MatYearView {
   }
   /** Handles keyup events on the calendar body when calendar is in year view. */
   _handleCalendarBodyKeyup(event) {
-    if (event.keyCode === SPACE || event.keyCode === ENTER) {
+    if (event.keyCode === SPACE2 || event.keyCode === ENTER2) {
       if (this._selectionKeyPressed) {
         this._monthSelected({
           value: this._dateAdapter.getMonth(this._activeDate),
@@ -72222,7 +74110,7 @@ _MatCalendarHeader.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   ngContentSelectors: _c17,
   decls: 13,
   vars: 11,
-  consts: [[1, "mat-calendar-header"], [1, "mat-calendar-controls"], [1, "cdk-visually-hidden", 3, "id"], ["mat-button", "", "type", "button", "aria-live", "polite", 1, "mat-calendar-period-button", 3, "click"], ["aria-hidden", "true"], ["viewBox", "0 0 10 5", "focusable", "false", "aria-hidden", "true", 1, "mat-calendar-arrow"], ["points", "0,0 5,5 10,0"], [1, "mat-calendar-spacer"], ["mat-icon-button", "", "type", "button", 1, "mat-calendar-previous-button", 3, "click", "disabled"], ["mat-icon-button", "", "type", "button", 1, "mat-calendar-next-button", 3, "click", "disabled"]],
+  consts: [[1, "mat-calendar-header"], [1, "mat-calendar-controls"], ["aria-live", "polite", 1, "cdk-visually-hidden", 3, "id"], ["mat-button", "", "type", "button", 1, "mat-calendar-period-button", 3, "click"], ["aria-hidden", "true"], ["viewBox", "0 0 10 5", "focusable", "false", "aria-hidden", "true", 1, "mat-calendar-arrow"], ["points", "0,0 5,5 10,0"], [1, "mat-calendar-spacer"], ["mat-icon-button", "", "type", "button", 1, "mat-calendar-previous-button", 3, "click", "disabled"], ["mat-icon-button", "", "type", "button", 1, "mat-calendar-next-button", 3, "click", "disabled"]],
   template: function MatCalendarHeader_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275projectionDef();
@@ -72290,13 +74178,13 @@ var MatCalendarHeader = _MatCalendarHeader;
       imports: [MatButton, MatIconButton],
       template: `<div class="mat-calendar-header">
   <div class="mat-calendar-controls">
-    <!-- [Firefox Issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1880533] 
+    <!-- [Firefox Issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1880533]
       Relocated label next to related button and made visually hidden via cdk-visually-hidden
       to enable label to appear in a11y tree for SR when using Firefox -->
-    <label [id]="_periodButtonLabelId" class="cdk-visually-hidden">{{periodButtonDescription}}</label>
+    <label [id]="_periodButtonLabelId" class="cdk-visually-hidden" aria-live="polite">{{periodButtonDescription}}</label>
     <button mat-button type="button" class="mat-calendar-period-button"
             (click)="currentPeriodClicked()" [attr.aria-label]="periodButtonLabel"
-            [attr.aria-describedby]="_periodButtonLabelId" aria-live="polite">
+            [attr.aria-describedby]="_periodButtonLabelId">
       <span aria-hidden="true">{{periodButtonText}}</span>
       <svg class="mat-calendar-arrow" [class.mat-calendar-invert]="calendar.currentView !== 'month'"
            viewBox="0 0 10 5" focusable="false" aria-hidden="true">
@@ -72497,8 +74385,7 @@ var _MatCalendar = class _MatCalendar {
    * of a new range.
    */
   _dragEnded(event) {
-    if (!this._activeDrag)
-      return;
+    if (!this._activeDrag) return;
     if (event.value) {
       this._userDragDrop.emit(event);
     }
@@ -72556,19 +74443,19 @@ _MatCalendar.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   features: [\u0275\u0275ProvidersFeature([MAT_SINGLE_DATE_SELECTION_MODEL_PROVIDER]), \u0275\u0275NgOnChangesFeature, \u0275\u0275StandaloneFeature],
   decls: 5,
   vars: 2,
-  consts: [[3, "cdkPortalOutlet"], ["cdkMonitorSubtreeFocus", "", "tabindex", "-1", 1, "mat-calendar-content"], [3, "activeDateChange", "_userSelection", "dragStarted", "dragEnded", "activeDate", "selected", "dateFilter", "maxDate", "minDate", "dateClass", "comparisonStart", "comparisonEnd", "startDateAccessibleName", "endDateAccessibleName", "activeDrag"], [3, "activeDateChange", "monthSelected", "selectedChange", "activeDate", "selected", "dateFilter", "maxDate", "minDate", "dateClass"], [3, "activeDateChange", "yearSelected", "selectedChange", "activeDate", "selected", "dateFilter", "maxDate", "minDate", "dateClass"]],
+  consts: [[3, "cdkPortalOutlet"], ["cdkMonitorSubtreeFocus", "", "tabindex", "-1", 1, "mat-calendar-content"], [3, "activeDate", "selected", "dateFilter", "maxDate", "minDate", "dateClass", "comparisonStart", "comparisonEnd", "startDateAccessibleName", "endDateAccessibleName", "activeDrag"], [3, "activeDate", "selected", "dateFilter", "maxDate", "minDate", "dateClass"], [3, "activeDateChange", "_userSelection", "dragStarted", "dragEnded", "activeDate", "selected", "dateFilter", "maxDate", "minDate", "dateClass", "comparisonStart", "comparisonEnd", "startDateAccessibleName", "endDateAccessibleName", "activeDrag"], [3, "activeDateChange", "monthSelected", "selectedChange", "activeDate", "selected", "dateFilter", "maxDate", "minDate", "dateClass"], [3, "activeDateChange", "yearSelected", "selectedChange", "activeDate", "selected", "dateFilter", "maxDate", "minDate", "dateClass"]],
   template: function MatCalendar_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275template(0, MatCalendar_ng_template_0_Template, 0, 0, "ng-template", 0);
       \u0275\u0275elementStart(1, "div", 1);
-      \u0275\u0275template(2, MatCalendar_Case_2_Template, 1, 11)(3, MatCalendar_Case_3_Template, 1, 6)(4, MatCalendar_Case_4_Template, 1, 6);
+      \u0275\u0275template(2, MatCalendar_Case_2_Template, 1, 11, "mat-month-view", 2)(3, MatCalendar_Case_3_Template, 1, 6, "mat-year-view", 3)(4, MatCalendar_Case_4_Template, 1, 6, "mat-multi-year-view", 3);
       \u0275\u0275elementEnd();
     }
     if (rf & 2) {
       let tmp_1_0;
       \u0275\u0275property("cdkPortalOutlet", ctx._calendarHeaderPortal);
       \u0275\u0275advance(2);
-      \u0275\u0275conditional(2, (tmp_1_0 = ctx.currentView) === "month" ? 2 : tmp_1_0 === "year" ? 3 : tmp_1_0 === "multi-year" ? 4 : -1);
+      \u0275\u0275conditional((tmp_1_0 = ctx.currentView) === "month" ? 2 : tmp_1_0 === "year" ? 3 : tmp_1_0 === "multi-year" ? 4 : -1);
     }
   },
   dependencies: [CdkPortalOutlet, CdkMonitorFocus, MatMonthView, MatYearView, MatMultiYearView],
@@ -73043,7 +74930,11 @@ var _MatDatepickerBase = class _MatDatepickerBase {
   set startAt(value) {
     this._startAt = this._dateAdapter.getValidDateOrNull(this._dateAdapter.deserialize(value));
   }
-  /** Color palette to use on the datepicker's calendar. */
+  /**
+   * Color palette to use on the datepicker's calendar. This API is supported in M2 themes only, it
+   * has no effect in M3 themes. For information on applying color variants in M3, see
+   * https://material.angular.io/guide/theming#using-component-color-variants
+   */
   get color() {
     return this._color || (this.datepickerInput ? this.datepickerInput.getThemePalette() : void 0);
   }
@@ -73089,9 +74980,8 @@ var _MatDatepickerBase = class _MatDatepickerBase {
   _getDateFilter() {
     return this.datepickerInput && this.datepickerInput.dateFilter;
   }
-  constructor(_overlay, _ngZone, _viewContainerRef, scrollStrategy, _dateAdapter, _dir, _model) {
+  constructor(_overlay, _unusedNgZone, _viewContainerRef, scrollStrategy, _dateAdapter, _dir, _model) {
     this._overlay = _overlay;
-    this._ngZone = _ngZone;
     this._viewContainerRef = _viewContainerRef;
     this._dateAdapter = _dateAdapter;
     this._dir = _dir;
@@ -73113,6 +75003,7 @@ var _MatDatepickerBase = class _MatDatepickerBase {
     this._focusedElementBeforeOpen = null;
     this._backdropHarnessClass = `${this.id}-backdrop`;
     this.stateChanges = new Subject();
+    this._injector = inject(Injector);
     if (!this._dateAdapter && (typeof ngDevMode === "undefined" || ngDevMode)) {
       throw createMissingDateImplError("DateAdapter");
     }
@@ -73273,7 +75164,11 @@ var _MatDatepickerBase = class _MatDatepickerBase {
     this._componentRef = overlayRef.attach(portal);
     this._forwardContentValues(this._componentRef.instance);
     if (!isDialog) {
-      this._ngZone.onStable.pipe(take(1)).subscribe(() => overlayRef.updatePosition());
+      afterNextRender(() => {
+        overlayRef.updatePosition();
+      }, {
+        injector: this._injector
+      });
     }
   }
   /** Destroys the current overlay. */
@@ -73324,7 +75219,7 @@ var _MatDatepickerBase = class _MatDatepickerBase {
   _getCloseStream(overlayRef) {
     const ctrlShiftMetaModifiers = ["ctrlKey", "shiftKey", "metaKey"];
     return merge(overlayRef.backdropClick(), overlayRef.detachments(), overlayRef.keydownEvents().pipe(filter((event) => {
-      return event.keyCode === ESCAPE && !hasModifierKey(event) || this.datepickerInput && hasModifierKey(event, "altKey") && event.keyCode === UP_ARROW && ctrlShiftMetaModifiers.every((modifier) => !hasModifierKey(event, modifier));
+      return event.keyCode === ESCAPE && !hasModifierKey2(event) || this.datepickerInput && hasModifierKey2(event, "altKey") && event.keyCode === UP_ARROW && ctrlShiftMetaModifiers.every((modifier) => !hasModifierKey2(event, modifier));
     })));
   }
 };
@@ -73338,14 +75233,14 @@ _MatDatepickerBase.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
     startAt: "startAt",
     startView: "startView",
     color: "color",
-    touchUi: [InputFlags.HasDecoratorInputTransform, "touchUi", "touchUi", booleanAttribute],
-    disabled: [InputFlags.HasDecoratorInputTransform, "disabled", "disabled", booleanAttribute],
+    touchUi: [2, "touchUi", "touchUi", booleanAttribute],
+    disabled: [2, "disabled", "disabled", booleanAttribute],
     xPosition: "xPosition",
     yPosition: "yPosition",
-    restoreFocus: [InputFlags.HasDecoratorInputTransform, "restoreFocus", "restoreFocus", booleanAttribute],
+    restoreFocus: [2, "restoreFocus", "restoreFocus", booleanAttribute],
     dateClass: "dateClass",
     panelClass: "panelClass",
-    opened: [InputFlags.HasDecoratorInputTransform, "opened", "opened", booleanAttribute]
+    opened: [2, "opened", "opened", booleanAttribute]
   },
   outputs: {
     yearSelected: "yearSelected",
@@ -73647,7 +75542,7 @@ var _MatDatepickerInputBase = class _MatDatepickerInputBase {
   }
   _onKeydown(event) {
     const ctrlShiftMetaModifiers = ["ctrlKey", "shiftKey", "metaKey"];
-    const isAltDownArrow = hasModifierKey(event, "altKey") && event.keyCode === DOWN_ARROW && ctrlShiftMetaModifiers.every((modifier) => !hasModifierKey(event, modifier));
+    const isAltDownArrow = hasModifierKey2(event, "altKey") && event.keyCode === DOWN_ARROW && ctrlShiftMetaModifiers.every((modifier) => !hasModifierKey2(event, modifier));
     if (isAltDownArrow && !this._elementRef.nativeElement.readOnly) {
       this._openPopup();
       event.preventDefault();
@@ -73729,7 +75624,7 @@ _MatDatepickerInputBase.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective(
   type: _MatDatepickerInputBase,
   inputs: {
     value: "value",
-    disabled: [InputFlags.HasDecoratorInputTransform, "disabled", "disabled", booleanAttribute]
+    disabled: [2, "disabled", "disabled", booleanAttribute]
   },
   outputs: {
     dateChange: "dateChange",
@@ -73938,7 +75833,7 @@ _MatDatepickerInput.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
     matDatepicker: "matDatepicker",
     min: "min",
     max: "max",
-    dateFilter: [InputFlags.None, "matDatepickerFilter", "dateFilter"]
+    dateFilter: [0, "matDatepickerFilter", "dateFilter"]
   },
   exportAs: ["matDatepickerInput"],
   standalone: true,
@@ -74115,10 +76010,10 @@ _MatDatepickerToggle.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     }
   },
   inputs: {
-    datepicker: [InputFlags.None, "for", "datepicker"],
+    datepicker: [0, "for", "datepicker"],
     tabIndex: "tabIndex",
-    ariaLabel: [InputFlags.None, "aria-label", "ariaLabel"],
-    disabled: [InputFlags.HasDecoratorInputTransform, "disabled", "disabled", booleanAttribute],
+    ariaLabel: [0, "aria-label", "ariaLabel"],
+    disabled: [2, "disabled", "disabled", booleanAttribute],
     disableRipple: "disableRipple"
   },
   exportAs: ["matDatepickerToggle"],
@@ -74140,7 +76035,7 @@ _MatDatepickerToggle.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
       \u0275\u0275property("disabled", ctx.disabled)("disableRipple", ctx.disableRipple);
       \u0275\u0275attribute("aria-haspopup", ctx.datepicker ? "dialog" : null)("aria-label", ctx.ariaLabel || ctx._intl.openCalendarLabel)("tabindex", ctx.disabled ? -1 : ctx.tabIndex);
       \u0275\u0275advance(2);
-      \u0275\u0275conditional(2, !ctx._customIcon ? 2 : -1);
+      \u0275\u0275conditional(!ctx._customIcon ? 2 : -1);
     }
   },
   dependencies: [MatIconButton],
@@ -74207,7 +76102,7 @@ var MatDatepickerToggle = _MatDatepickerToggle;
   }, {
     type: void 0,
     decorators: [{
-      type: Attribute,
+      type: Attribute2,
       args: ["tabindex"]
     }]
   }], {
@@ -75054,11 +76949,11 @@ _MatDateRangeInput.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   },
   inputs: {
     rangePicker: "rangePicker",
-    required: [InputFlags.HasDecoratorInputTransform, "required", "required", booleanAttribute],
+    required: [2, "required", "required", booleanAttribute],
     dateFilter: "dateFilter",
     min: "min",
     max: "max",
-    disabled: [InputFlags.HasDecoratorInputTransform, "disabled", "disabled", booleanAttribute],
+    disabled: [2, "disabled", "disabled", booleanAttribute],
     separator: "separator",
     comparisonStart: "comparisonStart",
     comparisonEnd: "comparisonEnd"
@@ -76228,7 +78123,7 @@ _MatIcon.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   },
   inputs: {
     color: "color",
-    inline: [InputFlags.HasDecoratorInputTransform, "inline", "inline", booleanAttribute],
+    inline: [2, "inline", "inline", booleanAttribute],
     svgIcon: "svgIcon",
     fontSet: "fontSet",
     fontIcon: "fontIcon"
@@ -76280,7 +78175,7 @@ var MatIcon = _MatIcon;
   }, {
     type: void 0,
     decorators: [{
-      type: Attribute,
+      type: Attribute2,
       args: ["aria-hidden"]
     }]
   }, {
@@ -76491,8 +78386,8 @@ _MatMenuItem.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   },
   inputs: {
     role: "role",
-    disabled: [InputFlags.HasDecoratorInputTransform, "disabled", "disabled", booleanAttribute],
-    disableRipple: [InputFlags.HasDecoratorInputTransform, "disableRipple", "disableRipple", booleanAttribute]
+    disabled: [2, "disabled", "disabled", booleanAttribute],
+    disableRipple: [2, "disableRipple", "disableRipple", booleanAttribute]
   },
   exportAs: ["matMenuItem"],
   standalone: true,
@@ -76516,7 +78411,7 @@ _MatMenuItem.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
       \u0275\u0275advance(3);
       \u0275\u0275property("matRippleDisabled", ctx.disableRipple || ctx.disabled)("matRippleTrigger", ctx._getHostElement());
       \u0275\u0275advance();
-      \u0275\u0275conditional(4, ctx._triggersSubmenu ? 4 : -1);
+      \u0275\u0275conditional(ctx._triggersSubmenu ? 4 : -1);
     }
   },
   dependencies: [MatRipple],
@@ -76792,9 +78687,8 @@ var _MatMenu = class _MatMenu {
   set classList(classes) {
     this.panelClass = classes;
   }
-  constructor(_elementRef, _ngZone, defaultOptions, _changeDetectorRef) {
+  constructor(_elementRef, _unusedNgZone, defaultOptions, _changeDetectorRef) {
     this._elementRef = _elementRef;
-    this._ngZone = _ngZone;
     this._changeDetectorRef = _changeDetectorRef;
     this._elevationPrefix = "mat-elevation-z";
     this._baseElevation = 8;
@@ -76805,6 +78699,7 @@ var _MatMenu = class _MatMenu {
     this.closed = new EventEmitter();
     this.close = this.closed;
     this.panelId = `mat-menu-panel-${menuPanelUid++}`;
+    this._injector = inject(Injector);
     this.overlayPanelClass = defaultOptions.overlayPanelClass || "";
     this._xPosition = defaultOptions.xPosition;
     this._yPosition = defaultOptions.yPosition;
@@ -76837,7 +78732,7 @@ var _MatMenu = class _MatMenu {
     this._keyManager?.destroy();
     this._directDescendantItems.destroy();
     this.closed.complete();
-    this._firstItemFocusSubscription?.unsubscribe();
+    this._firstItemFocusRef?.destroy();
   }
   /** Stream that emits whenever the hovered menu item changes. */
   _hovered() {
@@ -76866,7 +78761,7 @@ var _MatMenu = class _MatMenu {
     const manager = this._keyManager;
     switch (keyCode) {
       case ESCAPE:
-        if (!hasModifierKey(event)) {
+        if (!hasModifierKey2(event)) {
           event.preventDefault();
           this.closed.emit("keydown");
         }
@@ -76895,8 +78790,8 @@ var _MatMenu = class _MatMenu {
    * @param origin Action from which the focus originated. Used to set the correct styling.
    */
   focusFirstItem(origin = "program") {
-    this._firstItemFocusSubscription?.unsubscribe();
-    this._firstItemFocusSubscription = this._ngZone.onStable.pipe(take(1)).subscribe(() => {
+    this._firstItemFocusRef?.destroy();
+    this._firstItemFocusRef = afterNextRender(() => {
       let menuPanel = null;
       if (this._directDescendantItems.length) {
         menuPanel = this._directDescendantItems.first._getHostElement().closest('[role="menu"]');
@@ -76908,6 +78803,8 @@ var _MatMenu = class _MatMenu {
           menuPanel.focus();
         }
       }
+    }, {
+      injector: this._injector
     });
   }
   /**
@@ -77021,14 +78918,14 @@ _MatMenu.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   },
   inputs: {
     backdropClass: "backdropClass",
-    ariaLabel: [InputFlags.None, "aria-label", "ariaLabel"],
-    ariaLabelledby: [InputFlags.None, "aria-labelledby", "ariaLabelledby"],
-    ariaDescribedby: [InputFlags.None, "aria-describedby", "ariaDescribedby"],
+    ariaLabel: [0, "aria-label", "ariaLabel"],
+    ariaLabelledby: [0, "aria-labelledby", "ariaLabelledby"],
+    ariaDescribedby: [0, "aria-describedby", "ariaDescribedby"],
     xPosition: "xPosition",
     yPosition: "yPosition",
-    overlapTrigger: [InputFlags.HasDecoratorInputTransform, "overlapTrigger", "overlapTrigger", booleanAttribute],
-    hasBackdrop: [InputFlags.HasDecoratorInputTransform, "hasBackdrop", "hasBackdrop", (value) => value == null ? null : booleanAttribute(value)],
-    panelClass: [InputFlags.None, "class", "panelClass"],
+    overlapTrigger: [2, "overlapTrigger", "overlapTrigger", booleanAttribute],
+    hasBackdrop: [2, "hasBackdrop", "hasBackdrop", (value) => value == null ? null : booleanAttribute(value)],
+    panelClass: [0, "class", "panelClass"],
     classList: "classList"
   },
   outputs: {
@@ -77051,7 +78948,7 @@ _MatMenu.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
       \u0275\u0275template(0, MatMenu_ng_template_0_Template, 3, 7, "ng-template");
     }
   },
-  styles: ['mat-menu{display:none}.mat-mdc-menu-content{margin:0;padding:8px 0;list-style-type:none}.mat-mdc-menu-content:focus{outline:none}.mat-mdc-menu-content,.mat-mdc-menu-content .mat-mdc-menu-item .mat-mdc-menu-item-text{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased;flex:1;white-space:normal;font-family:var(--mat-menu-item-label-text-font);line-height:var(--mat-menu-item-label-text-line-height);font-size:var(--mat-menu-item-label-text-size);letter-spacing:var(--mat-menu-item-label-text-tracking);font-weight:var(--mat-menu-item-label-text-weight)}.mat-mdc-menu-panel{min-width:112px;max-width:280px;overflow:auto;-webkit-overflow-scrolling:touch;box-sizing:border-box;outline:0;border-radius:var(--mat-menu-container-shape);background-color:var(--mat-menu-container-color);will-change:transform,opacity}.mat-mdc-menu-panel.ng-animating{pointer-events:none}.cdk-high-contrast-active .mat-mdc-menu-panel{outline:solid 1px}.mat-divider{color:var(--mat-menu-divider-color);margin-bottom:var(--mat-menu-divider-bottom-spacing);margin-top:var(--mat-menu-divider-top-spacing)}.mat-mdc-menu-item{display:flex;position:relative;align-items:center;justify-content:flex-start;overflow:hidden;padding:0;padding-left:var(--mat-menu-item-leading-spacing);padding-right:var(--mat-menu-item-trailing-spacing);-webkit-user-select:none;user-select:none;cursor:pointer;outline:none;border:none;-webkit-tap-highlight-color:rgba(0,0,0,0);cursor:pointer;width:100%;text-align:left;box-sizing:border-box;color:inherit;font-size:inherit;background:none;text-decoration:none;margin:0;align-items:center;min-height:48px}.mat-mdc-menu-item:focus{outline:none}[dir=rtl] .mat-mdc-menu-item,.mat-mdc-menu-item[dir=rtl]{padding-left:var(--mat-menu-item-trailing-spacing);padding-right:var(--mat-menu-item-leading-spacing)}.mat-mdc-menu-item:has(.material-icons,mat-icon,[matButtonIcon]){padding-left:var(--mat-menu-item-with-icon-leading-spacing);padding-right:var(--mat-menu-item-with-icon-trailing-spacing)}[dir=rtl] .mat-mdc-menu-item:has(.material-icons,mat-icon,[matButtonIcon]),.mat-mdc-menu-item:has(.material-icons,mat-icon,[matButtonIcon])[dir=rtl]{padding-left:var(--mat-menu-item-with-icon-trailing-spacing);padding-right:var(--mat-menu-item-with-icon-leading-spacing)}.mat-mdc-menu-item::-moz-focus-inner{border:0}.mat-mdc-menu-item,.mat-mdc-menu-item:visited,.mat-mdc-menu-item:link{color:var(--mat-menu-item-label-text-color)}.mat-mdc-menu-item .mat-icon-no-color,.mat-mdc-menu-item .mat-mdc-menu-submenu-icon{color:var(--mat-menu-item-icon-color)}.mat-mdc-menu-item[disabled]{cursor:default;opacity:.38}.mat-mdc-menu-item[disabled]::after{display:block;position:absolute;content:"";top:0;left:0;bottom:0;right:0}.mat-mdc-menu-item .mat-icon{flex-shrink:0;margin-right:var(--mat-menu-item-spacing);height:var(--mat-menu-item-icon-size);width:var(--mat-menu-item-icon-size)}[dir=rtl] .mat-mdc-menu-item{text-align:right}[dir=rtl] .mat-mdc-menu-item .mat-icon{margin-right:0;margin-left:var(--mat-menu-item-spacing)}.mat-mdc-menu-item:not([disabled]):hover{background-color:var(--mat-menu-item-hover-state-layer-color)}.mat-mdc-menu-item:not([disabled]).cdk-program-focused,.mat-mdc-menu-item:not([disabled]).cdk-keyboard-focused,.mat-mdc-menu-item:not([disabled]).mat-mdc-menu-item-highlighted{background-color:var(--mat-menu-item-focus-state-layer-color)}.cdk-high-contrast-active .mat-mdc-menu-item{margin-top:1px}.mat-mdc-menu-submenu-icon{width:var(--mat-menu-item-icon-size);height:10px;fill:currentColor;padding-left:var(--mat-menu-item-spacing)}[dir=rtl] .mat-mdc-menu-submenu-icon{padding-right:var(--mat-menu-item-spacing);padding-left:0}[dir=rtl] .mat-mdc-menu-submenu-icon polygon{transform:scaleX(-1)}.cdk-high-contrast-active .mat-mdc-menu-submenu-icon{fill:CanvasText}.mat-mdc-menu-item .mat-mdc-menu-ripple{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none}'],
+  styles: ['mat-menu{display:none}.mat-mdc-menu-content{margin:0;padding:8px 0;list-style-type:none}.mat-mdc-menu-content:focus{outline:none}.mat-mdc-menu-content,.mat-mdc-menu-content .mat-mdc-menu-item .mat-mdc-menu-item-text{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased;flex:1;white-space:normal;font-family:var(--mat-menu-item-label-text-font);line-height:var(--mat-menu-item-label-text-line-height);font-size:var(--mat-menu-item-label-text-size);letter-spacing:var(--mat-menu-item-label-text-tracking);font-weight:var(--mat-menu-item-label-text-weight)}.mat-mdc-menu-panel{min-width:112px;max-width:280px;overflow:auto;-webkit-overflow-scrolling:touch;box-sizing:border-box;outline:0;border-radius:var(--mat-menu-container-shape);background-color:var(--mat-menu-container-color);will-change:transform,opacity}.mat-mdc-menu-panel.ng-animating{pointer-events:none}.cdk-high-contrast-active .mat-mdc-menu-panel{outline:solid 1px}.mat-mdc-menu-panel .mat-divider{color:var(--mat-menu-divider-color);margin-bottom:var(--mat-menu-divider-bottom-spacing);margin-top:var(--mat-menu-divider-top-spacing)}.mat-mdc-menu-item{display:flex;position:relative;align-items:center;justify-content:flex-start;overflow:hidden;padding:0;padding-left:var(--mat-menu-item-leading-spacing);padding-right:var(--mat-menu-item-trailing-spacing);-webkit-user-select:none;user-select:none;cursor:pointer;outline:none;border:none;-webkit-tap-highlight-color:rgba(0,0,0,0);cursor:pointer;width:100%;text-align:left;box-sizing:border-box;color:inherit;font-size:inherit;background:none;text-decoration:none;margin:0;align-items:center;min-height:48px}.mat-mdc-menu-item:focus{outline:none}[dir=rtl] .mat-mdc-menu-item,.mat-mdc-menu-item[dir=rtl]{padding-left:var(--mat-menu-item-trailing-spacing);padding-right:var(--mat-menu-item-leading-spacing)}.mat-mdc-menu-item:has(.material-icons,mat-icon,[matButtonIcon]){padding-left:var(--mat-menu-item-with-icon-leading-spacing);padding-right:var(--mat-menu-item-with-icon-trailing-spacing)}[dir=rtl] .mat-mdc-menu-item:has(.material-icons,mat-icon,[matButtonIcon]),.mat-mdc-menu-item:has(.material-icons,mat-icon,[matButtonIcon])[dir=rtl]{padding-left:var(--mat-menu-item-with-icon-trailing-spacing);padding-right:var(--mat-menu-item-with-icon-leading-spacing)}.mat-mdc-menu-item::-moz-focus-inner{border:0}.mat-mdc-menu-item,.mat-mdc-menu-item:visited,.mat-mdc-menu-item:link{color:var(--mat-menu-item-label-text-color)}.mat-mdc-menu-item .mat-icon-no-color,.mat-mdc-menu-item .mat-mdc-menu-submenu-icon{color:var(--mat-menu-item-icon-color)}.mat-mdc-menu-item[disabled]{cursor:default;opacity:.38}.mat-mdc-menu-item[disabled]::after{display:block;position:absolute;content:"";top:0;left:0;bottom:0;right:0}.mat-mdc-menu-item .mat-icon{flex-shrink:0;margin-right:var(--mat-menu-item-spacing);height:var(--mat-menu-item-icon-size);width:var(--mat-menu-item-icon-size)}[dir=rtl] .mat-mdc-menu-item{text-align:right}[dir=rtl] .mat-mdc-menu-item .mat-icon{margin-right:0;margin-left:var(--mat-menu-item-spacing)}.mat-mdc-menu-item:not([disabled]):hover{background-color:var(--mat-menu-item-hover-state-layer-color)}.mat-mdc-menu-item:not([disabled]).cdk-program-focused,.mat-mdc-menu-item:not([disabled]).cdk-keyboard-focused,.mat-mdc-menu-item:not([disabled]).mat-mdc-menu-item-highlighted{background-color:var(--mat-menu-item-focus-state-layer-color)}.cdk-high-contrast-active .mat-mdc-menu-item{margin-top:1px}.mat-mdc-menu-submenu-icon{width:var(--mat-menu-item-icon-size);height:10px;fill:currentColor;padding-left:var(--mat-menu-item-spacing)}[dir=rtl] .mat-mdc-menu-submenu-icon{padding-right:var(--mat-menu-item-spacing);padding-left:0}[dir=rtl] .mat-mdc-menu-submenu-icon polygon{transform:scaleX(-1)}.cdk-high-contrast-active .mat-mdc-menu-submenu-icon{fill:CanvasText}.mat-mdc-menu-item .mat-mdc-menu-ripple{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none}'],
   encapsulation: 2,
   data: {
     animation: [matMenuAnimations.transformMenu, matMenuAnimations.fadeInItems]
@@ -77099,7 +78996,7 @@ var MatMenu = _MatMenu;
   </div>
 </ng-template>
 `,
-      styles: ['mat-menu{display:none}.mat-mdc-menu-content{margin:0;padding:8px 0;list-style-type:none}.mat-mdc-menu-content:focus{outline:none}.mat-mdc-menu-content,.mat-mdc-menu-content .mat-mdc-menu-item .mat-mdc-menu-item-text{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased;flex:1;white-space:normal;font-family:var(--mat-menu-item-label-text-font);line-height:var(--mat-menu-item-label-text-line-height);font-size:var(--mat-menu-item-label-text-size);letter-spacing:var(--mat-menu-item-label-text-tracking);font-weight:var(--mat-menu-item-label-text-weight)}.mat-mdc-menu-panel{min-width:112px;max-width:280px;overflow:auto;-webkit-overflow-scrolling:touch;box-sizing:border-box;outline:0;border-radius:var(--mat-menu-container-shape);background-color:var(--mat-menu-container-color);will-change:transform,opacity}.mat-mdc-menu-panel.ng-animating{pointer-events:none}.cdk-high-contrast-active .mat-mdc-menu-panel{outline:solid 1px}.mat-divider{color:var(--mat-menu-divider-color);margin-bottom:var(--mat-menu-divider-bottom-spacing);margin-top:var(--mat-menu-divider-top-spacing)}.mat-mdc-menu-item{display:flex;position:relative;align-items:center;justify-content:flex-start;overflow:hidden;padding:0;padding-left:var(--mat-menu-item-leading-spacing);padding-right:var(--mat-menu-item-trailing-spacing);-webkit-user-select:none;user-select:none;cursor:pointer;outline:none;border:none;-webkit-tap-highlight-color:rgba(0,0,0,0);cursor:pointer;width:100%;text-align:left;box-sizing:border-box;color:inherit;font-size:inherit;background:none;text-decoration:none;margin:0;align-items:center;min-height:48px}.mat-mdc-menu-item:focus{outline:none}[dir=rtl] .mat-mdc-menu-item,.mat-mdc-menu-item[dir=rtl]{padding-left:var(--mat-menu-item-trailing-spacing);padding-right:var(--mat-menu-item-leading-spacing)}.mat-mdc-menu-item:has(.material-icons,mat-icon,[matButtonIcon]){padding-left:var(--mat-menu-item-with-icon-leading-spacing);padding-right:var(--mat-menu-item-with-icon-trailing-spacing)}[dir=rtl] .mat-mdc-menu-item:has(.material-icons,mat-icon,[matButtonIcon]),.mat-mdc-menu-item:has(.material-icons,mat-icon,[matButtonIcon])[dir=rtl]{padding-left:var(--mat-menu-item-with-icon-trailing-spacing);padding-right:var(--mat-menu-item-with-icon-leading-spacing)}.mat-mdc-menu-item::-moz-focus-inner{border:0}.mat-mdc-menu-item,.mat-mdc-menu-item:visited,.mat-mdc-menu-item:link{color:var(--mat-menu-item-label-text-color)}.mat-mdc-menu-item .mat-icon-no-color,.mat-mdc-menu-item .mat-mdc-menu-submenu-icon{color:var(--mat-menu-item-icon-color)}.mat-mdc-menu-item[disabled]{cursor:default;opacity:.38}.mat-mdc-menu-item[disabled]::after{display:block;position:absolute;content:"";top:0;left:0;bottom:0;right:0}.mat-mdc-menu-item .mat-icon{flex-shrink:0;margin-right:var(--mat-menu-item-spacing);height:var(--mat-menu-item-icon-size);width:var(--mat-menu-item-icon-size)}[dir=rtl] .mat-mdc-menu-item{text-align:right}[dir=rtl] .mat-mdc-menu-item .mat-icon{margin-right:0;margin-left:var(--mat-menu-item-spacing)}.mat-mdc-menu-item:not([disabled]):hover{background-color:var(--mat-menu-item-hover-state-layer-color)}.mat-mdc-menu-item:not([disabled]).cdk-program-focused,.mat-mdc-menu-item:not([disabled]).cdk-keyboard-focused,.mat-mdc-menu-item:not([disabled]).mat-mdc-menu-item-highlighted{background-color:var(--mat-menu-item-focus-state-layer-color)}.cdk-high-contrast-active .mat-mdc-menu-item{margin-top:1px}.mat-mdc-menu-submenu-icon{width:var(--mat-menu-item-icon-size);height:10px;fill:currentColor;padding-left:var(--mat-menu-item-spacing)}[dir=rtl] .mat-mdc-menu-submenu-icon{padding-right:var(--mat-menu-item-spacing);padding-left:0}[dir=rtl] .mat-mdc-menu-submenu-icon polygon{transform:scaleX(-1)}.cdk-high-contrast-active .mat-mdc-menu-submenu-icon{fill:CanvasText}.mat-mdc-menu-item .mat-mdc-menu-ripple{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none}']
+      styles: ['mat-menu{display:none}.mat-mdc-menu-content{margin:0;padding:8px 0;list-style-type:none}.mat-mdc-menu-content:focus{outline:none}.mat-mdc-menu-content,.mat-mdc-menu-content .mat-mdc-menu-item .mat-mdc-menu-item-text{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased;flex:1;white-space:normal;font-family:var(--mat-menu-item-label-text-font);line-height:var(--mat-menu-item-label-text-line-height);font-size:var(--mat-menu-item-label-text-size);letter-spacing:var(--mat-menu-item-label-text-tracking);font-weight:var(--mat-menu-item-label-text-weight)}.mat-mdc-menu-panel{min-width:112px;max-width:280px;overflow:auto;-webkit-overflow-scrolling:touch;box-sizing:border-box;outline:0;border-radius:var(--mat-menu-container-shape);background-color:var(--mat-menu-container-color);will-change:transform,opacity}.mat-mdc-menu-panel.ng-animating{pointer-events:none}.cdk-high-contrast-active .mat-mdc-menu-panel{outline:solid 1px}.mat-mdc-menu-panel .mat-divider{color:var(--mat-menu-divider-color);margin-bottom:var(--mat-menu-divider-bottom-spacing);margin-top:var(--mat-menu-divider-top-spacing)}.mat-mdc-menu-item{display:flex;position:relative;align-items:center;justify-content:flex-start;overflow:hidden;padding:0;padding-left:var(--mat-menu-item-leading-spacing);padding-right:var(--mat-menu-item-trailing-spacing);-webkit-user-select:none;user-select:none;cursor:pointer;outline:none;border:none;-webkit-tap-highlight-color:rgba(0,0,0,0);cursor:pointer;width:100%;text-align:left;box-sizing:border-box;color:inherit;font-size:inherit;background:none;text-decoration:none;margin:0;align-items:center;min-height:48px}.mat-mdc-menu-item:focus{outline:none}[dir=rtl] .mat-mdc-menu-item,.mat-mdc-menu-item[dir=rtl]{padding-left:var(--mat-menu-item-trailing-spacing);padding-right:var(--mat-menu-item-leading-spacing)}.mat-mdc-menu-item:has(.material-icons,mat-icon,[matButtonIcon]){padding-left:var(--mat-menu-item-with-icon-leading-spacing);padding-right:var(--mat-menu-item-with-icon-trailing-spacing)}[dir=rtl] .mat-mdc-menu-item:has(.material-icons,mat-icon,[matButtonIcon]),.mat-mdc-menu-item:has(.material-icons,mat-icon,[matButtonIcon])[dir=rtl]{padding-left:var(--mat-menu-item-with-icon-trailing-spacing);padding-right:var(--mat-menu-item-with-icon-leading-spacing)}.mat-mdc-menu-item::-moz-focus-inner{border:0}.mat-mdc-menu-item,.mat-mdc-menu-item:visited,.mat-mdc-menu-item:link{color:var(--mat-menu-item-label-text-color)}.mat-mdc-menu-item .mat-icon-no-color,.mat-mdc-menu-item .mat-mdc-menu-submenu-icon{color:var(--mat-menu-item-icon-color)}.mat-mdc-menu-item[disabled]{cursor:default;opacity:.38}.mat-mdc-menu-item[disabled]::after{display:block;position:absolute;content:"";top:0;left:0;bottom:0;right:0}.mat-mdc-menu-item .mat-icon{flex-shrink:0;margin-right:var(--mat-menu-item-spacing);height:var(--mat-menu-item-icon-size);width:var(--mat-menu-item-icon-size)}[dir=rtl] .mat-mdc-menu-item{text-align:right}[dir=rtl] .mat-mdc-menu-item .mat-icon{margin-right:0;margin-left:var(--mat-menu-item-spacing)}.mat-mdc-menu-item:not([disabled]):hover{background-color:var(--mat-menu-item-hover-state-layer-color)}.mat-mdc-menu-item:not([disabled]).cdk-program-focused,.mat-mdc-menu-item:not([disabled]).cdk-keyboard-focused,.mat-mdc-menu-item:not([disabled]).mat-mdc-menu-item-highlighted{background-color:var(--mat-menu-item-focus-state-layer-color)}.cdk-high-contrast-active .mat-mdc-menu-item{margin-top:1px}.mat-mdc-menu-submenu-icon{width:var(--mat-menu-item-icon-size);height:10px;fill:currentColor;padding-left:var(--mat-menu-item-spacing)}[dir=rtl] .mat-mdc-menu-submenu-icon{padding-right:var(--mat-menu-item-spacing);padding-left:0}[dir=rtl] .mat-mdc-menu-submenu-icon polygon{transform:scaleX(-1)}.cdk-high-contrast-active .mat-mdc-menu-submenu-icon{fill:CanvasText}.mat-mdc-menu-item .mat-mdc-menu-ripple{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none}']
     }]
   }], () => [{
     type: ElementRef
@@ -77520,7 +79417,7 @@ var _MatMenuTrigger = class _MatMenuTrigger {
   /** Handles key presses on the trigger. */
   _handleKeydown(event) {
     const keyCode = event.keyCode;
-    if (keyCode === ENTER || keyCode === SPACE) {
+    if (keyCode === ENTER2 || keyCode === SPACE2) {
       this._openedBy = "keyboard";
     }
     if (this.triggersSubmenu() && (keyCode === RIGHT_ARROW && this.dir === "ltr" || keyCode === LEFT_ARROW && this.dir === "rtl")) {
@@ -77582,10 +79479,10 @@ _MatMenuTrigger.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
     }
   },
   inputs: {
-    _deprecatedMatMenuTriggerFor: [InputFlags.None, "mat-menu-trigger-for", "_deprecatedMatMenuTriggerFor"],
-    menu: [InputFlags.None, "matMenuTriggerFor", "menu"],
-    menuData: [InputFlags.None, "matMenuTriggerData", "menuData"],
-    restoreFocus: [InputFlags.None, "matMenuTriggerRestoreFocus", "restoreFocus"]
+    _deprecatedMatMenuTriggerFor: [0, "mat-menu-trigger-for", "_deprecatedMatMenuTriggerFor"],
+    menu: [0, "matMenuTriggerFor", "menu"],
+    menuData: [0, "matMenuTriggerData", "menuData"],
+    restoreFocus: [0, "matMenuTriggerRestoreFocus", "restoreFocus"]
   },
   outputs: {
     menuOpened: "menuOpened",
@@ -77741,14 +79638,14 @@ function MatSelect_Conditional_5_Conditional_2_Template(rf, ctx) {
 }
 function MatSelect_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 10);
-    \u0275\u0275template(1, MatSelect_Conditional_5_Conditional_1_Template, 1, 0)(2, MatSelect_Conditional_5_Conditional_2_Template, 2, 1);
+    \u0275\u0275elementStart(0, "span", 5);
+    \u0275\u0275template(1, MatSelect_Conditional_5_Conditional_1_Template, 1, 0)(2, MatSelect_Conditional_5_Conditional_2_Template, 2, 1, "span", 11);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275conditional(1, ctx_r1.customTrigger ? 1 : 2);
+    \u0275\u0275conditional(ctx_r1.customTrigger ? 1 : 2);
   }
 }
 function MatSelect_ng_template_10_Template(rf, ctx) {
@@ -78238,9 +80135,9 @@ var _MatSelect = class _MatSelect {
   _handleClosedKeydown(event) {
     const keyCode = event.keyCode;
     const isArrowKey = keyCode === DOWN_ARROW || keyCode === UP_ARROW || keyCode === LEFT_ARROW || keyCode === RIGHT_ARROW;
-    const isOpenKey = keyCode === ENTER || keyCode === SPACE;
+    const isOpenKey = keyCode === ENTER2 || keyCode === SPACE2;
     const manager = this._keyManager;
-    if (!manager.isTyping() && isOpenKey && !hasModifierKey(event) || (this.multiple || event.altKey) && isArrowKey) {
+    if (!manager.isTyping() && isOpenKey && !hasModifierKey2(event) || (this.multiple || event.altKey) && isArrowKey) {
       event.preventDefault();
       this.open();
     } else if (!this.multiple) {
@@ -78261,7 +80158,7 @@ var _MatSelect = class _MatSelect {
     if (isArrowKey && event.altKey) {
       event.preventDefault();
       this.close();
-    } else if (!isTyping && (keyCode === ENTER || keyCode === SPACE) && manager.activeItem && !hasModifierKey(event)) {
+    } else if (!isTyping && (keyCode === ENTER2 || keyCode === SPACE2) && manager.activeItem && !hasModifierKey2(event)) {
       event.preventDefault();
       manager.activeItem._selectViaInteraction();
     } else if (!isTyping && this._multiple && keyCode === A && event.ctrlKey) {
@@ -78623,22 +80520,22 @@ _MatSelect.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     }
   },
   inputs: {
-    userAriaDescribedBy: [InputFlags.None, "aria-describedby", "userAriaDescribedBy"],
+    userAriaDescribedBy: [0, "aria-describedby", "userAriaDescribedBy"],
     panelClass: "panelClass",
-    disabled: [InputFlags.HasDecoratorInputTransform, "disabled", "disabled", booleanAttribute],
-    disableRipple: [InputFlags.HasDecoratorInputTransform, "disableRipple", "disableRipple", booleanAttribute],
-    tabIndex: [InputFlags.HasDecoratorInputTransform, "tabIndex", "tabIndex", (value) => value == null ? 0 : numberAttribute(value)],
-    hideSingleSelectionIndicator: [InputFlags.HasDecoratorInputTransform, "hideSingleSelectionIndicator", "hideSingleSelectionIndicator", booleanAttribute],
+    disabled: [2, "disabled", "disabled", booleanAttribute],
+    disableRipple: [2, "disableRipple", "disableRipple", booleanAttribute],
+    tabIndex: [2, "tabIndex", "tabIndex", (value) => value == null ? 0 : numberAttribute(value)],
+    hideSingleSelectionIndicator: [2, "hideSingleSelectionIndicator", "hideSingleSelectionIndicator", booleanAttribute],
     placeholder: "placeholder",
-    required: [InputFlags.HasDecoratorInputTransform, "required", "required", booleanAttribute],
-    multiple: [InputFlags.HasDecoratorInputTransform, "multiple", "multiple", booleanAttribute],
-    disableOptionCentering: [InputFlags.HasDecoratorInputTransform, "disableOptionCentering", "disableOptionCentering", booleanAttribute],
+    required: [2, "required", "required", booleanAttribute],
+    multiple: [2, "multiple", "multiple", booleanAttribute],
+    disableOptionCentering: [2, "disableOptionCentering", "disableOptionCentering", booleanAttribute],
     compareWith: "compareWith",
     value: "value",
-    ariaLabel: [InputFlags.None, "aria-label", "ariaLabel"],
-    ariaLabelledby: [InputFlags.None, "aria-labelledby", "ariaLabelledby"],
+    ariaLabel: [0, "aria-label", "ariaLabel"],
+    ariaLabelledby: [0, "aria-labelledby", "ariaLabelledby"],
     errorStateMatcher: "errorStateMatcher",
-    typeaheadDebounceInterval: [InputFlags.HasDecoratorInputTransform, "typeaheadDebounceInterval", "typeaheadDebounceInterval", numberAttribute],
+    typeaheadDebounceInterval: [2, "typeaheadDebounceInterval", "typeaheadDebounceInterval", numberAttribute],
     sortComparator: "sortComparator",
     id: "id",
     panelWidth: "panelWidth"
@@ -78662,7 +80559,7 @@ _MatSelect.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   ngContentSelectors: _c37,
   decls: 11,
   vars: 8,
-  consts: [["fallbackOverlayOrigin", "cdkOverlayOrigin", "trigger", ""], ["panel", ""], ["cdk-overlay-origin", "", 1, "mat-mdc-select-trigger", 3, "click"], [1, "mat-mdc-select-value"], [1, "mat-mdc-select-placeholder", "mat-mdc-select-min-line"], [1, "mat-mdc-select-arrow-wrapper"], [1, "mat-mdc-select-arrow"], ["viewBox", "0 0 24 24", "width", "24px", "height", "24px", "focusable", "false", "aria-hidden", "true"], ["d", "M7 10l5 5 5-5z"], ["cdk-connected-overlay", "", "cdkConnectedOverlayLockPosition", "", "cdkConnectedOverlayHasBackdrop", "", "cdkConnectedOverlayBackdropClass", "cdk-overlay-transparent-backdrop", 3, "backdropClick", "attach", "detach", "cdkConnectedOverlayPanelClass", "cdkConnectedOverlayScrollStrategy", "cdkConnectedOverlayOrigin", "cdkConnectedOverlayOpen", "cdkConnectedOverlayPositions", "cdkConnectedOverlayWidth"], [1, "mat-mdc-select-value-text"], [1, "mat-mdc-select-min-line"], ["role", "listbox", "tabindex", "-1", 3, "keydown", "ngClass"]],
+  consts: [["fallbackOverlayOrigin", "cdkOverlayOrigin", "trigger", ""], ["panel", ""], ["cdk-overlay-origin", "", 1, "mat-mdc-select-trigger", 3, "click"], [1, "mat-mdc-select-value"], [1, "mat-mdc-select-placeholder", "mat-mdc-select-min-line"], [1, "mat-mdc-select-value-text"], [1, "mat-mdc-select-arrow-wrapper"], [1, "mat-mdc-select-arrow"], ["viewBox", "0 0 24 24", "width", "24px", "height", "24px", "focusable", "false", "aria-hidden", "true"], ["d", "M7 10l5 5 5-5z"], ["cdk-connected-overlay", "", "cdkConnectedOverlayLockPosition", "", "cdkConnectedOverlayHasBackdrop", "", "cdkConnectedOverlayBackdropClass", "cdk-overlay-transparent-backdrop", 3, "backdropClick", "attach", "detach", "cdkConnectedOverlayPanelClass", "cdkConnectedOverlayScrollStrategy", "cdkConnectedOverlayOrigin", "cdkConnectedOverlayOpen", "cdkConnectedOverlayPositions", "cdkConnectedOverlayWidth"], [1, "mat-mdc-select-min-line"], ["role", "listbox", "tabindex", "-1", 3, "keydown", "ngClass"]],
   template: function MatSelect_Template(rf, ctx) {
     if (rf & 1) {
       const _r1 = \u0275\u0275getCurrentView();
@@ -78673,14 +80570,14 @@ _MatSelect.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
         return \u0275\u0275resetView(ctx.open());
       });
       \u0275\u0275elementStart(3, "div", 3);
-      \u0275\u0275template(4, MatSelect_Conditional_4_Template, 2, 1, "span", 4)(5, MatSelect_Conditional_5_Template, 3, 1);
+      \u0275\u0275template(4, MatSelect_Conditional_4_Template, 2, 1, "span", 4)(5, MatSelect_Conditional_5_Template, 3, 1, "span", 5);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(6, "div", 5)(7, "div", 6);
+      \u0275\u0275elementStart(6, "div", 6)(7, "div", 7);
       \u0275\u0275namespaceSVG();
-      \u0275\u0275elementStart(8, "svg", 7);
-      \u0275\u0275element(9, "path", 8);
+      \u0275\u0275elementStart(8, "svg", 8);
+      \u0275\u0275element(9, "path", 9);
       \u0275\u0275elementEnd()()()();
-      \u0275\u0275template(10, MatSelect_ng_template_10_Template, 3, 9, "ng-template", 9);
+      \u0275\u0275template(10, MatSelect_ng_template_10_Template, 3, 9, "ng-template", 10);
       \u0275\u0275listener("backdropClick", function MatSelect_Template_ng_template_backdropClick_10_listener() {
         \u0275\u0275restoreView(_r1);
         return \u0275\u0275resetView(ctx.close());
@@ -78697,7 +80594,7 @@ _MatSelect.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
       \u0275\u0275advance(3);
       \u0275\u0275attribute("id", ctx._valueId);
       \u0275\u0275advance();
-      \u0275\u0275conditional(4, ctx.empty ? 4 : 5);
+      \u0275\u0275conditional(ctx.empty ? 4 : 5);
       \u0275\u0275advance(6);
       \u0275\u0275property("cdkConnectedOverlayPanelClass", ctx._overlayPanelClass)("cdkConnectedOverlayScrollStrategy", ctx._scrollStrategy)("cdkConnectedOverlayOrigin", ctx._preferredOverlayOrigin || fallbackOverlayOrigin_r4)("cdkConnectedOverlayOpen", ctx.panelOpen)("cdkConnectedOverlayPositions", ctx._positions)("cdkConnectedOverlayWidth", ctx._overlayWidth);
     }
@@ -78858,7 +80755,7 @@ var MatSelect = _MatSelect;
   }, {
     type: void 0,
     decorators: [{
-      type: Attribute,
+      type: Attribute2,
       args: ["tabindex"]
     }]
   }, {
@@ -79276,7 +81173,7 @@ _SimpleSnackBar.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
       \u0275\u0275advance();
       \u0275\u0275textInterpolate1(" ", ctx.data.message, "\n");
       \u0275\u0275advance();
-      \u0275\u0275conditional(2, ctx.hasAction ? 2 : -1);
+      \u0275\u0275conditional(ctx.hasAction ? 2 : -1);
     }
   },
   dependencies: [MatButton, MatSnackBarLabel, MatSnackBarActions, MatSnackBarAction],
@@ -79531,7 +81428,7 @@ _MatSnackBarContainer.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._label = _t.first);
     }
   },
-  hostAttrs: [1, "mdc-snackbar", "mat-mdc-snack-bar-container", "mdc-snackbar--open"],
+  hostAttrs: [1, "mdc-snackbar", "mat-mdc-snack-bar-container"],
   hostVars: 1,
   hostBindings: function MatSnackBarContainer_HostBindings(rf, ctx) {
     if (rf & 1) {
@@ -79547,7 +81444,7 @@ _MatSnackBarContainer.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275StandaloneFeature],
   decls: 6,
   vars: 3,
-  consts: [["label", ""], [1, "mdc-snackbar__surface"], [1, "mat-mdc-snack-bar-label"], ["aria-hidden", "true"], ["cdkPortalOutlet", ""]],
+  consts: [["label", ""], [1, "mdc-snackbar__surface", "mat-mdc-snackbar-surface"], [1, "mat-mdc-snack-bar-label"], ["aria-hidden", "true"], ["cdkPortalOutlet", ""]],
   template: function MatSnackBarContainer_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 1)(1, "div", 2, 0)(3, "div", 3);
@@ -79562,7 +81459,7 @@ _MatSnackBarContainer.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     }
   },
   dependencies: [CdkPortalOutlet],
-  styles: ['.mdc-snackbar{display:none;position:fixed;right:0;bottom:0;left:0;align-items:center;justify-content:center;box-sizing:border-box;pointer-events:none;-webkit-tap-highlight-color:rgba(0,0,0,0)}.mdc-snackbar--opening,.mdc-snackbar--open,.mdc-snackbar--closing{display:flex}.mdc-snackbar--open .mdc-snackbar__label,.mdc-snackbar--open .mdc-snackbar__actions{visibility:visible}.mdc-snackbar__surface{padding-left:0;padding-right:8px;display:flex;align-items:center;justify-content:flex-start;box-sizing:border-box;transform:scale(0.8);opacity:0}.mdc-snackbar__surface::before{position:absolute;box-sizing:border-box;width:100%;height:100%;top:0;left:0;border:1px solid rgba(0,0,0,0);border-radius:inherit;content:"";pointer-events:none}@media screen and (forced-colors: active){.mdc-snackbar__surface::before{border-color:CanvasText}}[dir=rtl] .mdc-snackbar__surface,.mdc-snackbar__surface[dir=rtl]{padding-left:8px;padding-right:0}.mdc-snackbar--open .mdc-snackbar__surface{transform:scale(1);opacity:1;pointer-events:auto}.mdc-snackbar--closing .mdc-snackbar__surface{transform:scale(1)}.mdc-snackbar__label{padding-left:16px;padding-right:8px;width:100%;flex-grow:1;box-sizing:border-box;margin:0;visibility:hidden;padding-top:14px;padding-bottom:14px}[dir=rtl] .mdc-snackbar__label,.mdc-snackbar__label[dir=rtl]{padding-left:8px;padding-right:16px}.mdc-snackbar__label::before{display:inline;content:attr(data-mdc-snackbar-label-text)}.mdc-snackbar__actions{display:flex;flex-shrink:0;align-items:center;box-sizing:border-box;visibility:hidden}.mdc-snackbar__action+.mdc-snackbar__dismiss{margin-left:8px;margin-right:0}[dir=rtl] .mdc-snackbar__action+.mdc-snackbar__dismiss,.mdc-snackbar__action+.mdc-snackbar__dismiss[dir=rtl]{margin-left:0;margin-right:8px}.mat-mdc-snack-bar-container{margin:8px;position:static}.mat-mdc-snack-bar-container .mdc-snackbar__surface{min-width:344px}@media(max-width: 480px),(max-width: 344px){.mat-mdc-snack-bar-container .mdc-snackbar__surface{min-width:100%}}@media(max-width: 480px),(max-width: 344px){.mat-mdc-snack-bar-container{width:100vw}}.mat-mdc-snack-bar-container .mdc-snackbar__surface{max-width:672px}.mat-mdc-snack-bar-container .mdc-snackbar__surface{box-shadow:0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12)}.mat-mdc-snack-bar-container .mdc-snackbar__surface{background-color:var(--mdc-snackbar-container-color)}.mat-mdc-snack-bar-container .mdc-snackbar__surface{border-radius:var(--mdc-snackbar-container-shape)}.mat-mdc-snack-bar-container .mdc-snackbar__label{color:var(--mdc-snackbar-supporting-text-color)}.mat-mdc-snack-bar-container .mdc-snackbar__label{font-size:var(--mdc-snackbar-supporting-text-size);font-family:var(--mdc-snackbar-supporting-text-font);font-weight:var(--mdc-snackbar-supporting-text-weight);line-height:var(--mdc-snackbar-supporting-text-line-height)}.mat-mdc-snack-bar-container .mat-mdc-button.mat-mdc-snack-bar-action:not(:disabled){color:var(--mat-snack-bar-button-color);--mat-text-button-state-layer-color:currentColor;--mat-text-button-ripple-color:currentColor}.mat-mdc-snack-bar-container .mat-mdc-button.mat-mdc-snack-bar-action:not(:disabled) .mat-ripple-element{opacity:.1}.mat-mdc-snack-bar-container .mdc-snackbar__label::before{display:none}.mat-mdc-snack-bar-handset,.mat-mdc-snack-bar-container,.mat-mdc-snack-bar-label{flex:1 1 auto}.mat-mdc-snack-bar-handset .mdc-snackbar__surface{width:100%}'],
+  styles: [".mat-mdc-snack-bar-container{display:flex;align-items:center;justify-content:center;box-sizing:border-box;-webkit-tap-highlight-color:rgba(0,0,0,0);margin:8px}.mat-mdc-snack-bar-handset .mat-mdc-snack-bar-container{width:100vw}.mat-mdc-snackbar-surface{box-shadow:0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);display:flex;align-items:center;justify-content:flex-start;box-sizing:border-box;padding-left:0;padding-right:8px}[dir=rtl] .mat-mdc-snackbar-surface{padding-right:0;padding-left:8px}.mat-mdc-snack-bar-container .mat-mdc-snackbar-surface{min-width:344px;max-width:672px}.mat-mdc-snack-bar-handset .mat-mdc-snackbar-surface{width:100%;min-width:0}.cdk-high-contrast-active .mat-mdc-snackbar-surface{outline:solid 1px}.mat-mdc-snack-bar-container .mat-mdc-snackbar-surface{color:var(--mdc-snackbar-supporting-text-color);border-radius:var(--mdc-snackbar-container-shape);background-color:var(--mdc-snackbar-container-color)}.mdc-snackbar__label{width:100%;flex-grow:1;box-sizing:border-box;margin:0;padding:14px 8px 14px 16px}[dir=rtl] .mdc-snackbar__label{padding-left:8px;padding-right:16px}.mat-mdc-snack-bar-container .mdc-snackbar__label{font-family:var(--mdc-snackbar-supporting-text-font);font-size:var(--mdc-snackbar-supporting-text-size);font-weight:var(--mdc-snackbar-supporting-text-weight);line-height:var(--mdc-snackbar-supporting-text-line-height)}.mat-mdc-snack-bar-actions{display:flex;flex-shrink:0;align-items:center;box-sizing:border-box}.mat-mdc-snack-bar-handset,.mat-mdc-snack-bar-container,.mat-mdc-snack-bar-label{flex:1 1 auto}.mat-mdc-snack-bar-container .mat-mdc-button.mat-mdc-snack-bar-action:not(:disabled){color:var(--mat-snack-bar-button-color);--mat-text-button-state-layer-color:currentColor;--mat-text-button-ripple-color:currentColor}.mat-mdc-snack-bar-container .mat-mdc-button.mat-mdc-snack-bar-action:not(:disabled) .mat-ripple-element{opacity:.1}"],
   encapsulation: 2,
   data: {
     animation: [matSnackBarAnimations.snackBarState]
@@ -79580,12 +81477,12 @@ var MatSnackBarContainer = _MatSnackBarContainer;
       standalone: true,
       imports: [CdkPortalOutlet],
       host: {
-        "class": "mdc-snackbar mat-mdc-snack-bar-container mdc-snackbar--open",
+        "class": "mdc-snackbar mat-mdc-snack-bar-container",
         "[@state]": "_animationState",
         "(@state.done)": "onAnimationEnd($event)"
       },
-      template: '<div class="mdc-snackbar__surface">\n  <!--\n    This outer label wrapper will have the class `mdc-snackbar__label` applied if\n    the attached template/component does not contain it.\n  -->\n  <div class="mat-mdc-snack-bar-label" #label>\n    <!-- Initialy holds the snack bar content, will be empty after announcing to screen readers. -->\n    <div aria-hidden="true">\n      <ng-template cdkPortalOutlet />\n    </div>\n\n    <!-- Will receive the snack bar content from the non-live div, move will happen a short delay after opening -->\n    <div [attr.aria-live]="_live" [attr.role]="_role" [attr.id]="_liveElementId"></div>\n  </div>\n</div>\n',
-      styles: ['.mdc-snackbar{display:none;position:fixed;right:0;bottom:0;left:0;align-items:center;justify-content:center;box-sizing:border-box;pointer-events:none;-webkit-tap-highlight-color:rgba(0,0,0,0)}.mdc-snackbar--opening,.mdc-snackbar--open,.mdc-snackbar--closing{display:flex}.mdc-snackbar--open .mdc-snackbar__label,.mdc-snackbar--open .mdc-snackbar__actions{visibility:visible}.mdc-snackbar__surface{padding-left:0;padding-right:8px;display:flex;align-items:center;justify-content:flex-start;box-sizing:border-box;transform:scale(0.8);opacity:0}.mdc-snackbar__surface::before{position:absolute;box-sizing:border-box;width:100%;height:100%;top:0;left:0;border:1px solid rgba(0,0,0,0);border-radius:inherit;content:"";pointer-events:none}@media screen and (forced-colors: active){.mdc-snackbar__surface::before{border-color:CanvasText}}[dir=rtl] .mdc-snackbar__surface,.mdc-snackbar__surface[dir=rtl]{padding-left:8px;padding-right:0}.mdc-snackbar--open .mdc-snackbar__surface{transform:scale(1);opacity:1;pointer-events:auto}.mdc-snackbar--closing .mdc-snackbar__surface{transform:scale(1)}.mdc-snackbar__label{padding-left:16px;padding-right:8px;width:100%;flex-grow:1;box-sizing:border-box;margin:0;visibility:hidden;padding-top:14px;padding-bottom:14px}[dir=rtl] .mdc-snackbar__label,.mdc-snackbar__label[dir=rtl]{padding-left:8px;padding-right:16px}.mdc-snackbar__label::before{display:inline;content:attr(data-mdc-snackbar-label-text)}.mdc-snackbar__actions{display:flex;flex-shrink:0;align-items:center;box-sizing:border-box;visibility:hidden}.mdc-snackbar__action+.mdc-snackbar__dismiss{margin-left:8px;margin-right:0}[dir=rtl] .mdc-snackbar__action+.mdc-snackbar__dismiss,.mdc-snackbar__action+.mdc-snackbar__dismiss[dir=rtl]{margin-left:0;margin-right:8px}.mat-mdc-snack-bar-container{margin:8px;position:static}.mat-mdc-snack-bar-container .mdc-snackbar__surface{min-width:344px}@media(max-width: 480px),(max-width: 344px){.mat-mdc-snack-bar-container .mdc-snackbar__surface{min-width:100%}}@media(max-width: 480px),(max-width: 344px){.mat-mdc-snack-bar-container{width:100vw}}.mat-mdc-snack-bar-container .mdc-snackbar__surface{max-width:672px}.mat-mdc-snack-bar-container .mdc-snackbar__surface{box-shadow:0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12)}.mat-mdc-snack-bar-container .mdc-snackbar__surface{background-color:var(--mdc-snackbar-container-color)}.mat-mdc-snack-bar-container .mdc-snackbar__surface{border-radius:var(--mdc-snackbar-container-shape)}.mat-mdc-snack-bar-container .mdc-snackbar__label{color:var(--mdc-snackbar-supporting-text-color)}.mat-mdc-snack-bar-container .mdc-snackbar__label{font-size:var(--mdc-snackbar-supporting-text-size);font-family:var(--mdc-snackbar-supporting-text-font);font-weight:var(--mdc-snackbar-supporting-text-weight);line-height:var(--mdc-snackbar-supporting-text-line-height)}.mat-mdc-snack-bar-container .mat-mdc-button.mat-mdc-snack-bar-action:not(:disabled){color:var(--mat-snack-bar-button-color);--mat-text-button-state-layer-color:currentColor;--mat-text-button-ripple-color:currentColor}.mat-mdc-snack-bar-container .mat-mdc-button.mat-mdc-snack-bar-action:not(:disabled) .mat-ripple-element{opacity:.1}.mat-mdc-snack-bar-container .mdc-snackbar__label::before{display:none}.mat-mdc-snack-bar-handset,.mat-mdc-snack-bar-container,.mat-mdc-snack-bar-label{flex:1 1 auto}.mat-mdc-snack-bar-handset .mdc-snackbar__surface{width:100%}']
+      template: '<div class="mdc-snackbar__surface mat-mdc-snackbar-surface">\n  <!--\n    This outer label wrapper will have the class `mdc-snackbar__label` applied if\n    the attached template/component does not contain it.\n  -->\n  <div class="mat-mdc-snack-bar-label" #label>\n    <!-- Initialy holds the snack bar content, will be empty after announcing to screen readers. -->\n    <div aria-hidden="true">\n      <ng-template cdkPortalOutlet />\n    </div>\n\n    <!-- Will receive the snack bar content from the non-live div, move will happen a short delay after opening -->\n    <div [attr.aria-live]="_live" [attr.role]="_role" [attr.id]="_liveElementId"></div>\n  </div>\n</div>\n',
+      styles: [".mat-mdc-snack-bar-container{display:flex;align-items:center;justify-content:center;box-sizing:border-box;-webkit-tap-highlight-color:rgba(0,0,0,0);margin:8px}.mat-mdc-snack-bar-handset .mat-mdc-snack-bar-container{width:100vw}.mat-mdc-snackbar-surface{box-shadow:0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);display:flex;align-items:center;justify-content:flex-start;box-sizing:border-box;padding-left:0;padding-right:8px}[dir=rtl] .mat-mdc-snackbar-surface{padding-right:0;padding-left:8px}.mat-mdc-snack-bar-container .mat-mdc-snackbar-surface{min-width:344px;max-width:672px}.mat-mdc-snack-bar-handset .mat-mdc-snackbar-surface{width:100%;min-width:0}.cdk-high-contrast-active .mat-mdc-snackbar-surface{outline:solid 1px}.mat-mdc-snack-bar-container .mat-mdc-snackbar-surface{color:var(--mdc-snackbar-supporting-text-color);border-radius:var(--mdc-snackbar-container-shape);background-color:var(--mdc-snackbar-container-color)}.mdc-snackbar__label{width:100%;flex-grow:1;box-sizing:border-box;margin:0;padding:14px 8px 14px 16px}[dir=rtl] .mdc-snackbar__label{padding-left:8px;padding-right:16px}.mat-mdc-snack-bar-container .mdc-snackbar__label{font-family:var(--mdc-snackbar-supporting-text-font);font-size:var(--mdc-snackbar-supporting-text-size);font-weight:var(--mdc-snackbar-supporting-text-weight);line-height:var(--mdc-snackbar-supporting-text-line-height)}.mat-mdc-snack-bar-actions{display:flex;flex-shrink:0;align-items:center;box-sizing:border-box}.mat-mdc-snack-bar-handset,.mat-mdc-snack-bar-container,.mat-mdc-snack-bar-label{flex:1 1 auto}.mat-mdc-snack-bar-container .mat-mdc-button.mat-mdc-snack-bar-action:not(:disabled){color:var(--mat-snack-bar-button-color);--mat-text-button-state-layer-color:currentColor;--mat-text-button-ripple-color:currentColor}.mat-mdc-snack-bar-container .mat-mdc-button.mat-mdc-snack-bar-action:not(:disabled) .mat-ripple-element{opacity:.1}"]
     }]
   }], () => [{
     type: NgZone
@@ -80065,16 +81962,16 @@ _MatSlideToggle.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     name: "name",
     id: "id",
     labelPosition: "labelPosition",
-    ariaLabel: [InputFlags.None, "aria-label", "ariaLabel"],
-    ariaLabelledby: [InputFlags.None, "aria-labelledby", "ariaLabelledby"],
-    ariaDescribedby: [InputFlags.None, "aria-describedby", "ariaDescribedby"],
-    required: [InputFlags.HasDecoratorInputTransform, "required", "required", booleanAttribute],
+    ariaLabel: [0, "aria-label", "ariaLabel"],
+    ariaLabelledby: [0, "aria-labelledby", "ariaLabelledby"],
+    ariaDescribedby: [0, "aria-describedby", "ariaDescribedby"],
+    required: [2, "required", "required", booleanAttribute],
     color: "color",
-    disabled: [InputFlags.HasDecoratorInputTransform, "disabled", "disabled", booleanAttribute],
-    disableRipple: [InputFlags.HasDecoratorInputTransform, "disableRipple", "disableRipple", booleanAttribute],
-    tabIndex: [InputFlags.HasDecoratorInputTransform, "tabIndex", "tabIndex", (value) => value == null ? 0 : numberAttribute(value)],
-    checked: [InputFlags.HasDecoratorInputTransform, "checked", "checked", booleanAttribute],
-    hideIcon: [InputFlags.HasDecoratorInputTransform, "hideIcon", "hideIcon", booleanAttribute]
+    disabled: [2, "disabled", "disabled", booleanAttribute],
+    disableRipple: [2, "disableRipple", "disableRipple", booleanAttribute],
+    tabIndex: [2, "tabIndex", "tabIndex", (value) => value == null ? 0 : numberAttribute(value)],
+    checked: [2, "checked", "checked", booleanAttribute],
+    hideIcon: [2, "hideIcon", "hideIcon", booleanAttribute]
   },
   outputs: {
     change: "change",
@@ -80127,14 +82024,14 @@ _MatSlideToggle.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
       \u0275\u0275advance(8);
       \u0275\u0275property("matRippleTrigger", switch_r2)("matRippleDisabled", ctx.disableRipple || ctx.disabled)("matRippleCentered", true);
       \u0275\u0275advance();
-      \u0275\u0275conditional(10, !ctx.hideIcon ? 10 : -1);
+      \u0275\u0275conditional(!ctx.hideIcon ? 10 : -1);
       \u0275\u0275advance();
       \u0275\u0275property("for", ctx.buttonId);
       \u0275\u0275attribute("id", ctx._labelId);
     }
   },
   dependencies: [MatRipple, _MatInternalFormField],
-  styles: ['.mdc-elevation-overlay{position:absolute;border-radius:inherit;pointer-events:none;opacity:var(--mdc-elevation-overlay-opacity);transition:opacity 280ms cubic-bezier(0.4, 0, 0.2, 1);background-color:var(--mdc-elevation-overlay-color)}.mdc-switch{align-items:center;background:none;border:none;cursor:pointer;display:inline-flex;flex-shrink:0;margin:0;outline:none;overflow:visible;padding:0;position:relative}.mdc-switch[hidden]{display:none}.mdc-switch:disabled{cursor:default;pointer-events:none}.mdc-switch__track{overflow:hidden;position:relative;width:100%}.mdc-switch__track::before,.mdc-switch__track::after{border:1px solid rgba(0,0,0,0);border-radius:inherit;box-sizing:border-box;content:"";height:100%;left:0;position:absolute;width:100%}@media screen and (forced-colors: active){.mdc-switch__track::before,.mdc-switch__track::after{border-color:currentColor}}.mdc-switch__track::before{transition:transform 75ms 0ms cubic-bezier(0, 0, 0.2, 1);transform:translateX(0)}.mdc-switch__track::after{transition:transform 75ms 0ms cubic-bezier(0.4, 0, 0.6, 1);transform:translateX(-100%)}[dir=rtl] .mdc-switch__track::after,.mdc-switch__track[dir=rtl]::after{transform:translateX(100%)}.mdc-switch--selected .mdc-switch__track::before{transition:transform 75ms 0ms cubic-bezier(0.4, 0, 0.6, 1);transform:translateX(100%)}[dir=rtl] .mdc-switch--selected .mdc-switch__track::before,.mdc-switch--selected .mdc-switch__track[dir=rtl]::before{transform:translateX(-100%)}.mdc-switch--selected .mdc-switch__track::after{transition:transform 75ms 0ms cubic-bezier(0, 0, 0.2, 1);transform:translateX(0)}.mdc-switch__handle-track{height:100%;pointer-events:none;position:absolute;top:0;transition:transform 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);left:0;right:auto;transform:translateX(0)}[dir=rtl] .mdc-switch__handle-track,.mdc-switch__handle-track[dir=rtl]{left:auto;right:0}.mdc-switch--selected .mdc-switch__handle-track{transform:translateX(100%)}[dir=rtl] .mdc-switch--selected .mdc-switch__handle-track,.mdc-switch--selected .mdc-switch__handle-track[dir=rtl]{transform:translateX(-100%)}.mdc-switch__handle{display:flex;pointer-events:auto;position:absolute;top:50%;transform:translateY(-50%);left:0;right:auto}[dir=rtl] .mdc-switch__handle,.mdc-switch__handle[dir=rtl]{left:auto;right:0}.mdc-switch__handle::before,.mdc-switch__handle::after{border:1px solid rgba(0,0,0,0);border-radius:inherit;box-sizing:border-box;content:"";width:100%;height:100%;left:0;position:absolute;top:0;transition:background-color 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1),border-color 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);z-index:-1}@media screen and (forced-colors: active){.mdc-switch__handle::before,.mdc-switch__handle::after{border-color:currentColor}}.mdc-switch__shadow{border-radius:inherit;bottom:0;left:0;position:absolute;right:0;top:0}.mdc-elevation-overlay{bottom:0;left:0;right:0;top:0}.mdc-switch__ripple{left:50%;position:absolute;top:50%;transform:translate(-50%, -50%);z-index:-1}.mdc-switch:disabled .mdc-switch__ripple{display:none}.mdc-switch__icons{height:100%;position:relative;width:100%;z-index:1}.mdc-switch__icon{bottom:0;left:0;margin:auto;position:absolute;right:0;top:0;opacity:0;transition:opacity 30ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mdc-switch--selected .mdc-switch__icon--on,.mdc-switch--unselected .mdc-switch__icon--off{opacity:1;transition:opacity 45ms 30ms cubic-bezier(0, 0, 0.2, 1)}.mat-mdc-slide-toggle .mdc-switch--disabled+label{color:var(--mdc-switch-disabled-label-text-color)}.mdc-switch{width:var(--mdc-switch-track-width)}.mdc-switch.mdc-switch--selected:enabled .mdc-switch__handle::after{background:var(--mdc-switch-selected-handle-color)}.mdc-switch.mdc-switch--selected:enabled:hover:not(:focus):not(:active) .mdc-switch__handle::after{background:var(--mdc-switch-selected-hover-handle-color)}.mdc-switch.mdc-switch--selected:enabled:focus:not(:active) .mdc-switch__handle::after{background:var(--mdc-switch-selected-focus-handle-color)}.mdc-switch.mdc-switch--selected:enabled:active .mdc-switch__handle::after{background:var(--mdc-switch-selected-pressed-handle-color)}.mdc-switch.mdc-switch--selected:disabled .mdc-switch__handle::after{background:var(--mdc-switch-disabled-selected-handle-color)}.mdc-switch.mdc-switch--unselected:enabled .mdc-switch__handle::after{background:var(--mdc-switch-unselected-handle-color)}.mdc-switch.mdc-switch--unselected:enabled:hover:not(:focus):not(:active) .mdc-switch__handle::after{background:var(--mdc-switch-unselected-hover-handle-color)}.mdc-switch.mdc-switch--unselected:enabled:focus:not(:active) .mdc-switch__handle::after{background:var(--mdc-switch-unselected-focus-handle-color)}.mdc-switch.mdc-switch--unselected:enabled:active .mdc-switch__handle::after{background:var(--mdc-switch-unselected-pressed-handle-color)}.mdc-switch.mdc-switch--unselected:disabled .mdc-switch__handle::after{background:var(--mdc-switch-disabled-unselected-handle-color)}.mdc-switch .mdc-switch__handle::before{background:var(--mdc-switch-handle-surface-color)}.mdc-switch:enabled .mdc-switch__shadow{box-shadow:var(--mdc-switch-handle-elevation)}.mdc-switch:disabled .mdc-switch__shadow{box-shadow:var(--mdc-switch-disabled-handle-elevation)}.mdc-switch .mdc-switch__focus-ring-wrapper,.mdc-switch .mdc-switch__handle{height:var(--mdc-switch-handle-height)}.mdc-switch .mdc-switch__handle{border-radius:var(--mdc-switch-handle-shape)}.mdc-switch .mdc-switch__handle{width:var(--mdc-switch-handle-width)}.mdc-switch .mdc-switch__handle-track{width:calc(100% - var(--mdc-switch-handle-width))}.mdc-switch.mdc-switch--selected:enabled .mdc-switch__icon{fill:var(--mdc-switch-selected-icon-color)}.mdc-switch.mdc-switch--selected:disabled .mdc-switch__icon{fill:var(--mdc-switch-disabled-selected-icon-color)}.mdc-switch.mdc-switch--unselected:enabled .mdc-switch__icon{fill:var(--mdc-switch-unselected-icon-color)}.mdc-switch.mdc-switch--unselected:disabled .mdc-switch__icon{fill:var(--mdc-switch-disabled-unselected-icon-color)}.mdc-switch.mdc-switch--selected:disabled .mdc-switch__icons{opacity:var(--mdc-switch-disabled-selected-icon-opacity)}.mdc-switch.mdc-switch--unselected:disabled .mdc-switch__icons{opacity:var(--mdc-switch-disabled-unselected-icon-opacity)}.mdc-switch.mdc-switch--selected .mdc-switch__icon{width:var(--mdc-switch-selected-icon-size);height:var(--mdc-switch-selected-icon-size)}.mdc-switch.mdc-switch--unselected .mdc-switch__icon{width:var(--mdc-switch-unselected-icon-size);height:var(--mdc-switch-unselected-icon-size)}.mdc-switch.mdc-switch--selected:enabled:hover:not(:focus) .mdc-switch__ripple::before,.mdc-switch.mdc-switch--selected:enabled:hover:not(:focus) .mdc-switch__ripple::after{background-color:var(--mdc-switch-selected-hover-state-layer-color)}.mdc-switch.mdc-switch--selected:enabled:focus .mdc-switch__ripple::before,.mdc-switch.mdc-switch--selected:enabled:focus .mdc-switch__ripple::after{background-color:var(--mdc-switch-selected-focus-state-layer-color)}.mdc-switch.mdc-switch--selected:enabled:active .mdc-switch__ripple::before,.mdc-switch.mdc-switch--selected:enabled:active .mdc-switch__ripple::after{background-color:var(--mdc-switch-selected-pressed-state-layer-color)}.mdc-switch.mdc-switch--unselected:enabled:hover:not(:focus) .mdc-switch__ripple::before,.mdc-switch.mdc-switch--unselected:enabled:hover:not(:focus) .mdc-switch__ripple::after{background-color:var(--mdc-switch-unselected-hover-state-layer-color)}.mdc-switch.mdc-switch--unselected:enabled:focus .mdc-switch__ripple::before,.mdc-switch.mdc-switch--unselected:enabled:focus .mdc-switch__ripple::after{background-color:var(--mdc-switch-unselected-focus-state-layer-color)}.mdc-switch.mdc-switch--unselected:enabled:active .mdc-switch__ripple::before,.mdc-switch.mdc-switch--unselected:enabled:active .mdc-switch__ripple::after{background-color:var(--mdc-switch-unselected-pressed-state-layer-color)}.mdc-switch.mdc-switch--selected:enabled:hover:not(:focus):hover .mdc-switch__ripple::before,.mdc-switch.mdc-switch--selected:enabled:hover:not(:focus).mdc-ripple-surface--hover .mdc-switch__ripple::before{opacity:var(--mdc-switch-selected-hover-state-layer-opacity)}.mdc-switch.mdc-switch--selected:enabled:focus.mdc-ripple-upgraded--background-focused .mdc-switch__ripple::before,.mdc-switch.mdc-switch--selected:enabled:focus:not(.mdc-ripple-upgraded):focus .mdc-switch__ripple::before{transition-duration:75ms;opacity:var(--mdc-switch-selected-focus-state-layer-opacity)}.mdc-switch.mdc-switch--selected:enabled:active:not(.mdc-ripple-upgraded) .mdc-switch__ripple::after{transition:opacity 150ms linear}.mdc-switch.mdc-switch--selected:enabled:active:not(.mdc-ripple-upgraded):active .mdc-switch__ripple::after{transition-duration:75ms;opacity:var(--mdc-switch-selected-pressed-state-layer-opacity)}.mdc-switch.mdc-switch--selected:enabled:active.mdc-ripple-upgraded{--mdc-ripple-fg-opacity:var(--mdc-switch-selected-pressed-state-layer-opacity)}.mdc-switch.mdc-switch--unselected:enabled:hover:not(:focus):hover .mdc-switch__ripple::before,.mdc-switch.mdc-switch--unselected:enabled:hover:not(:focus).mdc-ripple-surface--hover .mdc-switch__ripple::before{opacity:var(--mdc-switch-unselected-hover-state-layer-opacity)}.mdc-switch.mdc-switch--unselected:enabled:focus.mdc-ripple-upgraded--background-focused .mdc-switch__ripple::before,.mdc-switch.mdc-switch--unselected:enabled:focus:not(.mdc-ripple-upgraded):focus .mdc-switch__ripple::before{transition-duration:75ms;opacity:var(--mdc-switch-unselected-focus-state-layer-opacity)}.mdc-switch.mdc-switch--unselected:enabled:active:not(.mdc-ripple-upgraded) .mdc-switch__ripple::after{transition:opacity 150ms linear}.mdc-switch.mdc-switch--unselected:enabled:active:not(.mdc-ripple-upgraded):active .mdc-switch__ripple::after{transition-duration:75ms;opacity:var(--mdc-switch-unselected-pressed-state-layer-opacity)}.mdc-switch.mdc-switch--unselected:enabled:active.mdc-ripple-upgraded{--mdc-ripple-fg-opacity:var(--mdc-switch-unselected-pressed-state-layer-opacity)}.mdc-switch .mdc-switch__ripple{height:var(--mdc-switch-state-layer-size);width:var(--mdc-switch-state-layer-size)}.mdc-switch .mdc-switch__track{height:var(--mdc-switch-track-height)}.mdc-switch:disabled .mdc-switch__track{opacity:var(--mdc-switch-disabled-track-opacity)}.mdc-switch:enabled .mdc-switch__track::after{background:var(--mdc-switch-selected-track-color)}.mdc-switch:enabled:hover:not(:focus):not(:active) .mdc-switch__track::after{background:var(--mdc-switch-selected-hover-track-color)}.mdc-switch:enabled:focus:not(:active) .mdc-switch__track::after{background:var(--mdc-switch-selected-focus-track-color)}.mdc-switch:enabled:active .mdc-switch__track::after{background:var(--mdc-switch-selected-pressed-track-color)}.mdc-switch:disabled .mdc-switch__track::after{background:var(--mdc-switch-disabled-selected-track-color)}.mdc-switch:enabled .mdc-switch__track::before{background:var(--mdc-switch-unselected-track-color)}.mdc-switch:enabled:hover:not(:focus):not(:active) .mdc-switch__track::before{background:var(--mdc-switch-unselected-hover-track-color)}.mdc-switch:enabled:focus:not(:active) .mdc-switch__track::before{background:var(--mdc-switch-unselected-focus-track-color)}.mdc-switch:enabled:active .mdc-switch__track::before{background:var(--mdc-switch-unselected-pressed-track-color)}.mdc-switch:disabled .mdc-switch__track::before{background:var(--mdc-switch-disabled-unselected-track-color)}.mdc-switch .mdc-switch__track{border-radius:var(--mdc-switch-track-shape)}.mdc-switch:enabled .mdc-switch__shadow{box-shadow:var(--mdc-switch-handle-elevation-shadow)}.mdc-switch:disabled .mdc-switch__shadow{box-shadow:var(--mdc-switch-disabled-handle-elevation-shadow)}.mat-mdc-slide-toggle{display:inline-block;-webkit-tap-highlight-color:rgba(0,0,0,0);outline:0}.mat-mdc-slide-toggle .mat-mdc-slide-toggle-ripple,.mat-mdc-slide-toggle .mdc-switch__ripple::after{top:0;left:0;right:0;bottom:0;position:absolute;border-radius:50%;pointer-events:none}.mat-mdc-slide-toggle .mat-mdc-slide-toggle-ripple:not(:empty),.mat-mdc-slide-toggle .mdc-switch__ripple::after:not(:empty){transform:translateZ(0)}.mat-mdc-slide-toggle .mdc-switch__ripple::after{content:"";opacity:0}.mat-mdc-slide-toggle .mdc-switch:hover .mdc-switch__ripple::after{opacity:.04;transition:opacity 75ms 0ms cubic-bezier(0, 0, 0.2, 1)}.mat-mdc-slide-toggle.mat-mdc-slide-toggle-focused .mdc-switch .mdc-switch__ripple::after{opacity:.12}.mat-mdc-slide-toggle.mat-mdc-slide-toggle-focused .mat-mdc-focus-indicator::before{content:""}.mat-mdc-slide-toggle .mat-ripple-element{opacity:.12}.mat-mdc-slide-toggle .mat-mdc-focus-indicator::before{border-radius:50%}.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle-track,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-elevation-overlay,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__icon,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle::before,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle::after,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__track::before,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__track::after{transition:none}.mat-mdc-slide-toggle .mdc-switch:enabled+.mdc-label{cursor:pointer}.mdc-switch__handle{transition:width 75ms cubic-bezier(0.4, 0, 0.2, 1),height 75ms cubic-bezier(0.4, 0, 0.2, 1),margin 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-switch--selected .mdc-switch__track::before{opacity:var(--mat-switch-hidden-track-opacity);transition:var(--mat-switch-hidden-track-transition)}.mdc-switch--selected .mdc-switch__track::after{opacity:var(--mat-switch-visible-track-opacity);transition:var(--mat-switch-visible-track-transition)}.mdc-switch--unselected .mdc-switch__track::before{opacity:var(--mat-switch-visible-track-opacity);transition:var(--mat-switch-visible-track-transition)}.mdc-switch--unselected .mdc-switch__track::after{opacity:var(--mat-switch-hidden-track-opacity);transition:var(--mat-switch-hidden-track-transition)}.mat-mdc-slide-toggle .mdc-switch--unselected .mdc-switch__handle{width:var(--mat-switch-unselected-handle-size);height:var(--mat-switch-unselected-handle-size)}.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle{width:var(--mat-switch-selected-handle-size);height:var(--mat-switch-selected-handle-size)}.mat-mdc-slide-toggle .mdc-switch__handle:has(.mdc-switch__icons){width:var(--mat-switch-with-icon-handle-size);height:var(--mat-switch-with-icon-handle-size)}.mat-mdc-slide-toggle:active .mdc-switch:not(.mdc-switch--disabled) .mdc-switch__handle{width:var(--mat-switch-pressed-handle-size);height:var(--mat-switch-pressed-handle-size)}.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle{margin:var(--mat-switch-selected-handle-horizontal-margin)}.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle:has(.mdc-switch__icons){margin:var(--mat-switch-selected-with-icon-handle-horizontal-margin)}.mat-mdc-slide-toggle .mdc-switch--unselected .mdc-switch__handle{margin:var(--mat-switch-unselected-handle-horizontal-margin)}.mat-mdc-slide-toggle .mdc-switch--unselected .mdc-switch__handle:has(.mdc-switch__icons){margin:var(--mat-switch-unselected-with-icon-handle-horizontal-margin)}.mat-mdc-slide-toggle:active .mdc-switch--selected:not(.mdc-switch--disabled) .mdc-switch__handle{margin:var(--mat-switch-selected-pressed-handle-horizontal-margin)}.mat-mdc-slide-toggle:active .mdc-switch--unselected:not(.mdc-switch--disabled) .mdc-switch__handle{margin:var(--mat-switch-unselected-pressed-handle-horizontal-margin)}.mdc-switch__track::after,.mdc-switch__track::before{border-width:var(--mat-switch-track-outline-width);border-color:var(--mat-switch-track-outline-color)}.mdc-switch--selected .mdc-switch__track::after,.mdc-switch--selected .mdc-switch__track::before{border-width:var(--mat-switch-selected-track-outline-width)}.mdc-switch--disabled .mdc-switch__track::after,.mdc-switch--disabled .mdc-switch__track::before{border-width:var(--mat-switch-disabled-unselected-track-outline-width);border-color:var(--mat-switch-disabled-unselected-track-outline-color)}.mdc-switch--disabled.mdc-switch--selected .mdc-switch__handle::after{opacity:var(--mat-switch-disabled-selected-handle-opacity)}.mdc-switch--disabled.mdc-switch--unselected .mdc-switch__handle::after{opacity:var(--mat-switch-disabled-unselected-handle-opacity)}'],
+  styles: ['.mdc-elevation-overlay{position:absolute;border-radius:inherit;pointer-events:none;opacity:var(--mdc-elevation-overlay-opacity);transition:opacity 280ms cubic-bezier(0.4, 0, 0.2, 1);background-color:var(--mdc-elevation-overlay-color)}.mdc-switch{align-items:center;background:none;border:none;cursor:pointer;display:inline-flex;flex-shrink:0;margin:0;outline:none;overflow:visible;padding:0;position:relative}.mdc-switch[hidden]{display:none}.mdc-switch:disabled{cursor:default;pointer-events:none}.mdc-switch__track{overflow:hidden;position:relative;width:100%}.mdc-switch__track::before,.mdc-switch__track::after{border:1px solid rgba(0,0,0,0);border-radius:inherit;box-sizing:border-box;content:"";height:100%;left:0;position:absolute;width:100%}@media screen and (forced-colors: active){.mdc-switch__track::before,.mdc-switch__track::after{border-color:currentColor}}.mdc-switch__track::before{transition:transform 75ms 0ms cubic-bezier(0, 0, 0.2, 1);transform:translateX(0)}.mdc-switch__track::after{transition:transform 75ms 0ms cubic-bezier(0.4, 0, 0.6, 1);transform:translateX(-100%)}[dir=rtl] .mdc-switch__track::after,.mdc-switch__track[dir=rtl]::after{transform:translateX(100%)}.mdc-switch--selected .mdc-switch__track::before{transition:transform 75ms 0ms cubic-bezier(0.4, 0, 0.6, 1);transform:translateX(100%)}[dir=rtl] .mdc-switch--selected .mdc-switch__track::before,.mdc-switch--selected .mdc-switch__track[dir=rtl]::before{transform:translateX(-100%)}.mdc-switch--selected .mdc-switch__track::after{transition:transform 75ms 0ms cubic-bezier(0, 0, 0.2, 1);transform:translateX(0)}.mdc-switch__handle-track{height:100%;pointer-events:none;position:absolute;top:0;transition:transform 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);left:0;right:auto;transform:translateX(0)}[dir=rtl] .mdc-switch__handle-track,.mdc-switch__handle-track[dir=rtl]{left:auto;right:0}.mdc-switch--selected .mdc-switch__handle-track{transform:translateX(100%)}[dir=rtl] .mdc-switch--selected .mdc-switch__handle-track,.mdc-switch--selected .mdc-switch__handle-track[dir=rtl]{transform:translateX(-100%)}.mdc-switch__handle{display:flex;pointer-events:auto;position:absolute;top:50%;transform:translateY(-50%);left:0;right:auto}[dir=rtl] .mdc-switch__handle,.mdc-switch__handle[dir=rtl]{left:auto;right:0}.mdc-switch__handle::before,.mdc-switch__handle::after{border:1px solid rgba(0,0,0,0);border-radius:inherit;box-sizing:border-box;content:"";width:100%;height:100%;left:0;position:absolute;top:0;transition:background-color 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1),border-color 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);z-index:-1}@media screen and (forced-colors: active){.mdc-switch__handle::before,.mdc-switch__handle::after{border-color:currentColor}}.mdc-switch__shadow{border-radius:inherit;bottom:0;left:0;position:absolute;right:0;top:0}.mdc-elevation-overlay{bottom:0;left:0;right:0;top:0}.mdc-switch__ripple{left:50%;position:absolute;top:50%;transform:translate(-50%, -50%);z-index:-1}.mdc-switch:disabled .mdc-switch__ripple{display:none}.mdc-switch__icons{height:100%;position:relative;width:100%;z-index:1}.mdc-switch__icon{bottom:0;left:0;margin:auto;position:absolute;right:0;top:0;opacity:0;transition:opacity 30ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mdc-switch--selected .mdc-switch__icon--on,.mdc-switch--unselected .mdc-switch__icon--off{opacity:1;transition:opacity 45ms 30ms cubic-bezier(0, 0, 0.2, 1)}.mat-mdc-slide-toggle .mat-internal-form-field{color:var(--mat-switch-label-text-color);font-family:var(--mat-switch-label-text-font);line-height:var(--mat-switch-label-text-line-height);font-size:var(--mat-switch-label-text-size);letter-spacing:var(--mat-switch-label-text-tracking);font-weight:var(--mat-switch-label-text-weight)}.mat-mdc-slide-toggle .mdc-switch--disabled+label{color:var(--mdc-switch-disabled-label-text-color)}.mdc-switch{width:var(--mdc-switch-track-width)}.mdc-switch.mdc-switch--selected:enabled .mdc-switch__handle::after{background:var(--mdc-switch-selected-handle-color)}.mdc-switch.mdc-switch--selected:enabled:hover:not(:focus):not(:active) .mdc-switch__handle::after{background:var(--mdc-switch-selected-hover-handle-color)}.mdc-switch.mdc-switch--selected:enabled:focus:not(:active) .mdc-switch__handle::after{background:var(--mdc-switch-selected-focus-handle-color)}.mdc-switch.mdc-switch--selected:enabled:active .mdc-switch__handle::after{background:var(--mdc-switch-selected-pressed-handle-color)}.mdc-switch.mdc-switch--selected:disabled .mdc-switch__handle::after{background:var(--mdc-switch-disabled-selected-handle-color)}.mdc-switch.mdc-switch--unselected:enabled .mdc-switch__handle::after{background:var(--mdc-switch-unselected-handle-color)}.mdc-switch.mdc-switch--unselected:enabled:hover:not(:focus):not(:active) .mdc-switch__handle::after{background:var(--mdc-switch-unselected-hover-handle-color)}.mdc-switch.mdc-switch--unselected:enabled:focus:not(:active) .mdc-switch__handle::after{background:var(--mdc-switch-unselected-focus-handle-color)}.mdc-switch.mdc-switch--unselected:enabled:active .mdc-switch__handle::after{background:var(--mdc-switch-unselected-pressed-handle-color)}.mdc-switch.mdc-switch--unselected:disabled .mdc-switch__handle::after{background:var(--mdc-switch-disabled-unselected-handle-color)}.mdc-switch .mdc-switch__handle::before{background:var(--mdc-switch-handle-surface-color)}.mdc-switch:enabled .mdc-switch__shadow{box-shadow:var(--mdc-switch-handle-elevation)}.mdc-switch:disabled .mdc-switch__shadow{box-shadow:var(--mdc-switch-disabled-handle-elevation)}.mdc-switch .mdc-switch__focus-ring-wrapper,.mdc-switch .mdc-switch__handle{height:var(--mdc-switch-handle-height)}.mdc-switch .mdc-switch__handle{border-radius:var(--mdc-switch-handle-shape)}.mdc-switch .mdc-switch__handle{width:var(--mdc-switch-handle-width)}.mdc-switch .mdc-switch__handle-track{width:calc(100% - var(--mdc-switch-handle-width))}.mdc-switch.mdc-switch--selected:enabled .mdc-switch__icon{fill:var(--mdc-switch-selected-icon-color)}.mdc-switch.mdc-switch--selected:disabled .mdc-switch__icon{fill:var(--mdc-switch-disabled-selected-icon-color)}.mdc-switch.mdc-switch--unselected:enabled .mdc-switch__icon{fill:var(--mdc-switch-unselected-icon-color)}.mdc-switch.mdc-switch--unselected:disabled .mdc-switch__icon{fill:var(--mdc-switch-disabled-unselected-icon-color)}.mdc-switch.mdc-switch--selected:disabled .mdc-switch__icons{opacity:var(--mdc-switch-disabled-selected-icon-opacity)}.mdc-switch.mdc-switch--unselected:disabled .mdc-switch__icons{opacity:var(--mdc-switch-disabled-unselected-icon-opacity)}.mdc-switch.mdc-switch--selected .mdc-switch__icon{width:var(--mdc-switch-selected-icon-size);height:var(--mdc-switch-selected-icon-size)}.mdc-switch.mdc-switch--unselected .mdc-switch__icon{width:var(--mdc-switch-unselected-icon-size);height:var(--mdc-switch-unselected-icon-size)}.mdc-switch.mdc-switch--selected:enabled:hover:not(:focus) .mdc-switch__ripple::before,.mdc-switch.mdc-switch--selected:enabled:hover:not(:focus) .mdc-switch__ripple::after{background-color:var(--mdc-switch-selected-hover-state-layer-color)}.mdc-switch.mdc-switch--selected:enabled:focus .mdc-switch__ripple::before,.mdc-switch.mdc-switch--selected:enabled:focus .mdc-switch__ripple::after{background-color:var(--mdc-switch-selected-focus-state-layer-color)}.mdc-switch.mdc-switch--selected:enabled:active .mdc-switch__ripple::before,.mdc-switch.mdc-switch--selected:enabled:active .mdc-switch__ripple::after{background-color:var(--mdc-switch-selected-pressed-state-layer-color)}.mdc-switch.mdc-switch--unselected:enabled:hover:not(:focus) .mdc-switch__ripple::before,.mdc-switch.mdc-switch--unselected:enabled:hover:not(:focus) .mdc-switch__ripple::after{background-color:var(--mdc-switch-unselected-hover-state-layer-color)}.mdc-switch.mdc-switch--unselected:enabled:focus .mdc-switch__ripple::before,.mdc-switch.mdc-switch--unselected:enabled:focus .mdc-switch__ripple::after{background-color:var(--mdc-switch-unselected-focus-state-layer-color)}.mdc-switch.mdc-switch--unselected:enabled:active .mdc-switch__ripple::before,.mdc-switch.mdc-switch--unselected:enabled:active .mdc-switch__ripple::after{background-color:var(--mdc-switch-unselected-pressed-state-layer-color)}.mdc-switch.mdc-switch--selected:enabled:hover:not(:focus):hover .mdc-switch__ripple::before,.mdc-switch.mdc-switch--selected:enabled:hover:not(:focus).mdc-ripple-surface--hover .mdc-switch__ripple::before{opacity:var(--mdc-switch-selected-hover-state-layer-opacity)}.mdc-switch.mdc-switch--selected:enabled:focus.mdc-ripple-upgraded--background-focused .mdc-switch__ripple::before,.mdc-switch.mdc-switch--selected:enabled:focus:not(.mdc-ripple-upgraded):focus .mdc-switch__ripple::before{transition-duration:75ms;opacity:var(--mdc-switch-selected-focus-state-layer-opacity)}.mdc-switch.mdc-switch--selected:enabled:active:not(.mdc-ripple-upgraded) .mdc-switch__ripple::after{transition:opacity 150ms linear}.mdc-switch.mdc-switch--selected:enabled:active:not(.mdc-ripple-upgraded):active .mdc-switch__ripple::after{transition-duration:75ms;opacity:var(--mdc-switch-selected-pressed-state-layer-opacity)}.mdc-switch.mdc-switch--selected:enabled:active.mdc-ripple-upgraded{--mdc-ripple-fg-opacity:var(--mdc-switch-selected-pressed-state-layer-opacity)}.mdc-switch.mdc-switch--unselected:enabled:hover:not(:focus):hover .mdc-switch__ripple::before,.mdc-switch.mdc-switch--unselected:enabled:hover:not(:focus).mdc-ripple-surface--hover .mdc-switch__ripple::before{opacity:var(--mdc-switch-unselected-hover-state-layer-opacity)}.mdc-switch.mdc-switch--unselected:enabled:focus.mdc-ripple-upgraded--background-focused .mdc-switch__ripple::before,.mdc-switch.mdc-switch--unselected:enabled:focus:not(.mdc-ripple-upgraded):focus .mdc-switch__ripple::before{transition-duration:75ms;opacity:var(--mdc-switch-unselected-focus-state-layer-opacity)}.mdc-switch.mdc-switch--unselected:enabled:active:not(.mdc-ripple-upgraded) .mdc-switch__ripple::after{transition:opacity 150ms linear}.mdc-switch.mdc-switch--unselected:enabled:active:not(.mdc-ripple-upgraded):active .mdc-switch__ripple::after{transition-duration:75ms;opacity:var(--mdc-switch-unselected-pressed-state-layer-opacity)}.mdc-switch.mdc-switch--unselected:enabled:active.mdc-ripple-upgraded{--mdc-ripple-fg-opacity:var(--mdc-switch-unselected-pressed-state-layer-opacity)}.mdc-switch .mdc-switch__ripple{height:var(--mdc-switch-state-layer-size);width:var(--mdc-switch-state-layer-size)}.mdc-switch .mdc-switch__track{height:var(--mdc-switch-track-height)}.mdc-switch:disabled .mdc-switch__track{opacity:var(--mdc-switch-disabled-track-opacity)}.mdc-switch:enabled .mdc-switch__track::after{background:var(--mdc-switch-selected-track-color)}.mdc-switch:enabled:hover:not(:focus):not(:active) .mdc-switch__track::after{background:var(--mdc-switch-selected-hover-track-color)}.mdc-switch:enabled:focus:not(:active) .mdc-switch__track::after{background:var(--mdc-switch-selected-focus-track-color)}.mdc-switch:enabled:active .mdc-switch__track::after{background:var(--mdc-switch-selected-pressed-track-color)}.mdc-switch:disabled .mdc-switch__track::after{background:var(--mdc-switch-disabled-selected-track-color)}.mdc-switch:enabled .mdc-switch__track::before{background:var(--mdc-switch-unselected-track-color)}.mdc-switch:enabled:hover:not(:focus):not(:active) .mdc-switch__track::before{background:var(--mdc-switch-unselected-hover-track-color)}.mdc-switch:enabled:focus:not(:active) .mdc-switch__track::before{background:var(--mdc-switch-unselected-focus-track-color)}.mdc-switch:enabled:active .mdc-switch__track::before{background:var(--mdc-switch-unselected-pressed-track-color)}.mdc-switch:disabled .mdc-switch__track::before{background:var(--mdc-switch-disabled-unselected-track-color)}.mdc-switch .mdc-switch__track{border-radius:var(--mdc-switch-track-shape)}.mdc-switch:enabled .mdc-switch__shadow{box-shadow:var(--mdc-switch-handle-elevation-shadow)}.mdc-switch:disabled .mdc-switch__shadow{box-shadow:var(--mdc-switch-disabled-handle-elevation-shadow)}.mat-mdc-slide-toggle{display:inline-block;-webkit-tap-highlight-color:rgba(0,0,0,0);outline:0}.mat-mdc-slide-toggle .mat-mdc-slide-toggle-ripple,.mat-mdc-slide-toggle .mdc-switch__ripple::after{top:0;left:0;right:0;bottom:0;position:absolute;border-radius:50%;pointer-events:none}.mat-mdc-slide-toggle .mat-mdc-slide-toggle-ripple:not(:empty),.mat-mdc-slide-toggle .mdc-switch__ripple::after:not(:empty){transform:translateZ(0)}.mat-mdc-slide-toggle .mdc-switch__ripple::after{content:"";opacity:0}.mat-mdc-slide-toggle .mdc-switch:hover .mdc-switch__ripple::after{opacity:.04;transition:opacity 75ms 0ms cubic-bezier(0, 0, 0.2, 1)}.mat-mdc-slide-toggle.mat-mdc-slide-toggle-focused .mdc-switch .mdc-switch__ripple::after{opacity:.12}.mat-mdc-slide-toggle.mat-mdc-slide-toggle-focused .mat-mdc-focus-indicator::before{content:""}.mat-mdc-slide-toggle .mat-ripple-element{opacity:.12}.mat-mdc-slide-toggle .mat-mdc-focus-indicator::before{border-radius:50%}.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle-track,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-elevation-overlay,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__icon,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle::before,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle::after,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__track::before,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__track::after{transition:none}.mat-mdc-slide-toggle .mdc-switch:enabled+.mdc-label{cursor:pointer}.mdc-switch__handle{transition:width 75ms cubic-bezier(0.4, 0, 0.2, 1),height 75ms cubic-bezier(0.4, 0, 0.2, 1),margin 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-switch--selected .mdc-switch__track::before{opacity:var(--mat-switch-hidden-track-opacity);transition:var(--mat-switch-hidden-track-transition)}.mdc-switch--selected .mdc-switch__track::after{opacity:var(--mat-switch-visible-track-opacity);transition:var(--mat-switch-visible-track-transition)}.mdc-switch--unselected .mdc-switch__track::before{opacity:var(--mat-switch-visible-track-opacity);transition:var(--mat-switch-visible-track-transition)}.mdc-switch--unselected .mdc-switch__track::after{opacity:var(--mat-switch-hidden-track-opacity);transition:var(--mat-switch-hidden-track-transition)}.mat-mdc-slide-toggle .mdc-switch--unselected .mdc-switch__handle{width:var(--mat-switch-unselected-handle-size);height:var(--mat-switch-unselected-handle-size)}.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle{width:var(--mat-switch-selected-handle-size);height:var(--mat-switch-selected-handle-size)}.mat-mdc-slide-toggle .mdc-switch__handle:has(.mdc-switch__icons){width:var(--mat-switch-with-icon-handle-size);height:var(--mat-switch-with-icon-handle-size)}.mat-mdc-slide-toggle:active .mdc-switch:not(.mdc-switch--disabled) .mdc-switch__handle{width:var(--mat-switch-pressed-handle-size);height:var(--mat-switch-pressed-handle-size)}.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle{margin:var(--mat-switch-selected-handle-horizontal-margin)}.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle:has(.mdc-switch__icons){margin:var(--mat-switch-selected-with-icon-handle-horizontal-margin)}.mat-mdc-slide-toggle .mdc-switch--unselected .mdc-switch__handle{margin:var(--mat-switch-unselected-handle-horizontal-margin)}.mat-mdc-slide-toggle .mdc-switch--unselected .mdc-switch__handle:has(.mdc-switch__icons){margin:var(--mat-switch-unselected-with-icon-handle-horizontal-margin)}.mat-mdc-slide-toggle:active .mdc-switch--selected:not(.mdc-switch--disabled) .mdc-switch__handle{margin:var(--mat-switch-selected-pressed-handle-horizontal-margin)}.mat-mdc-slide-toggle:active .mdc-switch--unselected:not(.mdc-switch--disabled) .mdc-switch__handle{margin:var(--mat-switch-unselected-pressed-handle-horizontal-margin)}.mdc-switch__track::after,.mdc-switch__track::before{border-width:var(--mat-switch-track-outline-width);border-color:var(--mat-switch-track-outline-color)}.mdc-switch--selected .mdc-switch__track::after,.mdc-switch--selected .mdc-switch__track::before{border-width:var(--mat-switch-selected-track-outline-width);border-color:var(--mat-switch-selected-track-outline-color)}.mdc-switch--disabled .mdc-switch__track::after,.mdc-switch--disabled .mdc-switch__track::before{border-width:var(--mat-switch-disabled-unselected-track-outline-width);border-color:var(--mat-switch-disabled-unselected-track-outline-color)}.mdc-switch--disabled.mdc-switch--selected .mdc-switch__handle::after{opacity:var(--mat-switch-disabled-selected-handle-opacity)}.mdc-switch--disabled.mdc-switch--unselected .mdc-switch__handle::after{opacity:var(--mat-switch-disabled-unselected-handle-opacity)}'],
   encapsulation: 2,
   changeDetection: 0
 });
@@ -80228,7 +82125,7 @@ var MatSlideToggle = _MatSlideToggle;
   </label>
 </div>
 `,
-      styles: ['.mdc-elevation-overlay{position:absolute;border-radius:inherit;pointer-events:none;opacity:var(--mdc-elevation-overlay-opacity);transition:opacity 280ms cubic-bezier(0.4, 0, 0.2, 1);background-color:var(--mdc-elevation-overlay-color)}.mdc-switch{align-items:center;background:none;border:none;cursor:pointer;display:inline-flex;flex-shrink:0;margin:0;outline:none;overflow:visible;padding:0;position:relative}.mdc-switch[hidden]{display:none}.mdc-switch:disabled{cursor:default;pointer-events:none}.mdc-switch__track{overflow:hidden;position:relative;width:100%}.mdc-switch__track::before,.mdc-switch__track::after{border:1px solid rgba(0,0,0,0);border-radius:inherit;box-sizing:border-box;content:"";height:100%;left:0;position:absolute;width:100%}@media screen and (forced-colors: active){.mdc-switch__track::before,.mdc-switch__track::after{border-color:currentColor}}.mdc-switch__track::before{transition:transform 75ms 0ms cubic-bezier(0, 0, 0.2, 1);transform:translateX(0)}.mdc-switch__track::after{transition:transform 75ms 0ms cubic-bezier(0.4, 0, 0.6, 1);transform:translateX(-100%)}[dir=rtl] .mdc-switch__track::after,.mdc-switch__track[dir=rtl]::after{transform:translateX(100%)}.mdc-switch--selected .mdc-switch__track::before{transition:transform 75ms 0ms cubic-bezier(0.4, 0, 0.6, 1);transform:translateX(100%)}[dir=rtl] .mdc-switch--selected .mdc-switch__track::before,.mdc-switch--selected .mdc-switch__track[dir=rtl]::before{transform:translateX(-100%)}.mdc-switch--selected .mdc-switch__track::after{transition:transform 75ms 0ms cubic-bezier(0, 0, 0.2, 1);transform:translateX(0)}.mdc-switch__handle-track{height:100%;pointer-events:none;position:absolute;top:0;transition:transform 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);left:0;right:auto;transform:translateX(0)}[dir=rtl] .mdc-switch__handle-track,.mdc-switch__handle-track[dir=rtl]{left:auto;right:0}.mdc-switch--selected .mdc-switch__handle-track{transform:translateX(100%)}[dir=rtl] .mdc-switch--selected .mdc-switch__handle-track,.mdc-switch--selected .mdc-switch__handle-track[dir=rtl]{transform:translateX(-100%)}.mdc-switch__handle{display:flex;pointer-events:auto;position:absolute;top:50%;transform:translateY(-50%);left:0;right:auto}[dir=rtl] .mdc-switch__handle,.mdc-switch__handle[dir=rtl]{left:auto;right:0}.mdc-switch__handle::before,.mdc-switch__handle::after{border:1px solid rgba(0,0,0,0);border-radius:inherit;box-sizing:border-box;content:"";width:100%;height:100%;left:0;position:absolute;top:0;transition:background-color 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1),border-color 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);z-index:-1}@media screen and (forced-colors: active){.mdc-switch__handle::before,.mdc-switch__handle::after{border-color:currentColor}}.mdc-switch__shadow{border-radius:inherit;bottom:0;left:0;position:absolute;right:0;top:0}.mdc-elevation-overlay{bottom:0;left:0;right:0;top:0}.mdc-switch__ripple{left:50%;position:absolute;top:50%;transform:translate(-50%, -50%);z-index:-1}.mdc-switch:disabled .mdc-switch__ripple{display:none}.mdc-switch__icons{height:100%;position:relative;width:100%;z-index:1}.mdc-switch__icon{bottom:0;left:0;margin:auto;position:absolute;right:0;top:0;opacity:0;transition:opacity 30ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mdc-switch--selected .mdc-switch__icon--on,.mdc-switch--unselected .mdc-switch__icon--off{opacity:1;transition:opacity 45ms 30ms cubic-bezier(0, 0, 0.2, 1)}.mat-mdc-slide-toggle .mdc-switch--disabled+label{color:var(--mdc-switch-disabled-label-text-color)}.mdc-switch{width:var(--mdc-switch-track-width)}.mdc-switch.mdc-switch--selected:enabled .mdc-switch__handle::after{background:var(--mdc-switch-selected-handle-color)}.mdc-switch.mdc-switch--selected:enabled:hover:not(:focus):not(:active) .mdc-switch__handle::after{background:var(--mdc-switch-selected-hover-handle-color)}.mdc-switch.mdc-switch--selected:enabled:focus:not(:active) .mdc-switch__handle::after{background:var(--mdc-switch-selected-focus-handle-color)}.mdc-switch.mdc-switch--selected:enabled:active .mdc-switch__handle::after{background:var(--mdc-switch-selected-pressed-handle-color)}.mdc-switch.mdc-switch--selected:disabled .mdc-switch__handle::after{background:var(--mdc-switch-disabled-selected-handle-color)}.mdc-switch.mdc-switch--unselected:enabled .mdc-switch__handle::after{background:var(--mdc-switch-unselected-handle-color)}.mdc-switch.mdc-switch--unselected:enabled:hover:not(:focus):not(:active) .mdc-switch__handle::after{background:var(--mdc-switch-unselected-hover-handle-color)}.mdc-switch.mdc-switch--unselected:enabled:focus:not(:active) .mdc-switch__handle::after{background:var(--mdc-switch-unselected-focus-handle-color)}.mdc-switch.mdc-switch--unselected:enabled:active .mdc-switch__handle::after{background:var(--mdc-switch-unselected-pressed-handle-color)}.mdc-switch.mdc-switch--unselected:disabled .mdc-switch__handle::after{background:var(--mdc-switch-disabled-unselected-handle-color)}.mdc-switch .mdc-switch__handle::before{background:var(--mdc-switch-handle-surface-color)}.mdc-switch:enabled .mdc-switch__shadow{box-shadow:var(--mdc-switch-handle-elevation)}.mdc-switch:disabled .mdc-switch__shadow{box-shadow:var(--mdc-switch-disabled-handle-elevation)}.mdc-switch .mdc-switch__focus-ring-wrapper,.mdc-switch .mdc-switch__handle{height:var(--mdc-switch-handle-height)}.mdc-switch .mdc-switch__handle{border-radius:var(--mdc-switch-handle-shape)}.mdc-switch .mdc-switch__handle{width:var(--mdc-switch-handle-width)}.mdc-switch .mdc-switch__handle-track{width:calc(100% - var(--mdc-switch-handle-width))}.mdc-switch.mdc-switch--selected:enabled .mdc-switch__icon{fill:var(--mdc-switch-selected-icon-color)}.mdc-switch.mdc-switch--selected:disabled .mdc-switch__icon{fill:var(--mdc-switch-disabled-selected-icon-color)}.mdc-switch.mdc-switch--unselected:enabled .mdc-switch__icon{fill:var(--mdc-switch-unselected-icon-color)}.mdc-switch.mdc-switch--unselected:disabled .mdc-switch__icon{fill:var(--mdc-switch-disabled-unselected-icon-color)}.mdc-switch.mdc-switch--selected:disabled .mdc-switch__icons{opacity:var(--mdc-switch-disabled-selected-icon-opacity)}.mdc-switch.mdc-switch--unselected:disabled .mdc-switch__icons{opacity:var(--mdc-switch-disabled-unselected-icon-opacity)}.mdc-switch.mdc-switch--selected .mdc-switch__icon{width:var(--mdc-switch-selected-icon-size);height:var(--mdc-switch-selected-icon-size)}.mdc-switch.mdc-switch--unselected .mdc-switch__icon{width:var(--mdc-switch-unselected-icon-size);height:var(--mdc-switch-unselected-icon-size)}.mdc-switch.mdc-switch--selected:enabled:hover:not(:focus) .mdc-switch__ripple::before,.mdc-switch.mdc-switch--selected:enabled:hover:not(:focus) .mdc-switch__ripple::after{background-color:var(--mdc-switch-selected-hover-state-layer-color)}.mdc-switch.mdc-switch--selected:enabled:focus .mdc-switch__ripple::before,.mdc-switch.mdc-switch--selected:enabled:focus .mdc-switch__ripple::after{background-color:var(--mdc-switch-selected-focus-state-layer-color)}.mdc-switch.mdc-switch--selected:enabled:active .mdc-switch__ripple::before,.mdc-switch.mdc-switch--selected:enabled:active .mdc-switch__ripple::after{background-color:var(--mdc-switch-selected-pressed-state-layer-color)}.mdc-switch.mdc-switch--unselected:enabled:hover:not(:focus) .mdc-switch__ripple::before,.mdc-switch.mdc-switch--unselected:enabled:hover:not(:focus) .mdc-switch__ripple::after{background-color:var(--mdc-switch-unselected-hover-state-layer-color)}.mdc-switch.mdc-switch--unselected:enabled:focus .mdc-switch__ripple::before,.mdc-switch.mdc-switch--unselected:enabled:focus .mdc-switch__ripple::after{background-color:var(--mdc-switch-unselected-focus-state-layer-color)}.mdc-switch.mdc-switch--unselected:enabled:active .mdc-switch__ripple::before,.mdc-switch.mdc-switch--unselected:enabled:active .mdc-switch__ripple::after{background-color:var(--mdc-switch-unselected-pressed-state-layer-color)}.mdc-switch.mdc-switch--selected:enabled:hover:not(:focus):hover .mdc-switch__ripple::before,.mdc-switch.mdc-switch--selected:enabled:hover:not(:focus).mdc-ripple-surface--hover .mdc-switch__ripple::before{opacity:var(--mdc-switch-selected-hover-state-layer-opacity)}.mdc-switch.mdc-switch--selected:enabled:focus.mdc-ripple-upgraded--background-focused .mdc-switch__ripple::before,.mdc-switch.mdc-switch--selected:enabled:focus:not(.mdc-ripple-upgraded):focus .mdc-switch__ripple::before{transition-duration:75ms;opacity:var(--mdc-switch-selected-focus-state-layer-opacity)}.mdc-switch.mdc-switch--selected:enabled:active:not(.mdc-ripple-upgraded) .mdc-switch__ripple::after{transition:opacity 150ms linear}.mdc-switch.mdc-switch--selected:enabled:active:not(.mdc-ripple-upgraded):active .mdc-switch__ripple::after{transition-duration:75ms;opacity:var(--mdc-switch-selected-pressed-state-layer-opacity)}.mdc-switch.mdc-switch--selected:enabled:active.mdc-ripple-upgraded{--mdc-ripple-fg-opacity:var(--mdc-switch-selected-pressed-state-layer-opacity)}.mdc-switch.mdc-switch--unselected:enabled:hover:not(:focus):hover .mdc-switch__ripple::before,.mdc-switch.mdc-switch--unselected:enabled:hover:not(:focus).mdc-ripple-surface--hover .mdc-switch__ripple::before{opacity:var(--mdc-switch-unselected-hover-state-layer-opacity)}.mdc-switch.mdc-switch--unselected:enabled:focus.mdc-ripple-upgraded--background-focused .mdc-switch__ripple::before,.mdc-switch.mdc-switch--unselected:enabled:focus:not(.mdc-ripple-upgraded):focus .mdc-switch__ripple::before{transition-duration:75ms;opacity:var(--mdc-switch-unselected-focus-state-layer-opacity)}.mdc-switch.mdc-switch--unselected:enabled:active:not(.mdc-ripple-upgraded) .mdc-switch__ripple::after{transition:opacity 150ms linear}.mdc-switch.mdc-switch--unselected:enabled:active:not(.mdc-ripple-upgraded):active .mdc-switch__ripple::after{transition-duration:75ms;opacity:var(--mdc-switch-unselected-pressed-state-layer-opacity)}.mdc-switch.mdc-switch--unselected:enabled:active.mdc-ripple-upgraded{--mdc-ripple-fg-opacity:var(--mdc-switch-unselected-pressed-state-layer-opacity)}.mdc-switch .mdc-switch__ripple{height:var(--mdc-switch-state-layer-size);width:var(--mdc-switch-state-layer-size)}.mdc-switch .mdc-switch__track{height:var(--mdc-switch-track-height)}.mdc-switch:disabled .mdc-switch__track{opacity:var(--mdc-switch-disabled-track-opacity)}.mdc-switch:enabled .mdc-switch__track::after{background:var(--mdc-switch-selected-track-color)}.mdc-switch:enabled:hover:not(:focus):not(:active) .mdc-switch__track::after{background:var(--mdc-switch-selected-hover-track-color)}.mdc-switch:enabled:focus:not(:active) .mdc-switch__track::after{background:var(--mdc-switch-selected-focus-track-color)}.mdc-switch:enabled:active .mdc-switch__track::after{background:var(--mdc-switch-selected-pressed-track-color)}.mdc-switch:disabled .mdc-switch__track::after{background:var(--mdc-switch-disabled-selected-track-color)}.mdc-switch:enabled .mdc-switch__track::before{background:var(--mdc-switch-unselected-track-color)}.mdc-switch:enabled:hover:not(:focus):not(:active) .mdc-switch__track::before{background:var(--mdc-switch-unselected-hover-track-color)}.mdc-switch:enabled:focus:not(:active) .mdc-switch__track::before{background:var(--mdc-switch-unselected-focus-track-color)}.mdc-switch:enabled:active .mdc-switch__track::before{background:var(--mdc-switch-unselected-pressed-track-color)}.mdc-switch:disabled .mdc-switch__track::before{background:var(--mdc-switch-disabled-unselected-track-color)}.mdc-switch .mdc-switch__track{border-radius:var(--mdc-switch-track-shape)}.mdc-switch:enabled .mdc-switch__shadow{box-shadow:var(--mdc-switch-handle-elevation-shadow)}.mdc-switch:disabled .mdc-switch__shadow{box-shadow:var(--mdc-switch-disabled-handle-elevation-shadow)}.mat-mdc-slide-toggle{display:inline-block;-webkit-tap-highlight-color:rgba(0,0,0,0);outline:0}.mat-mdc-slide-toggle .mat-mdc-slide-toggle-ripple,.mat-mdc-slide-toggle .mdc-switch__ripple::after{top:0;left:0;right:0;bottom:0;position:absolute;border-radius:50%;pointer-events:none}.mat-mdc-slide-toggle .mat-mdc-slide-toggle-ripple:not(:empty),.mat-mdc-slide-toggle .mdc-switch__ripple::after:not(:empty){transform:translateZ(0)}.mat-mdc-slide-toggle .mdc-switch__ripple::after{content:"";opacity:0}.mat-mdc-slide-toggle .mdc-switch:hover .mdc-switch__ripple::after{opacity:.04;transition:opacity 75ms 0ms cubic-bezier(0, 0, 0.2, 1)}.mat-mdc-slide-toggle.mat-mdc-slide-toggle-focused .mdc-switch .mdc-switch__ripple::after{opacity:.12}.mat-mdc-slide-toggle.mat-mdc-slide-toggle-focused .mat-mdc-focus-indicator::before{content:""}.mat-mdc-slide-toggle .mat-ripple-element{opacity:.12}.mat-mdc-slide-toggle .mat-mdc-focus-indicator::before{border-radius:50%}.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle-track,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-elevation-overlay,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__icon,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle::before,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle::after,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__track::before,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__track::after{transition:none}.mat-mdc-slide-toggle .mdc-switch:enabled+.mdc-label{cursor:pointer}.mdc-switch__handle{transition:width 75ms cubic-bezier(0.4, 0, 0.2, 1),height 75ms cubic-bezier(0.4, 0, 0.2, 1),margin 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-switch--selected .mdc-switch__track::before{opacity:var(--mat-switch-hidden-track-opacity);transition:var(--mat-switch-hidden-track-transition)}.mdc-switch--selected .mdc-switch__track::after{opacity:var(--mat-switch-visible-track-opacity);transition:var(--mat-switch-visible-track-transition)}.mdc-switch--unselected .mdc-switch__track::before{opacity:var(--mat-switch-visible-track-opacity);transition:var(--mat-switch-visible-track-transition)}.mdc-switch--unselected .mdc-switch__track::after{opacity:var(--mat-switch-hidden-track-opacity);transition:var(--mat-switch-hidden-track-transition)}.mat-mdc-slide-toggle .mdc-switch--unselected .mdc-switch__handle{width:var(--mat-switch-unselected-handle-size);height:var(--mat-switch-unselected-handle-size)}.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle{width:var(--mat-switch-selected-handle-size);height:var(--mat-switch-selected-handle-size)}.mat-mdc-slide-toggle .mdc-switch__handle:has(.mdc-switch__icons){width:var(--mat-switch-with-icon-handle-size);height:var(--mat-switch-with-icon-handle-size)}.mat-mdc-slide-toggle:active .mdc-switch:not(.mdc-switch--disabled) .mdc-switch__handle{width:var(--mat-switch-pressed-handle-size);height:var(--mat-switch-pressed-handle-size)}.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle{margin:var(--mat-switch-selected-handle-horizontal-margin)}.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle:has(.mdc-switch__icons){margin:var(--mat-switch-selected-with-icon-handle-horizontal-margin)}.mat-mdc-slide-toggle .mdc-switch--unselected .mdc-switch__handle{margin:var(--mat-switch-unselected-handle-horizontal-margin)}.mat-mdc-slide-toggle .mdc-switch--unselected .mdc-switch__handle:has(.mdc-switch__icons){margin:var(--mat-switch-unselected-with-icon-handle-horizontal-margin)}.mat-mdc-slide-toggle:active .mdc-switch--selected:not(.mdc-switch--disabled) .mdc-switch__handle{margin:var(--mat-switch-selected-pressed-handle-horizontal-margin)}.mat-mdc-slide-toggle:active .mdc-switch--unselected:not(.mdc-switch--disabled) .mdc-switch__handle{margin:var(--mat-switch-unselected-pressed-handle-horizontal-margin)}.mdc-switch__track::after,.mdc-switch__track::before{border-width:var(--mat-switch-track-outline-width);border-color:var(--mat-switch-track-outline-color)}.mdc-switch--selected .mdc-switch__track::after,.mdc-switch--selected .mdc-switch__track::before{border-width:var(--mat-switch-selected-track-outline-width)}.mdc-switch--disabled .mdc-switch__track::after,.mdc-switch--disabled .mdc-switch__track::before{border-width:var(--mat-switch-disabled-unselected-track-outline-width);border-color:var(--mat-switch-disabled-unselected-track-outline-color)}.mdc-switch--disabled.mdc-switch--selected .mdc-switch__handle::after{opacity:var(--mat-switch-disabled-selected-handle-opacity)}.mdc-switch--disabled.mdc-switch--unselected .mdc-switch__handle::after{opacity:var(--mat-switch-disabled-unselected-handle-opacity)}']
+      styles: ['.mdc-elevation-overlay{position:absolute;border-radius:inherit;pointer-events:none;opacity:var(--mdc-elevation-overlay-opacity);transition:opacity 280ms cubic-bezier(0.4, 0, 0.2, 1);background-color:var(--mdc-elevation-overlay-color)}.mdc-switch{align-items:center;background:none;border:none;cursor:pointer;display:inline-flex;flex-shrink:0;margin:0;outline:none;overflow:visible;padding:0;position:relative}.mdc-switch[hidden]{display:none}.mdc-switch:disabled{cursor:default;pointer-events:none}.mdc-switch__track{overflow:hidden;position:relative;width:100%}.mdc-switch__track::before,.mdc-switch__track::after{border:1px solid rgba(0,0,0,0);border-radius:inherit;box-sizing:border-box;content:"";height:100%;left:0;position:absolute;width:100%}@media screen and (forced-colors: active){.mdc-switch__track::before,.mdc-switch__track::after{border-color:currentColor}}.mdc-switch__track::before{transition:transform 75ms 0ms cubic-bezier(0, 0, 0.2, 1);transform:translateX(0)}.mdc-switch__track::after{transition:transform 75ms 0ms cubic-bezier(0.4, 0, 0.6, 1);transform:translateX(-100%)}[dir=rtl] .mdc-switch__track::after,.mdc-switch__track[dir=rtl]::after{transform:translateX(100%)}.mdc-switch--selected .mdc-switch__track::before{transition:transform 75ms 0ms cubic-bezier(0.4, 0, 0.6, 1);transform:translateX(100%)}[dir=rtl] .mdc-switch--selected .mdc-switch__track::before,.mdc-switch--selected .mdc-switch__track[dir=rtl]::before{transform:translateX(-100%)}.mdc-switch--selected .mdc-switch__track::after{transition:transform 75ms 0ms cubic-bezier(0, 0, 0.2, 1);transform:translateX(0)}.mdc-switch__handle-track{height:100%;pointer-events:none;position:absolute;top:0;transition:transform 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);left:0;right:auto;transform:translateX(0)}[dir=rtl] .mdc-switch__handle-track,.mdc-switch__handle-track[dir=rtl]{left:auto;right:0}.mdc-switch--selected .mdc-switch__handle-track{transform:translateX(100%)}[dir=rtl] .mdc-switch--selected .mdc-switch__handle-track,.mdc-switch--selected .mdc-switch__handle-track[dir=rtl]{transform:translateX(-100%)}.mdc-switch__handle{display:flex;pointer-events:auto;position:absolute;top:50%;transform:translateY(-50%);left:0;right:auto}[dir=rtl] .mdc-switch__handle,.mdc-switch__handle[dir=rtl]{left:auto;right:0}.mdc-switch__handle::before,.mdc-switch__handle::after{border:1px solid rgba(0,0,0,0);border-radius:inherit;box-sizing:border-box;content:"";width:100%;height:100%;left:0;position:absolute;top:0;transition:background-color 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1),border-color 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);z-index:-1}@media screen and (forced-colors: active){.mdc-switch__handle::before,.mdc-switch__handle::after{border-color:currentColor}}.mdc-switch__shadow{border-radius:inherit;bottom:0;left:0;position:absolute;right:0;top:0}.mdc-elevation-overlay{bottom:0;left:0;right:0;top:0}.mdc-switch__ripple{left:50%;position:absolute;top:50%;transform:translate(-50%, -50%);z-index:-1}.mdc-switch:disabled .mdc-switch__ripple{display:none}.mdc-switch__icons{height:100%;position:relative;width:100%;z-index:1}.mdc-switch__icon{bottom:0;left:0;margin:auto;position:absolute;right:0;top:0;opacity:0;transition:opacity 30ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mdc-switch--selected .mdc-switch__icon--on,.mdc-switch--unselected .mdc-switch__icon--off{opacity:1;transition:opacity 45ms 30ms cubic-bezier(0, 0, 0.2, 1)}.mat-mdc-slide-toggle .mat-internal-form-field{color:var(--mat-switch-label-text-color);font-family:var(--mat-switch-label-text-font);line-height:var(--mat-switch-label-text-line-height);font-size:var(--mat-switch-label-text-size);letter-spacing:var(--mat-switch-label-text-tracking);font-weight:var(--mat-switch-label-text-weight)}.mat-mdc-slide-toggle .mdc-switch--disabled+label{color:var(--mdc-switch-disabled-label-text-color)}.mdc-switch{width:var(--mdc-switch-track-width)}.mdc-switch.mdc-switch--selected:enabled .mdc-switch__handle::after{background:var(--mdc-switch-selected-handle-color)}.mdc-switch.mdc-switch--selected:enabled:hover:not(:focus):not(:active) .mdc-switch__handle::after{background:var(--mdc-switch-selected-hover-handle-color)}.mdc-switch.mdc-switch--selected:enabled:focus:not(:active) .mdc-switch__handle::after{background:var(--mdc-switch-selected-focus-handle-color)}.mdc-switch.mdc-switch--selected:enabled:active .mdc-switch__handle::after{background:var(--mdc-switch-selected-pressed-handle-color)}.mdc-switch.mdc-switch--selected:disabled .mdc-switch__handle::after{background:var(--mdc-switch-disabled-selected-handle-color)}.mdc-switch.mdc-switch--unselected:enabled .mdc-switch__handle::after{background:var(--mdc-switch-unselected-handle-color)}.mdc-switch.mdc-switch--unselected:enabled:hover:not(:focus):not(:active) .mdc-switch__handle::after{background:var(--mdc-switch-unselected-hover-handle-color)}.mdc-switch.mdc-switch--unselected:enabled:focus:not(:active) .mdc-switch__handle::after{background:var(--mdc-switch-unselected-focus-handle-color)}.mdc-switch.mdc-switch--unselected:enabled:active .mdc-switch__handle::after{background:var(--mdc-switch-unselected-pressed-handle-color)}.mdc-switch.mdc-switch--unselected:disabled .mdc-switch__handle::after{background:var(--mdc-switch-disabled-unselected-handle-color)}.mdc-switch .mdc-switch__handle::before{background:var(--mdc-switch-handle-surface-color)}.mdc-switch:enabled .mdc-switch__shadow{box-shadow:var(--mdc-switch-handle-elevation)}.mdc-switch:disabled .mdc-switch__shadow{box-shadow:var(--mdc-switch-disabled-handle-elevation)}.mdc-switch .mdc-switch__focus-ring-wrapper,.mdc-switch .mdc-switch__handle{height:var(--mdc-switch-handle-height)}.mdc-switch .mdc-switch__handle{border-radius:var(--mdc-switch-handle-shape)}.mdc-switch .mdc-switch__handle{width:var(--mdc-switch-handle-width)}.mdc-switch .mdc-switch__handle-track{width:calc(100% - var(--mdc-switch-handle-width))}.mdc-switch.mdc-switch--selected:enabled .mdc-switch__icon{fill:var(--mdc-switch-selected-icon-color)}.mdc-switch.mdc-switch--selected:disabled .mdc-switch__icon{fill:var(--mdc-switch-disabled-selected-icon-color)}.mdc-switch.mdc-switch--unselected:enabled .mdc-switch__icon{fill:var(--mdc-switch-unselected-icon-color)}.mdc-switch.mdc-switch--unselected:disabled .mdc-switch__icon{fill:var(--mdc-switch-disabled-unselected-icon-color)}.mdc-switch.mdc-switch--selected:disabled .mdc-switch__icons{opacity:var(--mdc-switch-disabled-selected-icon-opacity)}.mdc-switch.mdc-switch--unselected:disabled .mdc-switch__icons{opacity:var(--mdc-switch-disabled-unselected-icon-opacity)}.mdc-switch.mdc-switch--selected .mdc-switch__icon{width:var(--mdc-switch-selected-icon-size);height:var(--mdc-switch-selected-icon-size)}.mdc-switch.mdc-switch--unselected .mdc-switch__icon{width:var(--mdc-switch-unselected-icon-size);height:var(--mdc-switch-unselected-icon-size)}.mdc-switch.mdc-switch--selected:enabled:hover:not(:focus) .mdc-switch__ripple::before,.mdc-switch.mdc-switch--selected:enabled:hover:not(:focus) .mdc-switch__ripple::after{background-color:var(--mdc-switch-selected-hover-state-layer-color)}.mdc-switch.mdc-switch--selected:enabled:focus .mdc-switch__ripple::before,.mdc-switch.mdc-switch--selected:enabled:focus .mdc-switch__ripple::after{background-color:var(--mdc-switch-selected-focus-state-layer-color)}.mdc-switch.mdc-switch--selected:enabled:active .mdc-switch__ripple::before,.mdc-switch.mdc-switch--selected:enabled:active .mdc-switch__ripple::after{background-color:var(--mdc-switch-selected-pressed-state-layer-color)}.mdc-switch.mdc-switch--unselected:enabled:hover:not(:focus) .mdc-switch__ripple::before,.mdc-switch.mdc-switch--unselected:enabled:hover:not(:focus) .mdc-switch__ripple::after{background-color:var(--mdc-switch-unselected-hover-state-layer-color)}.mdc-switch.mdc-switch--unselected:enabled:focus .mdc-switch__ripple::before,.mdc-switch.mdc-switch--unselected:enabled:focus .mdc-switch__ripple::after{background-color:var(--mdc-switch-unselected-focus-state-layer-color)}.mdc-switch.mdc-switch--unselected:enabled:active .mdc-switch__ripple::before,.mdc-switch.mdc-switch--unselected:enabled:active .mdc-switch__ripple::after{background-color:var(--mdc-switch-unselected-pressed-state-layer-color)}.mdc-switch.mdc-switch--selected:enabled:hover:not(:focus):hover .mdc-switch__ripple::before,.mdc-switch.mdc-switch--selected:enabled:hover:not(:focus).mdc-ripple-surface--hover .mdc-switch__ripple::before{opacity:var(--mdc-switch-selected-hover-state-layer-opacity)}.mdc-switch.mdc-switch--selected:enabled:focus.mdc-ripple-upgraded--background-focused .mdc-switch__ripple::before,.mdc-switch.mdc-switch--selected:enabled:focus:not(.mdc-ripple-upgraded):focus .mdc-switch__ripple::before{transition-duration:75ms;opacity:var(--mdc-switch-selected-focus-state-layer-opacity)}.mdc-switch.mdc-switch--selected:enabled:active:not(.mdc-ripple-upgraded) .mdc-switch__ripple::after{transition:opacity 150ms linear}.mdc-switch.mdc-switch--selected:enabled:active:not(.mdc-ripple-upgraded):active .mdc-switch__ripple::after{transition-duration:75ms;opacity:var(--mdc-switch-selected-pressed-state-layer-opacity)}.mdc-switch.mdc-switch--selected:enabled:active.mdc-ripple-upgraded{--mdc-ripple-fg-opacity:var(--mdc-switch-selected-pressed-state-layer-opacity)}.mdc-switch.mdc-switch--unselected:enabled:hover:not(:focus):hover .mdc-switch__ripple::before,.mdc-switch.mdc-switch--unselected:enabled:hover:not(:focus).mdc-ripple-surface--hover .mdc-switch__ripple::before{opacity:var(--mdc-switch-unselected-hover-state-layer-opacity)}.mdc-switch.mdc-switch--unselected:enabled:focus.mdc-ripple-upgraded--background-focused .mdc-switch__ripple::before,.mdc-switch.mdc-switch--unselected:enabled:focus:not(.mdc-ripple-upgraded):focus .mdc-switch__ripple::before{transition-duration:75ms;opacity:var(--mdc-switch-unselected-focus-state-layer-opacity)}.mdc-switch.mdc-switch--unselected:enabled:active:not(.mdc-ripple-upgraded) .mdc-switch__ripple::after{transition:opacity 150ms linear}.mdc-switch.mdc-switch--unselected:enabled:active:not(.mdc-ripple-upgraded):active .mdc-switch__ripple::after{transition-duration:75ms;opacity:var(--mdc-switch-unselected-pressed-state-layer-opacity)}.mdc-switch.mdc-switch--unselected:enabled:active.mdc-ripple-upgraded{--mdc-ripple-fg-opacity:var(--mdc-switch-unselected-pressed-state-layer-opacity)}.mdc-switch .mdc-switch__ripple{height:var(--mdc-switch-state-layer-size);width:var(--mdc-switch-state-layer-size)}.mdc-switch .mdc-switch__track{height:var(--mdc-switch-track-height)}.mdc-switch:disabled .mdc-switch__track{opacity:var(--mdc-switch-disabled-track-opacity)}.mdc-switch:enabled .mdc-switch__track::after{background:var(--mdc-switch-selected-track-color)}.mdc-switch:enabled:hover:not(:focus):not(:active) .mdc-switch__track::after{background:var(--mdc-switch-selected-hover-track-color)}.mdc-switch:enabled:focus:not(:active) .mdc-switch__track::after{background:var(--mdc-switch-selected-focus-track-color)}.mdc-switch:enabled:active .mdc-switch__track::after{background:var(--mdc-switch-selected-pressed-track-color)}.mdc-switch:disabled .mdc-switch__track::after{background:var(--mdc-switch-disabled-selected-track-color)}.mdc-switch:enabled .mdc-switch__track::before{background:var(--mdc-switch-unselected-track-color)}.mdc-switch:enabled:hover:not(:focus):not(:active) .mdc-switch__track::before{background:var(--mdc-switch-unselected-hover-track-color)}.mdc-switch:enabled:focus:not(:active) .mdc-switch__track::before{background:var(--mdc-switch-unselected-focus-track-color)}.mdc-switch:enabled:active .mdc-switch__track::before{background:var(--mdc-switch-unselected-pressed-track-color)}.mdc-switch:disabled .mdc-switch__track::before{background:var(--mdc-switch-disabled-unselected-track-color)}.mdc-switch .mdc-switch__track{border-radius:var(--mdc-switch-track-shape)}.mdc-switch:enabled .mdc-switch__shadow{box-shadow:var(--mdc-switch-handle-elevation-shadow)}.mdc-switch:disabled .mdc-switch__shadow{box-shadow:var(--mdc-switch-disabled-handle-elevation-shadow)}.mat-mdc-slide-toggle{display:inline-block;-webkit-tap-highlight-color:rgba(0,0,0,0);outline:0}.mat-mdc-slide-toggle .mat-mdc-slide-toggle-ripple,.mat-mdc-slide-toggle .mdc-switch__ripple::after{top:0;left:0;right:0;bottom:0;position:absolute;border-radius:50%;pointer-events:none}.mat-mdc-slide-toggle .mat-mdc-slide-toggle-ripple:not(:empty),.mat-mdc-slide-toggle .mdc-switch__ripple::after:not(:empty){transform:translateZ(0)}.mat-mdc-slide-toggle .mdc-switch__ripple::after{content:"";opacity:0}.mat-mdc-slide-toggle .mdc-switch:hover .mdc-switch__ripple::after{opacity:.04;transition:opacity 75ms 0ms cubic-bezier(0, 0, 0.2, 1)}.mat-mdc-slide-toggle.mat-mdc-slide-toggle-focused .mdc-switch .mdc-switch__ripple::after{opacity:.12}.mat-mdc-slide-toggle.mat-mdc-slide-toggle-focused .mat-mdc-focus-indicator::before{content:""}.mat-mdc-slide-toggle .mat-ripple-element{opacity:.12}.mat-mdc-slide-toggle .mat-mdc-focus-indicator::before{border-radius:50%}.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle-track,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-elevation-overlay,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__icon,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle::before,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle::after,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__track::before,.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__track::after{transition:none}.mat-mdc-slide-toggle .mdc-switch:enabled+.mdc-label{cursor:pointer}.mdc-switch__handle{transition:width 75ms cubic-bezier(0.4, 0, 0.2, 1),height 75ms cubic-bezier(0.4, 0, 0.2, 1),margin 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-switch--selected .mdc-switch__track::before{opacity:var(--mat-switch-hidden-track-opacity);transition:var(--mat-switch-hidden-track-transition)}.mdc-switch--selected .mdc-switch__track::after{opacity:var(--mat-switch-visible-track-opacity);transition:var(--mat-switch-visible-track-transition)}.mdc-switch--unselected .mdc-switch__track::before{opacity:var(--mat-switch-visible-track-opacity);transition:var(--mat-switch-visible-track-transition)}.mdc-switch--unselected .mdc-switch__track::after{opacity:var(--mat-switch-hidden-track-opacity);transition:var(--mat-switch-hidden-track-transition)}.mat-mdc-slide-toggle .mdc-switch--unselected .mdc-switch__handle{width:var(--mat-switch-unselected-handle-size);height:var(--mat-switch-unselected-handle-size)}.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle{width:var(--mat-switch-selected-handle-size);height:var(--mat-switch-selected-handle-size)}.mat-mdc-slide-toggle .mdc-switch__handle:has(.mdc-switch__icons){width:var(--mat-switch-with-icon-handle-size);height:var(--mat-switch-with-icon-handle-size)}.mat-mdc-slide-toggle:active .mdc-switch:not(.mdc-switch--disabled) .mdc-switch__handle{width:var(--mat-switch-pressed-handle-size);height:var(--mat-switch-pressed-handle-size)}.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle{margin:var(--mat-switch-selected-handle-horizontal-margin)}.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle:has(.mdc-switch__icons){margin:var(--mat-switch-selected-with-icon-handle-horizontal-margin)}.mat-mdc-slide-toggle .mdc-switch--unselected .mdc-switch__handle{margin:var(--mat-switch-unselected-handle-horizontal-margin)}.mat-mdc-slide-toggle .mdc-switch--unselected .mdc-switch__handle:has(.mdc-switch__icons){margin:var(--mat-switch-unselected-with-icon-handle-horizontal-margin)}.mat-mdc-slide-toggle:active .mdc-switch--selected:not(.mdc-switch--disabled) .mdc-switch__handle{margin:var(--mat-switch-selected-pressed-handle-horizontal-margin)}.mat-mdc-slide-toggle:active .mdc-switch--unselected:not(.mdc-switch--disabled) .mdc-switch__handle{margin:var(--mat-switch-unselected-pressed-handle-horizontal-margin)}.mdc-switch__track::after,.mdc-switch__track::before{border-width:var(--mat-switch-track-outline-width);border-color:var(--mat-switch-track-outline-color)}.mdc-switch--selected .mdc-switch__track::after,.mdc-switch--selected .mdc-switch__track::before{border-width:var(--mat-switch-selected-track-outline-width);border-color:var(--mat-switch-selected-track-outline-color)}.mdc-switch--disabled .mdc-switch__track::after,.mdc-switch--disabled .mdc-switch__track::before{border-width:var(--mat-switch-disabled-unselected-track-outline-width);border-color:var(--mat-switch-disabled-unselected-track-outline-color)}.mdc-switch--disabled.mdc-switch--selected .mdc-switch__handle::after{opacity:var(--mat-switch-disabled-selected-handle-opacity)}.mdc-switch--disabled.mdc-switch--unselected .mdc-switch__handle::after{opacity:var(--mat-switch-disabled-unselected-handle-opacity)}']
     }]
   }], () => [{
     type: ElementRef
@@ -80239,7 +82136,7 @@ var MatSlideToggle = _MatSlideToggle;
   }, {
     type: void 0,
     decorators: [{
-      type: Attribute,
+      type: Attribute2,
       args: ["tabindex"]
     }]
   }, {
@@ -80865,14 +82762,21 @@ pusher-js/dist/web/pusher.js:
 
 @angular/core/fesm2022/primitives/signals.mjs:
   (**
-   * @license Angular v17.3.10
+   * @license Angular v18.0.3
+   * (c) 2010-2024 Google LLC. https://angular.io/
+   * License: MIT
+   *)
+
+@angular/core/fesm2022/primitives/event-dispatch.mjs:
+  (**
+   * @license Angular v18.0.3
    * (c) 2010-2024 Google LLC. https://angular.io/
    * License: MIT
    *)
 
 @angular/core/fesm2022/core.mjs:
   (**
-   * @license Angular v17.3.10
+   * @license Angular v18.0.3
    * (c) 2010-2024 Google LLC. https://angular.io/
    * License: MIT
    *)
@@ -80924,58 +82828,72 @@ pusher-js/dist/web/pusher.js:
 
 @angular/common/fesm2022/common.mjs:
   (**
-   * @license Angular v17.3.10
+   * @license Angular v18.0.3
    * (c) 2010-2024 Google LLC. https://angular.io/
    * License: MIT
    *)
 
 @angular/common/fesm2022/http.mjs:
   (**
-   * @license Angular v17.3.10
+   * @license Angular v18.0.3
    * (c) 2010-2024 Google LLC. https://angular.io/
    * License: MIT
    *)
 
 @angular/platform-browser/fesm2022/platform-browser.mjs:
   (**
-   * @license Angular v17.3.10
+   * @license Angular v18.0.3
    * (c) 2010-2024 Google LLC. https://angular.io/
    * License: MIT
    *)
 
 @angular/router/fesm2022/router.mjs:
   (**
-   * @license Angular v17.3.10
+   * @license Angular v18.0.3
    * (c) 2010-2024 Google LLC. https://angular.io/
    * License: MIT
    *)
 
 @angular/animations/fesm2022/animations.mjs:
   (**
-   * @license Angular v17.3.10
+   * @license Angular v18.0.3
    * (c) 2010-2024 Google LLC. https://angular.io/
    * License: MIT
    *)
 
 @angular/animations/fesm2022/browser.mjs:
   (**
-   * @license Angular v17.3.10
+   * @license Angular v18.0.3
    * (c) 2010-2024 Google LLC. https://angular.io/
    * License: MIT
    *)
 
 @angular/platform-browser/fesm2022/animations.mjs:
   (**
-   * @license Angular v17.3.10
+   * @license Angular v18.0.3
    * (c) 2010-2024 Google LLC. https://angular.io/
    * License: MIT
    *)
 
 @angular/forms/fesm2022/forms.mjs:
   (**
-   * @license Angular v17.3.10
+   * @license Angular v18.0.3
    * (c) 2010-2024 Google LLC. https://angular.io/
    * License: MIT
+   *)
+
+@angular/service-worker/fesm2022/service-worker.mjs:
+  (**
+   * @license Angular v18.0.3
+   * (c) 2010-2024 Google LLC. https://angular.io/
+   * License: MIT
+   *)
+  (*!
+   * @license
+   * Copyright Google LLC All Rights Reserved.
+   *
+   * Use of this source code is governed by an MIT-style license that can be
+   * found in the LICENSE file at https://angular.io/license
    *)
 */
 //# sourceMappingURL=main.js.map

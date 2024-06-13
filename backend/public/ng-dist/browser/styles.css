@@ -20,6 +20,10 @@
 .cdk-high-contrast-active .mat-ripple-element {
   display: none;
 }
+.cdk-drag-preview .mat-ripple-element,
+.cdk-drag-placeholder .mat-ripple-element {
+  display: none;
+}
 .cdk-visually-hidden {
   border: 0;
   clip: rect(0 0 0 0);
@@ -183,6 +187,9 @@ textarea.cdk-textarea-autosize-measuring-firefox {
 .mat-app-background {
   background-color: var(--mat-app-background-color, transparent);
   color: var(--mat-app-text-color, inherit);
+}
+.mat-theme-loaded-marker {
+  display: none;
 }
 html {
   --mat-ripple-color:rgba(0, 0, 0, 0.1);
@@ -430,9 +437,6 @@ html {
     0px 24px 38px 3px rgba(0, 0, 0, 0.14),
     0px 9px 46px 8px rgba(0, 0, 0, 0.12);
 }
-.mat-theme-loaded-marker {
-  display: none;
-}
 html {
   --mat-option-label-text-font:Roboto, sans-serif;
   --mat-option-label-text-line-height:24px;
@@ -675,11 +679,10 @@ html {
   --mat-autocomplete-background-color:white;
 }
 html {
-  --mdc-dialog-container-elevation-shadow:0px 11px 15px -7px rgba(0, 0, 0, 0.2),
+  --mdc-dialog-container-shape:4px;
+  --mat-dialog-container-elevation-shadow:0px 11px 15px -7px rgba(0, 0, 0, 0.2),
     0px 24px 38px 3px rgba(0, 0, 0, 0.14),
     0px 9px 46px 8px rgba(0, 0, 0, 0.12);
-  --mdc-dialog-container-shadow-color:#000;
-  --mdc-dialog-container-shape:4px;
   --mat-dialog-container-max-width:80vw;
   --mat-dialog-container-small-max-width:80vw;
   --mat-dialog-container-min-width:0;
@@ -850,6 +853,8 @@ html {
   --mdc-switch-unselected-focus-state-layer-opacity:0.12;
   --mdc-switch-unselected-hover-state-layer-opacity:0.04;
   --mdc-switch-unselected-pressed-state-layer-opacity:0.1;
+}
+html .mat-mdc-slide-toggle {
   --mat-switch-disabled-selected-handle-opacity:0.38;
   --mat-switch-disabled-unselected-handle-opacity:0.38;
   --mat-switch-unselected-handle-size:20px;
@@ -869,6 +874,7 @@ html {
   --mat-switch-track-outline-width:1px;
   --mat-switch-track-outline-color:transparent;
   --mat-switch-selected-track-outline-width:1px;
+  --mat-switch-selected-track-outline-color:transparent;
   --mat-switch-disabled-unselected-track-outline-width:1px;
   --mat-switch-disabled-unselected-track-outline-color:transparent;
 }
@@ -914,7 +920,7 @@ html {
   --mdc-switch-disabled-label-text-color: rgba(0, 0, 0, 0.38);
 }
 html .mat-mdc-slide-toggle {
-  --mdc-form-field-label-text-color:rgba(0, 0, 0, 0.87);
+  --mat-switch-label-text-color:rgba(0, 0, 0, 0.87);
 }
 html .mat-mdc-slide-toggle.mat-accent {
   --mdc-switch-selected-focus-state-layer-color:#ffb300;
@@ -946,19 +952,16 @@ html {
   --mdc-switch-state-layer-size:40px;
 }
 html .mat-mdc-slide-toggle {
-  --mdc-form-field-label-text-font:Roboto, sans-serif;
-  --mdc-form-field-label-text-line-height:20px;
-  --mdc-form-field-label-text-size:14px;
-  --mdc-form-field-label-text-tracking:0.0178571429em;
-  --mdc-form-field-label-text-weight:400;
+  --mat-switch-label-text-font:Roboto, sans-serif;
+  --mat-switch-label-text-line-height:20px;
+  --mat-switch-label-text-size:14px;
+  --mat-switch-label-text-tracking:0.0178571429em;
+  --mat-switch-label-text-weight:400;
 }
 html {
   --mdc-radio-disabled-selected-icon-opacity:0.38;
   --mdc-radio-disabled-unselected-icon-opacity:0.38;
   --mdc-radio-state-layer-size:40px;
-}
-.mat-mdc-radio-button {
-  --mdc-form-field-label-text-color:rgba(0, 0, 0, 0.87);
 }
 .mat-mdc-radio-button.mat-primary {
   --mdc-radio-disabled-selected-icon-color:black;
@@ -973,6 +976,7 @@ html {
   --mat-radio-ripple-color:black;
   --mat-radio-checked-ripple-color:#673ab7;
   --mat-radio-disabled-label-color:rgba(0, 0, 0, 0.38);
+  --mat-radio-label-text-color:rgba(0, 0, 0, 0.87);
 }
 .mat-mdc-radio-button.mat-accent {
   --mdc-radio-disabled-selected-icon-color:black;
@@ -987,6 +991,7 @@ html {
   --mat-radio-ripple-color:black;
   --mat-radio-checked-ripple-color:#ffd740;
   --mat-radio-disabled-label-color:rgba(0, 0, 0, 0.38);
+  --mat-radio-label-text-color:rgba(0, 0, 0, 0.87);
 }
 .mat-mdc-radio-button.mat-warn {
   --mdc-radio-disabled-selected-icon-color:black;
@@ -1001,17 +1006,18 @@ html {
   --mat-radio-ripple-color:black;
   --mat-radio-checked-ripple-color:#f44336;
   --mat-radio-disabled-label-color:rgba(0, 0, 0, 0.38);
+  --mat-radio-label-text-color:rgba(0, 0, 0, 0.87);
 }
 html {
   --mdc-radio-state-layer-size:40px;
   --mat-radio-touch-target-display:block;
 }
-.mat-mdc-radio-button {
-  --mdc-form-field-label-text-font:Roboto, sans-serif;
-  --mdc-form-field-label-text-line-height:20px;
-  --mdc-form-field-label-text-size:14px;
-  --mdc-form-field-label-text-tracking:0.0178571429em;
-  --mdc-form-field-label-text-weight:400;
+html {
+  --mat-radio-label-text-font:Roboto, sans-serif;
+  --mat-radio-label-text-line-height:20px;
+  --mat-radio-label-text-size:14px;
+  --mat-radio-label-text-tracking:0.0178571429em;
+  --mat-radio-label-text-weight:400;
 }
 html {
   --mat-slider-value-indicator-width:auto;
@@ -1193,11 +1199,9 @@ html {
   --mdc-checkbox-selected-focus-icon-color:#673ab7;
   --mdc-checkbox-selected-hover-icon-color:#673ab7;
   --mdc-checkbox-selected-icon-color:#673ab7;
-  --mdc-checkbox-selected-pressed-icon-color:#673ab7;
   --mdc-checkbox-unselected-focus-icon-color:#212121;
   --mdc-checkbox-unselected-hover-icon-color:#212121;
   --mdc-checkbox-unselected-icon-color:rgba(0, 0, 0, 0.54);
-  --mdc-checkbox-unselected-pressed-icon-color:rgba(0, 0, 0, 0.54);
   --mdc-checkbox-selected-focus-state-layer-color:#673ab7;
   --mdc-checkbox-selected-hover-state-layer-color:#673ab7;
   --mdc-checkbox-selected-pressed-state-layer-color:#673ab7;
@@ -1212,11 +1216,9 @@ html {
   --mdc-checkbox-selected-focus-icon-color:#ffd740;
   --mdc-checkbox-selected-hover-icon-color:#ffd740;
   --mdc-checkbox-selected-icon-color:#ffd740;
-  --mdc-checkbox-selected-pressed-icon-color:#ffd740;
   --mdc-checkbox-unselected-focus-icon-color:#212121;
   --mdc-checkbox-unselected-hover-icon-color:#212121;
   --mdc-checkbox-unselected-icon-color:rgba(0, 0, 0, 0.54);
-  --mdc-checkbox-unselected-pressed-icon-color:rgba(0, 0, 0, 0.54);
   --mdc-checkbox-selected-focus-state-layer-color:#ffd740;
   --mdc-checkbox-selected-hover-state-layer-color:#ffd740;
   --mdc-checkbox-selected-pressed-state-layer-color:#ffd740;
@@ -1231,11 +1233,9 @@ html {
   --mdc-checkbox-selected-focus-icon-color:#f44336;
   --mdc-checkbox-selected-hover-icon-color:#f44336;
   --mdc-checkbox-selected-icon-color:#f44336;
-  --mdc-checkbox-selected-pressed-icon-color:#f44336;
   --mdc-checkbox-unselected-focus-icon-color:#212121;
   --mdc-checkbox-unselected-hover-icon-color:#212121;
   --mdc-checkbox-unselected-icon-color:rgba(0, 0, 0, 0.54);
-  --mdc-checkbox-unselected-pressed-icon-color:rgba(0, 0, 0, 0.54);
   --mdc-checkbox-selected-focus-state-layer-color:#f44336;
   --mdc-checkbox-selected-hover-state-layer-color:#f44336;
   --mdc-checkbox-selected-pressed-state-layer-color:#f44336;
@@ -1413,11 +1413,9 @@ html {
   --mdc-checkbox-selected-focus-icon-color:#ffd740;
   --mdc-checkbox-selected-hover-icon-color:#ffd740;
   --mdc-checkbox-selected-icon-color:#ffd740;
-  --mdc-checkbox-selected-pressed-icon-color:#ffd740;
   --mdc-checkbox-unselected-focus-icon-color:#212121;
   --mdc-checkbox-unselected-hover-icon-color:#212121;
   --mdc-checkbox-unselected-icon-color:rgba(0, 0, 0, 0.54);
-  --mdc-checkbox-unselected-pressed-icon-color:rgba(0, 0, 0, 0.54);
   --mdc-checkbox-selected-focus-state-layer-color:#ffd740;
   --mdc-checkbox-selected-hover-state-layer-color:#ffd740;
   --mdc-checkbox-selected-pressed-state-layer-color:#ffd740;
@@ -1425,9 +1423,7 @@ html {
   --mdc-checkbox-unselected-hover-state-layer-color:black;
   --mdc-checkbox-unselected-pressed-state-layer-color:black;
   --mat-checkbox-disabled-label-color:rgba(0, 0, 0, 0.38);
-}
-.mat-mdc-checkbox {
-  --mdc-form-field-label-text-color:rgba(0, 0, 0, 0.87);
+  --mat-checkbox-label-text-color:rgba(0, 0, 0, 0.87);
 }
 .mat-mdc-checkbox.mat-primary {
   --mdc-checkbox-disabled-selected-icon-color:rgba(0, 0, 0, 0.38);
@@ -1436,11 +1432,9 @@ html {
   --mdc-checkbox-selected-focus-icon-color:#673ab7;
   --mdc-checkbox-selected-hover-icon-color:#673ab7;
   --mdc-checkbox-selected-icon-color:#673ab7;
-  --mdc-checkbox-selected-pressed-icon-color:#673ab7;
   --mdc-checkbox-unselected-focus-icon-color:#212121;
   --mdc-checkbox-unselected-hover-icon-color:#212121;
   --mdc-checkbox-unselected-icon-color:rgba(0, 0, 0, 0.54);
-  --mdc-checkbox-unselected-pressed-icon-color:rgba(0, 0, 0, 0.54);
   --mdc-checkbox-selected-focus-state-layer-color:#673ab7;
   --mdc-checkbox-selected-hover-state-layer-color:#673ab7;
   --mdc-checkbox-selected-pressed-state-layer-color:#673ab7;
@@ -1455,11 +1449,9 @@ html {
   --mdc-checkbox-selected-focus-icon-color:#f44336;
   --mdc-checkbox-selected-hover-icon-color:#f44336;
   --mdc-checkbox-selected-icon-color:#f44336;
-  --mdc-checkbox-selected-pressed-icon-color:#f44336;
   --mdc-checkbox-unselected-focus-icon-color:#212121;
   --mdc-checkbox-unselected-hover-icon-color:#212121;
   --mdc-checkbox-unselected-icon-color:rgba(0, 0, 0, 0.54);
-  --mdc-checkbox-unselected-pressed-icon-color:rgba(0, 0, 0, 0.54);
   --mdc-checkbox-selected-focus-state-layer-color:#f44336;
   --mdc-checkbox-selected-hover-state-layer-color:#f44336;
   --mdc-checkbox-selected-pressed-state-layer-color:#f44336;
@@ -1471,12 +1463,12 @@ html {
   --mdc-checkbox-state-layer-size:40px;
   --mat-checkbox-touch-target-display:block;
 }
-.mat-mdc-checkbox {
-  --mdc-form-field-label-text-font:Roboto, sans-serif;
-  --mdc-form-field-label-text-line-height:20px;
-  --mdc-form-field-label-text-size:14px;
-  --mdc-form-field-label-text-tracking:0.0178571429em;
-  --mdc-form-field-label-text-weight:400;
+html {
+  --mat-checkbox-label-text-font:Roboto, sans-serif;
+  --mat-checkbox-label-text-line-height:20px;
+  --mat-checkbox-label-text-size:14px;
+  --mat-checkbox-label-text-tracking:0.0178571429em;
+  --mat-checkbox-label-text-weight:400;
 }
 html {
   --mdc-text-button-container-shape:4px;
