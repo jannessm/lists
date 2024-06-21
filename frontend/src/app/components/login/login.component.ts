@@ -68,6 +68,8 @@ export class LoginComponent {
         Object.values(this.form.controls).forEach(control => {
           control.setErrors({});
         });
+      } else {
+        this.router.navigateByUrl('/user/lists');
       }
     })
   }

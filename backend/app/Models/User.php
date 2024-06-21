@@ -56,7 +56,7 @@ class User extends Authenticatable
         '_deleted' => 'boolean'
     ];
 
-    public function tasks(): HasMany {
-        return $this->hasMany(Task::class);
-    }
+    // public function tasks(): HasMany {
+    //     return $this->hasMany(Task::class);
+    // }
 }

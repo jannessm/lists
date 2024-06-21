@@ -14,7 +14,7 @@ use Illuminate\Http\Response;
 |
 */
 
-$routes = ['', 'login', 'register', 'dashboard'];
+$routes = ['', 'login', 'register', 'user', 'user/lists', 'user/list/:id', 'user/settings', 'cookies'];
 
 foreach ($routes as $route) {
     Route::get('/' . $route, function() {

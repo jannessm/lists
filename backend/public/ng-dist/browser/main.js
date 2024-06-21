@@ -60882,6 +60882,8 @@ var _LoginComponent = class _LoginComponent {
         Object.values(this.form.controls).forEach((control) => {
           control.setErrors({});
         });
+      } else {
+        this.router.navigateByUrl("/user/lists");
       }
     });
   }
@@ -60944,8 +60946,7 @@ var LoginComponent = _LoginComponent;
 var authGuard = (route, state2) => {
   const cookies = inject(CookieService);
   const router = inject(Router);
-  const cookie = cookies.get(SESSION_COOKIE);
-  if (!!cookie) {
+  if (cookies.check(SESSION_COOKIE)) {
     return true;
   } else {
     return router.parseUrl("/login");
@@ -61163,4203 +61164,6 @@ var isLoggedGuard = (route, state2) => {
     return router.parseUrl("/user/lists");
   }
 };
-
-// src/app/app.routes.ts
-var routes = [
-  { path: "user", canActivate: [authGuard], children: [
-    //   {path: 'lists', component: ListsOverviewComponent},
-    //   {path: 'list/:id', component: ListComponent},
-    //   {path: 'settings', component: SettingsComponent},
-  ] },
-  { path: "login", component: LoginComponent, canActivate: [isLoggedGuard] },
-  { path: "register", component: RegisterComponent, canActivate: [isLoggedGuard] },
-  { path: "cookies", component: CookieComponent },
-  { path: "**", redirectTo: "/login" }
-];
-var _AppRoutingModule = class _AppRoutingModule {
-};
-_AppRoutingModule.\u0275fac = function AppRoutingModule_Factory(t) {
-  return new (t || _AppRoutingModule)();
-};
-_AppRoutingModule.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({ type: _AppRoutingModule });
-_AppRoutingModule.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({ imports: [RouterModule.forRoot(routes), RouterModule] });
-var AppRoutingModule = _AppRoutingModule;
-
-// src/app/interceptors/laravel-tokens.ts
-function laravelInterceptor(req, next) {
-  const pusher = inject(PusherService);
-  let headers = req.headers;
-  if (pusher.socketID) {
-    headers = headers.append("X-Socket-ID", pusher.socketID);
-  }
-  const newReq = req.clone({ headers });
-  return next(newReq);
-}
-
-// node_modules/@angular/service-worker/fesm2022/service-worker.mjs
-var ERR_SW_NOT_SUPPORTED = "Service workers are disabled or not supported by this browser";
-function errorObservable(message) {
-  return defer(() => throwError(new Error(message)));
-}
-var NgswCommChannel = class {
-  constructor(serviceWorker) {
-    this.serviceWorker = serviceWorker;
-    if (!serviceWorker) {
-      this.worker = this.events = this.registration = errorObservable(ERR_SW_NOT_SUPPORTED);
-    } else {
-      const controllerChangeEvents = fromEvent(serviceWorker, "controllerchange");
-      const controllerChanges = controllerChangeEvents.pipe(map(() => serviceWorker.controller));
-      const currentController = defer(() => of(serviceWorker.controller));
-      const controllerWithChanges = concat(currentController, controllerChanges);
-      this.worker = controllerWithChanges.pipe(filter((c) => !!c));
-      this.registration = this.worker.pipe(switchMap(() => serviceWorker.getRegistration()));
-      const rawEvents = fromEvent(serviceWorker, "message");
-      const rawEventPayload = rawEvents.pipe(map((event) => event.data));
-      const eventsUnconnected = rawEventPayload.pipe(filter((event) => event && event.type));
-      const events = eventsUnconnected.pipe(publish());
-      events.connect();
-      this.events = events;
-    }
-  }
-  postMessage(action, payload) {
-    return this.worker.pipe(take(1), tap((sw) => {
-      sw.postMessage(__spreadValues({
-        action
-      }, payload));
-    })).toPromise().then(() => void 0);
-  }
-  postMessageWithOperation(type, payload, operationNonce) {
-    const waitForOperationCompleted = this.waitForOperationCompleted(operationNonce);
-    const postMessage = this.postMessage(type, payload);
-    return Promise.all([postMessage, waitForOperationCompleted]).then(([, result]) => result);
-  }
-  generateNonce() {
-    return Math.round(Math.random() * 1e7);
-  }
-  eventsOfType(type) {
-    let filterFn;
-    if (typeof type === "string") {
-      filterFn = (event) => event.type === type;
-    } else {
-      filterFn = (event) => type.includes(event.type);
-    }
-    return this.events.pipe(filter(filterFn));
-  }
-  nextEventOfType(type) {
-    return this.eventsOfType(type).pipe(take(1));
-  }
-  waitForOperationCompleted(nonce) {
-    return this.eventsOfType("OPERATION_COMPLETED").pipe(filter((event) => event.nonce === nonce), take(1), map((event) => {
-      if (event.result !== void 0) {
-        return event.result;
-      }
-      throw new Error(event.error);
-    })).toPromise();
-  }
-  get isEnabled() {
-    return !!this.serviceWorker;
-  }
-};
-var _SwPush = class _SwPush {
-  /**
-   * True if the Service Worker is enabled (supported by the browser and enabled via
-   * `ServiceWorkerModule`).
-   */
-  get isEnabled() {
-    return this.sw.isEnabled;
-  }
-  constructor(sw) {
-    this.sw = sw;
-    this.pushManager = null;
-    this.subscriptionChanges = new Subject();
-    if (!sw.isEnabled) {
-      this.messages = NEVER;
-      this.notificationClicks = NEVER;
-      this.subscription = NEVER;
-      return;
-    }
-    this.messages = this.sw.eventsOfType("PUSH").pipe(map((message) => message.data));
-    this.notificationClicks = this.sw.eventsOfType("NOTIFICATION_CLICK").pipe(map((message) => message.data));
-    this.pushManager = this.sw.registration.pipe(map((registration) => registration.pushManager));
-    const workerDrivenSubscriptions = this.pushManager.pipe(switchMap((pm) => pm.getSubscription()));
-    this.subscription = merge(workerDrivenSubscriptions, this.subscriptionChanges);
-  }
-  /**
-   * Subscribes to Web Push Notifications,
-   * after requesting and receiving user permission.
-   *
-   * @param options An object containing the `serverPublicKey` string.
-   * @returns A Promise that resolves to the new subscription object.
-   */
-  requestSubscription(options) {
-    if (!this.sw.isEnabled || this.pushManager === null) {
-      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
-    }
-    const pushOptions = {
-      userVisibleOnly: true
-    };
-    let key = this.decodeBase64(options.serverPublicKey.replace(/_/g, "/").replace(/-/g, "+"));
-    let applicationServerKey = new Uint8Array(new ArrayBuffer(key.length));
-    for (let i = 0; i < key.length; i++) {
-      applicationServerKey[i] = key.charCodeAt(i);
-    }
-    pushOptions.applicationServerKey = applicationServerKey;
-    return this.pushManager.pipe(switchMap((pm) => pm.subscribe(pushOptions)), take(1)).toPromise().then((sub) => {
-      this.subscriptionChanges.next(sub);
-      return sub;
-    });
-  }
-  /**
-   * Unsubscribes from Service Worker push notifications.
-   *
-   * @returns A Promise that is resolved when the operation succeeds, or is rejected if there is no
-   *          active subscription or the unsubscribe operation fails.
-   */
-  unsubscribe() {
-    if (!this.sw.isEnabled) {
-      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
-    }
-    const doUnsubscribe = (sub) => {
-      if (sub === null) {
-        throw new Error("Not subscribed to push notifications.");
-      }
-      return sub.unsubscribe().then((success) => {
-        if (!success) {
-          throw new Error("Unsubscribe failed!");
-        }
-        this.subscriptionChanges.next(null);
-      });
-    };
-    return this.subscription.pipe(take(1), switchMap(doUnsubscribe)).toPromise();
-  }
-  decodeBase64(input2) {
-    return atob(input2);
-  }
-};
-_SwPush.\u0275fac = function SwPush_Factory(t) {
-  return new (t || _SwPush)(\u0275\u0275inject(NgswCommChannel));
-};
-_SwPush.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
-  token: _SwPush,
-  factory: _SwPush.\u0275fac
-});
-var SwPush = _SwPush;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SwPush, [{
-    type: Injectable
-  }], () => [{
-    type: NgswCommChannel
-  }], null);
-})();
-var _SwUpdate = class _SwUpdate {
-  /**
-   * True if the Service Worker is enabled (supported by the browser and enabled via
-   * `ServiceWorkerModule`).
-   */
-  get isEnabled() {
-    return this.sw.isEnabled;
-  }
-  constructor(sw) {
-    this.sw = sw;
-    if (!sw.isEnabled) {
-      this.versionUpdates = NEVER;
-      this.unrecoverable = NEVER;
-      return;
-    }
-    this.versionUpdates = this.sw.eventsOfType(["VERSION_DETECTED", "VERSION_INSTALLATION_FAILED", "VERSION_READY", "NO_NEW_VERSION_DETECTED"]);
-    this.unrecoverable = this.sw.eventsOfType("UNRECOVERABLE_STATE");
-  }
-  /**
-   * Checks for an update and waits until the new version is downloaded from the server and ready
-   * for activation.
-   *
-   * @returns a promise that
-   * - resolves to `true` if a new version was found and is ready to be activated.
-   * - resolves to `false` if no new version was found
-   * - rejects if any error occurs
-   */
-  checkForUpdate() {
-    if (!this.sw.isEnabled) {
-      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
-    }
-    const nonce = this.sw.generateNonce();
-    return this.sw.postMessageWithOperation("CHECK_FOR_UPDATES", {
-      nonce
-    }, nonce);
-  }
-  /**
-   * Updates the current client (i.e. browser tab) to the latest version that is ready for
-   * activation.
-   *
-   * In most cases, you should not use this method and instead should update a client by reloading
-   * the page.
-   *
-   * <div class="alert is-important">
-   *
-   * Updating a client without reloading can easily result in a broken application due to a version
-   * mismatch between the application shell and other page resources,
-   * such as lazy-loaded chunks, whose filenames may change between
-   * versions.
-   *
-   * Only use this method, if you are certain it is safe for your specific use case.
-   *
-   * </div>
-   *
-   * @returns a promise that
-   *  - resolves to `true` if an update was activated successfully
-   *  - resolves to `false` if no update was available (for example, the client was already on the
-   *    latest version).
-   *  - rejects if any error occurs
-   */
-  activateUpdate() {
-    if (!this.sw.isEnabled) {
-      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
-    }
-    const nonce = this.sw.generateNonce();
-    return this.sw.postMessageWithOperation("ACTIVATE_UPDATE", {
-      nonce
-    }, nonce);
-  }
-};
-_SwUpdate.\u0275fac = function SwUpdate_Factory(t) {
-  return new (t || _SwUpdate)(\u0275\u0275inject(NgswCommChannel));
-};
-_SwUpdate.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
-  token: _SwUpdate,
-  factory: _SwUpdate.\u0275fac
-});
-var SwUpdate = _SwUpdate;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SwUpdate, [{
-    type: Injectable
-  }], () => [{
-    type: NgswCommChannel
-  }], null);
-})();
-var SCRIPT = new InjectionToken(ngDevMode ? "NGSW_REGISTER_SCRIPT" : "");
-function ngswAppInitializer(injector, script, options, platformId) {
-  return () => {
-    if (!(isPlatformBrowser2(platformId) && "serviceWorker" in navigator && options.enabled !== false)) {
-      return;
-    }
-    const ngZone = injector.get(NgZone);
-    const appRef = injector.get(ApplicationRef);
-    ngZone.runOutsideAngular(() => {
-      const sw = navigator.serviceWorker;
-      const onControllerChange = () => sw.controller?.postMessage({
-        action: "INITIALIZE"
-      });
-      sw.addEventListener("controllerchange", onControllerChange);
-      appRef.onDestroy(() => {
-        sw.removeEventListener("controllerchange", onControllerChange);
-      });
-    });
-    let readyToRegister$;
-    if (typeof options.registrationStrategy === "function") {
-      readyToRegister$ = options.registrationStrategy();
-    } else {
-      const [strategy, ...args] = (options.registrationStrategy || "registerWhenStable:30000").split(":");
-      switch (strategy) {
-        case "registerImmediately":
-          readyToRegister$ = of(null);
-          break;
-        case "registerWithDelay":
-          readyToRegister$ = delayWithTimeout(+args[0] || 0);
-          break;
-        case "registerWhenStable":
-          readyToRegister$ = !args[0] ? whenStable2(injector) : merge(whenStable2(injector), delayWithTimeout(+args[0]));
-          break;
-        default:
-          throw new Error(`Unknown ServiceWorker registration strategy: ${options.registrationStrategy}`);
-      }
-    }
-    ngZone.runOutsideAngular(() => readyToRegister$.pipe(take(1)).subscribe(() => navigator.serviceWorker.register(script, {
-      scope: options.scope
-    }).catch((err) => console.error("Service worker registration failed with:", err))));
-  };
-}
-function delayWithTimeout(timeout) {
-  return of(null).pipe(delay(timeout));
-}
-function whenStable2(injector) {
-  const appRef = injector.get(ApplicationRef);
-  return appRef.isStable.pipe(filter((stable) => stable));
-}
-function ngswCommChannelFactory(opts, platformId) {
-  return new NgswCommChannel(isPlatformBrowser2(platformId) && opts.enabled !== false ? navigator.serviceWorker : void 0);
-}
-var SwRegistrationOptions = class {
-};
-function provideServiceWorker(script, options = {}) {
-  return makeEnvironmentProviders([SwPush, SwUpdate, {
-    provide: SCRIPT,
-    useValue: script
-  }, {
-    provide: SwRegistrationOptions,
-    useValue: options
-  }, {
-    provide: NgswCommChannel,
-    useFactory: ngswCommChannelFactory,
-    deps: [SwRegistrationOptions, PLATFORM_ID]
-  }, {
-    provide: APP_INITIALIZER,
-    useFactory: ngswAppInitializer,
-    deps: [Injector, SCRIPT, SwRegistrationOptions, PLATFORM_ID],
-    multi: true
-  }]);
-}
-var _ServiceWorkerModule = class _ServiceWorkerModule {
-  /**
-   * Register the given Angular Service Worker script.
-   *
-   * If `enabled` is set to `false` in the given options, the module will behave as if service
-   * workers are not supported by the browser, and the service worker will not be registered.
-   */
-  static register(script, options = {}) {
-    return {
-      ngModule: _ServiceWorkerModule,
-      providers: [provideServiceWorker(script, options)]
-    };
-  }
-};
-_ServiceWorkerModule.\u0275fac = function ServiceWorkerModule_Factory(t) {
-  return new (t || _ServiceWorkerModule)();
-};
-_ServiceWorkerModule.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
-  type: _ServiceWorkerModule
-});
-_ServiceWorkerModule.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
-  providers: [SwPush, SwUpdate]
-});
-var ServiceWorkerModule = _ServiceWorkerModule;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ServiceWorkerModule, [{
-    type: NgModule,
-    args: [{
-      providers: [SwPush, SwUpdate]
-    }]
-  }], null, null);
-})();
-
-// src/app/app.config.ts
-var appConfig = {
-  providers: [
-    provideRouter(routes),
-    importProvidersFrom(HttpClientModule),
-    provideAnimations(),
-    CookieService,
-    provideHttpClient(withInterceptors([laravelInterceptor])),
-    provideServiceWorker("ngsw-worker.js", {
-      enabled: !isDevMode(),
-      registrationStrategy: "registerWhenStable:30000"
-    })
-  ]
-};
-
-// node_modules/uuid/dist/esm-browser/stringify.js
-var byteToHex = [];
-for (i = 0; i < 256; ++i) {
-  byteToHex.push((i + 256).toString(16).slice(1));
-}
-var i;
-function unsafeStringify(arr, offset = 0) {
-  return (byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + "-" + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + "-" + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + "-" + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + "-" + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]]).toLowerCase();
-}
-
-// node_modules/uuid/dist/esm-browser/rng.js
-var getRandomValues;
-var rnds8 = new Uint8Array(16);
-function rng() {
-  if (!getRandomValues) {
-    getRandomValues = typeof crypto !== "undefined" && crypto.getRandomValues && crypto.getRandomValues.bind(crypto);
-    if (!getRandomValues) {
-      throw new Error("crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported");
-    }
-  }
-  return getRandomValues(rnds8);
-}
-
-// node_modules/uuid/dist/esm-browser/native.js
-var randomUUID = typeof crypto !== "undefined" && crypto.randomUUID && crypto.randomUUID.bind(crypto);
-var native_default = {
-  randomUUID
-};
-
-// node_modules/uuid/dist/esm-browser/v4.js
-function v4(options, buf, offset) {
-  if (native_default.randomUUID && !buf && !options) {
-    return native_default.randomUUID();
-  }
-  options = options || {};
-  var rnds = options.random || (options.rng || rng)();
-  rnds[6] = rnds[6] & 15 | 64;
-  rnds[8] = rnds[8] & 63 | 128;
-  if (buf) {
-    offset = offset || 0;
-    for (var i = 0; i < 16; ++i) {
-      buf[offset + i] = rnds[i];
-    }
-    return buf;
-  }
-  return unsafeStringify(rnds);
-}
-var v4_default = v4;
-
-// node_modules/@angular/material/fesm2022/badge.mjs
-var nextId2 = 0;
-var BADGE_CONTENT_CLASS = "mat-badge-content";
-var badgeApps = /* @__PURE__ */ new Set();
-var __MatBadgeStyleLoader = class __MatBadgeStyleLoader {
-};
-__MatBadgeStyleLoader.\u0275fac = function _MatBadgeStyleLoader_Factory(t) {
-  return new (t || __MatBadgeStyleLoader)();
-};
-__MatBadgeStyleLoader.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
-  type: __MatBadgeStyleLoader,
-  selectors: [["ng-component"]],
-  standalone: true,
-  features: [\u0275\u0275StandaloneFeature],
-  decls: 0,
-  vars: 0,
-  template: function _MatBadgeStyleLoader_Template(rf, ctx) {
-  },
-  styles: [".mat-badge{position:relative}.mat-badge.mat-badge{overflow:visible}.mat-badge-content{position:absolute;text-align:center;display:inline-block;transition:transform 200ms ease-in-out;transform:scale(0.6);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;box-sizing:border-box;pointer-events:none;background-color:var(--mat-badge-background-color);color:var(--mat-badge-text-color);font-family:var(--mat-badge-text-font);font-weight:var(--mat-badge-text-weight);border-radius:var(--mat-badge-container-shape)}.cdk-high-contrast-active .mat-badge-content{outline:solid 1px;border-radius:0}.mat-badge-above .mat-badge-content{bottom:100%}.mat-badge-below .mat-badge-content{top:100%}.mat-badge-before .mat-badge-content{right:100%}[dir=rtl] .mat-badge-before .mat-badge-content{right:auto;left:100%}.mat-badge-after .mat-badge-content{left:100%}[dir=rtl] .mat-badge-after .mat-badge-content{left:auto;right:100%}.mat-badge-disabled .mat-badge-content{background-color:var(--mat-badge-disabled-state-background-color);color:var(--mat-badge-disabled-state-text-color)}.mat-badge-hidden .mat-badge-content{display:none}.ng-animate-disabled .mat-badge-content,.mat-badge-content._mat-animation-noopable{transition:none}.mat-badge-content.mat-badge-active{transform:none}.mat-badge-small .mat-badge-content{width:var(--mat-badge-legacy-small-size-container-size, unset);height:var(--mat-badge-legacy-small-size-container-size, unset);min-width:var(--mat-badge-small-size-container-size, unset);min-height:var(--mat-badge-small-size-container-size, unset);line-height:var(--mat-badge-legacy-small-size-container-size, var(--mat-badge-small-size-container-size));padding:var(--mat-badge-small-size-container-padding);font-size:var(--mat-badge-small-size-text-size);margin:var(--mat-badge-small-size-container-offset)}.mat-badge-small.mat-badge-overlap .mat-badge-content{margin:var(--mat-badge-small-size-container-overlap-offset)}.mat-badge-medium .mat-badge-content{width:var(--mat-badge-legacy-container-size, unset);height:var(--mat-badge-legacy-container-size, unset);min-width:var(--mat-badge-container-size, unset);min-height:var(--mat-badge-container-size, unset);line-height:var(--mat-badge-legacy-container-size, var(--mat-badge-container-size));padding:var(--mat-badge-container-padding);font-size:var(--mat-badge-text-size);margin:var(--mat-badge-container-offset)}.mat-badge-medium.mat-badge-overlap .mat-badge-content{margin:var(--mat-badge-container-overlap-offset)}.mat-badge-large .mat-badge-content{width:var(--mat-badge-legacy-large-size-container-size, unset);height:var(--mat-badge-legacy-large-size-container-size, unset);min-width:var(--mat-badge-large-size-container-size, unset);min-height:var(--mat-badge-large-size-container-size, unset);line-height:var(--mat-badge-legacy-large-size-container-size, var(--mat-badge-large-size-container-size));padding:var(--mat-badge-large-size-container-padding);font-size:var(--mat-badge-large-size-text-size);margin:var(--mat-badge-large-size-container-offset)}.mat-badge-large.mat-badge-overlap .mat-badge-content{margin:var(--mat-badge-large-size-container-overlap-offset)}"],
-  encapsulation: 2,
-  changeDetection: 0
-});
-var _MatBadgeStyleLoader = __MatBadgeStyleLoader;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(_MatBadgeStyleLoader, [{
-    type: Component,
-    args: [{
-      standalone: true,
-      encapsulation: ViewEncapsulation$1.None,
-      template: "",
-      changeDetection: ChangeDetectionStrategy.OnPush,
-      styles: [".mat-badge{position:relative}.mat-badge.mat-badge{overflow:visible}.mat-badge-content{position:absolute;text-align:center;display:inline-block;transition:transform 200ms ease-in-out;transform:scale(0.6);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;box-sizing:border-box;pointer-events:none;background-color:var(--mat-badge-background-color);color:var(--mat-badge-text-color);font-family:var(--mat-badge-text-font);font-weight:var(--mat-badge-text-weight);border-radius:var(--mat-badge-container-shape)}.cdk-high-contrast-active .mat-badge-content{outline:solid 1px;border-radius:0}.mat-badge-above .mat-badge-content{bottom:100%}.mat-badge-below .mat-badge-content{top:100%}.mat-badge-before .mat-badge-content{right:100%}[dir=rtl] .mat-badge-before .mat-badge-content{right:auto;left:100%}.mat-badge-after .mat-badge-content{left:100%}[dir=rtl] .mat-badge-after .mat-badge-content{left:auto;right:100%}.mat-badge-disabled .mat-badge-content{background-color:var(--mat-badge-disabled-state-background-color);color:var(--mat-badge-disabled-state-text-color)}.mat-badge-hidden .mat-badge-content{display:none}.ng-animate-disabled .mat-badge-content,.mat-badge-content._mat-animation-noopable{transition:none}.mat-badge-content.mat-badge-active{transform:none}.mat-badge-small .mat-badge-content{width:var(--mat-badge-legacy-small-size-container-size, unset);height:var(--mat-badge-legacy-small-size-container-size, unset);min-width:var(--mat-badge-small-size-container-size, unset);min-height:var(--mat-badge-small-size-container-size, unset);line-height:var(--mat-badge-legacy-small-size-container-size, var(--mat-badge-small-size-container-size));padding:var(--mat-badge-small-size-container-padding);font-size:var(--mat-badge-small-size-text-size);margin:var(--mat-badge-small-size-container-offset)}.mat-badge-small.mat-badge-overlap .mat-badge-content{margin:var(--mat-badge-small-size-container-overlap-offset)}.mat-badge-medium .mat-badge-content{width:var(--mat-badge-legacy-container-size, unset);height:var(--mat-badge-legacy-container-size, unset);min-width:var(--mat-badge-container-size, unset);min-height:var(--mat-badge-container-size, unset);line-height:var(--mat-badge-legacy-container-size, var(--mat-badge-container-size));padding:var(--mat-badge-container-padding);font-size:var(--mat-badge-text-size);margin:var(--mat-badge-container-offset)}.mat-badge-medium.mat-badge-overlap .mat-badge-content{margin:var(--mat-badge-container-overlap-offset)}.mat-badge-large .mat-badge-content{width:var(--mat-badge-legacy-large-size-container-size, unset);height:var(--mat-badge-legacy-large-size-container-size, unset);min-width:var(--mat-badge-large-size-container-size, unset);min-height:var(--mat-badge-large-size-container-size, unset);line-height:var(--mat-badge-legacy-large-size-container-size, var(--mat-badge-large-size-container-size));padding:var(--mat-badge-large-size-container-padding);font-size:var(--mat-badge-large-size-text-size);margin:var(--mat-badge-large-size-container-offset)}.mat-badge-large.mat-badge-overlap .mat-badge-content{margin:var(--mat-badge-large-size-container-overlap-offset)}"]
-    }]
-  }], null, null);
-})();
-var _MatBadge = class _MatBadge {
-  /**
-   * The color of the badge. Can be `primary`, `accent`, or `warn`.
-   * Not recommended in M3, for more information see https://material.angular.io/guide/material-2-theming#optional-add-backwards-compatibility-styles-for-color-variants.
-   */
-  get color() {
-    return this._color;
-  }
-  set color(value) {
-    this._setColor(value);
-    this._color = value;
-  }
-  /** The content for the badge */
-  get content() {
-    return this._content;
-  }
-  set content(newContent) {
-    this._updateRenderedContent(newContent);
-  }
-  /** Message used to describe the decorated element via aria-describedby */
-  get description() {
-    return this._description;
-  }
-  set description(newDescription) {
-    this._updateDescription(newDescription);
-  }
-  constructor(_ngZone, _elementRef, _ariaDescriber, _renderer, _animationMode) {
-    this._ngZone = _ngZone;
-    this._elementRef = _elementRef;
-    this._ariaDescriber = _ariaDescriber;
-    this._renderer = _renderer;
-    this._animationMode = _animationMode;
-    this._color = "primary";
-    this.overlap = true;
-    this.position = "above after";
-    this.size = "medium";
-    this._id = nextId2++;
-    this._isInitialized = false;
-    this._interactivityChecker = inject(InteractivityChecker);
-    this._document = inject(DOCUMENT2);
-    const appRef = inject(ApplicationRef);
-    if (!badgeApps.has(appRef)) {
-      badgeApps.add(appRef);
-      const componentRef = createComponent(_MatBadgeStyleLoader, {
-        environmentInjector: inject(EnvironmentInjector)
-      });
-      appRef.onDestroy(() => {
-        badgeApps.delete(appRef);
-        if (badgeApps.size === 0) {
-          componentRef.destroy();
-        }
-      });
-    }
-    if (typeof ngDevMode === "undefined" || ngDevMode) {
-      const nativeElement = _elementRef.nativeElement;
-      if (nativeElement.nodeType !== nativeElement.ELEMENT_NODE) {
-        throw Error("matBadge must be attached to an element node.");
-      }
-      const matIconTagName = "mat-icon";
-      if (nativeElement.tagName.toLowerCase() === matIconTagName && nativeElement.getAttribute("aria-hidden") === "true") {
-        console.warn(`Detected a matBadge on an "aria-hidden" "<mat-icon>". Consider setting aria-hidden="false" in order to surface the information assistive technology.
-${nativeElement.outerHTML}`);
-      }
-    }
-  }
-  /** Whether the badge is above the host or not */
-  isAbove() {
-    return this.position.indexOf("below") === -1;
-  }
-  /** Whether the badge is after the host or not */
-  isAfter() {
-    return this.position.indexOf("before") === -1;
-  }
-  /**
-   * Gets the element into which the badge's content is being rendered. Undefined if the element
-   * hasn't been created (e.g. if the badge doesn't have content).
-   */
-  getBadgeElement() {
-    return this._badgeElement;
-  }
-  ngOnInit() {
-    this._clearExistingBadges();
-    if (this.content && !this._badgeElement) {
-      this._badgeElement = this._createBadgeElement();
-      this._updateRenderedContent(this.content);
-    }
-    this._isInitialized = true;
-  }
-  ngOnDestroy() {
-    if (this._renderer.destroyNode) {
-      this._renderer.destroyNode(this._badgeElement);
-      this._inlineBadgeDescription?.remove();
-    }
-    this._ariaDescriber.removeDescription(this._elementRef.nativeElement, this.description);
-  }
-  /** Gets whether the badge's host element is interactive. */
-  _isHostInteractive() {
-    return this._interactivityChecker.isFocusable(this._elementRef.nativeElement, {
-      ignoreVisibility: true
-    });
-  }
-  /** Creates the badge element */
-  _createBadgeElement() {
-    const badgeElement = this._renderer.createElement("span");
-    const activeClass = "mat-badge-active";
-    badgeElement.setAttribute("id", `mat-badge-content-${this._id}`);
-    badgeElement.setAttribute("aria-hidden", "true");
-    badgeElement.classList.add(BADGE_CONTENT_CLASS);
-    if (this._animationMode === "NoopAnimations") {
-      badgeElement.classList.add("_mat-animation-noopable");
-    }
-    this._elementRef.nativeElement.appendChild(badgeElement);
-    if (typeof requestAnimationFrame === "function" && this._animationMode !== "NoopAnimations") {
-      this._ngZone.runOutsideAngular(() => {
-        requestAnimationFrame(() => {
-          badgeElement.classList.add(activeClass);
-        });
-      });
-    } else {
-      badgeElement.classList.add(activeClass);
-    }
-    return badgeElement;
-  }
-  /** Update the text content of the badge element in the DOM, creating the element if necessary. */
-  _updateRenderedContent(newContent) {
-    const newContentNormalized = `${newContent ?? ""}`.trim();
-    if (this._isInitialized && newContentNormalized && !this._badgeElement) {
-      this._badgeElement = this._createBadgeElement();
-    }
-    if (this._badgeElement) {
-      this._badgeElement.textContent = newContentNormalized;
-    }
-    this._content = newContentNormalized;
-  }
-  /** Updates the host element's aria description via AriaDescriber. */
-  _updateDescription(newDescription) {
-    this._ariaDescriber.removeDescription(this._elementRef.nativeElement, this.description);
-    if (!newDescription || this._isHostInteractive()) {
-      this._removeInlineDescription();
-    }
-    this._description = newDescription;
-    if (this._isHostInteractive()) {
-      this._ariaDescriber.describe(this._elementRef.nativeElement, newDescription);
-    } else {
-      this._updateInlineDescription();
-    }
-  }
-  _updateInlineDescription() {
-    if (!this._inlineBadgeDescription) {
-      this._inlineBadgeDescription = this._document.createElement("span");
-      this._inlineBadgeDescription.classList.add("cdk-visually-hidden");
-    }
-    this._inlineBadgeDescription.textContent = this.description;
-    this._badgeElement?.appendChild(this._inlineBadgeDescription);
-  }
-  _removeInlineDescription() {
-    this._inlineBadgeDescription?.remove();
-    this._inlineBadgeDescription = void 0;
-  }
-  /** Adds css theme class given the color to the component host */
-  _setColor(colorPalette) {
-    const classList = this._elementRef.nativeElement.classList;
-    classList.remove(`mat-badge-${this._color}`);
-    if (colorPalette) {
-      classList.add(`mat-badge-${colorPalette}`);
-    }
-  }
-  /** Clears any existing badges that might be left over from server-side rendering. */
-  _clearExistingBadges() {
-    const badges = this._elementRef.nativeElement.querySelectorAll(`:scope > .${BADGE_CONTENT_CLASS}`);
-    for (const badgeElement of Array.from(badges)) {
-      if (badgeElement !== this._badgeElement) {
-        badgeElement.remove();
-      }
-    }
-  }
-};
-_MatBadge.\u0275fac = function MatBadge_Factory(t) {
-  return new (t || _MatBadge)(\u0275\u0275directiveInject(NgZone), \u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(AriaDescriber), \u0275\u0275directiveInject(Renderer2), \u0275\u0275directiveInject(ANIMATION_MODULE_TYPE, 8));
-};
-_MatBadge.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-  type: _MatBadge,
-  selectors: [["", "matBadge", ""]],
-  hostAttrs: [1, "mat-badge"],
-  hostVars: 20,
-  hostBindings: function MatBadge_HostBindings(rf, ctx) {
-    if (rf & 2) {
-      \u0275\u0275classProp("mat-badge-overlap", ctx.overlap)("mat-badge-above", ctx.isAbove())("mat-badge-below", !ctx.isAbove())("mat-badge-before", !ctx.isAfter())("mat-badge-after", ctx.isAfter())("mat-badge-small", ctx.size === "small")("mat-badge-medium", ctx.size === "medium")("mat-badge-large", ctx.size === "large")("mat-badge-hidden", ctx.hidden || !ctx.content)("mat-badge-disabled", ctx.disabled);
-    }
-  },
-  inputs: {
-    color: [0, "matBadgeColor", "color"],
-    overlap: [2, "matBadgeOverlap", "overlap", booleanAttribute],
-    disabled: [2, "matBadgeDisabled", "disabled", booleanAttribute],
-    position: [0, "matBadgePosition", "position"],
-    content: [0, "matBadge", "content"],
-    description: [0, "matBadgeDescription", "description"],
-    size: [0, "matBadgeSize", "size"],
-    hidden: [2, "matBadgeHidden", "hidden", booleanAttribute]
-  },
-  standalone: true,
-  features: [\u0275\u0275InputTransformsFeature]
-});
-var MatBadge = _MatBadge;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatBadge, [{
-    type: Directive,
-    args: [{
-      selector: "[matBadge]",
-      host: {
-        "class": "mat-badge",
-        "[class.mat-badge-overlap]": "overlap",
-        "[class.mat-badge-above]": "isAbove()",
-        "[class.mat-badge-below]": "!isAbove()",
-        "[class.mat-badge-before]": "!isAfter()",
-        "[class.mat-badge-after]": "isAfter()",
-        "[class.mat-badge-small]": 'size === "small"',
-        "[class.mat-badge-medium]": 'size === "medium"',
-        "[class.mat-badge-large]": 'size === "large"',
-        "[class.mat-badge-hidden]": "hidden || !content",
-        "[class.mat-badge-disabled]": "disabled"
-      },
-      standalone: true
-    }]
-  }], () => [{
-    type: NgZone
-  }, {
-    type: ElementRef
-  }, {
-    type: AriaDescriber
-  }, {
-    type: Renderer2
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Optional
-    }, {
-      type: Inject,
-      args: [ANIMATION_MODULE_TYPE]
-    }]
-  }], {
-    color: [{
-      type: Input,
-      args: ["matBadgeColor"]
-    }],
-    overlap: [{
-      type: Input,
-      args: [{
-        alias: "matBadgeOverlap",
-        transform: booleanAttribute
-      }]
-    }],
-    disabled: [{
-      type: Input,
-      args: [{
-        alias: "matBadgeDisabled",
-        transform: booleanAttribute
-      }]
-    }],
-    position: [{
-      type: Input,
-      args: ["matBadgePosition"]
-    }],
-    content: [{
-      type: Input,
-      args: ["matBadge"]
-    }],
-    description: [{
-      type: Input,
-      args: ["matBadgeDescription"]
-    }],
-    size: [{
-      type: Input,
-      args: ["matBadgeSize"]
-    }],
-    hidden: [{
-      type: Input,
-      args: [{
-        alias: "matBadgeHidden",
-        transform: booleanAttribute
-      }]
-    }]
-  });
-})();
-var _MatBadgeModule = class _MatBadgeModule {
-};
-_MatBadgeModule.\u0275fac = function MatBadgeModule_Factory(t) {
-  return new (t || _MatBadgeModule)();
-};
-_MatBadgeModule.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
-  type: _MatBadgeModule
-});
-_MatBadgeModule.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
-  imports: [A11yModule, MatCommonModule, MatCommonModule]
-});
-var MatBadgeModule = _MatBadgeModule;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatBadgeModule, [{
-    type: NgModule,
-    args: [{
-      // Note: we _shouldn't_ have to import `_MatBadgeStyleLoader`,
-      // but it seems to be necessary for tests.
-      imports: [A11yModule, MatCommonModule, MatBadge, _MatBadgeStyleLoader],
-      exports: [MatBadge, MatCommonModule]
-    }]
-  }], null, null);
-})();
-
-// node_modules/@angular/material/fesm2022/chips.mjs
-var _c06 = ["*", [["mat-chip-avatar"], ["", "matChipAvatar", ""]], [["mat-chip-trailing-icon"], ["", "matChipRemove", ""], ["", "matChipTrailingIcon", ""]]];
-var _c14 = ["*", "mat-chip-avatar, [matChipAvatar]", "mat-chip-trailing-icon,[matChipRemove],[matChipTrailingIcon]"];
-function MatChip_Conditional_3_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 3);
-    \u0275\u0275projection(1, 1);
-    \u0275\u0275elementEnd();
-  }
-}
-function MatChip_Conditional_7_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 6);
-    \u0275\u0275projection(1, 2);
-    \u0275\u0275elementEnd();
-  }
-}
-function MatChipOption_Conditional_3_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 3);
-    \u0275\u0275projection(1, 1);
-    \u0275\u0275elementStart(2, "span", 8);
-    \u0275\u0275namespaceSVG();
-    \u0275\u0275elementStart(3, "svg", 9);
-    \u0275\u0275element(4, "path", 10);
-    \u0275\u0275elementEnd()()();
-  }
-}
-function MatChipOption_Conditional_7_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 6);
-    \u0275\u0275projection(1, 2);
-    \u0275\u0275elementEnd();
-  }
-}
-var _c24 = '.mdc-evolution-chip,.mdc-evolution-chip__cell,.mdc-evolution-chip__action{display:inline-flex;align-items:center}.mdc-evolution-chip{position:relative;max-width:100%}.mdc-evolution-chip .mdc-elevation-overlay{width:100%;height:100%;top:0;left:0}.mdc-evolution-chip__cell,.mdc-evolution-chip__action{height:100%}.mdc-evolution-chip__cell--primary{overflow-x:hidden}.mdc-evolution-chip__cell--trailing{flex:1 0 auto}.mdc-evolution-chip__action{align-items:center;background:none;border:none;box-sizing:content-box;cursor:pointer;display:inline-flex;justify-content:center;outline:none;padding:0;text-decoration:none;color:inherit}.mdc-evolution-chip__action--presentational{cursor:auto}.mdc-evolution-chip--disabled,.mdc-evolution-chip__action:disabled{pointer-events:none}.mdc-evolution-chip__action--primary{overflow-x:hidden}.mdc-evolution-chip__action--trailing{position:relative;overflow:visible}.mdc-evolution-chip__action--primary:before{box-sizing:border-box;content:"";height:100%;left:0;position:absolute;pointer-events:none;top:0;width:100%;z-index:1}.mdc-evolution-chip--touch{margin-top:8px;margin-bottom:8px}.mdc-evolution-chip__action-touch{position:absolute;top:50%;height:48px;left:0;right:0;transform:translateY(-50%)}.mdc-evolution-chip__text-label{white-space:nowrap;user-select:none;text-overflow:ellipsis;overflow:hidden}.mdc-evolution-chip__graphic{align-items:center;display:inline-flex;justify-content:center;overflow:hidden;pointer-events:none;position:relative;flex:1 0 auto}.mdc-evolution-chip__checkmark{position:absolute;opacity:0;top:50%;left:50%}.mdc-evolution-chip--selectable:not(.mdc-evolution-chip--selected):not(.mdc-evolution-chip--with-primary-icon) .mdc-evolution-chip__graphic{width:0}.mdc-evolution-chip__checkmark-background{opacity:0}.mdc-evolution-chip__checkmark-svg{display:block}.mdc-evolution-chip__checkmark-path{stroke-width:2px;stroke-dasharray:29.7833385;stroke-dashoffset:29.7833385;stroke:currentColor}.mdc-evolution-chip--selecting .mdc-evolution-chip__graphic{transition:width 150ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--selecting .mdc-evolution-chip__checkmark{transition:transform 150ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-75%, -50%)}.mdc-evolution-chip--selecting .mdc-evolution-chip__checkmark-path{transition:stroke-dashoffset 150ms 45ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__graphic{transition:width 100ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__checkmark{transition:opacity 50ms 0ms linear,transform 100ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-75%, -50%)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}.mdc-evolution-chip--selecting-with-primary-icon .mdc-evolution-chip__icon--primary{transition:opacity 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--selecting-with-primary-icon .mdc-evolution-chip__checkmark-path{transition:stroke-dashoffset 150ms 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__icon--primary{transition:opacity 150ms 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__checkmark{transition:opacity 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-50%, -50%)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}.mdc-evolution-chip--selected .mdc-evolution-chip__icon--primary{opacity:0}.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark{transform:translate(-50%, -50%);opacity:1}.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}@keyframes mdc-evolution-chip-enter{from{transform:scale(0.8);opacity:.4}to{transform:scale(1);opacity:1}}.mdc-evolution-chip--enter{animation:mdc-evolution-chip-enter 100ms 0ms cubic-bezier(0, 0, 0.2, 1)}@keyframes mdc-evolution-chip-exit{from{opacity:1}to{opacity:0}}.mdc-evolution-chip--exit{animation:mdc-evolution-chip-exit 75ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mdc-evolution-chip--hidden{opacity:0;pointer-events:none;transition:width 150ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mat-mdc-standard-chip{border-radius:var(--mdc-chip-container-shape-radius);height:var(--mdc-chip-container-height)}.mat-mdc-standard-chip .mdc-evolution-chip__ripple{border-radius:var(--mdc-chip-container-shape-radius)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-radius:var(--mdc-chip-container-shape-radius)}.mat-mdc-standard-chip .mdc-evolution-chip__icon--primary{border-radius:var(--mdc-chip-with-avatar-avatar-shape-radius)}.mat-mdc-standard-chip.mdc-evolution-chip--selectable:not(.mdc-evolution-chip--with-primary-icon){--mdc-chip-graphic-selected-width:var(--mdc-chip-with-avatar-avatar-size)}.mat-mdc-standard-chip .mdc-evolution-chip__graphic{height:var(--mdc-chip-with-avatar-avatar-size);width:var(--mdc-chip-with-avatar-avatar-size);font-size:var(--mdc-chip-with-avatar-avatar-size)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__action--primary:before{border-color:var(--mdc-chip-outline-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-evolution-chip__action--presentational).mdc-ripple-upgraded--background-focused:before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-evolution-chip__action--presentational):not(.mdc-ripple-upgraded):focus:before{border-color:var(--mdc-chip-focus-outline-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__action--primary:before{border-color:var(--mdc-chip-disabled-outline-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-width:var(--mdc-chip-outline-width)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:before{border-width:var(--mdc-chip-flat-selected-outline-width)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled){background-color:var(--mdc-chip-elevated-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-elevated-disabled-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected:not(.mdc-evolution-chip--disabled){background-color:var(--mdc-chip-elevated-selected-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-elevated-disabled-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-flat-disabled-selected-container-color)}.mat-mdc-standard-chip .mdc-evolution-chip__text-label{font-family:var(--mdc-chip-label-text-font);line-height:var(--mdc-chip-label-text-line-height);font-size:var(--mdc-chip-label-text-size);font-weight:var(--mdc-chip-label-text-weight);letter-spacing:var(--mdc-chip-label-text-tracking)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label{color:var(--mdc-chip-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__text-label{color:var(--mdc-chip-disabled-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label{color:var(--mdc-chip-selected-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled .mdc-evolution-chip__text-label{color:var(--mdc-chip-disabled-label-text-color)}.mat-mdc-standard-chip .mdc-evolution-chip__icon--primary{height:var(--mdc-chip-with-icon-icon-size);width:var(--mdc-chip-with-icon-icon-size);font-size:var(--mdc-chip-with-icon-icon-size)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__icon--primary{color:var(--mdc-chip-with-icon-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--primary{color:var(--mdc-chip-with-icon-disabled-icon-color)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__checkmark{color:var(--mdc-chip-with-icon-selected-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__checkmark{color:var(--mdc-chip-with-icon-disabled-icon-color)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__icon--trailing{color:var(--mdc-chip-with-trailing-icon-trailing-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{color:var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::after{background-color:var(--mdc-chip-hover-state-layer-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:hover .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary.mdc-ripple-surface--hover .mdc-evolution-chip__ripple::before{opacity:var(--mdc-chip-hover-state-layer-opacity)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary.mdc-ripple-upgraded--background-focused .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-ripple-upgraded):focus .mdc-evolution-chip__ripple::before{transition-duration:75ms;opacity:var(--mdc-chip-focus-state-layer-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::after{background-color:var(--mdc-chip-selected-hover-state-layer-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:hover .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary.mdc-ripple-surface--hover .mdc-evolution-chip__ripple::before{opacity:var(--mdc-chip-selected-hover-state-layer-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary.mdc-ripple-upgraded--background-focused .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:not(.mdc-ripple-upgraded):focus .mdc-evolution-chip__ripple::before{transition-duration:75ms;opacity:var(--mdc-chip-selected-focus-state-layer-opacity)}.mat-mdc-chip-highlighted{--mdc-chip-with-icon-icon-color:var(--mdc-chip-with-icon-selected-icon-color);--mdc-chip-elevated-container-color:var(--mdc-chip-elevated-selected-container-color);--mdc-chip-label-text-color:var(--mdc-chip-selected-label-text-color);--mdc-chip-outline-width:var(--mdc-chip-flat-selected-outline-width)}.mat-mdc-chip-focus-overlay{background:var(--mdc-chip-focus-state-layer-color)}.mat-mdc-chip-selected .mat-mdc-chip-focus-overlay,.mat-mdc-chip-highlighted .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-focus-state-layer-color)}.mat-mdc-chip:hover .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-hover-state-layer-color);opacity:var(--mdc-chip-hover-state-layer-opacity)}.mat-mdc-chip-focus-overlay .mat-mdc-chip-selected:hover,.mat-mdc-chip-highlighted:hover .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-hover-state-layer-color);opacity:var(--mdc-chip-selected-hover-state-layer-opacity)}.mat-mdc-chip.cdk-focused .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-focus-state-layer-color);opacity:var(--mdc-chip-focus-state-layer-opacity)}.mat-mdc-chip-selected.cdk-focused .mat-mdc-chip-focus-overlay,.mat-mdc-chip-highlighted.cdk-focused .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-focus-state-layer-color);opacity:var(--mdc-chip-selected-focus-state-layer-opacity)}.mdc-evolution-chip--disabled:not(.mdc-evolution-chip--selected) .mat-mdc-chip-avatar{opacity:var(--mdc-chip-with-avatar-disabled-avatar-opacity)}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{opacity:var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity)}.mdc-evolution-chip--disabled.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark{opacity:var(--mdc-chip-with-icon-disabled-icon-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled{opacity:var(--mat-chip-disabled-container-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__icon--trailing,.mat-mdc-standard-chip.mat-mdc-chip-highlighted .mdc-evolution-chip__icon--trailing{color:var(--mat-chip-selected-trailing-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing,.mat-mdc-standard-chip.mat-mdc-chip-highlighted.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{color:var(--mat-chip-selected-disabled-trailing-icon-color)}.mat-mdc-chip-remove{opacity:var(--mat-chip-trailing-action-opacity)}.mat-mdc-chip-remove:focus{opacity:var(--mat-chip-trailing-action-focus-opacity)}.mat-mdc-chip-remove::after{background:var(--mat-chip-trailing-action-state-layer-color)}.mat-mdc-chip-remove:hover::after{opacity:var(--mat-chip-trailing-action-hover-state-layer-opacity)}.mat-mdc-chip-remove:focus::after{opacity:var(--mat-chip-trailing-action-focus-state-layer-opacity)}.mat-mdc-chip-selected .mat-mdc-chip-remove::after,.mat-mdc-chip-highlighted .mat-mdc-chip-remove::after{background:var(--mat-chip-selected-trailing-action-state-layer-color)}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing.mat-mdc-chip-remove{opacity:calc(var(--mat-chip-trailing-action-opacity)*var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity))}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing.mat-mdc-chip-remove:focus{opacity:calc(var(--mat-chip-trailing-action-focus-opacity)*var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity))}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-style:solid}.mat-mdc-standard-chip .mdc-evolution-chip__checkmark{height:20px;width:20px}.mat-mdc-standard-chip .mdc-evolution-chip__icon--trailing{height:18px;width:18px;font-size:18px}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary{padding-left:12px;padding-right:12px}[dir=rtl] .mat-mdc-standard-chip .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:12px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic{padding-left:6px;padding-right:6px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic[dir=rtl]{padding-left:6px;padding-right:6px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary{padding-left:0;padding-right:12px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:0}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:12px;padding-right:0}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:12px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic{padding-left:6px;padding-right:6px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic[dir=rtl]{padding-left:6px;padding-right:6px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:0;padding-right:0}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:0}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic{padding-left:4px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic[dir=rtl]{padding-left:8px;padding-right:4px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary{padding-left:0;padding-right:12px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:0}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic{padding-left:4px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic[dir=rtl]{padding-left:8px;padding-right:4px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:0;padding-right:0}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:0}.mat-mdc-standard-chip{-webkit-tap-highlight-color:rgba(0,0,0,0)}.cdk-high-contrast-active .mat-mdc-standard-chip{outline:solid 1px}.cdk-high-contrast-active .mat-mdc-standard-chip .mdc-evolution-chip__checkmark-path{stroke:CanvasText !important}.mat-mdc-standard-chip .mdc-evolution-chip__cell--primary,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip .mat-mdc-chip-action-label{overflow:visible}.mat-mdc-standard-chip .mdc-evolution-chip__cell--primary{flex-basis:100%}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary{font:inherit;letter-spacing:inherit;white-space:inherit}.mat-mdc-standard-chip .mat-mdc-chip-graphic,.mat-mdc-standard-chip .mat-mdc-chip-trailing-icon{box-sizing:content-box}.mat-mdc-standard-chip._mat-animation-noopable,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__graphic,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__checkmark,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__checkmark-path{transition-duration:1ms;animation-duration:1ms}.mat-mdc-basic-chip .mdc-evolution-chip__action--primary{font:inherit}.mat-mdc-chip-focus-overlay{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none;opacity:0;border-radius:inherit;transition:opacity 150ms linear}._mat-animation-noopable .mat-mdc-chip-focus-overlay{transition:none}.mat-mdc-basic-chip .mat-mdc-chip-focus-overlay{display:none}.mat-mdc-chip .mat-ripple.mat-mdc-chip-ripple{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none;border-radius:inherit}.mat-mdc-chip-avatar{text-align:center;line-height:1;color:var(--mdc-chip-with-icon-icon-color, currentColor)}.mat-mdc-chip{position:relative;z-index:0}.mat-mdc-chip-action-label{text-align:left;z-index:1}[dir=rtl] .mat-mdc-chip-action-label{text-align:right}.mat-mdc-chip.mdc-evolution-chip--with-trailing-action .mat-mdc-chip-action-label{position:relative}.mat-mdc-chip-action-label .mat-mdc-chip-primary-focus-indicator{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none}.mat-mdc-chip-action-label .mat-mdc-focus-indicator::before{margin:calc(calc(var(--mat-mdc-focus-indicator-border-width, 3px) + 2px)*-1)}.mat-mdc-chip-remove::before{margin:calc(var(--mat-mdc-focus-indicator-border-width, 3px)*-1);left:8px;right:8px}.mat-mdc-chip-remove::after{content:"";display:block;opacity:0;position:absolute;top:-2px;bottom:-2px;left:6px;right:6px;border-radius:50%}.mat-mdc-chip-remove .mat-icon{width:18px;height:18px;font-size:18px;box-sizing:content-box}.mat-chip-edit-input{cursor:text;display:inline-block;color:inherit;outline:0}.cdk-high-contrast-active .mat-mdc-chip-selected:not(.mat-mdc-chip-multiple){outline-width:3px}.mat-mdc-chip-action:focus .mat-mdc-focus-indicator::before{content:""}';
-var _c34 = [[["mat-chip-avatar"], ["", "matChipAvatar", ""]], [["", "matChipEditInput", ""]], "*", [["mat-chip-trailing-icon"], ["", "matChipRemove", ""], ["", "matChipTrailingIcon", ""]]];
-var _c44 = ["mat-chip-avatar, [matChipAvatar]", "[matChipEditInput]", "*", "mat-chip-trailing-icon,[matChipRemove],[matChipTrailingIcon]"];
-function MatChipRow_Conditional_0_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275element(0, "span", 0);
-  }
-}
-function MatChipRow_Conditional_2_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 2);
-    \u0275\u0275projection(1);
-    \u0275\u0275elementEnd();
-  }
-}
-function MatChipRow_Conditional_4_Conditional_0_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275projection(0, 1);
-  }
-}
-function MatChipRow_Conditional_4_Conditional_1_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275element(0, "span", 7);
-  }
-}
-function MatChipRow_Conditional_4_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275template(0, MatChipRow_Conditional_4_Conditional_0_Template, 1, 0)(1, MatChipRow_Conditional_4_Conditional_1_Template, 1, 0, "span", 7);
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275conditional(ctx_r0.contentEditInput ? 0 : 1);
-  }
-}
-function MatChipRow_Conditional_5_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275projection(0, 2);
-  }
-}
-function MatChipRow_Conditional_7_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 5);
-    \u0275\u0275projection(1, 3);
-    \u0275\u0275elementEnd();
-  }
-}
-var _c54 = ["*"];
-var _c64 = ".mdc-evolution-chip-set{display:flex}.mdc-evolution-chip-set:focus{outline:none}.mdc-evolution-chip-set__chips{display:flex;flex-flow:wrap;min-width:0}.mdc-evolution-chip-set--overflow .mdc-evolution-chip-set__chips{flex-flow:nowrap}.mdc-evolution-chip-set .mdc-evolution-chip-set__chips{margin-left:-8px;margin-right:0}[dir=rtl] .mdc-evolution-chip-set .mdc-evolution-chip-set__chips,.mdc-evolution-chip-set .mdc-evolution-chip-set__chips[dir=rtl]{margin-left:0;margin-right:-8px}.mdc-evolution-chip-set .mdc-evolution-chip{margin-left:8px;margin-right:0}[dir=rtl] .mdc-evolution-chip-set .mdc-evolution-chip,.mdc-evolution-chip-set .mdc-evolution-chip[dir=rtl]{margin-left:0;margin-right:8px}.mdc-evolution-chip-set .mdc-evolution-chip{margin-top:4px;margin-bottom:4px}.mat-mdc-chip-set .mdc-evolution-chip-set__chips{min-width:100%}.mat-mdc-chip-set-stacked{flex-direction:column;align-items:flex-start}.mat-mdc-chip-set-stacked .mat-mdc-chip{width:100%}.mat-mdc-chip-set-stacked .mdc-evolution-chip__graphic{flex-grow:0}.mat-mdc-chip-set-stacked .mdc-evolution-chip__action--primary{flex-basis:100%;justify-content:start}input.mat-mdc-chip-input{flex:1 0 150px;margin-left:8px}[dir=rtl] input.mat-mdc-chip-input{margin-left:0;margin-right:8px}";
-var MAT_CHIPS_DEFAULT_OPTIONS = new InjectionToken("mat-chips-default-options", {
-  providedIn: "root",
-  factory: () => ({
-    separatorKeyCodes: [ENTER2]
-  })
-});
-var MAT_CHIP_AVATAR = new InjectionToken("MatChipAvatar");
-var MAT_CHIP_TRAILING_ICON = new InjectionToken("MatChipTrailingIcon");
-var MAT_CHIP_REMOVE = new InjectionToken("MatChipRemove");
-var MAT_CHIP = new InjectionToken("MatChip");
-var _MatChipAction = class _MatChipAction {
-  /** Whether the action is disabled. */
-  get disabled() {
-    return this._disabled || this._parentChip.disabled;
-  }
-  set disabled(value) {
-    this._disabled = value;
-  }
-  /**
-   * Determine the value of the disabled attribute for this chip action.
-   */
-  _getDisabledAttribute() {
-    return this.disabled && !this._allowFocusWhenDisabled ? "" : null;
-  }
-  /**
-   * Determine the value of the tabindex attribute for this chip action.
-   */
-  _getTabindex() {
-    return this.disabled && !this._allowFocusWhenDisabled || !this.isInteractive ? null : this.tabIndex.toString();
-  }
-  constructor(_elementRef, _parentChip) {
-    this._elementRef = _elementRef;
-    this._parentChip = _parentChip;
-    this.isInteractive = true;
-    this._isPrimary = true;
-    this._disabled = false;
-    this.tabIndex = -1;
-    this._allowFocusWhenDisabled = false;
-    if (_elementRef.nativeElement.nodeName === "BUTTON") {
-      _elementRef.nativeElement.setAttribute("type", "button");
-    }
-  }
-  focus() {
-    this._elementRef.nativeElement.focus();
-  }
-  _handleClick(event) {
-    if (!this.disabled && this.isInteractive && this._isPrimary) {
-      event.preventDefault();
-      this._parentChip._handlePrimaryActionInteraction();
-    }
-  }
-  _handleKeydown(event) {
-    if ((event.keyCode === ENTER2 || event.keyCode === SPACE2) && !this.disabled && this.isInteractive && this._isPrimary && !this._parentChip._isEditing) {
-      event.preventDefault();
-      this._parentChip._handlePrimaryActionInteraction();
-    }
-  }
-};
-_MatChipAction.\u0275fac = function MatChipAction_Factory(t) {
-  return new (t || _MatChipAction)(\u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(MAT_CHIP));
-};
-_MatChipAction.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-  type: _MatChipAction,
-  selectors: [["", "matChipAction", ""]],
-  hostAttrs: [1, "mdc-evolution-chip__action", "mat-mdc-chip-action"],
-  hostVars: 9,
-  hostBindings: function MatChipAction_HostBindings(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275listener("click", function MatChipAction_click_HostBindingHandler($event) {
-        return ctx._handleClick($event);
-      })("keydown", function MatChipAction_keydown_HostBindingHandler($event) {
-        return ctx._handleKeydown($event);
-      });
-    }
-    if (rf & 2) {
-      \u0275\u0275attribute("tabindex", ctx._getTabindex())("disabled", ctx._getDisabledAttribute())("aria-disabled", ctx.disabled);
-      \u0275\u0275classProp("mdc-evolution-chip__action--primary", ctx._isPrimary)("mdc-evolution-chip__action--presentational", !ctx.isInteractive)("mdc-evolution-chip__action--trailing", !ctx._isPrimary);
-    }
-  },
-  inputs: {
-    isInteractive: "isInteractive",
-    disabled: [2, "disabled", "disabled", booleanAttribute],
-    tabIndex: [2, "tabIndex", "tabIndex", (value) => value == null ? -1 : numberAttribute(value)],
-    _allowFocusWhenDisabled: "_allowFocusWhenDisabled"
-  },
-  standalone: true,
-  features: [\u0275\u0275InputTransformsFeature]
-});
-var MatChipAction = _MatChipAction;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipAction, [{
-    type: Directive,
-    args: [{
-      selector: "[matChipAction]",
-      host: {
-        "class": "mdc-evolution-chip__action mat-mdc-chip-action",
-        "[class.mdc-evolution-chip__action--primary]": "_isPrimary",
-        "[class.mdc-evolution-chip__action--presentational]": "!isInteractive",
-        "[class.mdc-evolution-chip__action--trailing]": "!_isPrimary",
-        "[attr.tabindex]": "_getTabindex()",
-        "[attr.disabled]": "_getDisabledAttribute()",
-        "[attr.aria-disabled]": "disabled",
-        "(click)": "_handleClick($event)",
-        "(keydown)": "_handleKeydown($event)"
-      },
-      standalone: true
-    }]
-  }], () => [{
-    type: ElementRef
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Inject,
-      args: [MAT_CHIP]
-    }]
-  }], {
-    isInteractive: [{
-      type: Input
-    }],
-    disabled: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    tabIndex: [{
-      type: Input,
-      args: [{
-        transform: (value) => value == null ? -1 : numberAttribute(value)
-      }]
-    }],
-    _allowFocusWhenDisabled: [{
-      type: Input
-    }]
-  });
-})();
-var _MatChipAvatar = class _MatChipAvatar {
-};
-_MatChipAvatar.\u0275fac = function MatChipAvatar_Factory(t) {
-  return new (t || _MatChipAvatar)();
-};
-_MatChipAvatar.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-  type: _MatChipAvatar,
-  selectors: [["mat-chip-avatar"], ["", "matChipAvatar", ""]],
-  hostAttrs: ["role", "img", 1, "mat-mdc-chip-avatar", "mdc-evolution-chip__icon", "mdc-evolution-chip__icon--primary"],
-  standalone: true,
-  features: [\u0275\u0275ProvidersFeature([{
-    provide: MAT_CHIP_AVATAR,
-    useExisting: _MatChipAvatar
-  }])]
-});
-var MatChipAvatar = _MatChipAvatar;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipAvatar, [{
-    type: Directive,
-    args: [{
-      selector: "mat-chip-avatar, [matChipAvatar]",
-      host: {
-        "class": "mat-mdc-chip-avatar mdc-evolution-chip__icon mdc-evolution-chip__icon--primary",
-        "role": "img"
-      },
-      providers: [{
-        provide: MAT_CHIP_AVATAR,
-        useExisting: MatChipAvatar
-      }],
-      standalone: true
-    }]
-  }], null, null);
-})();
-var _MatChipTrailingIcon = class _MatChipTrailingIcon extends MatChipAction {
-  constructor() {
-    super(...arguments);
-    this.isInteractive = false;
-    this._isPrimary = false;
-  }
-};
-_MatChipTrailingIcon.\u0275fac = /* @__PURE__ */ (() => {
-  let \u0275MatChipTrailingIcon_BaseFactory;
-  return function MatChipTrailingIcon_Factory(t) {
-    return (\u0275MatChipTrailingIcon_BaseFactory || (\u0275MatChipTrailingIcon_BaseFactory = \u0275\u0275getInheritedFactory(_MatChipTrailingIcon)))(t || _MatChipTrailingIcon);
-  };
-})();
-_MatChipTrailingIcon.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-  type: _MatChipTrailingIcon,
-  selectors: [["mat-chip-trailing-icon"], ["", "matChipTrailingIcon", ""]],
-  hostAttrs: ["aria-hidden", "true", 1, "mat-mdc-chip-trailing-icon", "mdc-evolution-chip__icon", "mdc-evolution-chip__icon--trailing"],
-  standalone: true,
-  features: [\u0275\u0275ProvidersFeature([{
-    provide: MAT_CHIP_TRAILING_ICON,
-    useExisting: _MatChipTrailingIcon
-  }]), \u0275\u0275InheritDefinitionFeature]
-});
-var MatChipTrailingIcon = _MatChipTrailingIcon;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipTrailingIcon, [{
-    type: Directive,
-    args: [{
-      selector: "mat-chip-trailing-icon, [matChipTrailingIcon]",
-      host: {
-        "class": "mat-mdc-chip-trailing-icon mdc-evolution-chip__icon mdc-evolution-chip__icon--trailing",
-        "aria-hidden": "true"
-      },
-      providers: [{
-        provide: MAT_CHIP_TRAILING_ICON,
-        useExisting: MatChipTrailingIcon
-      }],
-      standalone: true
-    }]
-  }], null, null);
-})();
-var _MatChipRemove = class _MatChipRemove extends MatChipAction {
-  constructor() {
-    super(...arguments);
-    this._isPrimary = false;
-  }
-  _handleClick(event) {
-    if (!this.disabled) {
-      event.stopPropagation();
-      event.preventDefault();
-      this._parentChip.remove();
-    }
-  }
-  _handleKeydown(event) {
-    if ((event.keyCode === ENTER2 || event.keyCode === SPACE2) && !this.disabled) {
-      event.stopPropagation();
-      event.preventDefault();
-      this._parentChip.remove();
-    }
-  }
-};
-_MatChipRemove.\u0275fac = /* @__PURE__ */ (() => {
-  let \u0275MatChipRemove_BaseFactory;
-  return function MatChipRemove_Factory(t) {
-    return (\u0275MatChipRemove_BaseFactory || (\u0275MatChipRemove_BaseFactory = \u0275\u0275getInheritedFactory(_MatChipRemove)))(t || _MatChipRemove);
-  };
-})();
-_MatChipRemove.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-  type: _MatChipRemove,
-  selectors: [["", "matChipRemove", ""]],
-  hostAttrs: ["role", "button", 1, "mat-mdc-chip-remove", "mat-mdc-chip-trailing-icon", "mat-mdc-focus-indicator", "mdc-evolution-chip__icon", "mdc-evolution-chip__icon--trailing"],
-  hostVars: 1,
-  hostBindings: function MatChipRemove_HostBindings(rf, ctx) {
-    if (rf & 2) {
-      \u0275\u0275attribute("aria-hidden", null);
-    }
-  },
-  standalone: true,
-  features: [\u0275\u0275ProvidersFeature([{
-    provide: MAT_CHIP_REMOVE,
-    useExisting: _MatChipRemove
-  }]), \u0275\u0275InheritDefinitionFeature]
-});
-var MatChipRemove = _MatChipRemove;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipRemove, [{
-    type: Directive,
-    args: [{
-      selector: "[matChipRemove]",
-      host: {
-        "class": "mat-mdc-chip-remove mat-mdc-chip-trailing-icon mat-mdc-focus-indicator mdc-evolution-chip__icon mdc-evolution-chip__icon--trailing",
-        "role": "button",
-        "[attr.aria-hidden]": "null"
-      },
-      providers: [{
-        provide: MAT_CHIP_REMOVE,
-        useExisting: MatChipRemove
-      }],
-      standalone: true
-    }]
-  }], null, null);
-})();
-var uid = 0;
-var _MatChip = class _MatChip {
-  _hasFocus() {
-    return this._hasFocusInternal;
-  }
-  /**
-   * The value of the chip. Defaults to the content inside
-   * the `mat-mdc-chip-action-label` element.
-   */
-  get value() {
-    return this._value !== void 0 ? this._value : this._textElement.textContent.trim();
-  }
-  set value(value) {
-    this._value = value;
-  }
-  /**
-   * Reference to the MatRipple instance of the chip.
-   * @deprecated Considered an implementation detail. To be removed.
-   * @breaking-change 17.0.0
-   */
-  get ripple() {
-    return this._rippleLoader?.getRipple(this._elementRef.nativeElement);
-  }
-  set ripple(v) {
-    this._rippleLoader?.attachRipple(this._elementRef.nativeElement, v);
-  }
-  constructor(_changeDetectorRef, _elementRef, _ngZone, _focusMonitor, _document2, animationMode, _globalRippleOptions, tabIndex) {
-    this._changeDetectorRef = _changeDetectorRef;
-    this._elementRef = _elementRef;
-    this._ngZone = _ngZone;
-    this._focusMonitor = _focusMonitor;
-    this._globalRippleOptions = _globalRippleOptions;
-    this._onFocus = new Subject();
-    this._onBlur = new Subject();
-    this.role = null;
-    this._hasFocusInternal = false;
-    this.id = `mat-mdc-chip-${uid++}`;
-    this.ariaLabel = null;
-    this.ariaDescription = null;
-    this._ariaDescriptionId = `${this.id}-aria-description`;
-    this.removable = true;
-    this.highlighted = false;
-    this.disableRipple = false;
-    this.disabled = false;
-    this.tabIndex = -1;
-    this.removed = new EventEmitter();
-    this.destroyed = new EventEmitter();
-    this.basicChipAttrName = "mat-basic-chip";
-    this._rippleLoader = inject(MatRippleLoader);
-    this._injector = inject(Injector);
-    this._document = _document2;
-    this._animationsDisabled = animationMode === "NoopAnimations";
-    if (tabIndex != null) {
-      this.tabIndex = parseInt(tabIndex) ?? -1;
-    }
-    this._monitorFocus();
-    this._rippleLoader?.configureRipple(this._elementRef.nativeElement, {
-      className: "mat-mdc-chip-ripple",
-      disabled: this._isRippleDisabled()
-    });
-  }
-  ngOnInit() {
-    const element = this._elementRef.nativeElement;
-    this._isBasicChip = element.hasAttribute(this.basicChipAttrName) || element.tagName.toLowerCase() === this.basicChipAttrName;
-  }
-  ngAfterViewInit() {
-    this._textElement = this._elementRef.nativeElement.querySelector(".mat-mdc-chip-action-label");
-    if (this._pendingFocus) {
-      this._pendingFocus = false;
-      this.focus();
-    }
-  }
-  ngAfterContentInit() {
-    this._actionChanges = merge(this._allLeadingIcons.changes, this._allTrailingIcons.changes, this._allRemoveIcons.changes).subscribe(() => this._changeDetectorRef.markForCheck());
-  }
-  ngDoCheck() {
-    this._rippleLoader.setDisabled(this._elementRef.nativeElement, this._isRippleDisabled());
-  }
-  ngOnDestroy() {
-    this._focusMonitor.stopMonitoring(this._elementRef);
-    this._rippleLoader?.destroyRipple(this._elementRef.nativeElement);
-    this._actionChanges?.unsubscribe();
-    this.destroyed.emit({
-      chip: this
-    });
-    this.destroyed.complete();
-  }
-  /**
-   * Allows for programmatic removal of the chip.
-   *
-   * Informs any listeners of the removal request. Does not remove the chip from the DOM.
-   */
-  remove() {
-    if (this.removable) {
-      this.removed.emit({
-        chip: this
-      });
-    }
-  }
-  /** Whether or not the ripple should be disabled. */
-  _isRippleDisabled() {
-    return this.disabled || this.disableRipple || this._animationsDisabled || this._isBasicChip || !!this._globalRippleOptions?.disabled;
-  }
-  /** Returns whether the chip has a trailing icon. */
-  _hasTrailingIcon() {
-    return !!(this.trailingIcon || this.removeIcon);
-  }
-  /** Handles keyboard events on the chip. */
-  _handleKeydown(event) {
-    if (event.keyCode === BACKSPACE && !event.repeat || event.keyCode === DELETE) {
-      event.preventDefault();
-      this.remove();
-    }
-  }
-  /** Allows for programmatic focusing of the chip. */
-  focus() {
-    if (!this.disabled) {
-      if (this.primaryAction) {
-        this.primaryAction.focus();
-      } else {
-        this._pendingFocus = true;
-      }
-    }
-  }
-  /** Gets the action that contains a specific target node. */
-  _getSourceAction(target) {
-    return this._getActions().find((action) => {
-      const element = action._elementRef.nativeElement;
-      return element === target || element.contains(target);
-    });
-  }
-  /** Gets all of the actions within the chip. */
-  _getActions() {
-    const result = [];
-    if (this.primaryAction) {
-      result.push(this.primaryAction);
-    }
-    if (this.removeIcon) {
-      result.push(this.removeIcon);
-    }
-    if (this.trailingIcon) {
-      result.push(this.trailingIcon);
-    }
-    return result;
-  }
-  /** Handles interactions with the primary action of the chip. */
-  _handlePrimaryActionInteraction() {
-  }
-  /** Gets the tabindex of the chip. */
-  _getTabIndex() {
-    if (!this.role) {
-      return null;
-    }
-    return this.disabled ? -1 : this.tabIndex;
-  }
-  /** Starts the focus monitoring process on the chip. */
-  _monitorFocus() {
-    this._focusMonitor.monitor(this._elementRef, true).subscribe((origin) => {
-      const hasFocus = origin !== null;
-      if (hasFocus !== this._hasFocusInternal) {
-        this._hasFocusInternal = hasFocus;
-        if (hasFocus) {
-          this._onFocus.next({
-            chip: this
-          });
-        } else {
-          afterNextRender(() => this._ngZone.run(() => this._onBlur.next({
-            chip: this
-          })), {
-            injector: this._injector
-          });
-        }
-      }
-    });
-  }
-};
-_MatChip.\u0275fac = function MatChip_Factory(t) {
-  return new (t || _MatChip)(\u0275\u0275directiveInject(ChangeDetectorRef), \u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(NgZone), \u0275\u0275directiveInject(FocusMonitor), \u0275\u0275directiveInject(DOCUMENT2), \u0275\u0275directiveInject(ANIMATION_MODULE_TYPE, 8), \u0275\u0275directiveInject(MAT_RIPPLE_GLOBAL_OPTIONS, 8), \u0275\u0275injectAttribute("tabindex"));
-};
-_MatChip.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
-  type: _MatChip,
-  selectors: [["mat-basic-chip"], ["", "mat-basic-chip", ""], ["mat-chip"], ["", "mat-chip", ""]],
-  contentQueries: function MatChip_ContentQueries(rf, ctx, dirIndex) {
-    if (rf & 1) {
-      \u0275\u0275contentQuery(dirIndex, MAT_CHIP_AVATAR, 5);
-      \u0275\u0275contentQuery(dirIndex, MAT_CHIP_TRAILING_ICON, 5);
-      \u0275\u0275contentQuery(dirIndex, MAT_CHIP_REMOVE, 5);
-      \u0275\u0275contentQuery(dirIndex, MAT_CHIP_AVATAR, 5);
-      \u0275\u0275contentQuery(dirIndex, MAT_CHIP_TRAILING_ICON, 5);
-      \u0275\u0275contentQuery(dirIndex, MAT_CHIP_REMOVE, 5);
-    }
-    if (rf & 2) {
-      let _t;
-      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.leadingIcon = _t.first);
-      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.trailingIcon = _t.first);
-      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.removeIcon = _t.first);
-      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._allLeadingIcons = _t);
-      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._allTrailingIcons = _t);
-      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._allRemoveIcons = _t);
-    }
-  },
-  viewQuery: function MatChip_Query(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275viewQuery(MatChipAction, 5);
-    }
-    if (rf & 2) {
-      let _t;
-      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.primaryAction = _t.first);
-    }
-  },
-  hostAttrs: [1, "mat-mdc-chip"],
-  hostVars: 32,
-  hostBindings: function MatChip_HostBindings(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275listener("keydown", function MatChip_keydown_HostBindingHandler($event) {
-        return ctx._handleKeydown($event);
-      });
-    }
-    if (rf & 2) {
-      \u0275\u0275hostProperty("id", ctx.id);
-      \u0275\u0275attribute("role", ctx.role)("tabindex", ctx._getTabIndex())("aria-label", ctx.ariaLabel);
-      \u0275\u0275classMap("mat-" + (ctx.color || "primary"));
-      \u0275\u0275classProp("mdc-evolution-chip", !ctx._isBasicChip)("mdc-evolution-chip--disabled", ctx.disabled)("mdc-evolution-chip--with-trailing-action", ctx._hasTrailingIcon())("mdc-evolution-chip--with-primary-graphic", ctx.leadingIcon)("mdc-evolution-chip--with-primary-icon", ctx.leadingIcon)("mdc-evolution-chip--with-avatar", ctx.leadingIcon)("mat-mdc-chip-with-avatar", ctx.leadingIcon)("mat-mdc-chip-highlighted", ctx.highlighted)("mat-mdc-chip-disabled", ctx.disabled)("mat-mdc-basic-chip", ctx._isBasicChip)("mat-mdc-standard-chip", !ctx._isBasicChip)("mat-mdc-chip-with-trailing-icon", ctx._hasTrailingIcon())("_mat-animation-noopable", ctx._animationsDisabled);
-    }
-  },
-  inputs: {
-    role: "role",
-    id: "id",
-    ariaLabel: [0, "aria-label", "ariaLabel"],
-    ariaDescription: [0, "aria-description", "ariaDescription"],
-    value: "value",
-    color: "color",
-    removable: [2, "removable", "removable", booleanAttribute],
-    highlighted: [2, "highlighted", "highlighted", booleanAttribute],
-    disableRipple: [2, "disableRipple", "disableRipple", booleanAttribute],
-    disabled: [2, "disabled", "disabled", booleanAttribute],
-    tabIndex: [2, "tabIndex", "tabIndex", (value) => value == null ? void 0 : numberAttribute(value)]
-  },
-  outputs: {
-    removed: "removed",
-    destroyed: "destroyed"
-  },
-  exportAs: ["matChip"],
-  standalone: true,
-  features: [\u0275\u0275ProvidersFeature([{
-    provide: MAT_CHIP,
-    useExisting: _MatChip
-  }]), \u0275\u0275InputTransformsFeature, \u0275\u0275StandaloneFeature],
-  ngContentSelectors: _c14,
-  decls: 8,
-  vars: 3,
-  consts: [[1, "mat-mdc-chip-focus-overlay"], [1, "mdc-evolution-chip__cell", "mdc-evolution-chip__cell--primary"], ["matChipAction", "", 3, "isInteractive"], [1, "mdc-evolution-chip__graphic", "mat-mdc-chip-graphic"], [1, "mdc-evolution-chip__text-label", "mat-mdc-chip-action-label"], [1, "mat-mdc-chip-primary-focus-indicator", "mat-mdc-focus-indicator"], [1, "mdc-evolution-chip__cell", "mdc-evolution-chip__cell--trailing"]],
-  template: function MatChip_Template(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275projectionDef(_c06);
-      \u0275\u0275element(0, "span", 0);
-      \u0275\u0275elementStart(1, "span", 1)(2, "span", 2);
-      \u0275\u0275template(3, MatChip_Conditional_3_Template, 2, 0, "span", 3);
-      \u0275\u0275elementStart(4, "span", 4);
-      \u0275\u0275projection(5);
-      \u0275\u0275element(6, "span", 5);
-      \u0275\u0275elementEnd()()();
-      \u0275\u0275template(7, MatChip_Conditional_7_Template, 2, 0, "span", 6);
-    }
-    if (rf & 2) {
-      \u0275\u0275advance(2);
-      \u0275\u0275property("isInteractive", false);
-      \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.leadingIcon ? 3 : -1);
-      \u0275\u0275advance(4);
-      \u0275\u0275conditional(ctx._hasTrailingIcon() ? 7 : -1);
-    }
-  },
-  dependencies: [MatChipAction],
-  styles: ['.mdc-evolution-chip,.mdc-evolution-chip__cell,.mdc-evolution-chip__action{display:inline-flex;align-items:center}.mdc-evolution-chip{position:relative;max-width:100%}.mdc-evolution-chip .mdc-elevation-overlay{width:100%;height:100%;top:0;left:0}.mdc-evolution-chip__cell,.mdc-evolution-chip__action{height:100%}.mdc-evolution-chip__cell--primary{overflow-x:hidden}.mdc-evolution-chip__cell--trailing{flex:1 0 auto}.mdc-evolution-chip__action{align-items:center;background:none;border:none;box-sizing:content-box;cursor:pointer;display:inline-flex;justify-content:center;outline:none;padding:0;text-decoration:none;color:inherit}.mdc-evolution-chip__action--presentational{cursor:auto}.mdc-evolution-chip--disabled,.mdc-evolution-chip__action:disabled{pointer-events:none}.mdc-evolution-chip__action--primary{overflow-x:hidden}.mdc-evolution-chip__action--trailing{position:relative;overflow:visible}.mdc-evolution-chip__action--primary:before{box-sizing:border-box;content:"";height:100%;left:0;position:absolute;pointer-events:none;top:0;width:100%;z-index:1}.mdc-evolution-chip--touch{margin-top:8px;margin-bottom:8px}.mdc-evolution-chip__action-touch{position:absolute;top:50%;height:48px;left:0;right:0;transform:translateY(-50%)}.mdc-evolution-chip__text-label{white-space:nowrap;user-select:none;text-overflow:ellipsis;overflow:hidden}.mdc-evolution-chip__graphic{align-items:center;display:inline-flex;justify-content:center;overflow:hidden;pointer-events:none;position:relative;flex:1 0 auto}.mdc-evolution-chip__checkmark{position:absolute;opacity:0;top:50%;left:50%}.mdc-evolution-chip--selectable:not(.mdc-evolution-chip--selected):not(.mdc-evolution-chip--with-primary-icon) .mdc-evolution-chip__graphic{width:0}.mdc-evolution-chip__checkmark-background{opacity:0}.mdc-evolution-chip__checkmark-svg{display:block}.mdc-evolution-chip__checkmark-path{stroke-width:2px;stroke-dasharray:29.7833385;stroke-dashoffset:29.7833385;stroke:currentColor}.mdc-evolution-chip--selecting .mdc-evolution-chip__graphic{transition:width 150ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--selecting .mdc-evolution-chip__checkmark{transition:transform 150ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-75%, -50%)}.mdc-evolution-chip--selecting .mdc-evolution-chip__checkmark-path{transition:stroke-dashoffset 150ms 45ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__graphic{transition:width 100ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__checkmark{transition:opacity 50ms 0ms linear,transform 100ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-75%, -50%)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}.mdc-evolution-chip--selecting-with-primary-icon .mdc-evolution-chip__icon--primary{transition:opacity 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--selecting-with-primary-icon .mdc-evolution-chip__checkmark-path{transition:stroke-dashoffset 150ms 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__icon--primary{transition:opacity 150ms 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__checkmark{transition:opacity 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-50%, -50%)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}.mdc-evolution-chip--selected .mdc-evolution-chip__icon--primary{opacity:0}.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark{transform:translate(-50%, -50%);opacity:1}.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}@keyframes mdc-evolution-chip-enter{from{transform:scale(0.8);opacity:.4}to{transform:scale(1);opacity:1}}.mdc-evolution-chip--enter{animation:mdc-evolution-chip-enter 100ms 0ms cubic-bezier(0, 0, 0.2, 1)}@keyframes mdc-evolution-chip-exit{from{opacity:1}to{opacity:0}}.mdc-evolution-chip--exit{animation:mdc-evolution-chip-exit 75ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mdc-evolution-chip--hidden{opacity:0;pointer-events:none;transition:width 150ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mat-mdc-standard-chip{border-radius:var(--mdc-chip-container-shape-radius);height:var(--mdc-chip-container-height)}.mat-mdc-standard-chip .mdc-evolution-chip__ripple{border-radius:var(--mdc-chip-container-shape-radius)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-radius:var(--mdc-chip-container-shape-radius)}.mat-mdc-standard-chip .mdc-evolution-chip__icon--primary{border-radius:var(--mdc-chip-with-avatar-avatar-shape-radius)}.mat-mdc-standard-chip.mdc-evolution-chip--selectable:not(.mdc-evolution-chip--with-primary-icon){--mdc-chip-graphic-selected-width:var(--mdc-chip-with-avatar-avatar-size)}.mat-mdc-standard-chip .mdc-evolution-chip__graphic{height:var(--mdc-chip-with-avatar-avatar-size);width:var(--mdc-chip-with-avatar-avatar-size);font-size:var(--mdc-chip-with-avatar-avatar-size)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__action--primary:before{border-color:var(--mdc-chip-outline-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-evolution-chip__action--presentational).mdc-ripple-upgraded--background-focused:before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-evolution-chip__action--presentational):not(.mdc-ripple-upgraded):focus:before{border-color:var(--mdc-chip-focus-outline-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__action--primary:before{border-color:var(--mdc-chip-disabled-outline-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-width:var(--mdc-chip-outline-width)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:before{border-width:var(--mdc-chip-flat-selected-outline-width)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled){background-color:var(--mdc-chip-elevated-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-elevated-disabled-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected:not(.mdc-evolution-chip--disabled){background-color:var(--mdc-chip-elevated-selected-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-elevated-disabled-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-flat-disabled-selected-container-color)}.mat-mdc-standard-chip .mdc-evolution-chip__text-label{font-family:var(--mdc-chip-label-text-font);line-height:var(--mdc-chip-label-text-line-height);font-size:var(--mdc-chip-label-text-size);font-weight:var(--mdc-chip-label-text-weight);letter-spacing:var(--mdc-chip-label-text-tracking)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label{color:var(--mdc-chip-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__text-label{color:var(--mdc-chip-disabled-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label{color:var(--mdc-chip-selected-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled .mdc-evolution-chip__text-label{color:var(--mdc-chip-disabled-label-text-color)}.mat-mdc-standard-chip .mdc-evolution-chip__icon--primary{height:var(--mdc-chip-with-icon-icon-size);width:var(--mdc-chip-with-icon-icon-size);font-size:var(--mdc-chip-with-icon-icon-size)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__icon--primary{color:var(--mdc-chip-with-icon-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--primary{color:var(--mdc-chip-with-icon-disabled-icon-color)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__checkmark{color:var(--mdc-chip-with-icon-selected-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__checkmark{color:var(--mdc-chip-with-icon-disabled-icon-color)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__icon--trailing{color:var(--mdc-chip-with-trailing-icon-trailing-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{color:var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::after{background-color:var(--mdc-chip-hover-state-layer-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:hover .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary.mdc-ripple-surface--hover .mdc-evolution-chip__ripple::before{opacity:var(--mdc-chip-hover-state-layer-opacity)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary.mdc-ripple-upgraded--background-focused .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-ripple-upgraded):focus .mdc-evolution-chip__ripple::before{transition-duration:75ms;opacity:var(--mdc-chip-focus-state-layer-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::after{background-color:var(--mdc-chip-selected-hover-state-layer-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:hover .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary.mdc-ripple-surface--hover .mdc-evolution-chip__ripple::before{opacity:var(--mdc-chip-selected-hover-state-layer-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary.mdc-ripple-upgraded--background-focused .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:not(.mdc-ripple-upgraded):focus .mdc-evolution-chip__ripple::before{transition-duration:75ms;opacity:var(--mdc-chip-selected-focus-state-layer-opacity)}.mat-mdc-chip-highlighted{--mdc-chip-with-icon-icon-color:var(--mdc-chip-with-icon-selected-icon-color);--mdc-chip-elevated-container-color:var(--mdc-chip-elevated-selected-container-color);--mdc-chip-label-text-color:var(--mdc-chip-selected-label-text-color);--mdc-chip-outline-width:var(--mdc-chip-flat-selected-outline-width)}.mat-mdc-chip-focus-overlay{background:var(--mdc-chip-focus-state-layer-color)}.mat-mdc-chip-selected .mat-mdc-chip-focus-overlay,.mat-mdc-chip-highlighted .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-focus-state-layer-color)}.mat-mdc-chip:hover .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-hover-state-layer-color);opacity:var(--mdc-chip-hover-state-layer-opacity)}.mat-mdc-chip-focus-overlay .mat-mdc-chip-selected:hover,.mat-mdc-chip-highlighted:hover .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-hover-state-layer-color);opacity:var(--mdc-chip-selected-hover-state-layer-opacity)}.mat-mdc-chip.cdk-focused .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-focus-state-layer-color);opacity:var(--mdc-chip-focus-state-layer-opacity)}.mat-mdc-chip-selected.cdk-focused .mat-mdc-chip-focus-overlay,.mat-mdc-chip-highlighted.cdk-focused .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-focus-state-layer-color);opacity:var(--mdc-chip-selected-focus-state-layer-opacity)}.mdc-evolution-chip--disabled:not(.mdc-evolution-chip--selected) .mat-mdc-chip-avatar{opacity:var(--mdc-chip-with-avatar-disabled-avatar-opacity)}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{opacity:var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity)}.mdc-evolution-chip--disabled.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark{opacity:var(--mdc-chip-with-icon-disabled-icon-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled{opacity:var(--mat-chip-disabled-container-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__icon--trailing,.mat-mdc-standard-chip.mat-mdc-chip-highlighted .mdc-evolution-chip__icon--trailing{color:var(--mat-chip-selected-trailing-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing,.mat-mdc-standard-chip.mat-mdc-chip-highlighted.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{color:var(--mat-chip-selected-disabled-trailing-icon-color)}.mat-mdc-chip-remove{opacity:var(--mat-chip-trailing-action-opacity)}.mat-mdc-chip-remove:focus{opacity:var(--mat-chip-trailing-action-focus-opacity)}.mat-mdc-chip-remove::after{background:var(--mat-chip-trailing-action-state-layer-color)}.mat-mdc-chip-remove:hover::after{opacity:var(--mat-chip-trailing-action-hover-state-layer-opacity)}.mat-mdc-chip-remove:focus::after{opacity:var(--mat-chip-trailing-action-focus-state-layer-opacity)}.mat-mdc-chip-selected .mat-mdc-chip-remove::after,.mat-mdc-chip-highlighted .mat-mdc-chip-remove::after{background:var(--mat-chip-selected-trailing-action-state-layer-color)}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing.mat-mdc-chip-remove{opacity:calc(var(--mat-chip-trailing-action-opacity)*var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity))}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing.mat-mdc-chip-remove:focus{opacity:calc(var(--mat-chip-trailing-action-focus-opacity)*var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity))}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-style:solid}.mat-mdc-standard-chip .mdc-evolution-chip__checkmark{height:20px;width:20px}.mat-mdc-standard-chip .mdc-evolution-chip__icon--trailing{height:18px;width:18px;font-size:18px}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary{padding-left:12px;padding-right:12px}[dir=rtl] .mat-mdc-standard-chip .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:12px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic{padding-left:6px;padding-right:6px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic[dir=rtl]{padding-left:6px;padding-right:6px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary{padding-left:0;padding-right:12px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:0}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:12px;padding-right:0}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:12px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic{padding-left:6px;padding-right:6px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic[dir=rtl]{padding-left:6px;padding-right:6px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:0;padding-right:0}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:0}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic{padding-left:4px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic[dir=rtl]{padding-left:8px;padding-right:4px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary{padding-left:0;padding-right:12px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:0}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic{padding-left:4px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic[dir=rtl]{padding-left:8px;padding-right:4px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:0;padding-right:0}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:0}.mat-mdc-standard-chip{-webkit-tap-highlight-color:rgba(0,0,0,0)}.cdk-high-contrast-active .mat-mdc-standard-chip{outline:solid 1px}.cdk-high-contrast-active .mat-mdc-standard-chip .mdc-evolution-chip__checkmark-path{stroke:CanvasText !important}.mat-mdc-standard-chip .mdc-evolution-chip__cell--primary,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip .mat-mdc-chip-action-label{overflow:visible}.mat-mdc-standard-chip .mdc-evolution-chip__cell--primary{flex-basis:100%}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary{font:inherit;letter-spacing:inherit;white-space:inherit}.mat-mdc-standard-chip .mat-mdc-chip-graphic,.mat-mdc-standard-chip .mat-mdc-chip-trailing-icon{box-sizing:content-box}.mat-mdc-standard-chip._mat-animation-noopable,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__graphic,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__checkmark,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__checkmark-path{transition-duration:1ms;animation-duration:1ms}.mat-mdc-basic-chip .mdc-evolution-chip__action--primary{font:inherit}.mat-mdc-chip-focus-overlay{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none;opacity:0;border-radius:inherit;transition:opacity 150ms linear}._mat-animation-noopable .mat-mdc-chip-focus-overlay{transition:none}.mat-mdc-basic-chip .mat-mdc-chip-focus-overlay{display:none}.mat-mdc-chip .mat-ripple.mat-mdc-chip-ripple{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none;border-radius:inherit}.mat-mdc-chip-avatar{text-align:center;line-height:1;color:var(--mdc-chip-with-icon-icon-color, currentColor)}.mat-mdc-chip{position:relative;z-index:0}.mat-mdc-chip-action-label{text-align:left;z-index:1}[dir=rtl] .mat-mdc-chip-action-label{text-align:right}.mat-mdc-chip.mdc-evolution-chip--with-trailing-action .mat-mdc-chip-action-label{position:relative}.mat-mdc-chip-action-label .mat-mdc-chip-primary-focus-indicator{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none}.mat-mdc-chip-action-label .mat-mdc-focus-indicator::before{margin:calc(calc(var(--mat-mdc-focus-indicator-border-width, 3px) + 2px)*-1)}.mat-mdc-chip-remove::before{margin:calc(var(--mat-mdc-focus-indicator-border-width, 3px)*-1);left:8px;right:8px}.mat-mdc-chip-remove::after{content:"";display:block;opacity:0;position:absolute;top:-2px;bottom:-2px;left:6px;right:6px;border-radius:50%}.mat-mdc-chip-remove .mat-icon{width:18px;height:18px;font-size:18px;box-sizing:content-box}.mat-chip-edit-input{cursor:text;display:inline-block;color:inherit;outline:0}.cdk-high-contrast-active .mat-mdc-chip-selected:not(.mat-mdc-chip-multiple){outline-width:3px}.mat-mdc-chip-action:focus .mat-mdc-focus-indicator::before{content:""}'],
-  encapsulation: 2,
-  changeDetection: 0
-});
-var MatChip = _MatChip;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChip, [{
-    type: Component,
-    args: [{
-      selector: "mat-basic-chip, [mat-basic-chip], mat-chip, [mat-chip]",
-      exportAs: "matChip",
-      host: {
-        "class": "mat-mdc-chip",
-        "[class]": '"mat-" + (color || "primary")',
-        "[class.mdc-evolution-chip]": "!_isBasicChip",
-        "[class.mdc-evolution-chip--disabled]": "disabled",
-        "[class.mdc-evolution-chip--with-trailing-action]": "_hasTrailingIcon()",
-        "[class.mdc-evolution-chip--with-primary-graphic]": "leadingIcon",
-        "[class.mdc-evolution-chip--with-primary-icon]": "leadingIcon",
-        "[class.mdc-evolution-chip--with-avatar]": "leadingIcon",
-        "[class.mat-mdc-chip-with-avatar]": "leadingIcon",
-        "[class.mat-mdc-chip-highlighted]": "highlighted",
-        "[class.mat-mdc-chip-disabled]": "disabled",
-        "[class.mat-mdc-basic-chip]": "_isBasicChip",
-        "[class.mat-mdc-standard-chip]": "!_isBasicChip",
-        "[class.mat-mdc-chip-with-trailing-icon]": "_hasTrailingIcon()",
-        "[class._mat-animation-noopable]": "_animationsDisabled",
-        "[id]": "id",
-        "[attr.role]": "role",
-        "[attr.tabindex]": "_getTabIndex()",
-        "[attr.aria-label]": "ariaLabel",
-        "(keydown)": "_handleKeydown($event)"
-      },
-      encapsulation: ViewEncapsulation$1.None,
-      changeDetection: ChangeDetectionStrategy.OnPush,
-      providers: [{
-        provide: MAT_CHIP,
-        useExisting: MatChip
-      }],
-      standalone: true,
-      imports: [MatChipAction],
-      template: '<span class="mat-mdc-chip-focus-overlay"></span>\n\n<span class="mdc-evolution-chip__cell mdc-evolution-chip__cell--primary">\n  <span matChipAction [isInteractive]="false">\n    @if (leadingIcon) {\n      <span class="mdc-evolution-chip__graphic mat-mdc-chip-graphic">\n        <ng-content select="mat-chip-avatar, [matChipAvatar]"></ng-content>\n      </span>\n    }\n    <span class="mdc-evolution-chip__text-label mat-mdc-chip-action-label">\n      <ng-content></ng-content>\n      <span class="mat-mdc-chip-primary-focus-indicator mat-mdc-focus-indicator"></span>\n    </span>\n  </span>\n</span>\n\n@if (_hasTrailingIcon()) {\n  <span class="mdc-evolution-chip__cell mdc-evolution-chip__cell--trailing">\n    <ng-content select="mat-chip-trailing-icon,[matChipRemove],[matChipTrailingIcon]"></ng-content>\n  </span>\n}\n',
-      styles: ['.mdc-evolution-chip,.mdc-evolution-chip__cell,.mdc-evolution-chip__action{display:inline-flex;align-items:center}.mdc-evolution-chip{position:relative;max-width:100%}.mdc-evolution-chip .mdc-elevation-overlay{width:100%;height:100%;top:0;left:0}.mdc-evolution-chip__cell,.mdc-evolution-chip__action{height:100%}.mdc-evolution-chip__cell--primary{overflow-x:hidden}.mdc-evolution-chip__cell--trailing{flex:1 0 auto}.mdc-evolution-chip__action{align-items:center;background:none;border:none;box-sizing:content-box;cursor:pointer;display:inline-flex;justify-content:center;outline:none;padding:0;text-decoration:none;color:inherit}.mdc-evolution-chip__action--presentational{cursor:auto}.mdc-evolution-chip--disabled,.mdc-evolution-chip__action:disabled{pointer-events:none}.mdc-evolution-chip__action--primary{overflow-x:hidden}.mdc-evolution-chip__action--trailing{position:relative;overflow:visible}.mdc-evolution-chip__action--primary:before{box-sizing:border-box;content:"";height:100%;left:0;position:absolute;pointer-events:none;top:0;width:100%;z-index:1}.mdc-evolution-chip--touch{margin-top:8px;margin-bottom:8px}.mdc-evolution-chip__action-touch{position:absolute;top:50%;height:48px;left:0;right:0;transform:translateY(-50%)}.mdc-evolution-chip__text-label{white-space:nowrap;user-select:none;text-overflow:ellipsis;overflow:hidden}.mdc-evolution-chip__graphic{align-items:center;display:inline-flex;justify-content:center;overflow:hidden;pointer-events:none;position:relative;flex:1 0 auto}.mdc-evolution-chip__checkmark{position:absolute;opacity:0;top:50%;left:50%}.mdc-evolution-chip--selectable:not(.mdc-evolution-chip--selected):not(.mdc-evolution-chip--with-primary-icon) .mdc-evolution-chip__graphic{width:0}.mdc-evolution-chip__checkmark-background{opacity:0}.mdc-evolution-chip__checkmark-svg{display:block}.mdc-evolution-chip__checkmark-path{stroke-width:2px;stroke-dasharray:29.7833385;stroke-dashoffset:29.7833385;stroke:currentColor}.mdc-evolution-chip--selecting .mdc-evolution-chip__graphic{transition:width 150ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--selecting .mdc-evolution-chip__checkmark{transition:transform 150ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-75%, -50%)}.mdc-evolution-chip--selecting .mdc-evolution-chip__checkmark-path{transition:stroke-dashoffset 150ms 45ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__graphic{transition:width 100ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__checkmark{transition:opacity 50ms 0ms linear,transform 100ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-75%, -50%)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}.mdc-evolution-chip--selecting-with-primary-icon .mdc-evolution-chip__icon--primary{transition:opacity 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--selecting-with-primary-icon .mdc-evolution-chip__checkmark-path{transition:stroke-dashoffset 150ms 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__icon--primary{transition:opacity 150ms 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__checkmark{transition:opacity 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-50%, -50%)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}.mdc-evolution-chip--selected .mdc-evolution-chip__icon--primary{opacity:0}.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark{transform:translate(-50%, -50%);opacity:1}.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}@keyframes mdc-evolution-chip-enter{from{transform:scale(0.8);opacity:.4}to{transform:scale(1);opacity:1}}.mdc-evolution-chip--enter{animation:mdc-evolution-chip-enter 100ms 0ms cubic-bezier(0, 0, 0.2, 1)}@keyframes mdc-evolution-chip-exit{from{opacity:1}to{opacity:0}}.mdc-evolution-chip--exit{animation:mdc-evolution-chip-exit 75ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mdc-evolution-chip--hidden{opacity:0;pointer-events:none;transition:width 150ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mat-mdc-standard-chip{border-radius:var(--mdc-chip-container-shape-radius);height:var(--mdc-chip-container-height)}.mat-mdc-standard-chip .mdc-evolution-chip__ripple{border-radius:var(--mdc-chip-container-shape-radius)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-radius:var(--mdc-chip-container-shape-radius)}.mat-mdc-standard-chip .mdc-evolution-chip__icon--primary{border-radius:var(--mdc-chip-with-avatar-avatar-shape-radius)}.mat-mdc-standard-chip.mdc-evolution-chip--selectable:not(.mdc-evolution-chip--with-primary-icon){--mdc-chip-graphic-selected-width:var(--mdc-chip-with-avatar-avatar-size)}.mat-mdc-standard-chip .mdc-evolution-chip__graphic{height:var(--mdc-chip-with-avatar-avatar-size);width:var(--mdc-chip-with-avatar-avatar-size);font-size:var(--mdc-chip-with-avatar-avatar-size)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__action--primary:before{border-color:var(--mdc-chip-outline-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-evolution-chip__action--presentational).mdc-ripple-upgraded--background-focused:before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-evolution-chip__action--presentational):not(.mdc-ripple-upgraded):focus:before{border-color:var(--mdc-chip-focus-outline-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__action--primary:before{border-color:var(--mdc-chip-disabled-outline-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-width:var(--mdc-chip-outline-width)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:before{border-width:var(--mdc-chip-flat-selected-outline-width)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled){background-color:var(--mdc-chip-elevated-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-elevated-disabled-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected:not(.mdc-evolution-chip--disabled){background-color:var(--mdc-chip-elevated-selected-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-elevated-disabled-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-flat-disabled-selected-container-color)}.mat-mdc-standard-chip .mdc-evolution-chip__text-label{font-family:var(--mdc-chip-label-text-font);line-height:var(--mdc-chip-label-text-line-height);font-size:var(--mdc-chip-label-text-size);font-weight:var(--mdc-chip-label-text-weight);letter-spacing:var(--mdc-chip-label-text-tracking)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label{color:var(--mdc-chip-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__text-label{color:var(--mdc-chip-disabled-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label{color:var(--mdc-chip-selected-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled .mdc-evolution-chip__text-label{color:var(--mdc-chip-disabled-label-text-color)}.mat-mdc-standard-chip .mdc-evolution-chip__icon--primary{height:var(--mdc-chip-with-icon-icon-size);width:var(--mdc-chip-with-icon-icon-size);font-size:var(--mdc-chip-with-icon-icon-size)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__icon--primary{color:var(--mdc-chip-with-icon-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--primary{color:var(--mdc-chip-with-icon-disabled-icon-color)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__checkmark{color:var(--mdc-chip-with-icon-selected-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__checkmark{color:var(--mdc-chip-with-icon-disabled-icon-color)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__icon--trailing{color:var(--mdc-chip-with-trailing-icon-trailing-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{color:var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::after{background-color:var(--mdc-chip-hover-state-layer-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:hover .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary.mdc-ripple-surface--hover .mdc-evolution-chip__ripple::before{opacity:var(--mdc-chip-hover-state-layer-opacity)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary.mdc-ripple-upgraded--background-focused .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-ripple-upgraded):focus .mdc-evolution-chip__ripple::before{transition-duration:75ms;opacity:var(--mdc-chip-focus-state-layer-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::after{background-color:var(--mdc-chip-selected-hover-state-layer-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:hover .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary.mdc-ripple-surface--hover .mdc-evolution-chip__ripple::before{opacity:var(--mdc-chip-selected-hover-state-layer-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary.mdc-ripple-upgraded--background-focused .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:not(.mdc-ripple-upgraded):focus .mdc-evolution-chip__ripple::before{transition-duration:75ms;opacity:var(--mdc-chip-selected-focus-state-layer-opacity)}.mat-mdc-chip-highlighted{--mdc-chip-with-icon-icon-color:var(--mdc-chip-with-icon-selected-icon-color);--mdc-chip-elevated-container-color:var(--mdc-chip-elevated-selected-container-color);--mdc-chip-label-text-color:var(--mdc-chip-selected-label-text-color);--mdc-chip-outline-width:var(--mdc-chip-flat-selected-outline-width)}.mat-mdc-chip-focus-overlay{background:var(--mdc-chip-focus-state-layer-color)}.mat-mdc-chip-selected .mat-mdc-chip-focus-overlay,.mat-mdc-chip-highlighted .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-focus-state-layer-color)}.mat-mdc-chip:hover .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-hover-state-layer-color);opacity:var(--mdc-chip-hover-state-layer-opacity)}.mat-mdc-chip-focus-overlay .mat-mdc-chip-selected:hover,.mat-mdc-chip-highlighted:hover .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-hover-state-layer-color);opacity:var(--mdc-chip-selected-hover-state-layer-opacity)}.mat-mdc-chip.cdk-focused .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-focus-state-layer-color);opacity:var(--mdc-chip-focus-state-layer-opacity)}.mat-mdc-chip-selected.cdk-focused .mat-mdc-chip-focus-overlay,.mat-mdc-chip-highlighted.cdk-focused .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-focus-state-layer-color);opacity:var(--mdc-chip-selected-focus-state-layer-opacity)}.mdc-evolution-chip--disabled:not(.mdc-evolution-chip--selected) .mat-mdc-chip-avatar{opacity:var(--mdc-chip-with-avatar-disabled-avatar-opacity)}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{opacity:var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity)}.mdc-evolution-chip--disabled.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark{opacity:var(--mdc-chip-with-icon-disabled-icon-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled{opacity:var(--mat-chip-disabled-container-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__icon--trailing,.mat-mdc-standard-chip.mat-mdc-chip-highlighted .mdc-evolution-chip__icon--trailing{color:var(--mat-chip-selected-trailing-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing,.mat-mdc-standard-chip.mat-mdc-chip-highlighted.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{color:var(--mat-chip-selected-disabled-trailing-icon-color)}.mat-mdc-chip-remove{opacity:var(--mat-chip-trailing-action-opacity)}.mat-mdc-chip-remove:focus{opacity:var(--mat-chip-trailing-action-focus-opacity)}.mat-mdc-chip-remove::after{background:var(--mat-chip-trailing-action-state-layer-color)}.mat-mdc-chip-remove:hover::after{opacity:var(--mat-chip-trailing-action-hover-state-layer-opacity)}.mat-mdc-chip-remove:focus::after{opacity:var(--mat-chip-trailing-action-focus-state-layer-opacity)}.mat-mdc-chip-selected .mat-mdc-chip-remove::after,.mat-mdc-chip-highlighted .mat-mdc-chip-remove::after{background:var(--mat-chip-selected-trailing-action-state-layer-color)}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing.mat-mdc-chip-remove{opacity:calc(var(--mat-chip-trailing-action-opacity)*var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity))}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing.mat-mdc-chip-remove:focus{opacity:calc(var(--mat-chip-trailing-action-focus-opacity)*var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity))}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-style:solid}.mat-mdc-standard-chip .mdc-evolution-chip__checkmark{height:20px;width:20px}.mat-mdc-standard-chip .mdc-evolution-chip__icon--trailing{height:18px;width:18px;font-size:18px}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary{padding-left:12px;padding-right:12px}[dir=rtl] .mat-mdc-standard-chip .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:12px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic{padding-left:6px;padding-right:6px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic[dir=rtl]{padding-left:6px;padding-right:6px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary{padding-left:0;padding-right:12px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:0}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:12px;padding-right:0}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:12px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic{padding-left:6px;padding-right:6px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic[dir=rtl]{padding-left:6px;padding-right:6px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:0;padding-right:0}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:0}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic{padding-left:4px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic[dir=rtl]{padding-left:8px;padding-right:4px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary{padding-left:0;padding-right:12px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:0}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic{padding-left:4px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic[dir=rtl]{padding-left:8px;padding-right:4px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:0;padding-right:0}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:0}.mat-mdc-standard-chip{-webkit-tap-highlight-color:rgba(0,0,0,0)}.cdk-high-contrast-active .mat-mdc-standard-chip{outline:solid 1px}.cdk-high-contrast-active .mat-mdc-standard-chip .mdc-evolution-chip__checkmark-path{stroke:CanvasText !important}.mat-mdc-standard-chip .mdc-evolution-chip__cell--primary,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip .mat-mdc-chip-action-label{overflow:visible}.mat-mdc-standard-chip .mdc-evolution-chip__cell--primary{flex-basis:100%}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary{font:inherit;letter-spacing:inherit;white-space:inherit}.mat-mdc-standard-chip .mat-mdc-chip-graphic,.mat-mdc-standard-chip .mat-mdc-chip-trailing-icon{box-sizing:content-box}.mat-mdc-standard-chip._mat-animation-noopable,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__graphic,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__checkmark,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__checkmark-path{transition-duration:1ms;animation-duration:1ms}.mat-mdc-basic-chip .mdc-evolution-chip__action--primary{font:inherit}.mat-mdc-chip-focus-overlay{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none;opacity:0;border-radius:inherit;transition:opacity 150ms linear}._mat-animation-noopable .mat-mdc-chip-focus-overlay{transition:none}.mat-mdc-basic-chip .mat-mdc-chip-focus-overlay{display:none}.mat-mdc-chip .mat-ripple.mat-mdc-chip-ripple{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none;border-radius:inherit}.mat-mdc-chip-avatar{text-align:center;line-height:1;color:var(--mdc-chip-with-icon-icon-color, currentColor)}.mat-mdc-chip{position:relative;z-index:0}.mat-mdc-chip-action-label{text-align:left;z-index:1}[dir=rtl] .mat-mdc-chip-action-label{text-align:right}.mat-mdc-chip.mdc-evolution-chip--with-trailing-action .mat-mdc-chip-action-label{position:relative}.mat-mdc-chip-action-label .mat-mdc-chip-primary-focus-indicator{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none}.mat-mdc-chip-action-label .mat-mdc-focus-indicator::before{margin:calc(calc(var(--mat-mdc-focus-indicator-border-width, 3px) + 2px)*-1)}.mat-mdc-chip-remove::before{margin:calc(var(--mat-mdc-focus-indicator-border-width, 3px)*-1);left:8px;right:8px}.mat-mdc-chip-remove::after{content:"";display:block;opacity:0;position:absolute;top:-2px;bottom:-2px;left:6px;right:6px;border-radius:50%}.mat-mdc-chip-remove .mat-icon{width:18px;height:18px;font-size:18px;box-sizing:content-box}.mat-chip-edit-input{cursor:text;display:inline-block;color:inherit;outline:0}.cdk-high-contrast-active .mat-mdc-chip-selected:not(.mat-mdc-chip-multiple){outline-width:3px}.mat-mdc-chip-action:focus .mat-mdc-focus-indicator::before{content:""}']
-    }]
-  }], () => [{
-    type: ChangeDetectorRef
-  }, {
-    type: ElementRef
-  }, {
-    type: NgZone
-  }, {
-    type: FocusMonitor
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Inject,
-      args: [DOCUMENT2]
-    }]
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Optional
-    }, {
-      type: Inject,
-      args: [ANIMATION_MODULE_TYPE]
-    }]
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Optional
-    }, {
-      type: Inject,
-      args: [MAT_RIPPLE_GLOBAL_OPTIONS]
-    }]
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Attribute2,
-      args: ["tabindex"]
-    }]
-  }], {
-    role: [{
-      type: Input
-    }],
-    _allLeadingIcons: [{
-      type: ContentChildren,
-      args: [MAT_CHIP_AVATAR, {
-        descendants: true
-      }]
-    }],
-    _allTrailingIcons: [{
-      type: ContentChildren,
-      args: [MAT_CHIP_TRAILING_ICON, {
-        descendants: true
-      }]
-    }],
-    _allRemoveIcons: [{
-      type: ContentChildren,
-      args: [MAT_CHIP_REMOVE, {
-        descendants: true
-      }]
-    }],
-    id: [{
-      type: Input
-    }],
-    ariaLabel: [{
-      type: Input,
-      args: ["aria-label"]
-    }],
-    ariaDescription: [{
-      type: Input,
-      args: ["aria-description"]
-    }],
-    value: [{
-      type: Input
-    }],
-    color: [{
-      type: Input
-    }],
-    removable: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    highlighted: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    disableRipple: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    disabled: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    tabIndex: [{
-      type: Input,
-      args: [{
-        transform: (value) => value == null ? void 0 : numberAttribute(value)
-      }]
-    }],
-    removed: [{
-      type: Output
-    }],
-    destroyed: [{
-      type: Output
-    }],
-    leadingIcon: [{
-      type: ContentChild,
-      args: [MAT_CHIP_AVATAR]
-    }],
-    trailingIcon: [{
-      type: ContentChild,
-      args: [MAT_CHIP_TRAILING_ICON]
-    }],
-    removeIcon: [{
-      type: ContentChild,
-      args: [MAT_CHIP_REMOVE]
-    }],
-    primaryAction: [{
-      type: ViewChild,
-      args: [MatChipAction]
-    }]
-  });
-})();
-var _MatChipOption = class _MatChipOption extends MatChip {
-  constructor() {
-    super(...arguments);
-    this._defaultOptions = inject(MAT_CHIPS_DEFAULT_OPTIONS, {
-      optional: true
-    });
-    this.chipListSelectable = true;
-    this._chipListMultiple = false;
-    this._chipListHideSingleSelectionIndicator = this._defaultOptions?.hideSingleSelectionIndicator ?? false;
-    this._selectable = true;
-    this._selected = false;
-    this.basicChipAttrName = "mat-basic-chip-option";
-    this.selectionChange = new EventEmitter();
-  }
-  /**
-   * Whether or not the chip is selectable.
-   *
-   * When a chip is not selectable, changes to its selected state are always
-   * ignored. By default an option chip is selectable, and it becomes
-   * non-selectable if its parent chip list is not selectable.
-   */
-  get selectable() {
-    return this._selectable && this.chipListSelectable;
-  }
-  set selectable(value) {
-    this._selectable = value;
-    this._changeDetectorRef.markForCheck();
-  }
-  /** Whether the chip is selected. */
-  get selected() {
-    return this._selected;
-  }
-  set selected(value) {
-    this._setSelectedState(value, false, true);
-  }
-  /**
-   * The ARIA selected applied to the chip. Conforms to WAI ARIA best practices for listbox
-   * interaction patterns.
-   *
-   * From [WAI ARIA Listbox authoring practices guide](
-   * https://www.w3.org/WAI/ARIA/apg/patterns/listbox/):
-   *  "If any options are selected, each selected option has either aria-selected or aria-checked
-   *  set to true. All options that are selectable but not selected have either aria-selected or
-   *  aria-checked set to false."
-   *
-   * Set `aria-selected="false"` on not-selected listbox options that are selectable to fix
-   * VoiceOver reading every option as "selected" (#25736).
-   */
-  get ariaSelected() {
-    return this.selectable ? this.selected.toString() : null;
-  }
-  ngOnInit() {
-    super.ngOnInit();
-    this.role = "presentation";
-  }
-  /** Selects the chip. */
-  select() {
-    this._setSelectedState(true, false, true);
-  }
-  /** Deselects the chip. */
-  deselect() {
-    this._setSelectedState(false, false, true);
-  }
-  /** Selects this chip and emits userInputSelection event */
-  selectViaInteraction() {
-    this._setSelectedState(true, true, true);
-  }
-  /** Toggles the current selected state of this chip. */
-  toggleSelected(isUserInput = false) {
-    this._setSelectedState(!this.selected, isUserInput, true);
-    return this.selected;
-  }
-  _handlePrimaryActionInteraction() {
-    if (!this.disabled) {
-      this.focus();
-      if (this.selectable) {
-        this.toggleSelected(true);
-      }
-    }
-  }
-  _hasLeadingGraphic() {
-    if (this.leadingIcon) {
-      return true;
-    }
-    return !this._chipListHideSingleSelectionIndicator || this._chipListMultiple;
-  }
-  _setSelectedState(isSelected, isUserInput, emitEvent) {
-    if (isSelected !== this.selected) {
-      this._selected = isSelected;
-      if (emitEvent) {
-        this.selectionChange.emit({
-          source: this,
-          isUserInput,
-          selected: this.selected
-        });
-      }
-      this._changeDetectorRef.markForCheck();
-    }
-  }
-};
-_MatChipOption.\u0275fac = /* @__PURE__ */ (() => {
-  let \u0275MatChipOption_BaseFactory;
-  return function MatChipOption_Factory(t) {
-    return (\u0275MatChipOption_BaseFactory || (\u0275MatChipOption_BaseFactory = \u0275\u0275getInheritedFactory(_MatChipOption)))(t || _MatChipOption);
-  };
-})();
-_MatChipOption.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
-  type: _MatChipOption,
-  selectors: [["mat-basic-chip-option"], ["", "mat-basic-chip-option", ""], ["mat-chip-option"], ["", "mat-chip-option", ""]],
-  hostAttrs: [1, "mat-mdc-chip", "mat-mdc-chip-option"],
-  hostVars: 37,
-  hostBindings: function MatChipOption_HostBindings(rf, ctx) {
-    if (rf & 2) {
-      \u0275\u0275hostProperty("id", ctx.id);
-      \u0275\u0275attribute("tabindex", null)("aria-label", null)("aria-description", null)("role", ctx.role);
-      \u0275\u0275classProp("mdc-evolution-chip", !ctx._isBasicChip)("mdc-evolution-chip--filter", !ctx._isBasicChip)("mdc-evolution-chip--selectable", !ctx._isBasicChip)("mat-mdc-chip-selected", ctx.selected)("mat-mdc-chip-multiple", ctx._chipListMultiple)("mat-mdc-chip-disabled", ctx.disabled)("mat-mdc-chip-with-avatar", ctx.leadingIcon)("mdc-evolution-chip--disabled", ctx.disabled)("mdc-evolution-chip--selected", ctx.selected)("mdc-evolution-chip--selecting", !ctx._animationsDisabled)("mdc-evolution-chip--with-trailing-action", ctx._hasTrailingIcon())("mdc-evolution-chip--with-primary-icon", ctx.leadingIcon)("mdc-evolution-chip--with-primary-graphic", ctx._hasLeadingGraphic())("mdc-evolution-chip--with-avatar", ctx.leadingIcon)("mat-mdc-chip-highlighted", ctx.highlighted)("mat-mdc-chip-with-trailing-icon", ctx._hasTrailingIcon());
-    }
-  },
-  inputs: {
-    selectable: [2, "selectable", "selectable", booleanAttribute],
-    selected: [2, "selected", "selected", booleanAttribute]
-  },
-  outputs: {
-    selectionChange: "selectionChange"
-  },
-  standalone: true,
-  features: [\u0275\u0275ProvidersFeature([{
-    provide: MatChip,
-    useExisting: _MatChipOption
-  }, {
-    provide: MAT_CHIP,
-    useExisting: _MatChipOption
-  }]), \u0275\u0275InputTransformsFeature, \u0275\u0275InheritDefinitionFeature, \u0275\u0275StandaloneFeature],
-  ngContentSelectors: _c14,
-  decls: 10,
-  vars: 9,
-  consts: [[1, "mat-mdc-chip-focus-overlay"], [1, "mdc-evolution-chip__cell", "mdc-evolution-chip__cell--primary"], ["matChipAction", "", "role", "option", 3, "tabIndex", "_allowFocusWhenDisabled"], [1, "mdc-evolution-chip__graphic", "mat-mdc-chip-graphic"], [1, "mdc-evolution-chip__text-label", "mat-mdc-chip-action-label"], [1, "mat-mdc-chip-primary-focus-indicator", "mat-mdc-focus-indicator"], [1, "mdc-evolution-chip__cell", "mdc-evolution-chip__cell--trailing"], [1, "cdk-visually-hidden", 3, "id"], [1, "mdc-evolution-chip__checkmark"], ["viewBox", "-2 -3 30 30", "focusable", "false", "aria-hidden", "true", 1, "mdc-evolution-chip__checkmark-svg"], ["fill", "none", "stroke", "currentColor", "d", "M1.73,12.91 8.1,19.28 22.79,4.59", 1, "mdc-evolution-chip__checkmark-path"]],
-  template: function MatChipOption_Template(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275projectionDef(_c06);
-      \u0275\u0275element(0, "span", 0);
-      \u0275\u0275elementStart(1, "span", 1)(2, "button", 2);
-      \u0275\u0275template(3, MatChipOption_Conditional_3_Template, 5, 0, "span", 3);
-      \u0275\u0275elementStart(4, "span", 4);
-      \u0275\u0275projection(5);
-      \u0275\u0275element(6, "span", 5);
-      \u0275\u0275elementEnd()()();
-      \u0275\u0275template(7, MatChipOption_Conditional_7_Template, 2, 0, "span", 6);
-      \u0275\u0275elementStart(8, "span", 7);
-      \u0275\u0275text(9);
-      \u0275\u0275elementEnd();
-    }
-    if (rf & 2) {
-      \u0275\u0275advance(2);
-      \u0275\u0275property("tabIndex", ctx.tabIndex)("_allowFocusWhenDisabled", true);
-      \u0275\u0275attribute("aria-selected", ctx.ariaSelected)("aria-label", ctx.ariaLabel)("aria-describedby", ctx._ariaDescriptionId);
-      \u0275\u0275advance();
-      \u0275\u0275conditional(ctx._hasLeadingGraphic() ? 3 : -1);
-      \u0275\u0275advance(4);
-      \u0275\u0275conditional(ctx._hasTrailingIcon() ? 7 : -1);
-      \u0275\u0275advance();
-      \u0275\u0275property("id", ctx._ariaDescriptionId);
-      \u0275\u0275advance();
-      \u0275\u0275textInterpolate(ctx.ariaDescription);
-    }
-  },
-  dependencies: [MatChipAction],
-  styles: [_c24],
-  encapsulation: 2,
-  changeDetection: 0
-});
-var MatChipOption = _MatChipOption;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipOption, [{
-    type: Component,
-    args: [{
-      selector: "mat-basic-chip-option, [mat-basic-chip-option], mat-chip-option, [mat-chip-option]",
-      host: {
-        "class": "mat-mdc-chip mat-mdc-chip-option",
-        "[class.mdc-evolution-chip]": "!_isBasicChip",
-        "[class.mdc-evolution-chip--filter]": "!_isBasicChip",
-        "[class.mdc-evolution-chip--selectable]": "!_isBasicChip",
-        "[class.mat-mdc-chip-selected]": "selected",
-        "[class.mat-mdc-chip-multiple]": "_chipListMultiple",
-        "[class.mat-mdc-chip-disabled]": "disabled",
-        "[class.mat-mdc-chip-with-avatar]": "leadingIcon",
-        "[class.mdc-evolution-chip--disabled]": "disabled",
-        "[class.mdc-evolution-chip--selected]": "selected",
-        // This class enables the transition on the checkmark. Usually MDC adds it when selection
-        // starts and removes it once the animation is finished. We don't need to go through all
-        // the trouble, because we only care about the selection animation. MDC needs to do it,
-        // because they also have an exit animation that we don't care about.
-        "[class.mdc-evolution-chip--selecting]": "!_animationsDisabled",
-        "[class.mdc-evolution-chip--with-trailing-action]": "_hasTrailingIcon()",
-        "[class.mdc-evolution-chip--with-primary-icon]": "leadingIcon",
-        "[class.mdc-evolution-chip--with-primary-graphic]": "_hasLeadingGraphic()",
-        "[class.mdc-evolution-chip--with-avatar]": "leadingIcon",
-        "[class.mat-mdc-chip-highlighted]": "highlighted",
-        "[class.mat-mdc-chip-with-trailing-icon]": "_hasTrailingIcon()",
-        "[attr.tabindex]": "null",
-        "[attr.aria-label]": "null",
-        "[attr.aria-description]": "null",
-        "[attr.role]": "role",
-        "[id]": "id"
-      },
-      providers: [{
-        provide: MatChip,
-        useExisting: MatChipOption
-      }, {
-        provide: MAT_CHIP,
-        useExisting: MatChipOption
-      }],
-      encapsulation: ViewEncapsulation$1.None,
-      changeDetection: ChangeDetectionStrategy.OnPush,
-      standalone: true,
-      imports: [MatChipAction],
-      template: '<span class="mat-mdc-chip-focus-overlay"></span>\n\n<span class="mdc-evolution-chip__cell mdc-evolution-chip__cell--primary">\n  <button\n    matChipAction\n    [tabIndex]="tabIndex"\n    [_allowFocusWhenDisabled]="true"\n    [attr.aria-selected]="ariaSelected"\n    [attr.aria-label]="ariaLabel"\n    [attr.aria-describedby]="_ariaDescriptionId"\n    role="option">\n    @if (_hasLeadingGraphic()) {\n      <span class="mdc-evolution-chip__graphic mat-mdc-chip-graphic">\n        <ng-content select="mat-chip-avatar, [matChipAvatar]"></ng-content>\n        <span class="mdc-evolution-chip__checkmark">\n          <svg\n            class="mdc-evolution-chip__checkmark-svg"\n            viewBox="-2 -3 30 30"\n            focusable="false"\n            aria-hidden="true">\n            <path class="mdc-evolution-chip__checkmark-path"\n                  fill="none" stroke="currentColor" d="M1.73,12.91 8.1,19.28 22.79,4.59" />\n          </svg>\n        </span>\n      </span>\n    }\n    <span class="mdc-evolution-chip__text-label mat-mdc-chip-action-label">\n      <ng-content></ng-content>\n      <span class="mat-mdc-chip-primary-focus-indicator mat-mdc-focus-indicator"></span>\n    </span>\n  </button>\n</span>\n\n@if (_hasTrailingIcon()) {\n  <span class="mdc-evolution-chip__cell mdc-evolution-chip__cell--trailing">\n    <ng-content select="mat-chip-trailing-icon,[matChipRemove],[matChipTrailingIcon]"></ng-content>\n  </span>\n}\n\n<span class="cdk-visually-hidden" [id]="_ariaDescriptionId">{{ariaDescription}}</span>\n',
-      styles: ['.mdc-evolution-chip,.mdc-evolution-chip__cell,.mdc-evolution-chip__action{display:inline-flex;align-items:center}.mdc-evolution-chip{position:relative;max-width:100%}.mdc-evolution-chip .mdc-elevation-overlay{width:100%;height:100%;top:0;left:0}.mdc-evolution-chip__cell,.mdc-evolution-chip__action{height:100%}.mdc-evolution-chip__cell--primary{overflow-x:hidden}.mdc-evolution-chip__cell--trailing{flex:1 0 auto}.mdc-evolution-chip__action{align-items:center;background:none;border:none;box-sizing:content-box;cursor:pointer;display:inline-flex;justify-content:center;outline:none;padding:0;text-decoration:none;color:inherit}.mdc-evolution-chip__action--presentational{cursor:auto}.mdc-evolution-chip--disabled,.mdc-evolution-chip__action:disabled{pointer-events:none}.mdc-evolution-chip__action--primary{overflow-x:hidden}.mdc-evolution-chip__action--trailing{position:relative;overflow:visible}.mdc-evolution-chip__action--primary:before{box-sizing:border-box;content:"";height:100%;left:0;position:absolute;pointer-events:none;top:0;width:100%;z-index:1}.mdc-evolution-chip--touch{margin-top:8px;margin-bottom:8px}.mdc-evolution-chip__action-touch{position:absolute;top:50%;height:48px;left:0;right:0;transform:translateY(-50%)}.mdc-evolution-chip__text-label{white-space:nowrap;user-select:none;text-overflow:ellipsis;overflow:hidden}.mdc-evolution-chip__graphic{align-items:center;display:inline-flex;justify-content:center;overflow:hidden;pointer-events:none;position:relative;flex:1 0 auto}.mdc-evolution-chip__checkmark{position:absolute;opacity:0;top:50%;left:50%}.mdc-evolution-chip--selectable:not(.mdc-evolution-chip--selected):not(.mdc-evolution-chip--with-primary-icon) .mdc-evolution-chip__graphic{width:0}.mdc-evolution-chip__checkmark-background{opacity:0}.mdc-evolution-chip__checkmark-svg{display:block}.mdc-evolution-chip__checkmark-path{stroke-width:2px;stroke-dasharray:29.7833385;stroke-dashoffset:29.7833385;stroke:currentColor}.mdc-evolution-chip--selecting .mdc-evolution-chip__graphic{transition:width 150ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--selecting .mdc-evolution-chip__checkmark{transition:transform 150ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-75%, -50%)}.mdc-evolution-chip--selecting .mdc-evolution-chip__checkmark-path{transition:stroke-dashoffset 150ms 45ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__graphic{transition:width 100ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__checkmark{transition:opacity 50ms 0ms linear,transform 100ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-75%, -50%)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}.mdc-evolution-chip--selecting-with-primary-icon .mdc-evolution-chip__icon--primary{transition:opacity 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--selecting-with-primary-icon .mdc-evolution-chip__checkmark-path{transition:stroke-dashoffset 150ms 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__icon--primary{transition:opacity 150ms 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__checkmark{transition:opacity 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-50%, -50%)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}.mdc-evolution-chip--selected .mdc-evolution-chip__icon--primary{opacity:0}.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark{transform:translate(-50%, -50%);opacity:1}.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}@keyframes mdc-evolution-chip-enter{from{transform:scale(0.8);opacity:.4}to{transform:scale(1);opacity:1}}.mdc-evolution-chip--enter{animation:mdc-evolution-chip-enter 100ms 0ms cubic-bezier(0, 0, 0.2, 1)}@keyframes mdc-evolution-chip-exit{from{opacity:1}to{opacity:0}}.mdc-evolution-chip--exit{animation:mdc-evolution-chip-exit 75ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mdc-evolution-chip--hidden{opacity:0;pointer-events:none;transition:width 150ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mat-mdc-standard-chip{border-radius:var(--mdc-chip-container-shape-radius);height:var(--mdc-chip-container-height)}.mat-mdc-standard-chip .mdc-evolution-chip__ripple{border-radius:var(--mdc-chip-container-shape-radius)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-radius:var(--mdc-chip-container-shape-radius)}.mat-mdc-standard-chip .mdc-evolution-chip__icon--primary{border-radius:var(--mdc-chip-with-avatar-avatar-shape-radius)}.mat-mdc-standard-chip.mdc-evolution-chip--selectable:not(.mdc-evolution-chip--with-primary-icon){--mdc-chip-graphic-selected-width:var(--mdc-chip-with-avatar-avatar-size)}.mat-mdc-standard-chip .mdc-evolution-chip__graphic{height:var(--mdc-chip-with-avatar-avatar-size);width:var(--mdc-chip-with-avatar-avatar-size);font-size:var(--mdc-chip-with-avatar-avatar-size)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__action--primary:before{border-color:var(--mdc-chip-outline-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-evolution-chip__action--presentational).mdc-ripple-upgraded--background-focused:before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-evolution-chip__action--presentational):not(.mdc-ripple-upgraded):focus:before{border-color:var(--mdc-chip-focus-outline-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__action--primary:before{border-color:var(--mdc-chip-disabled-outline-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-width:var(--mdc-chip-outline-width)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:before{border-width:var(--mdc-chip-flat-selected-outline-width)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled){background-color:var(--mdc-chip-elevated-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-elevated-disabled-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected:not(.mdc-evolution-chip--disabled){background-color:var(--mdc-chip-elevated-selected-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-elevated-disabled-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-flat-disabled-selected-container-color)}.mat-mdc-standard-chip .mdc-evolution-chip__text-label{font-family:var(--mdc-chip-label-text-font);line-height:var(--mdc-chip-label-text-line-height);font-size:var(--mdc-chip-label-text-size);font-weight:var(--mdc-chip-label-text-weight);letter-spacing:var(--mdc-chip-label-text-tracking)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label{color:var(--mdc-chip-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__text-label{color:var(--mdc-chip-disabled-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label{color:var(--mdc-chip-selected-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled .mdc-evolution-chip__text-label{color:var(--mdc-chip-disabled-label-text-color)}.mat-mdc-standard-chip .mdc-evolution-chip__icon--primary{height:var(--mdc-chip-with-icon-icon-size);width:var(--mdc-chip-with-icon-icon-size);font-size:var(--mdc-chip-with-icon-icon-size)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__icon--primary{color:var(--mdc-chip-with-icon-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--primary{color:var(--mdc-chip-with-icon-disabled-icon-color)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__checkmark{color:var(--mdc-chip-with-icon-selected-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__checkmark{color:var(--mdc-chip-with-icon-disabled-icon-color)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__icon--trailing{color:var(--mdc-chip-with-trailing-icon-trailing-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{color:var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::after{background-color:var(--mdc-chip-hover-state-layer-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:hover .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary.mdc-ripple-surface--hover .mdc-evolution-chip__ripple::before{opacity:var(--mdc-chip-hover-state-layer-opacity)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary.mdc-ripple-upgraded--background-focused .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-ripple-upgraded):focus .mdc-evolution-chip__ripple::before{transition-duration:75ms;opacity:var(--mdc-chip-focus-state-layer-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::after{background-color:var(--mdc-chip-selected-hover-state-layer-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:hover .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary.mdc-ripple-surface--hover .mdc-evolution-chip__ripple::before{opacity:var(--mdc-chip-selected-hover-state-layer-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary.mdc-ripple-upgraded--background-focused .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:not(.mdc-ripple-upgraded):focus .mdc-evolution-chip__ripple::before{transition-duration:75ms;opacity:var(--mdc-chip-selected-focus-state-layer-opacity)}.mat-mdc-chip-highlighted{--mdc-chip-with-icon-icon-color:var(--mdc-chip-with-icon-selected-icon-color);--mdc-chip-elevated-container-color:var(--mdc-chip-elevated-selected-container-color);--mdc-chip-label-text-color:var(--mdc-chip-selected-label-text-color);--mdc-chip-outline-width:var(--mdc-chip-flat-selected-outline-width)}.mat-mdc-chip-focus-overlay{background:var(--mdc-chip-focus-state-layer-color)}.mat-mdc-chip-selected .mat-mdc-chip-focus-overlay,.mat-mdc-chip-highlighted .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-focus-state-layer-color)}.mat-mdc-chip:hover .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-hover-state-layer-color);opacity:var(--mdc-chip-hover-state-layer-opacity)}.mat-mdc-chip-focus-overlay .mat-mdc-chip-selected:hover,.mat-mdc-chip-highlighted:hover .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-hover-state-layer-color);opacity:var(--mdc-chip-selected-hover-state-layer-opacity)}.mat-mdc-chip.cdk-focused .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-focus-state-layer-color);opacity:var(--mdc-chip-focus-state-layer-opacity)}.mat-mdc-chip-selected.cdk-focused .mat-mdc-chip-focus-overlay,.mat-mdc-chip-highlighted.cdk-focused .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-focus-state-layer-color);opacity:var(--mdc-chip-selected-focus-state-layer-opacity)}.mdc-evolution-chip--disabled:not(.mdc-evolution-chip--selected) .mat-mdc-chip-avatar{opacity:var(--mdc-chip-with-avatar-disabled-avatar-opacity)}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{opacity:var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity)}.mdc-evolution-chip--disabled.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark{opacity:var(--mdc-chip-with-icon-disabled-icon-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled{opacity:var(--mat-chip-disabled-container-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__icon--trailing,.mat-mdc-standard-chip.mat-mdc-chip-highlighted .mdc-evolution-chip__icon--trailing{color:var(--mat-chip-selected-trailing-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing,.mat-mdc-standard-chip.mat-mdc-chip-highlighted.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{color:var(--mat-chip-selected-disabled-trailing-icon-color)}.mat-mdc-chip-remove{opacity:var(--mat-chip-trailing-action-opacity)}.mat-mdc-chip-remove:focus{opacity:var(--mat-chip-trailing-action-focus-opacity)}.mat-mdc-chip-remove::after{background:var(--mat-chip-trailing-action-state-layer-color)}.mat-mdc-chip-remove:hover::after{opacity:var(--mat-chip-trailing-action-hover-state-layer-opacity)}.mat-mdc-chip-remove:focus::after{opacity:var(--mat-chip-trailing-action-focus-state-layer-opacity)}.mat-mdc-chip-selected .mat-mdc-chip-remove::after,.mat-mdc-chip-highlighted .mat-mdc-chip-remove::after{background:var(--mat-chip-selected-trailing-action-state-layer-color)}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing.mat-mdc-chip-remove{opacity:calc(var(--mat-chip-trailing-action-opacity)*var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity))}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing.mat-mdc-chip-remove:focus{opacity:calc(var(--mat-chip-trailing-action-focus-opacity)*var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity))}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-style:solid}.mat-mdc-standard-chip .mdc-evolution-chip__checkmark{height:20px;width:20px}.mat-mdc-standard-chip .mdc-evolution-chip__icon--trailing{height:18px;width:18px;font-size:18px}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary{padding-left:12px;padding-right:12px}[dir=rtl] .mat-mdc-standard-chip .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:12px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic{padding-left:6px;padding-right:6px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic[dir=rtl]{padding-left:6px;padding-right:6px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary{padding-left:0;padding-right:12px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:0}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:12px;padding-right:0}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:12px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic{padding-left:6px;padding-right:6px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic[dir=rtl]{padding-left:6px;padding-right:6px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:0;padding-right:0}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:0}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic{padding-left:4px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic[dir=rtl]{padding-left:8px;padding-right:4px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary{padding-left:0;padding-right:12px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:0}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic{padding-left:4px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic[dir=rtl]{padding-left:8px;padding-right:4px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:0;padding-right:0}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:0}.mat-mdc-standard-chip{-webkit-tap-highlight-color:rgba(0,0,0,0)}.cdk-high-contrast-active .mat-mdc-standard-chip{outline:solid 1px}.cdk-high-contrast-active .mat-mdc-standard-chip .mdc-evolution-chip__checkmark-path{stroke:CanvasText !important}.mat-mdc-standard-chip .mdc-evolution-chip__cell--primary,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip .mat-mdc-chip-action-label{overflow:visible}.mat-mdc-standard-chip .mdc-evolution-chip__cell--primary{flex-basis:100%}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary{font:inherit;letter-spacing:inherit;white-space:inherit}.mat-mdc-standard-chip .mat-mdc-chip-graphic,.mat-mdc-standard-chip .mat-mdc-chip-trailing-icon{box-sizing:content-box}.mat-mdc-standard-chip._mat-animation-noopable,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__graphic,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__checkmark,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__checkmark-path{transition-duration:1ms;animation-duration:1ms}.mat-mdc-basic-chip .mdc-evolution-chip__action--primary{font:inherit}.mat-mdc-chip-focus-overlay{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none;opacity:0;border-radius:inherit;transition:opacity 150ms linear}._mat-animation-noopable .mat-mdc-chip-focus-overlay{transition:none}.mat-mdc-basic-chip .mat-mdc-chip-focus-overlay{display:none}.mat-mdc-chip .mat-ripple.mat-mdc-chip-ripple{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none;border-radius:inherit}.mat-mdc-chip-avatar{text-align:center;line-height:1;color:var(--mdc-chip-with-icon-icon-color, currentColor)}.mat-mdc-chip{position:relative;z-index:0}.mat-mdc-chip-action-label{text-align:left;z-index:1}[dir=rtl] .mat-mdc-chip-action-label{text-align:right}.mat-mdc-chip.mdc-evolution-chip--with-trailing-action .mat-mdc-chip-action-label{position:relative}.mat-mdc-chip-action-label .mat-mdc-chip-primary-focus-indicator{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none}.mat-mdc-chip-action-label .mat-mdc-focus-indicator::before{margin:calc(calc(var(--mat-mdc-focus-indicator-border-width, 3px) + 2px)*-1)}.mat-mdc-chip-remove::before{margin:calc(var(--mat-mdc-focus-indicator-border-width, 3px)*-1);left:8px;right:8px}.mat-mdc-chip-remove::after{content:"";display:block;opacity:0;position:absolute;top:-2px;bottom:-2px;left:6px;right:6px;border-radius:50%}.mat-mdc-chip-remove .mat-icon{width:18px;height:18px;font-size:18px;box-sizing:content-box}.mat-chip-edit-input{cursor:text;display:inline-block;color:inherit;outline:0}.cdk-high-contrast-active .mat-mdc-chip-selected:not(.mat-mdc-chip-multiple){outline-width:3px}.mat-mdc-chip-action:focus .mat-mdc-focus-indicator::before{content:""}']
-    }]
-  }], null, {
-    selectable: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    selected: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    selectionChange: [{
-      type: Output
-    }]
-  });
-})();
-var _MatChipEditInput = class _MatChipEditInput {
-  constructor(_elementRef, _document2) {
-    this._elementRef = _elementRef;
-    this._document = _document2;
-  }
-  initialize(initialValue) {
-    this.getNativeElement().focus();
-    this.setValue(initialValue);
-  }
-  getNativeElement() {
-    return this._elementRef.nativeElement;
-  }
-  setValue(value) {
-    this.getNativeElement().textContent = value;
-    this._moveCursorToEndOfInput();
-  }
-  getValue() {
-    return this.getNativeElement().textContent || "";
-  }
-  _moveCursorToEndOfInput() {
-    const range3 = this._document.createRange();
-    range3.selectNodeContents(this.getNativeElement());
-    range3.collapse(false);
-    const sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range3);
-  }
-};
-_MatChipEditInput.\u0275fac = function MatChipEditInput_Factory(t) {
-  return new (t || _MatChipEditInput)(\u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(DOCUMENT2));
-};
-_MatChipEditInput.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-  type: _MatChipEditInput,
-  selectors: [["span", "matChipEditInput", ""]],
-  hostAttrs: ["role", "textbox", "tabindex", "-1", "contenteditable", "true", 1, "mat-chip-edit-input"],
-  standalone: true
-});
-var MatChipEditInput = _MatChipEditInput;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipEditInput, [{
-    type: Directive,
-    args: [{
-      selector: "span[matChipEditInput]",
-      host: {
-        "class": "mat-chip-edit-input",
-        "role": "textbox",
-        "tabindex": "-1",
-        "contenteditable": "true"
-      },
-      standalone: true
-    }]
-  }], () => [{
-    type: ElementRef
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Inject,
-      args: [DOCUMENT2]
-    }]
-  }], null);
-})();
-var _MatChipRow = class _MatChipRow extends MatChip {
-  constructor(changeDetectorRef, elementRef, ngZone, focusMonitor, _document2, animationMode, globalRippleOptions, tabIndex) {
-    super(changeDetectorRef, elementRef, ngZone, focusMonitor, _document2, animationMode, globalRippleOptions, tabIndex);
-    this.basicChipAttrName = "mat-basic-chip-row";
-    this._editStartPending = false;
-    this.editable = false;
-    this.edited = new EventEmitter();
-    this._isEditing = false;
-    this.role = "row";
-    this._onBlur.pipe(takeUntil(this.destroyed)).subscribe(() => {
-      if (this._isEditing && !this._editStartPending) {
-        this._onEditFinish();
-      }
-    });
-  }
-  _hasTrailingIcon() {
-    return !this._isEditing && super._hasTrailingIcon();
-  }
-  /** Sends focus to the first gridcell when the user clicks anywhere inside the chip. */
-  _handleFocus() {
-    if (!this._isEditing && !this.disabled) {
-      this.focus();
-    }
-  }
-  _handleKeydown(event) {
-    if (event.keyCode === ENTER2 && !this.disabled) {
-      if (this._isEditing) {
-        event.preventDefault();
-        this._onEditFinish();
-      } else if (this.editable) {
-        this._startEditing(event);
-      }
-    } else if (this._isEditing) {
-      event.stopPropagation();
-    } else {
-      super._handleKeydown(event);
-    }
-  }
-  _handleDoubleclick(event) {
-    if (!this.disabled && this.editable) {
-      this._startEditing(event);
-    }
-  }
-  _startEditing(event) {
-    if (!this.primaryAction || this.removeIcon && this._getSourceAction(event.target) === this.removeIcon) {
-      return;
-    }
-    const value = this.value;
-    this._isEditing = this._editStartPending = true;
-    this._changeDetectorRef.detectChanges();
-    setTimeout(() => {
-      this._getEditInput().initialize(value);
-      this._editStartPending = false;
-    });
-  }
-  _onEditFinish() {
-    this._isEditing = this._editStartPending = false;
-    this.edited.emit({
-      chip: this,
-      value: this._getEditInput().getValue()
-    });
-    if (this._document.activeElement === this._getEditInput().getNativeElement() || this._document.activeElement === this._document.body) {
-      this.primaryAction.focus();
-    }
-  }
-  _isRippleDisabled() {
-    return super._isRippleDisabled() || this._isEditing;
-  }
-  /**
-   * Gets the projected chip edit input, or the default input if none is projected in. One of these
-   * two values is guaranteed to be defined.
-   */
-  _getEditInput() {
-    return this.contentEditInput || this.defaultEditInput;
-  }
-};
-_MatChipRow.\u0275fac = function MatChipRow_Factory(t) {
-  return new (t || _MatChipRow)(\u0275\u0275directiveInject(ChangeDetectorRef), \u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(NgZone), \u0275\u0275directiveInject(FocusMonitor), \u0275\u0275directiveInject(DOCUMENT2), \u0275\u0275directiveInject(ANIMATION_MODULE_TYPE, 8), \u0275\u0275directiveInject(MAT_RIPPLE_GLOBAL_OPTIONS, 8), \u0275\u0275injectAttribute("tabindex"));
-};
-_MatChipRow.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
-  type: _MatChipRow,
-  selectors: [["mat-chip-row"], ["", "mat-chip-row", ""], ["mat-basic-chip-row"], ["", "mat-basic-chip-row", ""]],
-  contentQueries: function MatChipRow_ContentQueries(rf, ctx, dirIndex) {
-    if (rf & 1) {
-      \u0275\u0275contentQuery(dirIndex, MatChipEditInput, 5);
-    }
-    if (rf & 2) {
-      let _t;
-      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.contentEditInput = _t.first);
-    }
-  },
-  viewQuery: function MatChipRow_Query(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275viewQuery(MatChipEditInput, 5);
-    }
-    if (rf & 2) {
-      let _t;
-      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.defaultEditInput = _t.first);
-    }
-  },
-  hostAttrs: [1, "mat-mdc-chip", "mat-mdc-chip-row", "mdc-evolution-chip"],
-  hostVars: 27,
-  hostBindings: function MatChipRow_HostBindings(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275listener("focus", function MatChipRow_focus_HostBindingHandler($event) {
-        return ctx._handleFocus($event);
-      })("dblclick", function MatChipRow_dblclick_HostBindingHandler($event) {
-        return ctx._handleDoubleclick($event);
-      });
-    }
-    if (rf & 2) {
-      \u0275\u0275hostProperty("id", ctx.id);
-      \u0275\u0275attribute("tabindex", ctx.disabled ? null : -1)("aria-label", null)("aria-description", null)("role", ctx.role);
-      \u0275\u0275classProp("mat-mdc-chip-with-avatar", ctx.leadingIcon)("mat-mdc-chip-disabled", ctx.disabled)("mat-mdc-chip-editing", ctx._isEditing)("mat-mdc-chip-editable", ctx.editable)("mdc-evolution-chip--disabled", ctx.disabled)("mdc-evolution-chip--with-trailing-action", ctx._hasTrailingIcon())("mdc-evolution-chip--with-primary-graphic", ctx.leadingIcon)("mdc-evolution-chip--with-primary-icon", ctx.leadingIcon)("mdc-evolution-chip--with-avatar", ctx.leadingIcon)("mat-mdc-chip-highlighted", ctx.highlighted)("mat-mdc-chip-with-trailing-icon", ctx._hasTrailingIcon());
-    }
-  },
-  inputs: {
-    editable: "editable"
-  },
-  outputs: {
-    edited: "edited"
-  },
-  standalone: true,
-  features: [\u0275\u0275ProvidersFeature([{
-    provide: MatChip,
-    useExisting: _MatChipRow
-  }, {
-    provide: MAT_CHIP,
-    useExisting: _MatChipRow
-  }]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275StandaloneFeature],
-  ngContentSelectors: _c44,
-  decls: 10,
-  vars: 10,
-  consts: [[1, "mat-mdc-chip-focus-overlay"], ["role", "gridcell", "matChipAction", "", 1, "mdc-evolution-chip__cell", "mdc-evolution-chip__cell--primary", 3, "tabIndex", "disabled"], [1, "mdc-evolution-chip__graphic", "mat-mdc-chip-graphic"], [1, "mdc-evolution-chip__text-label", "mat-mdc-chip-action-label"], ["aria-hidden", "true", 1, "mat-mdc-chip-primary-focus-indicator", "mat-mdc-focus-indicator"], ["role", "gridcell", 1, "mdc-evolution-chip__cell", "mdc-evolution-chip__cell--trailing"], [1, "cdk-visually-hidden", 3, "id"], ["matChipEditInput", ""]],
-  template: function MatChipRow_Template(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275projectionDef(_c34);
-      \u0275\u0275template(0, MatChipRow_Conditional_0_Template, 1, 0, "span", 0);
-      \u0275\u0275elementStart(1, "span", 1);
-      \u0275\u0275template(2, MatChipRow_Conditional_2_Template, 2, 0, "span", 2);
-      \u0275\u0275elementStart(3, "span", 3);
-      \u0275\u0275template(4, MatChipRow_Conditional_4_Template, 2, 1)(5, MatChipRow_Conditional_5_Template, 1, 0);
-      \u0275\u0275element(6, "span", 4);
-      \u0275\u0275elementEnd()();
-      \u0275\u0275template(7, MatChipRow_Conditional_7_Template, 2, 0, "span", 5);
-      \u0275\u0275elementStart(8, "span", 6);
-      \u0275\u0275text(9);
-      \u0275\u0275elementEnd();
-    }
-    if (rf & 2) {
-      \u0275\u0275conditional(!ctx._isEditing ? 0 : -1);
-      \u0275\u0275advance();
-      \u0275\u0275property("tabIndex", ctx.tabIndex)("disabled", ctx.disabled);
-      \u0275\u0275attribute("aria-label", ctx.ariaLabel)("aria-describedby", ctx._ariaDescriptionId);
-      \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.leadingIcon ? 2 : -1);
-      \u0275\u0275advance(2);
-      \u0275\u0275conditional(ctx._isEditing ? 4 : 5);
-      \u0275\u0275advance(3);
-      \u0275\u0275conditional(ctx._hasTrailingIcon() ? 7 : -1);
-      \u0275\u0275advance();
-      \u0275\u0275property("id", ctx._ariaDescriptionId);
-      \u0275\u0275advance();
-      \u0275\u0275textInterpolate(ctx.ariaDescription);
-    }
-  },
-  dependencies: [MatChipAction, MatChipEditInput],
-  styles: [_c24],
-  encapsulation: 2,
-  changeDetection: 0
-});
-var MatChipRow = _MatChipRow;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipRow, [{
-    type: Component,
-    args: [{
-      selector: "mat-chip-row, [mat-chip-row], mat-basic-chip-row, [mat-basic-chip-row]",
-      host: {
-        "class": "mat-mdc-chip mat-mdc-chip-row mdc-evolution-chip",
-        "[class.mat-mdc-chip-with-avatar]": "leadingIcon",
-        "[class.mat-mdc-chip-disabled]": "disabled",
-        "[class.mat-mdc-chip-editing]": "_isEditing",
-        "[class.mat-mdc-chip-editable]": "editable",
-        "[class.mdc-evolution-chip--disabled]": "disabled",
-        "[class.mdc-evolution-chip--with-trailing-action]": "_hasTrailingIcon()",
-        "[class.mdc-evolution-chip--with-primary-graphic]": "leadingIcon",
-        "[class.mdc-evolution-chip--with-primary-icon]": "leadingIcon",
-        "[class.mdc-evolution-chip--with-avatar]": "leadingIcon",
-        "[class.mat-mdc-chip-highlighted]": "highlighted",
-        "[class.mat-mdc-chip-with-trailing-icon]": "_hasTrailingIcon()",
-        "[id]": "id",
-        // Has to have a negative tabindex in order to capture
-        // focus and redirect it to the primary action.
-        "[attr.tabindex]": "disabled ? null : -1",
-        "[attr.aria-label]": "null",
-        "[attr.aria-description]": "null",
-        "[attr.role]": "role",
-        "(focus)": "_handleFocus($event)",
-        "(dblclick)": "_handleDoubleclick($event)"
-      },
-      providers: [{
-        provide: MatChip,
-        useExisting: MatChipRow
-      }, {
-        provide: MAT_CHIP,
-        useExisting: MatChipRow
-      }],
-      encapsulation: ViewEncapsulation$1.None,
-      changeDetection: ChangeDetectionStrategy.OnPush,
-      standalone: true,
-      imports: [MatChipAction, MatChipEditInput],
-      template: '@if (!_isEditing) {\n  <span class="mat-mdc-chip-focus-overlay"></span>\n}\n\n<span class="mdc-evolution-chip__cell mdc-evolution-chip__cell--primary" role="gridcell"\n    matChipAction\n    [tabIndex]="tabIndex"\n    [disabled]="disabled"\n    [attr.aria-label]="ariaLabel"\n    [attr.aria-describedby]="_ariaDescriptionId">\n  @if (leadingIcon) {\n    <span class="mdc-evolution-chip__graphic mat-mdc-chip-graphic">\n      <ng-content select="mat-chip-avatar, [matChipAvatar]"></ng-content>\n    </span>\n  }\n\n  <span class="mdc-evolution-chip__text-label mat-mdc-chip-action-label">\n    @if (_isEditing) {\n      @if (contentEditInput) {\n        <ng-content select="[matChipEditInput]"></ng-content>\n      } @else {\n        <span matChipEditInput></span>\n      }\n    } @else {\n      <ng-content></ng-content>\n    }\n\n    <span class="mat-mdc-chip-primary-focus-indicator mat-mdc-focus-indicator" aria-hidden="true"></span>\n  </span>\n</span>\n\n@if (_hasTrailingIcon()) {\n  <span\n    class="mdc-evolution-chip__cell mdc-evolution-chip__cell--trailing"\n    role="gridcell">\n    <ng-content select="mat-chip-trailing-icon,[matChipRemove],[matChipTrailingIcon]"></ng-content>\n  </span>\n}\n\n<span class="cdk-visually-hidden" [id]="_ariaDescriptionId">{{ariaDescription}}</span>\n',
-      styles: ['.mdc-evolution-chip,.mdc-evolution-chip__cell,.mdc-evolution-chip__action{display:inline-flex;align-items:center}.mdc-evolution-chip{position:relative;max-width:100%}.mdc-evolution-chip .mdc-elevation-overlay{width:100%;height:100%;top:0;left:0}.mdc-evolution-chip__cell,.mdc-evolution-chip__action{height:100%}.mdc-evolution-chip__cell--primary{overflow-x:hidden}.mdc-evolution-chip__cell--trailing{flex:1 0 auto}.mdc-evolution-chip__action{align-items:center;background:none;border:none;box-sizing:content-box;cursor:pointer;display:inline-flex;justify-content:center;outline:none;padding:0;text-decoration:none;color:inherit}.mdc-evolution-chip__action--presentational{cursor:auto}.mdc-evolution-chip--disabled,.mdc-evolution-chip__action:disabled{pointer-events:none}.mdc-evolution-chip__action--primary{overflow-x:hidden}.mdc-evolution-chip__action--trailing{position:relative;overflow:visible}.mdc-evolution-chip__action--primary:before{box-sizing:border-box;content:"";height:100%;left:0;position:absolute;pointer-events:none;top:0;width:100%;z-index:1}.mdc-evolution-chip--touch{margin-top:8px;margin-bottom:8px}.mdc-evolution-chip__action-touch{position:absolute;top:50%;height:48px;left:0;right:0;transform:translateY(-50%)}.mdc-evolution-chip__text-label{white-space:nowrap;user-select:none;text-overflow:ellipsis;overflow:hidden}.mdc-evolution-chip__graphic{align-items:center;display:inline-flex;justify-content:center;overflow:hidden;pointer-events:none;position:relative;flex:1 0 auto}.mdc-evolution-chip__checkmark{position:absolute;opacity:0;top:50%;left:50%}.mdc-evolution-chip--selectable:not(.mdc-evolution-chip--selected):not(.mdc-evolution-chip--with-primary-icon) .mdc-evolution-chip__graphic{width:0}.mdc-evolution-chip__checkmark-background{opacity:0}.mdc-evolution-chip__checkmark-svg{display:block}.mdc-evolution-chip__checkmark-path{stroke-width:2px;stroke-dasharray:29.7833385;stroke-dashoffset:29.7833385;stroke:currentColor}.mdc-evolution-chip--selecting .mdc-evolution-chip__graphic{transition:width 150ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--selecting .mdc-evolution-chip__checkmark{transition:transform 150ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-75%, -50%)}.mdc-evolution-chip--selecting .mdc-evolution-chip__checkmark-path{transition:stroke-dashoffset 150ms 45ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__graphic{transition:width 100ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__checkmark{transition:opacity 50ms 0ms linear,transform 100ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-75%, -50%)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}.mdc-evolution-chip--selecting-with-primary-icon .mdc-evolution-chip__icon--primary{transition:opacity 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--selecting-with-primary-icon .mdc-evolution-chip__checkmark-path{transition:stroke-dashoffset 150ms 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__icon--primary{transition:opacity 150ms 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__checkmark{transition:opacity 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-50%, -50%)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}.mdc-evolution-chip--selected .mdc-evolution-chip__icon--primary{opacity:0}.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark{transform:translate(-50%, -50%);opacity:1}.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}@keyframes mdc-evolution-chip-enter{from{transform:scale(0.8);opacity:.4}to{transform:scale(1);opacity:1}}.mdc-evolution-chip--enter{animation:mdc-evolution-chip-enter 100ms 0ms cubic-bezier(0, 0, 0.2, 1)}@keyframes mdc-evolution-chip-exit{from{opacity:1}to{opacity:0}}.mdc-evolution-chip--exit{animation:mdc-evolution-chip-exit 75ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mdc-evolution-chip--hidden{opacity:0;pointer-events:none;transition:width 150ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mat-mdc-standard-chip{border-radius:var(--mdc-chip-container-shape-radius);height:var(--mdc-chip-container-height)}.mat-mdc-standard-chip .mdc-evolution-chip__ripple{border-radius:var(--mdc-chip-container-shape-radius)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-radius:var(--mdc-chip-container-shape-radius)}.mat-mdc-standard-chip .mdc-evolution-chip__icon--primary{border-radius:var(--mdc-chip-with-avatar-avatar-shape-radius)}.mat-mdc-standard-chip.mdc-evolution-chip--selectable:not(.mdc-evolution-chip--with-primary-icon){--mdc-chip-graphic-selected-width:var(--mdc-chip-with-avatar-avatar-size)}.mat-mdc-standard-chip .mdc-evolution-chip__graphic{height:var(--mdc-chip-with-avatar-avatar-size);width:var(--mdc-chip-with-avatar-avatar-size);font-size:var(--mdc-chip-with-avatar-avatar-size)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__action--primary:before{border-color:var(--mdc-chip-outline-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-evolution-chip__action--presentational).mdc-ripple-upgraded--background-focused:before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-evolution-chip__action--presentational):not(.mdc-ripple-upgraded):focus:before{border-color:var(--mdc-chip-focus-outline-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__action--primary:before{border-color:var(--mdc-chip-disabled-outline-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-width:var(--mdc-chip-outline-width)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:before{border-width:var(--mdc-chip-flat-selected-outline-width)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled){background-color:var(--mdc-chip-elevated-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-elevated-disabled-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected:not(.mdc-evolution-chip--disabled){background-color:var(--mdc-chip-elevated-selected-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-elevated-disabled-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-flat-disabled-selected-container-color)}.mat-mdc-standard-chip .mdc-evolution-chip__text-label{font-family:var(--mdc-chip-label-text-font);line-height:var(--mdc-chip-label-text-line-height);font-size:var(--mdc-chip-label-text-size);font-weight:var(--mdc-chip-label-text-weight);letter-spacing:var(--mdc-chip-label-text-tracking)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label{color:var(--mdc-chip-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__text-label{color:var(--mdc-chip-disabled-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label{color:var(--mdc-chip-selected-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled .mdc-evolution-chip__text-label{color:var(--mdc-chip-disabled-label-text-color)}.mat-mdc-standard-chip .mdc-evolution-chip__icon--primary{height:var(--mdc-chip-with-icon-icon-size);width:var(--mdc-chip-with-icon-icon-size);font-size:var(--mdc-chip-with-icon-icon-size)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__icon--primary{color:var(--mdc-chip-with-icon-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--primary{color:var(--mdc-chip-with-icon-disabled-icon-color)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__checkmark{color:var(--mdc-chip-with-icon-selected-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__checkmark{color:var(--mdc-chip-with-icon-disabled-icon-color)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__icon--trailing{color:var(--mdc-chip-with-trailing-icon-trailing-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{color:var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::after{background-color:var(--mdc-chip-hover-state-layer-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:hover .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary.mdc-ripple-surface--hover .mdc-evolution-chip__ripple::before{opacity:var(--mdc-chip-hover-state-layer-opacity)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary.mdc-ripple-upgraded--background-focused .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-ripple-upgraded):focus .mdc-evolution-chip__ripple::before{transition-duration:75ms;opacity:var(--mdc-chip-focus-state-layer-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::after{background-color:var(--mdc-chip-selected-hover-state-layer-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:hover .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary.mdc-ripple-surface--hover .mdc-evolution-chip__ripple::before{opacity:var(--mdc-chip-selected-hover-state-layer-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary.mdc-ripple-upgraded--background-focused .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:not(.mdc-ripple-upgraded):focus .mdc-evolution-chip__ripple::before{transition-duration:75ms;opacity:var(--mdc-chip-selected-focus-state-layer-opacity)}.mat-mdc-chip-highlighted{--mdc-chip-with-icon-icon-color:var(--mdc-chip-with-icon-selected-icon-color);--mdc-chip-elevated-container-color:var(--mdc-chip-elevated-selected-container-color);--mdc-chip-label-text-color:var(--mdc-chip-selected-label-text-color);--mdc-chip-outline-width:var(--mdc-chip-flat-selected-outline-width)}.mat-mdc-chip-focus-overlay{background:var(--mdc-chip-focus-state-layer-color)}.mat-mdc-chip-selected .mat-mdc-chip-focus-overlay,.mat-mdc-chip-highlighted .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-focus-state-layer-color)}.mat-mdc-chip:hover .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-hover-state-layer-color);opacity:var(--mdc-chip-hover-state-layer-opacity)}.mat-mdc-chip-focus-overlay .mat-mdc-chip-selected:hover,.mat-mdc-chip-highlighted:hover .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-hover-state-layer-color);opacity:var(--mdc-chip-selected-hover-state-layer-opacity)}.mat-mdc-chip.cdk-focused .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-focus-state-layer-color);opacity:var(--mdc-chip-focus-state-layer-opacity)}.mat-mdc-chip-selected.cdk-focused .mat-mdc-chip-focus-overlay,.mat-mdc-chip-highlighted.cdk-focused .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-focus-state-layer-color);opacity:var(--mdc-chip-selected-focus-state-layer-opacity)}.mdc-evolution-chip--disabled:not(.mdc-evolution-chip--selected) .mat-mdc-chip-avatar{opacity:var(--mdc-chip-with-avatar-disabled-avatar-opacity)}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{opacity:var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity)}.mdc-evolution-chip--disabled.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark{opacity:var(--mdc-chip-with-icon-disabled-icon-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled{opacity:var(--mat-chip-disabled-container-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__icon--trailing,.mat-mdc-standard-chip.mat-mdc-chip-highlighted .mdc-evolution-chip__icon--trailing{color:var(--mat-chip-selected-trailing-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing,.mat-mdc-standard-chip.mat-mdc-chip-highlighted.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{color:var(--mat-chip-selected-disabled-trailing-icon-color)}.mat-mdc-chip-remove{opacity:var(--mat-chip-trailing-action-opacity)}.mat-mdc-chip-remove:focus{opacity:var(--mat-chip-trailing-action-focus-opacity)}.mat-mdc-chip-remove::after{background:var(--mat-chip-trailing-action-state-layer-color)}.mat-mdc-chip-remove:hover::after{opacity:var(--mat-chip-trailing-action-hover-state-layer-opacity)}.mat-mdc-chip-remove:focus::after{opacity:var(--mat-chip-trailing-action-focus-state-layer-opacity)}.mat-mdc-chip-selected .mat-mdc-chip-remove::after,.mat-mdc-chip-highlighted .mat-mdc-chip-remove::after{background:var(--mat-chip-selected-trailing-action-state-layer-color)}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing.mat-mdc-chip-remove{opacity:calc(var(--mat-chip-trailing-action-opacity)*var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity))}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing.mat-mdc-chip-remove:focus{opacity:calc(var(--mat-chip-trailing-action-focus-opacity)*var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity))}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-style:solid}.mat-mdc-standard-chip .mdc-evolution-chip__checkmark{height:20px;width:20px}.mat-mdc-standard-chip .mdc-evolution-chip__icon--trailing{height:18px;width:18px;font-size:18px}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary{padding-left:12px;padding-right:12px}[dir=rtl] .mat-mdc-standard-chip .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:12px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic{padding-left:6px;padding-right:6px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic[dir=rtl]{padding-left:6px;padding-right:6px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary{padding-left:0;padding-right:12px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:0}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:12px;padding-right:0}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:12px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic{padding-left:6px;padding-right:6px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic[dir=rtl]{padding-left:6px;padding-right:6px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:0;padding-right:0}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:0}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic{padding-left:4px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic[dir=rtl]{padding-left:8px;padding-right:4px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary{padding-left:0;padding-right:12px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:0}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic{padding-left:4px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic[dir=rtl]{padding-left:8px;padding-right:4px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:0;padding-right:0}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:0}.mat-mdc-standard-chip{-webkit-tap-highlight-color:rgba(0,0,0,0)}.cdk-high-contrast-active .mat-mdc-standard-chip{outline:solid 1px}.cdk-high-contrast-active .mat-mdc-standard-chip .mdc-evolution-chip__checkmark-path{stroke:CanvasText !important}.mat-mdc-standard-chip .mdc-evolution-chip__cell--primary,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip .mat-mdc-chip-action-label{overflow:visible}.mat-mdc-standard-chip .mdc-evolution-chip__cell--primary{flex-basis:100%}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary{font:inherit;letter-spacing:inherit;white-space:inherit}.mat-mdc-standard-chip .mat-mdc-chip-graphic,.mat-mdc-standard-chip .mat-mdc-chip-trailing-icon{box-sizing:content-box}.mat-mdc-standard-chip._mat-animation-noopable,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__graphic,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__checkmark,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__checkmark-path{transition-duration:1ms;animation-duration:1ms}.mat-mdc-basic-chip .mdc-evolution-chip__action--primary{font:inherit}.mat-mdc-chip-focus-overlay{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none;opacity:0;border-radius:inherit;transition:opacity 150ms linear}._mat-animation-noopable .mat-mdc-chip-focus-overlay{transition:none}.mat-mdc-basic-chip .mat-mdc-chip-focus-overlay{display:none}.mat-mdc-chip .mat-ripple.mat-mdc-chip-ripple{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none;border-radius:inherit}.mat-mdc-chip-avatar{text-align:center;line-height:1;color:var(--mdc-chip-with-icon-icon-color, currentColor)}.mat-mdc-chip{position:relative;z-index:0}.mat-mdc-chip-action-label{text-align:left;z-index:1}[dir=rtl] .mat-mdc-chip-action-label{text-align:right}.mat-mdc-chip.mdc-evolution-chip--with-trailing-action .mat-mdc-chip-action-label{position:relative}.mat-mdc-chip-action-label .mat-mdc-chip-primary-focus-indicator{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none}.mat-mdc-chip-action-label .mat-mdc-focus-indicator::before{margin:calc(calc(var(--mat-mdc-focus-indicator-border-width, 3px) + 2px)*-1)}.mat-mdc-chip-remove::before{margin:calc(var(--mat-mdc-focus-indicator-border-width, 3px)*-1);left:8px;right:8px}.mat-mdc-chip-remove::after{content:"";display:block;opacity:0;position:absolute;top:-2px;bottom:-2px;left:6px;right:6px;border-radius:50%}.mat-mdc-chip-remove .mat-icon{width:18px;height:18px;font-size:18px;box-sizing:content-box}.mat-chip-edit-input{cursor:text;display:inline-block;color:inherit;outline:0}.cdk-high-contrast-active .mat-mdc-chip-selected:not(.mat-mdc-chip-multiple){outline-width:3px}.mat-mdc-chip-action:focus .mat-mdc-focus-indicator::before{content:""}']
-    }]
-  }], () => [{
-    type: ChangeDetectorRef
-  }, {
-    type: ElementRef
-  }, {
-    type: NgZone
-  }, {
-    type: FocusMonitor
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Inject,
-      args: [DOCUMENT2]
-    }]
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Optional
-    }, {
-      type: Inject,
-      args: [ANIMATION_MODULE_TYPE]
-    }]
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Optional
-    }, {
-      type: Inject,
-      args: [MAT_RIPPLE_GLOBAL_OPTIONS]
-    }]
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Attribute2,
-      args: ["tabindex"]
-    }]
-  }], {
-    editable: [{
-      type: Input
-    }],
-    edited: [{
-      type: Output
-    }],
-    defaultEditInput: [{
-      type: ViewChild,
-      args: [MatChipEditInput]
-    }],
-    contentEditInput: [{
-      type: ContentChild,
-      args: [MatChipEditInput]
-    }]
-  });
-})();
-var _MatChipSet = class _MatChipSet {
-  /** Combined stream of all of the child chips' focus events. */
-  get chipFocusChanges() {
-    return this._getChipStream((chip) => chip._onFocus);
-  }
-  /** Combined stream of all of the child chips' destroy events. */
-  get chipDestroyedChanges() {
-    return this._getChipStream((chip) => chip.destroyed);
-  }
-  /** Combined stream of all of the child chips' remove events. */
-  get chipRemovedChanges() {
-    return this._getChipStream((chip) => chip.removed);
-  }
-  /** Whether the chip set is disabled. */
-  get disabled() {
-    return this._disabled;
-  }
-  set disabled(value) {
-    this._disabled = value;
-    this._syncChipsState();
-  }
-  /** Whether the chip list contains chips or not. */
-  get empty() {
-    return !this._chips || this._chips.length === 0;
-  }
-  /** The ARIA role applied to the chip set. */
-  get role() {
-    if (this._explicitRole) {
-      return this._explicitRole;
-    }
-    return this.empty ? null : this._defaultRole;
-  }
-  set role(value) {
-    this._explicitRole = value;
-  }
-  /** Whether any of the chips inside of this chip-set has focus. */
-  get focused() {
-    return this._hasFocusedChip();
-  }
-  constructor(_elementRef, _changeDetectorRef, _dir) {
-    this._elementRef = _elementRef;
-    this._changeDetectorRef = _changeDetectorRef;
-    this._dir = _dir;
-    this._lastDestroyedFocusedChipIndex = null;
-    this._destroyed = new Subject();
-    this._defaultRole = "presentation";
-    this._disabled = false;
-    this.tabIndex = 0;
-    this._explicitRole = null;
-    this._chipActions = new QueryList();
-  }
-  ngAfterViewInit() {
-    this._setUpFocusManagement();
-    this._trackChipSetChanges();
-    this._trackDestroyedFocusedChip();
-  }
-  ngOnDestroy() {
-    this._keyManager?.destroy();
-    this._chipActions.destroy();
-    this._destroyed.next();
-    this._destroyed.complete();
-  }
-  /** Checks whether any of the chips is focused. */
-  _hasFocusedChip() {
-    return this._chips && this._chips.some((chip) => chip._hasFocus());
-  }
-  /** Syncs the chip-set's state with the individual chips. */
-  _syncChipsState() {
-    if (this._chips) {
-      this._chips.forEach((chip) => {
-        chip.disabled = this._disabled;
-        chip._changeDetectorRef.markForCheck();
-      });
-    }
-  }
-  /** Dummy method for subclasses to override. Base chip set cannot be focused. */
-  focus() {
-  }
-  /** Handles keyboard events on the chip set. */
-  _handleKeydown(event) {
-    if (this._originatesFromChip(event)) {
-      this._keyManager.onKeydown(event);
-    }
-  }
-  /**
-   * Utility to ensure all indexes are valid.
-   *
-   * @param index The index to be checked.
-   * @returns True if the index is valid for our list of chips.
-   */
-  _isValidIndex(index) {
-    return index >= 0 && index < this._chips.length;
-  }
-  /**
-   * Removes the `tabindex` from the chip set and resets it back afterwards, allowing the
-   * user to tab out of it. This prevents the set from capturing focus and redirecting
-   * it back to the first chip, creating a focus trap, if it user tries to tab away.
-   */
-  _allowFocusEscape() {
-    if (this.tabIndex !== -1) {
-      const previousTabIndex = this.tabIndex;
-      this.tabIndex = -1;
-      setTimeout(() => this.tabIndex = previousTabIndex);
-    }
-  }
-  /**
-   * Gets a stream of events from all the chips within the set.
-   * The stream will automatically incorporate any newly-added chips.
-   */
-  _getChipStream(mappingFunction) {
-    return this._chips.changes.pipe(startWith(null), switchMap(() => merge(...this._chips.map(mappingFunction))));
-  }
-  /** Checks whether an event comes from inside a chip element. */
-  _originatesFromChip(event) {
-    let currentElement = event.target;
-    while (currentElement && currentElement !== this._elementRef.nativeElement) {
-      if (currentElement.classList.contains("mat-mdc-chip")) {
-        return true;
-      }
-      currentElement = currentElement.parentElement;
-    }
-    return false;
-  }
-  /** Sets up the chip set's focus management logic. */
-  _setUpFocusManagement() {
-    this._chips.changes.pipe(startWith(this._chips)).subscribe((chips) => {
-      const actions = [];
-      chips.forEach((chip) => chip._getActions().forEach((action) => actions.push(action)));
-      this._chipActions.reset(actions);
-      this._chipActions.notifyOnChanges();
-    });
-    this._keyManager = new FocusKeyManager(this._chipActions).withVerticalOrientation().withHorizontalOrientation(this._dir ? this._dir.value : "ltr").withHomeAndEnd().skipPredicate((action) => this._skipPredicate(action));
-    this.chipFocusChanges.pipe(takeUntil(this._destroyed)).subscribe(({
-      chip
-    }) => {
-      const action = chip._getSourceAction(document.activeElement);
-      if (action) {
-        this._keyManager.updateActiveItem(action);
-      }
-    });
-    this._dir?.change.pipe(takeUntil(this._destroyed)).subscribe((direction) => this._keyManager.withHorizontalOrientation(direction));
-  }
-  /**
-   * Determines if key manager should avoid putting a given chip action in the tab index. Skip
-   * non-interactive and disabled actions since the user can't do anything with them.
-   */
-  _skipPredicate(action) {
-    return !action.isInteractive || action.disabled;
-  }
-  /** Listens to changes in the chip set and syncs up the state of the individual chips. */
-  _trackChipSetChanges() {
-    this._chips.changes.pipe(startWith(null), takeUntil(this._destroyed)).subscribe(() => {
-      if (this.disabled) {
-        Promise.resolve().then(() => this._syncChipsState());
-      }
-      this._redirectDestroyedChipFocus();
-    });
-  }
-  /** Starts tracking the destroyed chips in order to capture the focused one. */
-  _trackDestroyedFocusedChip() {
-    this.chipDestroyedChanges.pipe(takeUntil(this._destroyed)).subscribe((event) => {
-      const chipArray = this._chips.toArray();
-      const chipIndex = chipArray.indexOf(event.chip);
-      if (this._isValidIndex(chipIndex) && event.chip._hasFocus()) {
-        this._lastDestroyedFocusedChipIndex = chipIndex;
-      }
-    });
-  }
-  /**
-   * Finds the next appropriate chip to move focus to,
-   * if the currently-focused chip is destroyed.
-   */
-  _redirectDestroyedChipFocus() {
-    if (this._lastDestroyedFocusedChipIndex == null) {
-      return;
-    }
-    if (this._chips.length) {
-      const newIndex = Math.min(this._lastDestroyedFocusedChipIndex, this._chips.length - 1);
-      const chipToFocus = this._chips.toArray()[newIndex];
-      if (chipToFocus.disabled) {
-        if (this._chips.length === 1) {
-          this.focus();
-        } else {
-          this._keyManager.setPreviousItemActive();
-        }
-      } else {
-        chipToFocus.focus();
-      }
-    } else {
-      this.focus();
-    }
-    this._lastDestroyedFocusedChipIndex = null;
-  }
-};
-_MatChipSet.\u0275fac = function MatChipSet_Factory(t) {
-  return new (t || _MatChipSet)(\u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(ChangeDetectorRef), \u0275\u0275directiveInject(Directionality, 8));
-};
-_MatChipSet.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
-  type: _MatChipSet,
-  selectors: [["mat-chip-set"]],
-  contentQueries: function MatChipSet_ContentQueries(rf, ctx, dirIndex) {
-    if (rf & 1) {
-      \u0275\u0275contentQuery(dirIndex, MatChip, 5);
-    }
-    if (rf & 2) {
-      let _t;
-      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._chips = _t);
-    }
-  },
-  hostAttrs: [1, "mat-mdc-chip-set", "mdc-evolution-chip-set"],
-  hostVars: 1,
-  hostBindings: function MatChipSet_HostBindings(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275listener("keydown", function MatChipSet_keydown_HostBindingHandler($event) {
-        return ctx._handleKeydown($event);
-      });
-    }
-    if (rf & 2) {
-      \u0275\u0275attribute("role", ctx.role);
-    }
-  },
-  inputs: {
-    disabled: [2, "disabled", "disabled", booleanAttribute],
-    role: "role",
-    tabIndex: [2, "tabIndex", "tabIndex", (value) => value == null ? 0 : numberAttribute(value)]
-  },
-  standalone: true,
-  features: [\u0275\u0275InputTransformsFeature, \u0275\u0275StandaloneFeature],
-  ngContentSelectors: _c54,
-  decls: 2,
-  vars: 0,
-  consts: [["role", "presentation", 1, "mdc-evolution-chip-set__chips"]],
-  template: function MatChipSet_Template(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275projectionDef();
-      \u0275\u0275elementStart(0, "div", 0);
-      \u0275\u0275projection(1);
-      \u0275\u0275elementEnd();
-    }
-  },
-  styles: [".mdc-evolution-chip-set{display:flex}.mdc-evolution-chip-set:focus{outline:none}.mdc-evolution-chip-set__chips{display:flex;flex-flow:wrap;min-width:0}.mdc-evolution-chip-set--overflow .mdc-evolution-chip-set__chips{flex-flow:nowrap}.mdc-evolution-chip-set .mdc-evolution-chip-set__chips{margin-left:-8px;margin-right:0}[dir=rtl] .mdc-evolution-chip-set .mdc-evolution-chip-set__chips,.mdc-evolution-chip-set .mdc-evolution-chip-set__chips[dir=rtl]{margin-left:0;margin-right:-8px}.mdc-evolution-chip-set .mdc-evolution-chip{margin-left:8px;margin-right:0}[dir=rtl] .mdc-evolution-chip-set .mdc-evolution-chip,.mdc-evolution-chip-set .mdc-evolution-chip[dir=rtl]{margin-left:0;margin-right:8px}.mdc-evolution-chip-set .mdc-evolution-chip{margin-top:4px;margin-bottom:4px}.mat-mdc-chip-set .mdc-evolution-chip-set__chips{min-width:100%}.mat-mdc-chip-set-stacked{flex-direction:column;align-items:flex-start}.mat-mdc-chip-set-stacked .mat-mdc-chip{width:100%}.mat-mdc-chip-set-stacked .mdc-evolution-chip__graphic{flex-grow:0}.mat-mdc-chip-set-stacked .mdc-evolution-chip__action--primary{flex-basis:100%;justify-content:start}input.mat-mdc-chip-input{flex:1 0 150px;margin-left:8px}[dir=rtl] input.mat-mdc-chip-input{margin-left:0;margin-right:8px}"],
-  encapsulation: 2,
-  changeDetection: 0
-});
-var MatChipSet = _MatChipSet;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipSet, [{
-    type: Component,
-    args: [{
-      selector: "mat-chip-set",
-      template: `
-    <div class="mdc-evolution-chip-set__chips" role="presentation">
-      <ng-content></ng-content>
-    </div>
-  `,
-      host: {
-        "class": "mat-mdc-chip-set mdc-evolution-chip-set",
-        "(keydown)": "_handleKeydown($event)",
-        "[attr.role]": "role"
-      },
-      encapsulation: ViewEncapsulation$1.None,
-      changeDetection: ChangeDetectionStrategy.OnPush,
-      standalone: true,
-      styles: [".mdc-evolution-chip-set{display:flex}.mdc-evolution-chip-set:focus{outline:none}.mdc-evolution-chip-set__chips{display:flex;flex-flow:wrap;min-width:0}.mdc-evolution-chip-set--overflow .mdc-evolution-chip-set__chips{flex-flow:nowrap}.mdc-evolution-chip-set .mdc-evolution-chip-set__chips{margin-left:-8px;margin-right:0}[dir=rtl] .mdc-evolution-chip-set .mdc-evolution-chip-set__chips,.mdc-evolution-chip-set .mdc-evolution-chip-set__chips[dir=rtl]{margin-left:0;margin-right:-8px}.mdc-evolution-chip-set .mdc-evolution-chip{margin-left:8px;margin-right:0}[dir=rtl] .mdc-evolution-chip-set .mdc-evolution-chip,.mdc-evolution-chip-set .mdc-evolution-chip[dir=rtl]{margin-left:0;margin-right:8px}.mdc-evolution-chip-set .mdc-evolution-chip{margin-top:4px;margin-bottom:4px}.mat-mdc-chip-set .mdc-evolution-chip-set__chips{min-width:100%}.mat-mdc-chip-set-stacked{flex-direction:column;align-items:flex-start}.mat-mdc-chip-set-stacked .mat-mdc-chip{width:100%}.mat-mdc-chip-set-stacked .mdc-evolution-chip__graphic{flex-grow:0}.mat-mdc-chip-set-stacked .mdc-evolution-chip__action--primary{flex-basis:100%;justify-content:start}input.mat-mdc-chip-input{flex:1 0 150px;margin-left:8px}[dir=rtl] input.mat-mdc-chip-input{margin-left:0;margin-right:8px}"]
-    }]
-  }], () => [{
-    type: ElementRef
-  }, {
-    type: ChangeDetectorRef
-  }, {
-    type: Directionality,
-    decorators: [{
-      type: Optional
-    }]
-  }], {
-    disabled: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    role: [{
-      type: Input
-    }],
-    tabIndex: [{
-      type: Input,
-      args: [{
-        transform: (value) => value == null ? 0 : numberAttribute(value)
-      }]
-    }],
-    _chips: [{
-      type: ContentChildren,
-      args: [MatChip, {
-        // We need to use `descendants: true`, because Ivy will no longer match
-        // indirect descendants if it's left as false.
-        descendants: true
-      }]
-    }]
-  });
-})();
-var MatChipListboxChange = class {
-  constructor(source, value) {
-    this.source = source;
-    this.value = value;
-  }
-};
-var MAT_CHIP_LISTBOX_CONTROL_VALUE_ACCESSOR = {
-  provide: NG_VALUE_ACCESSOR,
-  useExisting: forwardRef(() => MatChipListbox),
-  multi: true
-};
-var _MatChipListbox = class _MatChipListbox extends MatChipSet {
-  constructor() {
-    super(...arguments);
-    this._onTouched = () => {
-    };
-    this._onChange = () => {
-    };
-    this._defaultRole = "listbox";
-    this._defaultOptions = inject(MAT_CHIPS_DEFAULT_OPTIONS, {
-      optional: true
-    });
-    this._multiple = false;
-    this.ariaOrientation = "horizontal";
-    this._selectable = true;
-    this.compareWith = (o1, o2) => o1 === o2;
-    this.required = false;
-    this._hideSingleSelectionIndicator = this._defaultOptions?.hideSingleSelectionIndicator ?? false;
-    this.change = new EventEmitter();
-    this._chips = void 0;
-  }
-  /** Whether the user should be allowed to select multiple chips. */
-  get multiple() {
-    return this._multiple;
-  }
-  set multiple(value) {
-    this._multiple = value;
-    this._syncListboxProperties();
-  }
-  /** The array of selected chips inside the chip listbox. */
-  get selected() {
-    const selectedChips = this._chips.toArray().filter((chip) => chip.selected);
-    return this.multiple ? selectedChips : selectedChips[0];
-  }
-  /**
-   * Whether or not this chip listbox is selectable.
-   *
-   * When a chip listbox is not selectable, the selected states for all
-   * the chips inside the chip listbox are always ignored.
-   */
-  get selectable() {
-    return this._selectable;
-  }
-  set selectable(value) {
-    this._selectable = value;
-    this._syncListboxProperties();
-  }
-  /** Whether checkmark indicator for single-selection options is hidden. */
-  get hideSingleSelectionIndicator() {
-    return this._hideSingleSelectionIndicator;
-  }
-  set hideSingleSelectionIndicator(value) {
-    this._hideSingleSelectionIndicator = value;
-    this._syncListboxProperties();
-  }
-  /** Combined stream of all of the child chips' selection change events. */
-  get chipSelectionChanges() {
-    return this._getChipStream((chip) => chip.selectionChange);
-  }
-  /** Combined stream of all of the child chips' blur events. */
-  get chipBlurChanges() {
-    return this._getChipStream((chip) => chip._onBlur);
-  }
-  /** The value of the listbox, which is the combined value of the selected chips. */
-  get value() {
-    return this._value;
-  }
-  set value(value) {
-    this.writeValue(value);
-    this._value = value;
-  }
-  ngAfterContentInit() {
-    if (this._pendingInitialValue !== void 0) {
-      Promise.resolve().then(() => {
-        this._setSelectionByValue(this._pendingInitialValue, false);
-        this._pendingInitialValue = void 0;
-      });
-    }
-    this._chips.changes.pipe(startWith(null), takeUntil(this._destroyed)).subscribe(() => {
-      this._syncListboxProperties();
-    });
-    this.chipBlurChanges.pipe(takeUntil(this._destroyed)).subscribe(() => this._blur());
-    this.chipSelectionChanges.pipe(takeUntil(this._destroyed)).subscribe((event) => {
-      if (!this.multiple) {
-        this._chips.forEach((chip) => {
-          if (chip !== event.source) {
-            chip._setSelectedState(false, false, false);
-          }
-        });
-      }
-      if (event.isUserInput) {
-        this._propagateChanges();
-      }
-    });
-  }
-  /**
-   * Focuses the first selected chip in this chip listbox, or the first non-disabled chip when there
-   * are no selected chips.
-   */
-  focus() {
-    if (this.disabled) {
-      return;
-    }
-    const firstSelectedChip = this._getFirstSelectedChip();
-    if (firstSelectedChip && !firstSelectedChip.disabled) {
-      firstSelectedChip.focus();
-    } else if (this._chips.length > 0) {
-      this._keyManager.setFirstItemActive();
-    } else {
-      this._elementRef.nativeElement.focus();
-    }
-  }
-  /**
-   * Implemented as part of ControlValueAccessor.
-   * @docs-private
-   */
-  writeValue(value) {
-    if (this._chips) {
-      this._setSelectionByValue(value, false);
-    } else if (value != null) {
-      this._pendingInitialValue = value;
-    }
-  }
-  /**
-   * Implemented as part of ControlValueAccessor.
-   * @docs-private
-   */
-  registerOnChange(fn) {
-    this._onChange = fn;
-  }
-  /**
-   * Implemented as part of ControlValueAccessor.
-   * @docs-private
-   */
-  registerOnTouched(fn) {
-    this._onTouched = fn;
-  }
-  /**
-   * Implemented as part of ControlValueAccessor.
-   * @docs-private
-   */
-  setDisabledState(isDisabled) {
-    this.disabled = isDisabled;
-  }
-  /** Selects all chips with value. */
-  _setSelectionByValue(value, isUserInput = true) {
-    this._clearSelection();
-    if (Array.isArray(value)) {
-      value.forEach((currentValue) => this._selectValue(currentValue, isUserInput));
-    } else {
-      this._selectValue(value, isUserInput);
-    }
-  }
-  /** When blurred, marks the field as touched when focus moved outside the chip listbox. */
-  _blur() {
-    if (!this.disabled) {
-      setTimeout(() => {
-        if (!this.focused) {
-          this._markAsTouched();
-        }
-      });
-    }
-  }
-  _keydown(event) {
-    if (event.keyCode === TAB) {
-      super._allowFocusEscape();
-    }
-  }
-  /** Marks the field as touched */
-  _markAsTouched() {
-    this._onTouched();
-    this._changeDetectorRef.markForCheck();
-  }
-  /** Emits change event to set the model value. */
-  _propagateChanges() {
-    let valueToEmit = null;
-    if (Array.isArray(this.selected)) {
-      valueToEmit = this.selected.map((chip) => chip.value);
-    } else {
-      valueToEmit = this.selected ? this.selected.value : void 0;
-    }
-    this._value = valueToEmit;
-    this.change.emit(new MatChipListboxChange(this, valueToEmit));
-    this._onChange(valueToEmit);
-    this._changeDetectorRef.markForCheck();
-  }
-  /**
-   * Deselects every chip in the listbox.
-   * @param skip Chip that should not be deselected.
-   */
-  _clearSelection(skip2) {
-    this._chips.forEach((chip) => {
-      if (chip !== skip2) {
-        chip.deselect();
-      }
-    });
-  }
-  /**
-   * Finds and selects the chip based on its value.
-   * @returns Chip that has the corresponding value.
-   */
-  _selectValue(value, isUserInput) {
-    const correspondingChip = this._chips.find((chip) => {
-      return chip.value != null && this.compareWith(chip.value, value);
-    });
-    if (correspondingChip) {
-      isUserInput ? correspondingChip.selectViaInteraction() : correspondingChip.select();
-    }
-    return correspondingChip;
-  }
-  /** Syncs the chip-listbox selection state with the individual chips. */
-  _syncListboxProperties() {
-    if (this._chips) {
-      Promise.resolve().then(() => {
-        this._chips.forEach((chip) => {
-          chip._chipListMultiple = this.multiple;
-          chip.chipListSelectable = this._selectable;
-          chip._chipListHideSingleSelectionIndicator = this.hideSingleSelectionIndicator;
-          chip._changeDetectorRef.markForCheck();
-        });
-      });
-    }
-  }
-  /** Returns the first selected chip in this listbox, or undefined if no chips are selected. */
-  _getFirstSelectedChip() {
-    if (Array.isArray(this.selected)) {
-      return this.selected.length ? this.selected[0] : void 0;
-    } else {
-      return this.selected;
-    }
-  }
-  /**
-   * Determines if key manager should avoid putting a given chip action in the tab index. Skip
-   * non-interactive actions since the user can't do anything with them.
-   */
-  _skipPredicate(action) {
-    return !action.isInteractive;
-  }
-};
-_MatChipListbox.\u0275fac = /* @__PURE__ */ (() => {
-  let \u0275MatChipListbox_BaseFactory;
-  return function MatChipListbox_Factory(t) {
-    return (\u0275MatChipListbox_BaseFactory || (\u0275MatChipListbox_BaseFactory = \u0275\u0275getInheritedFactory(_MatChipListbox)))(t || _MatChipListbox);
-  };
-})();
-_MatChipListbox.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
-  type: _MatChipListbox,
-  selectors: [["mat-chip-listbox"]],
-  contentQueries: function MatChipListbox_ContentQueries(rf, ctx, dirIndex) {
-    if (rf & 1) {
-      \u0275\u0275contentQuery(dirIndex, MatChipOption, 5);
-    }
-    if (rf & 2) {
-      let _t;
-      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._chips = _t);
-    }
-  },
-  hostAttrs: [1, "mdc-evolution-chip-set", "mat-mdc-chip-listbox"],
-  hostVars: 11,
-  hostBindings: function MatChipListbox_HostBindings(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275listener("focus", function MatChipListbox_focus_HostBindingHandler() {
-        return ctx.focus();
-      })("blur", function MatChipListbox_blur_HostBindingHandler() {
-        return ctx._blur();
-      })("keydown", function MatChipListbox_keydown_HostBindingHandler($event) {
-        return ctx._keydown($event);
-      });
-    }
-    if (rf & 2) {
-      \u0275\u0275hostProperty("tabIndex", ctx.disabled || ctx.empty ? -1 : ctx.tabIndex);
-      \u0275\u0275attribute("role", ctx.role)("aria-describedby", ctx._ariaDescribedby || null)("aria-required", ctx.role ? ctx.required : null)("aria-disabled", ctx.disabled.toString())("aria-multiselectable", ctx.multiple)("aria-orientation", ctx.ariaOrientation);
-      \u0275\u0275classProp("mat-mdc-chip-list-disabled", ctx.disabled)("mat-mdc-chip-list-required", ctx.required);
-    }
-  },
-  inputs: {
-    multiple: [2, "multiple", "multiple", booleanAttribute],
-    ariaOrientation: [0, "aria-orientation", "ariaOrientation"],
-    selectable: [2, "selectable", "selectable", booleanAttribute],
-    compareWith: "compareWith",
-    required: [2, "required", "required", booleanAttribute],
-    hideSingleSelectionIndicator: [2, "hideSingleSelectionIndicator", "hideSingleSelectionIndicator", booleanAttribute],
-    value: "value"
-  },
-  outputs: {
-    change: "change"
-  },
-  standalone: true,
-  features: [\u0275\u0275ProvidersFeature([MAT_CHIP_LISTBOX_CONTROL_VALUE_ACCESSOR]), \u0275\u0275InputTransformsFeature, \u0275\u0275InheritDefinitionFeature, \u0275\u0275StandaloneFeature],
-  ngContentSelectors: _c54,
-  decls: 2,
-  vars: 0,
-  consts: [["role", "presentation", 1, "mdc-evolution-chip-set__chips"]],
-  template: function MatChipListbox_Template(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275projectionDef();
-      \u0275\u0275elementStart(0, "div", 0);
-      \u0275\u0275projection(1);
-      \u0275\u0275elementEnd();
-    }
-  },
-  styles: [_c64],
-  encapsulation: 2,
-  changeDetection: 0
-});
-var MatChipListbox = _MatChipListbox;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipListbox, [{
-    type: Component,
-    args: [{
-      selector: "mat-chip-listbox",
-      template: `
-    <div class="mdc-evolution-chip-set__chips" role="presentation">
-      <ng-content></ng-content>
-    </div>
-  `,
-      host: {
-        "class": "mdc-evolution-chip-set mat-mdc-chip-listbox",
-        "[attr.role]": "role",
-        "[tabIndex]": "(disabled || empty) ? -1 : tabIndex",
-        // TODO: replace this binding with use of AriaDescriber
-        "[attr.aria-describedby]": "_ariaDescribedby || null",
-        "[attr.aria-required]": "role ? required : null",
-        "[attr.aria-disabled]": "disabled.toString()",
-        "[attr.aria-multiselectable]": "multiple",
-        "[attr.aria-orientation]": "ariaOrientation",
-        "[class.mat-mdc-chip-list-disabled]": "disabled",
-        "[class.mat-mdc-chip-list-required]": "required",
-        "(focus)": "focus()",
-        "(blur)": "_blur()",
-        "(keydown)": "_keydown($event)"
-      },
-      providers: [MAT_CHIP_LISTBOX_CONTROL_VALUE_ACCESSOR],
-      encapsulation: ViewEncapsulation$1.None,
-      changeDetection: ChangeDetectionStrategy.OnPush,
-      standalone: true,
-      styles: [".mdc-evolution-chip-set{display:flex}.mdc-evolution-chip-set:focus{outline:none}.mdc-evolution-chip-set__chips{display:flex;flex-flow:wrap;min-width:0}.mdc-evolution-chip-set--overflow .mdc-evolution-chip-set__chips{flex-flow:nowrap}.mdc-evolution-chip-set .mdc-evolution-chip-set__chips{margin-left:-8px;margin-right:0}[dir=rtl] .mdc-evolution-chip-set .mdc-evolution-chip-set__chips,.mdc-evolution-chip-set .mdc-evolution-chip-set__chips[dir=rtl]{margin-left:0;margin-right:-8px}.mdc-evolution-chip-set .mdc-evolution-chip{margin-left:8px;margin-right:0}[dir=rtl] .mdc-evolution-chip-set .mdc-evolution-chip,.mdc-evolution-chip-set .mdc-evolution-chip[dir=rtl]{margin-left:0;margin-right:8px}.mdc-evolution-chip-set .mdc-evolution-chip{margin-top:4px;margin-bottom:4px}.mat-mdc-chip-set .mdc-evolution-chip-set__chips{min-width:100%}.mat-mdc-chip-set-stacked{flex-direction:column;align-items:flex-start}.mat-mdc-chip-set-stacked .mat-mdc-chip{width:100%}.mat-mdc-chip-set-stacked .mdc-evolution-chip__graphic{flex-grow:0}.mat-mdc-chip-set-stacked .mdc-evolution-chip__action--primary{flex-basis:100%;justify-content:start}input.mat-mdc-chip-input{flex:1 0 150px;margin-left:8px}[dir=rtl] input.mat-mdc-chip-input{margin-left:0;margin-right:8px}"]
-    }]
-  }], null, {
-    multiple: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    ariaOrientation: [{
-      type: Input,
-      args: ["aria-orientation"]
-    }],
-    selectable: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    compareWith: [{
-      type: Input
-    }],
-    required: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    hideSingleSelectionIndicator: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    value: [{
-      type: Input
-    }],
-    change: [{
-      type: Output
-    }],
-    _chips: [{
-      type: ContentChildren,
-      args: [MatChipOption, {
-        // We need to use `descendants: true`, because Ivy will no longer match
-        // indirect descendants if it's left as false.
-        descendants: true
-      }]
-    }]
-  });
-})();
-var MatChipGridChange = class {
-  constructor(source, value) {
-    this.source = source;
-    this.value = value;
-  }
-};
-var _MatChipGrid = class _MatChipGrid extends MatChipSet {
-  /**
-   * Implemented as part of MatFormFieldControl.
-   * @docs-private
-   */
-  get disabled() {
-    return this.ngControl ? !!this.ngControl.disabled : this._disabled;
-  }
-  set disabled(value) {
-    this._disabled = value;
-    this._syncChipsState();
-  }
-  /**
-   * Implemented as part of MatFormFieldControl.
-   * @docs-private
-   */
-  get id() {
-    return this._chipInput.id;
-  }
-  /**
-   * Implemented as part of MatFormFieldControl.
-   * @docs-private
-   */
-  get empty() {
-    return (!this._chipInput || this._chipInput.empty) && (!this._chips || this._chips.length === 0);
-  }
-  /**
-   * Implemented as part of MatFormFieldControl.
-   * @docs-private
-   */
-  get placeholder() {
-    return this._chipInput ? this._chipInput.placeholder : this._placeholder;
-  }
-  set placeholder(value) {
-    this._placeholder = value;
-    this.stateChanges.next();
-  }
-  /** Whether any chips or the matChipInput inside of this chip-grid has focus. */
-  get focused() {
-    return this._chipInput.focused || this._hasFocusedChip();
-  }
-  /**
-   * Implemented as part of MatFormFieldControl.
-   * @docs-private
-   */
-  get required() {
-    return this._required ?? this.ngControl?.control?.hasValidator(Validators.required) ?? false;
-  }
-  set required(value) {
-    this._required = value;
-    this.stateChanges.next();
-  }
-  /**
-   * Implemented as part of MatFormFieldControl.
-   * @docs-private
-   */
-  get shouldLabelFloat() {
-    return !this.empty || this.focused;
-  }
-  /**
-   * Implemented as part of MatFormFieldControl.
-   * @docs-private
-   */
-  get value() {
-    return this._value;
-  }
-  set value(value) {
-    this._value = value;
-  }
-  /** An object used to control when error messages are shown. */
-  get errorStateMatcher() {
-    return this._errorStateTracker.matcher;
-  }
-  set errorStateMatcher(value) {
-    this._errorStateTracker.matcher = value;
-  }
-  /** Combined stream of all of the child chips' blur events. */
-  get chipBlurChanges() {
-    return this._getChipStream((chip) => chip._onBlur);
-  }
-  /** Whether the chip grid is in an error state. */
-  get errorState() {
-    return this._errorStateTracker.errorState;
-  }
-  set errorState(value) {
-    this._errorStateTracker.errorState = value;
-  }
-  constructor(elementRef, changeDetectorRef, dir, parentForm, parentFormGroup, defaultErrorStateMatcher, ngControl) {
-    super(elementRef, changeDetectorRef, dir);
-    this.ngControl = ngControl;
-    this.controlType = "mat-chip-grid";
-    this._defaultRole = "grid";
-    this._ariaDescribedbyIds = [];
-    this._onTouched = () => {
-    };
-    this._onChange = () => {
-    };
-    this._value = [];
-    this.change = new EventEmitter();
-    this.valueChange = new EventEmitter();
-    this._chips = void 0;
-    this.stateChanges = new Subject();
-    if (this.ngControl) {
-      this.ngControl.valueAccessor = this;
-    }
-    this._errorStateTracker = new _ErrorStateTracker(defaultErrorStateMatcher, ngControl, parentFormGroup, parentForm, this.stateChanges);
-  }
-  ngAfterContentInit() {
-    this.chipBlurChanges.pipe(takeUntil(this._destroyed)).subscribe(() => {
-      this._blur();
-      this.stateChanges.next();
-    });
-    merge(this.chipFocusChanges, this._chips.changes).pipe(takeUntil(this._destroyed)).subscribe(() => this.stateChanges.next());
-  }
-  ngAfterViewInit() {
-    super.ngAfterViewInit();
-    if (!this._chipInput && (typeof ngDevMode === "undefined" || ngDevMode)) {
-      throw Error("mat-chip-grid must be used in combination with matChipInputFor.");
-    }
-  }
-  ngDoCheck() {
-    if (this.ngControl) {
-      this.updateErrorState();
-    }
-  }
-  ngOnDestroy() {
-    super.ngOnDestroy();
-    this.stateChanges.complete();
-  }
-  /** Associates an HTML input element with this chip grid. */
-  registerInput(inputElement) {
-    this._chipInput = inputElement;
-    this._chipInput.setDescribedByIds(this._ariaDescribedbyIds);
-  }
-  /**
-   * Implemented as part of MatFormFieldControl.
-   * @docs-private
-   */
-  onContainerClick(event) {
-    if (!this.disabled && !this._originatesFromChip(event)) {
-      this.focus();
-    }
-  }
-  /**
-   * Focuses the first chip in this chip grid, or the associated input when there
-   * are no eligible chips.
-   */
-  focus() {
-    if (this.disabled || this._chipInput.focused) {
-      return;
-    }
-    if (!this._chips.length || this._chips.first.disabled) {
-      Promise.resolve().then(() => this._chipInput.focus());
-    } else if (this._chips.length) {
-      this._keyManager.setFirstItemActive();
-    }
-    this.stateChanges.next();
-  }
-  /**
-   * Implemented as part of MatFormFieldControl.
-   * @docs-private
-   */
-  setDescribedByIds(ids) {
-    this._ariaDescribedbyIds = ids;
-    this._chipInput?.setDescribedByIds(ids);
-  }
-  /**
-   * Implemented as part of ControlValueAccessor.
-   * @docs-private
-   */
-  writeValue(value) {
-    this._value = value;
-  }
-  /**
-   * Implemented as part of ControlValueAccessor.
-   * @docs-private
-   */
-  registerOnChange(fn) {
-    this._onChange = fn;
-  }
-  /**
-   * Implemented as part of ControlValueAccessor.
-   * @docs-private
-   */
-  registerOnTouched(fn) {
-    this._onTouched = fn;
-  }
-  /**
-   * Implemented as part of ControlValueAccessor.
-   * @docs-private
-   */
-  setDisabledState(isDisabled) {
-    this.disabled = isDisabled;
-    this.stateChanges.next();
-  }
-  /** Refreshes the error state of the chip grid. */
-  updateErrorState() {
-    this._errorStateTracker.updateErrorState();
-  }
-  /** When blurred, mark the field as touched when focus moved outside the chip grid. */
-  _blur() {
-    if (!this.disabled) {
-      setTimeout(() => {
-        if (!this.focused) {
-          this._propagateChanges();
-          this._markAsTouched();
-        }
-      });
-    }
-  }
-  /**
-   * Removes the `tabindex` from the chip grid and resets it back afterwards, allowing the
-   * user to tab out of it. This prevents the grid from capturing focus and redirecting
-   * it back to the first chip, creating a focus trap, if it user tries to tab away.
-   */
-  _allowFocusEscape() {
-    if (!this._chipInput.focused) {
-      super._allowFocusEscape();
-    }
-  }
-  /** Handles custom keyboard events. */
-  _handleKeydown(event) {
-    if (event.keyCode === TAB) {
-      if (this._chipInput.focused && hasModifierKey2(event, "shiftKey") && this._chips.length && !this._chips.last.disabled) {
-        event.preventDefault();
-        if (this._keyManager.activeItem) {
-          this._keyManager.setActiveItem(this._keyManager.activeItem);
-        } else {
-          this._focusLastChip();
-        }
-      } else {
-        super._allowFocusEscape();
-      }
-    } else if (!this._chipInput.focused) {
-      super._handleKeydown(event);
-    }
-    this.stateChanges.next();
-  }
-  _focusLastChip() {
-    if (this._chips.length) {
-      this._chips.last.focus();
-    }
-  }
-  /** Emits change event to set the model value. */
-  _propagateChanges() {
-    const valueToEmit = this._chips.length ? this._chips.toArray().map((chip) => chip.value) : [];
-    this._value = valueToEmit;
-    this.change.emit(new MatChipGridChange(this, valueToEmit));
-    this.valueChange.emit(valueToEmit);
-    this._onChange(valueToEmit);
-    this._changeDetectorRef.markForCheck();
-  }
-  /** Mark the field as touched */
-  _markAsTouched() {
-    this._onTouched();
-    this._changeDetectorRef.markForCheck();
-    this.stateChanges.next();
-  }
-};
-_MatChipGrid.\u0275fac = function MatChipGrid_Factory(t) {
-  return new (t || _MatChipGrid)(\u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(ChangeDetectorRef), \u0275\u0275directiveInject(Directionality, 8), \u0275\u0275directiveInject(NgForm, 8), \u0275\u0275directiveInject(FormGroupDirective, 8), \u0275\u0275directiveInject(ErrorStateMatcher), \u0275\u0275directiveInject(NgControl, 10));
-};
-_MatChipGrid.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
-  type: _MatChipGrid,
-  selectors: [["mat-chip-grid"]],
-  contentQueries: function MatChipGrid_ContentQueries(rf, ctx, dirIndex) {
-    if (rf & 1) {
-      \u0275\u0275contentQuery(dirIndex, MatChipRow, 5);
-    }
-    if (rf & 2) {
-      let _t;
-      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._chips = _t);
-    }
-  },
-  hostAttrs: [1, "mat-mdc-chip-set", "mat-mdc-chip-grid", "mdc-evolution-chip-set"],
-  hostVars: 10,
-  hostBindings: function MatChipGrid_HostBindings(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275listener("focus", function MatChipGrid_focus_HostBindingHandler() {
-        return ctx.focus();
-      })("blur", function MatChipGrid_blur_HostBindingHandler() {
-        return ctx._blur();
-      });
-    }
-    if (rf & 2) {
-      \u0275\u0275attribute("role", ctx.role)("tabindex", ctx.disabled || ctx._chips && ctx._chips.length === 0 ? -1 : ctx.tabIndex)("aria-disabled", ctx.disabled.toString())("aria-invalid", ctx.errorState);
-      \u0275\u0275classProp("mat-mdc-chip-list-disabled", ctx.disabled)("mat-mdc-chip-list-invalid", ctx.errorState)("mat-mdc-chip-list-required", ctx.required);
-    }
-  },
-  inputs: {
-    disabled: [2, "disabled", "disabled", booleanAttribute],
-    placeholder: "placeholder",
-    required: [2, "required", "required", booleanAttribute],
-    value: "value",
-    errorStateMatcher: "errorStateMatcher"
-  },
-  outputs: {
-    change: "change",
-    valueChange: "valueChange"
-  },
-  standalone: true,
-  features: [\u0275\u0275ProvidersFeature([{
-    provide: MatFormFieldControl,
-    useExisting: _MatChipGrid
-  }]), \u0275\u0275InputTransformsFeature, \u0275\u0275InheritDefinitionFeature, \u0275\u0275StandaloneFeature],
-  ngContentSelectors: _c54,
-  decls: 2,
-  vars: 0,
-  consts: [["role", "presentation", 1, "mdc-evolution-chip-set__chips"]],
-  template: function MatChipGrid_Template(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275projectionDef();
-      \u0275\u0275elementStart(0, "div", 0);
-      \u0275\u0275projection(1);
-      \u0275\u0275elementEnd();
-    }
-  },
-  styles: [_c64],
-  encapsulation: 2,
-  changeDetection: 0
-});
-var MatChipGrid = _MatChipGrid;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipGrid, [{
-    type: Component,
-    args: [{
-      selector: "mat-chip-grid",
-      template: `
-    <div class="mdc-evolution-chip-set__chips" role="presentation">
-      <ng-content></ng-content>
-    </div>
-  `,
-      host: {
-        "class": "mat-mdc-chip-set mat-mdc-chip-grid mdc-evolution-chip-set",
-        "[attr.role]": "role",
-        "[attr.tabindex]": "(disabled || (_chips && _chips.length === 0)) ? -1 : tabIndex",
-        "[attr.aria-disabled]": "disabled.toString()",
-        "[attr.aria-invalid]": "errorState",
-        "[class.mat-mdc-chip-list-disabled]": "disabled",
-        "[class.mat-mdc-chip-list-invalid]": "errorState",
-        "[class.mat-mdc-chip-list-required]": "required",
-        "(focus)": "focus()",
-        "(blur)": "_blur()"
-      },
-      providers: [{
-        provide: MatFormFieldControl,
-        useExisting: MatChipGrid
-      }],
-      encapsulation: ViewEncapsulation$1.None,
-      changeDetection: ChangeDetectionStrategy.OnPush,
-      standalone: true,
-      styles: [".mdc-evolution-chip-set{display:flex}.mdc-evolution-chip-set:focus{outline:none}.mdc-evolution-chip-set__chips{display:flex;flex-flow:wrap;min-width:0}.mdc-evolution-chip-set--overflow .mdc-evolution-chip-set__chips{flex-flow:nowrap}.mdc-evolution-chip-set .mdc-evolution-chip-set__chips{margin-left:-8px;margin-right:0}[dir=rtl] .mdc-evolution-chip-set .mdc-evolution-chip-set__chips,.mdc-evolution-chip-set .mdc-evolution-chip-set__chips[dir=rtl]{margin-left:0;margin-right:-8px}.mdc-evolution-chip-set .mdc-evolution-chip{margin-left:8px;margin-right:0}[dir=rtl] .mdc-evolution-chip-set .mdc-evolution-chip,.mdc-evolution-chip-set .mdc-evolution-chip[dir=rtl]{margin-left:0;margin-right:8px}.mdc-evolution-chip-set .mdc-evolution-chip{margin-top:4px;margin-bottom:4px}.mat-mdc-chip-set .mdc-evolution-chip-set__chips{min-width:100%}.mat-mdc-chip-set-stacked{flex-direction:column;align-items:flex-start}.mat-mdc-chip-set-stacked .mat-mdc-chip{width:100%}.mat-mdc-chip-set-stacked .mdc-evolution-chip__graphic{flex-grow:0}.mat-mdc-chip-set-stacked .mdc-evolution-chip__action--primary{flex-basis:100%;justify-content:start}input.mat-mdc-chip-input{flex:1 0 150px;margin-left:8px}[dir=rtl] input.mat-mdc-chip-input{margin-left:0;margin-right:8px}"]
-    }]
-  }], () => [{
-    type: ElementRef
-  }, {
-    type: ChangeDetectorRef
-  }, {
-    type: Directionality,
-    decorators: [{
-      type: Optional
-    }]
-  }, {
-    type: NgForm,
-    decorators: [{
-      type: Optional
-    }]
-  }, {
-    type: FormGroupDirective,
-    decorators: [{
-      type: Optional
-    }]
-  }, {
-    type: ErrorStateMatcher
-  }, {
-    type: NgControl,
-    decorators: [{
-      type: Optional
-    }, {
-      type: Self
-    }]
-  }], {
-    disabled: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    placeholder: [{
-      type: Input
-    }],
-    required: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    value: [{
-      type: Input
-    }],
-    errorStateMatcher: [{
-      type: Input
-    }],
-    change: [{
-      type: Output
-    }],
-    valueChange: [{
-      type: Output
-    }],
-    _chips: [{
-      type: ContentChildren,
-      args: [MatChipRow, {
-        // We need to use `descendants: true`, because Ivy will no longer match
-        // indirect descendants if it's left as false.
-        descendants: true
-      }]
-    }]
-  });
-})();
-var nextUniqueId3 = 0;
-var _MatChipInput = class _MatChipInput {
-  /** Register input for chip list */
-  get chipGrid() {
-    return this._chipGrid;
-  }
-  set chipGrid(value) {
-    if (value) {
-      this._chipGrid = value;
-      this._chipGrid.registerInput(this);
-    }
-  }
-  /** Whether the input is disabled. */
-  get disabled() {
-    return this._disabled || this._chipGrid && this._chipGrid.disabled;
-  }
-  set disabled(value) {
-    this._disabled = value;
-  }
-  /** Whether the input is empty. */
-  get empty() {
-    return !this.inputElement.value;
-  }
-  constructor(_elementRef, defaultOptions, formField) {
-    this._elementRef = _elementRef;
-    this.focused = false;
-    this.addOnBlur = false;
-    this.chipEnd = new EventEmitter();
-    this.placeholder = "";
-    this.id = `mat-mdc-chip-list-input-${nextUniqueId3++}`;
-    this._disabled = false;
-    this.inputElement = this._elementRef.nativeElement;
-    this.separatorKeyCodes = defaultOptions.separatorKeyCodes;
-    if (formField) {
-      this.inputElement.classList.add("mat-mdc-form-field-input-control");
-    }
-  }
-  ngOnChanges() {
-    this._chipGrid.stateChanges.next();
-  }
-  ngOnDestroy() {
-    this.chipEnd.complete();
-  }
-  /** Utility method to make host definition/tests more clear. */
-  _keydown(event) {
-    if (this.empty && event.keyCode === BACKSPACE) {
-      if (!event.repeat) {
-        this._chipGrid._focusLastChip();
-      }
-      event.preventDefault();
-    } else {
-      this._emitChipEnd(event);
-    }
-  }
-  /** Checks to see if the blur should emit the (chipEnd) event. */
-  _blur() {
-    if (this.addOnBlur) {
-      this._emitChipEnd();
-    }
-    this.focused = false;
-    if (!this._chipGrid.focused) {
-      this._chipGrid._blur();
-    }
-    this._chipGrid.stateChanges.next();
-  }
-  _focus() {
-    this.focused = true;
-    this._chipGrid.stateChanges.next();
-  }
-  /** Checks to see if the (chipEnd) event needs to be emitted. */
-  _emitChipEnd(event) {
-    if (!event || this._isSeparatorKey(event)) {
-      this.chipEnd.emit({
-        input: this.inputElement,
-        value: this.inputElement.value,
-        chipInput: this
-      });
-      event?.preventDefault();
-    }
-  }
-  _onInput() {
-    this._chipGrid.stateChanges.next();
-  }
-  /** Focuses the input. */
-  focus() {
-    this.inputElement.focus();
-  }
-  /** Clears the input */
-  clear() {
-    this.inputElement.value = "";
-  }
-  setDescribedByIds(ids) {
-    const element = this._elementRef.nativeElement;
-    if (ids.length) {
-      element.setAttribute("aria-describedby", ids.join(" "));
-    } else {
-      element.removeAttribute("aria-describedby");
-    }
-  }
-  /** Checks whether a keycode is one of the configured separators. */
-  _isSeparatorKey(event) {
-    return !hasModifierKey2(event) && new Set(this.separatorKeyCodes).has(event.keyCode);
-  }
-};
-_MatChipInput.\u0275fac = function MatChipInput_Factory(t) {
-  return new (t || _MatChipInput)(\u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(MAT_CHIPS_DEFAULT_OPTIONS), \u0275\u0275directiveInject(MAT_FORM_FIELD, 8));
-};
-_MatChipInput.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-  type: _MatChipInput,
-  selectors: [["input", "matChipInputFor", ""]],
-  hostAttrs: [1, "mat-mdc-chip-input", "mat-mdc-input-element", "mdc-text-field__input", "mat-input-element"],
-  hostVars: 6,
-  hostBindings: function MatChipInput_HostBindings(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275listener("keydown", function MatChipInput_keydown_HostBindingHandler($event) {
-        return ctx._keydown($event);
-      })("blur", function MatChipInput_blur_HostBindingHandler() {
-        return ctx._blur();
-      })("focus", function MatChipInput_focus_HostBindingHandler() {
-        return ctx._focus();
-      })("input", function MatChipInput_input_HostBindingHandler() {
-        return ctx._onInput();
-      });
-    }
-    if (rf & 2) {
-      \u0275\u0275hostProperty("id", ctx.id);
-      \u0275\u0275attribute("disabled", ctx.disabled || null)("placeholder", ctx.placeholder || null)("aria-invalid", ctx._chipGrid && ctx._chipGrid.ngControl ? ctx._chipGrid.ngControl.invalid : null)("aria-required", ctx._chipGrid && ctx._chipGrid.required || null)("required", ctx._chipGrid && ctx._chipGrid.required || null);
-    }
-  },
-  inputs: {
-    chipGrid: [0, "matChipInputFor", "chipGrid"],
-    addOnBlur: [2, "matChipInputAddOnBlur", "addOnBlur", booleanAttribute],
-    separatorKeyCodes: [0, "matChipInputSeparatorKeyCodes", "separatorKeyCodes"],
-    placeholder: "placeholder",
-    id: "id",
-    disabled: [2, "disabled", "disabled", booleanAttribute]
-  },
-  outputs: {
-    chipEnd: "matChipInputTokenEnd"
-  },
-  exportAs: ["matChipInput", "matChipInputFor"],
-  standalone: true,
-  features: [\u0275\u0275InputTransformsFeature, \u0275\u0275NgOnChangesFeature]
-});
-var MatChipInput = _MatChipInput;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipInput, [{
-    type: Directive,
-    args: [{
-      selector: "input[matChipInputFor]",
-      exportAs: "matChipInput, matChipInputFor",
-      host: {
-        // TODO: eventually we should remove `mat-input-element` from here since it comes from the
-        // non-MDC version of the input. It's currently being kept for backwards compatibility, because
-        // the MDC chips were landed initially with it.
-        "class": "mat-mdc-chip-input mat-mdc-input-element mdc-text-field__input mat-input-element",
-        "(keydown)": "_keydown($event)",
-        "(blur)": "_blur()",
-        "(focus)": "_focus()",
-        "(input)": "_onInput()",
-        "[id]": "id",
-        "[attr.disabled]": "disabled || null",
-        "[attr.placeholder]": "placeholder || null",
-        "[attr.aria-invalid]": "_chipGrid && _chipGrid.ngControl ? _chipGrid.ngControl.invalid : null",
-        "[attr.aria-required]": "_chipGrid && _chipGrid.required || null",
-        "[attr.required]": "_chipGrid && _chipGrid.required || null"
-      },
-      standalone: true
-    }]
-  }], () => [{
-    type: ElementRef
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Inject,
-      args: [MAT_CHIPS_DEFAULT_OPTIONS]
-    }]
-  }, {
-    type: MatFormField,
-    decorators: [{
-      type: Optional
-    }, {
-      type: Inject,
-      args: [MAT_FORM_FIELD]
-    }]
-  }], {
-    chipGrid: [{
-      type: Input,
-      args: ["matChipInputFor"]
-    }],
-    addOnBlur: [{
-      type: Input,
-      args: [{
-        alias: "matChipInputAddOnBlur",
-        transform: booleanAttribute
-      }]
-    }],
-    separatorKeyCodes: [{
-      type: Input,
-      args: ["matChipInputSeparatorKeyCodes"]
-    }],
-    chipEnd: [{
-      type: Output,
-      args: ["matChipInputTokenEnd"]
-    }],
-    placeholder: [{
-      type: Input
-    }],
-    id: [{
-      type: Input
-    }],
-    disabled: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }]
-  });
-})();
-var CHIP_DECLARATIONS = [MatChip, MatChipAvatar, MatChipEditInput, MatChipGrid, MatChipInput, MatChipListbox, MatChipOption, MatChipRemove, MatChipRow, MatChipSet, MatChipTrailingIcon];
-var _MatChipsModule = class _MatChipsModule {
-};
-_MatChipsModule.\u0275fac = function MatChipsModule_Factory(t) {
-  return new (t || _MatChipsModule)();
-};
-_MatChipsModule.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
-  type: _MatChipsModule
-});
-_MatChipsModule.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
-  providers: [ErrorStateMatcher, {
-    provide: MAT_CHIPS_DEFAULT_OPTIONS,
-    useValue: {
-      separatorKeyCodes: [ENTER2]
-    }
-  }],
-  imports: [MatCommonModule, MatRippleModule, MatCommonModule]
-});
-var MatChipsModule = _MatChipsModule;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipsModule, [{
-    type: NgModule,
-    args: [{
-      imports: [MatCommonModule, MatRippleModule, MatChipAction, CHIP_DECLARATIONS],
-      exports: [MatCommonModule, CHIP_DECLARATIONS],
-      providers: [ErrorStateMatcher, {
-        provide: MAT_CHIPS_DEFAULT_OPTIONS,
-        useValue: {
-          separatorKeyCodes: [ENTER2]
-        }
-      }]
-    }]
-  }], null, null);
-})();
-
-// node_modules/@angular/material/fesm2022/checkbox.mjs
-var _c07 = ["input"];
-var _c15 = ["label"];
-var _c25 = ["*"];
-var MAT_CHECKBOX_DEFAULT_OPTIONS = new InjectionToken("mat-checkbox-default-options", {
-  providedIn: "root",
-  factory: MAT_CHECKBOX_DEFAULT_OPTIONS_FACTORY
-});
-function MAT_CHECKBOX_DEFAULT_OPTIONS_FACTORY() {
-  return {
-    color: "accent",
-    clickAction: "check-indeterminate"
-  };
-}
-var TransitionCheckState;
-(function(TransitionCheckState2) {
-  TransitionCheckState2[TransitionCheckState2["Init"] = 0] = "Init";
-  TransitionCheckState2[TransitionCheckState2["Checked"] = 1] = "Checked";
-  TransitionCheckState2[TransitionCheckState2["Unchecked"] = 2] = "Unchecked";
-  TransitionCheckState2[TransitionCheckState2["Indeterminate"] = 3] = "Indeterminate";
-})(TransitionCheckState || (TransitionCheckState = {}));
-var MAT_CHECKBOX_CONTROL_VALUE_ACCESSOR = {
-  provide: NG_VALUE_ACCESSOR,
-  useExisting: forwardRef(() => MatCheckbox),
-  multi: true
-};
-var MatCheckboxChange = class {
-};
-var nextUniqueId4 = 0;
-var defaults2 = MAT_CHECKBOX_DEFAULT_OPTIONS_FACTORY();
-var _MatCheckbox = class _MatCheckbox {
-  /** Focuses the checkbox. */
-  focus() {
-    this._inputElement.nativeElement.focus();
-  }
-  /** Creates the change event that will be emitted by the checkbox. */
-  _createChangeEvent(isChecked) {
-    const event = new MatCheckboxChange();
-    event.source = this;
-    event.checked = isChecked;
-    return event;
-  }
-  /** Gets the element on which to add the animation CSS classes. */
-  _getAnimationTargetElement() {
-    return this._inputElement?.nativeElement;
-  }
-  /** Returns the unique id for the visual hidden input. */
-  get inputId() {
-    return `${this.id || this._uniqueId}-input`;
-  }
-  constructor(_elementRef, _changeDetectorRef, _ngZone, tabIndex, _animationMode, _options) {
-    this._elementRef = _elementRef;
-    this._changeDetectorRef = _changeDetectorRef;
-    this._ngZone = _ngZone;
-    this._animationMode = _animationMode;
-    this._options = _options;
-    this._animationClasses = {
-      uncheckedToChecked: "mdc-checkbox--anim-unchecked-checked",
-      uncheckedToIndeterminate: "mdc-checkbox--anim-unchecked-indeterminate",
-      checkedToUnchecked: "mdc-checkbox--anim-checked-unchecked",
-      checkedToIndeterminate: "mdc-checkbox--anim-checked-indeterminate",
-      indeterminateToChecked: "mdc-checkbox--anim-indeterminate-checked",
-      indeterminateToUnchecked: "mdc-checkbox--anim-indeterminate-unchecked"
-    };
-    this.ariaLabel = "";
-    this.ariaLabelledby = null;
-    this.labelPosition = "after";
-    this.name = null;
-    this.change = new EventEmitter();
-    this.indeterminateChange = new EventEmitter();
-    this._onTouched = () => {
-    };
-    this._currentAnimationClass = "";
-    this._currentCheckState = TransitionCheckState.Init;
-    this._controlValueAccessorChangeFn = () => {
-    };
-    this._validatorChangeFn = () => {
-    };
-    this._checked = false;
-    this._disabled = false;
-    this._indeterminate = false;
-    this._options = this._options || defaults2;
-    this.color = this._options.color || defaults2.color;
-    this.tabIndex = parseInt(tabIndex) || 0;
-    this.id = this._uniqueId = `mat-mdc-checkbox-${++nextUniqueId4}`;
-  }
-  ngOnChanges(changes) {
-    if (changes["required"]) {
-      this._validatorChangeFn();
-    }
-  }
-  ngAfterViewInit() {
-    this._syncIndeterminate(this._indeterminate);
-  }
-  /** Whether the checkbox is checked. */
-  get checked() {
-    return this._checked;
-  }
-  set checked(value) {
-    if (value != this.checked) {
-      this._checked = value;
-      this._changeDetectorRef.markForCheck();
-    }
-  }
-  /** Whether the checkbox is disabled. */
-  get disabled() {
-    return this._disabled;
-  }
-  set disabled(value) {
-    if (value !== this.disabled) {
-      this._disabled = value;
-      this._changeDetectorRef.markForCheck();
-    }
-  }
-  /**
-   * Whether the checkbox is indeterminate. This is also known as "mixed" mode and can be used to
-   * represent a checkbox with three states, e.g. a checkbox that represents a nested list of
-   * checkable items. Note that whenever checkbox is manually clicked, indeterminate is immediately
-   * set to false.
-   */
-  get indeterminate() {
-    return this._indeterminate;
-  }
-  set indeterminate(value) {
-    const changed = value != this._indeterminate;
-    this._indeterminate = value;
-    if (changed) {
-      if (this._indeterminate) {
-        this._transitionCheckState(TransitionCheckState.Indeterminate);
-      } else {
-        this._transitionCheckState(this.checked ? TransitionCheckState.Checked : TransitionCheckState.Unchecked);
-      }
-      this.indeterminateChange.emit(this._indeterminate);
-    }
-    this._syncIndeterminate(this._indeterminate);
-  }
-  _isRippleDisabled() {
-    return this.disableRipple || this.disabled;
-  }
-  /** Method being called whenever the label text changes. */
-  _onLabelTextChange() {
-    this._changeDetectorRef.detectChanges();
-  }
-  // Implemented as part of ControlValueAccessor.
-  writeValue(value) {
-    this.checked = !!value;
-  }
-  // Implemented as part of ControlValueAccessor.
-  registerOnChange(fn) {
-    this._controlValueAccessorChangeFn = fn;
-  }
-  // Implemented as part of ControlValueAccessor.
-  registerOnTouched(fn) {
-    this._onTouched = fn;
-  }
-  // Implemented as part of ControlValueAccessor.
-  setDisabledState(isDisabled) {
-    this.disabled = isDisabled;
-  }
-  // Implemented as a part of Validator.
-  validate(control) {
-    return this.required && control.value !== true ? {
-      "required": true
-    } : null;
-  }
-  // Implemented as a part of Validator.
-  registerOnValidatorChange(fn) {
-    this._validatorChangeFn = fn;
-  }
-  _transitionCheckState(newState) {
-    let oldState = this._currentCheckState;
-    let element = this._getAnimationTargetElement();
-    if (oldState === newState || !element) {
-      return;
-    }
-    if (this._currentAnimationClass) {
-      element.classList.remove(this._currentAnimationClass);
-    }
-    this._currentAnimationClass = this._getAnimationClassForCheckStateTransition(oldState, newState);
-    this._currentCheckState = newState;
-    if (this._currentAnimationClass.length > 0) {
-      element.classList.add(this._currentAnimationClass);
-      const animationClass = this._currentAnimationClass;
-      this._ngZone.runOutsideAngular(() => {
-        setTimeout(() => {
-          element.classList.remove(animationClass);
-        }, 1e3);
-      });
-    }
-  }
-  _emitChangeEvent() {
-    this._controlValueAccessorChangeFn(this.checked);
-    this.change.emit(this._createChangeEvent(this.checked));
-    if (this._inputElement) {
-      this._inputElement.nativeElement.checked = this.checked;
-    }
-  }
-  /** Toggles the `checked` state of the checkbox. */
-  toggle() {
-    this.checked = !this.checked;
-    this._controlValueAccessorChangeFn(this.checked);
-  }
-  _handleInputClick() {
-    const clickAction = this._options?.clickAction;
-    if (!this.disabled && clickAction !== "noop") {
-      if (this.indeterminate && clickAction !== "check") {
-        Promise.resolve().then(() => {
-          this._indeterminate = false;
-          this.indeterminateChange.emit(this._indeterminate);
-        });
-      }
-      this._checked = !this._checked;
-      this._transitionCheckState(this._checked ? TransitionCheckState.Checked : TransitionCheckState.Unchecked);
-      this._emitChangeEvent();
-    } else if (!this.disabled && clickAction === "noop") {
-      this._inputElement.nativeElement.checked = this.checked;
-      this._inputElement.nativeElement.indeterminate = this.indeterminate;
-    }
-  }
-  _onInteractionEvent(event) {
-    event.stopPropagation();
-  }
-  _onBlur() {
-    Promise.resolve().then(() => {
-      this._onTouched();
-      this._changeDetectorRef.markForCheck();
-    });
-  }
-  _getAnimationClassForCheckStateTransition(oldState, newState) {
-    if (this._animationMode === "NoopAnimations") {
-      return "";
-    }
-    switch (oldState) {
-      case TransitionCheckState.Init:
-        if (newState === TransitionCheckState.Checked) {
-          return this._animationClasses.uncheckedToChecked;
-        } else if (newState == TransitionCheckState.Indeterminate) {
-          return this._checked ? this._animationClasses.checkedToIndeterminate : this._animationClasses.uncheckedToIndeterminate;
-        }
-        break;
-      case TransitionCheckState.Unchecked:
-        return newState === TransitionCheckState.Checked ? this._animationClasses.uncheckedToChecked : this._animationClasses.uncheckedToIndeterminate;
-      case TransitionCheckState.Checked:
-        return newState === TransitionCheckState.Unchecked ? this._animationClasses.checkedToUnchecked : this._animationClasses.checkedToIndeterminate;
-      case TransitionCheckState.Indeterminate:
-        return newState === TransitionCheckState.Checked ? this._animationClasses.indeterminateToChecked : this._animationClasses.indeterminateToUnchecked;
-    }
-    return "";
-  }
-  /**
-   * Syncs the indeterminate value with the checkbox DOM node.
-   *
-   * We sync `indeterminate` directly on the DOM node, because in Ivy the check for whether a
-   * property is supported on an element boils down to `if (propName in element)`. Domino's
-   * HTMLInputElement doesn't have an `indeterminate` property so Ivy will warn during
-   * server-side rendering.
-   */
-  _syncIndeterminate(value) {
-    const nativeCheckbox = this._inputElement;
-    if (nativeCheckbox) {
-      nativeCheckbox.nativeElement.indeterminate = value;
-    }
-  }
-  _onInputClick() {
-    this._handleInputClick();
-  }
-  _onTouchTargetClick() {
-    this._handleInputClick();
-    if (!this.disabled) {
-      this._inputElement.nativeElement.focus();
-    }
-  }
-  /**
-   *  Prevent click events that come from the `<label/>` element from bubbling. This prevents the
-   *  click handler on the host from triggering twice when clicking on the `<label/>` element. After
-   *  the click event on the `<label/>` propagates, the browsers dispatches click on the associated
-   *  `<input/>`. By preventing clicks on the label by bubbling, we ensure only one click event
-   *  bubbles when the label is clicked.
-   */
-  _preventBubblingFromLabel(event) {
-    if (!!event.target && this._labelElement.nativeElement.contains(event.target)) {
-      event.stopPropagation();
-    }
-  }
-};
-_MatCheckbox.\u0275fac = function MatCheckbox_Factory(t) {
-  return new (t || _MatCheckbox)(\u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(ChangeDetectorRef), \u0275\u0275directiveInject(NgZone), \u0275\u0275injectAttribute("tabindex"), \u0275\u0275directiveInject(ANIMATION_MODULE_TYPE, 8), \u0275\u0275directiveInject(MAT_CHECKBOX_DEFAULT_OPTIONS, 8));
-};
-_MatCheckbox.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
-  type: _MatCheckbox,
-  selectors: [["mat-checkbox"]],
-  viewQuery: function MatCheckbox_Query(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275viewQuery(_c07, 5);
-      \u0275\u0275viewQuery(_c15, 5);
-      \u0275\u0275viewQuery(MatRipple, 5);
-    }
-    if (rf & 2) {
-      let _t;
-      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._inputElement = _t.first);
-      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._labelElement = _t.first);
-      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.ripple = _t.first);
-    }
-  },
-  hostAttrs: [1, "mat-mdc-checkbox"],
-  hostVars: 14,
-  hostBindings: function MatCheckbox_HostBindings(rf, ctx) {
-    if (rf & 2) {
-      \u0275\u0275hostProperty("id", ctx.id);
-      \u0275\u0275attribute("tabindex", null)("aria-label", null)("aria-labelledby", null);
-      \u0275\u0275classMap(ctx.color ? "mat-" + ctx.color : "mat-accent");
-      \u0275\u0275classProp("_mat-animation-noopable", ctx._animationMode === "NoopAnimations")("mdc-checkbox--disabled", ctx.disabled)("mat-mdc-checkbox-disabled", ctx.disabled)("mat-mdc-checkbox-checked", ctx.checked);
-    }
-  },
-  inputs: {
-    ariaLabel: [0, "aria-label", "ariaLabel"],
-    ariaLabelledby: [0, "aria-labelledby", "ariaLabelledby"],
-    ariaDescribedby: [0, "aria-describedby", "ariaDescribedby"],
-    id: "id",
-    required: [2, "required", "required", booleanAttribute],
-    labelPosition: "labelPosition",
-    name: "name",
-    value: "value",
-    disableRipple: [2, "disableRipple", "disableRipple", booleanAttribute],
-    tabIndex: [2, "tabIndex", "tabIndex", (value) => value == null ? void 0 : numberAttribute(value)],
-    color: "color",
-    checked: [2, "checked", "checked", booleanAttribute],
-    disabled: [2, "disabled", "disabled", booleanAttribute],
-    indeterminate: [2, "indeterminate", "indeterminate", booleanAttribute]
-  },
-  outputs: {
-    change: "change",
-    indeterminateChange: "indeterminateChange"
-  },
-  exportAs: ["matCheckbox"],
-  standalone: true,
-  features: [\u0275\u0275ProvidersFeature([MAT_CHECKBOX_CONTROL_VALUE_ACCESSOR, {
-    provide: NG_VALIDATORS,
-    useExisting: _MatCheckbox,
-    multi: true
-  }]), \u0275\u0275InputTransformsFeature, \u0275\u0275NgOnChangesFeature, \u0275\u0275StandaloneFeature],
-  ngContentSelectors: _c25,
-  decls: 15,
-  vars: 19,
-  consts: [["checkbox", ""], ["input", ""], ["label", ""], ["mat-internal-form-field", "", 3, "click", "labelPosition"], [1, "mdc-checkbox"], [1, "mat-mdc-checkbox-touch-target", 3, "click"], ["type", "checkbox", 1, "mdc-checkbox__native-control", 3, "blur", "click", "change", "checked", "indeterminate", "disabled", "id", "required", "tabIndex"], [1, "mdc-checkbox__ripple"], [1, "mdc-checkbox__background"], ["focusable", "false", "viewBox", "0 0 24 24", "aria-hidden", "true", 1, "mdc-checkbox__checkmark"], ["fill", "none", "d", "M1.73,12.91 8.1,19.28 22.79,4.59", 1, "mdc-checkbox__checkmark-path"], [1, "mdc-checkbox__mixedmark"], ["mat-ripple", "", 1, "mat-mdc-checkbox-ripple", "mat-mdc-focus-indicator", 3, "matRippleTrigger", "matRippleDisabled", "matRippleCentered"], [1, "mdc-label", 3, "for"]],
-  template: function MatCheckbox_Template(rf, ctx) {
-    if (rf & 1) {
-      const _r1 = \u0275\u0275getCurrentView();
-      \u0275\u0275projectionDef();
-      \u0275\u0275elementStart(0, "div", 3);
-      \u0275\u0275listener("click", function MatCheckbox_Template_div_click_0_listener($event) {
-        \u0275\u0275restoreView(_r1);
-        return \u0275\u0275resetView(ctx._preventBubblingFromLabel($event));
-      });
-      \u0275\u0275elementStart(1, "div", 4, 0)(3, "div", 5);
-      \u0275\u0275listener("click", function MatCheckbox_Template_div_click_3_listener() {
-        \u0275\u0275restoreView(_r1);
-        return \u0275\u0275resetView(ctx._onTouchTargetClick());
-      });
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(4, "input", 6, 1);
-      \u0275\u0275listener("blur", function MatCheckbox_Template_input_blur_4_listener() {
-        \u0275\u0275restoreView(_r1);
-        return \u0275\u0275resetView(ctx._onBlur());
-      })("click", function MatCheckbox_Template_input_click_4_listener() {
-        \u0275\u0275restoreView(_r1);
-        return \u0275\u0275resetView(ctx._onInputClick());
-      })("change", function MatCheckbox_Template_input_change_4_listener($event) {
-        \u0275\u0275restoreView(_r1);
-        return \u0275\u0275resetView(ctx._onInteractionEvent($event));
-      });
-      \u0275\u0275elementEnd();
-      \u0275\u0275element(6, "div", 7);
-      \u0275\u0275elementStart(7, "div", 8);
-      \u0275\u0275namespaceSVG();
-      \u0275\u0275elementStart(8, "svg", 9);
-      \u0275\u0275element(9, "path", 10);
-      \u0275\u0275elementEnd();
-      \u0275\u0275namespaceHTML();
-      \u0275\u0275element(10, "div", 11);
-      \u0275\u0275elementEnd();
-      \u0275\u0275element(11, "div", 12);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(12, "label", 13, 2);
-      \u0275\u0275projection(14);
-      \u0275\u0275elementEnd()();
-    }
-    if (rf & 2) {
-      const checkbox_r2 = \u0275\u0275reference(2);
-      \u0275\u0275property("labelPosition", ctx.labelPosition);
-      \u0275\u0275advance(4);
-      \u0275\u0275classProp("mdc-checkbox--selected", ctx.checked);
-      \u0275\u0275property("checked", ctx.checked)("indeterminate", ctx.indeterminate)("disabled", ctx.disabled)("id", ctx.inputId)("required", ctx.required)("tabIndex", ctx.disabled ? -1 : ctx.tabIndex);
-      \u0275\u0275attribute("aria-label", ctx.ariaLabel || null)("aria-labelledby", ctx.ariaLabelledby)("aria-describedby", ctx.ariaDescribedby)("aria-checked", ctx.indeterminate ? "mixed" : null)("name", ctx.name)("value", ctx.value);
-      \u0275\u0275advance(7);
-      \u0275\u0275property("matRippleTrigger", checkbox_r2)("matRippleDisabled", ctx.disableRipple || ctx.disabled)("matRippleCentered", true);
-      \u0275\u0275advance();
-      \u0275\u0275property("for", ctx.inputId);
-    }
-  },
-  dependencies: [MatRipple, _MatInternalFormField],
-  styles: ['.mdc-checkbox{display:inline-block;position:relative;flex:0 0 18px;box-sizing:content-box;width:18px;height:18px;line-height:0;white-space:nowrap;cursor:pointer;vertical-align:bottom;padding:calc((var(--mdc-checkbox-state-layer-size, 40px) - 18px)/2);margin:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2)}.mdc-checkbox:hover .mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-hover-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-hover-state-layer-color)}.mdc-checkbox:hover .mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-hover-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-focus-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-focus-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-focus-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-pressed-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-pressed-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-pressed-state-layer-color)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-hover-state-layer-opacity);background-color:var(--mdc-checkbox-selected-hover-state-layer-color)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-hover-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-focus-state-layer-opacity);background-color:var(--mdc-checkbox-selected-focus-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-focus-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-pressed-state-layer-opacity);background-color:var(--mdc-checkbox-selected-pressed-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-pressed-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control{position:absolute;margin:0;padding:0;opacity:0;cursor:inherit;width:var(--mdc-checkbox-state-layer-size, 40px);height:var(--mdc-checkbox-state-layer-size, 40px);top:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2);right:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2);left:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2)}.mdc-checkbox--disabled{cursor:default;pointer-events:none}.mdc-checkbox__background{display:inline-flex;position:absolute;align-items:center;justify-content:center;box-sizing:border-box;width:18px;height:18px;border:2px solid currentColor;border-radius:2px;background-color:rgba(0,0,0,0);pointer-events:none;will-change:background-color,border-color;transition:background-color 90ms cubic-bezier(0.4, 0, 0.6, 1),border-color 90ms cubic-bezier(0.4, 0, 0.6, 1);border-color:var(--mdc-checkbox-unselected-icon-color);top:calc((var(--mdc-checkbox-state-layer-size, 40px) - 18px)/2);left:calc((var(--mdc-checkbox-state-layer-size, 40px) - 18px)/2)}.mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-icon-color);background-color:var(--mdc-checkbox-selected-icon-color)}.mdc-checkbox--disabled .mdc-checkbox__background{border-color:var(--mdc-checkbox-disabled-unselected-icon-color)}.mdc-checkbox__native-control:disabled:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:disabled:indeterminate~.mdc-checkbox__background{background-color:var(--mdc-checkbox-disabled-selected-icon-color);border-color:rgba(0,0,0,0)}.mdc-checkbox:hover .mdc-checkbox__native-control:not(:checked)~.mdc-checkbox__background,.mdc-checkbox:hover .mdc-checkbox__native-control:not(:indeterminate)~.mdc-checkbox__background{border-color:var(--mdc-checkbox-unselected-hover-icon-color);background-color:rgba(0,0,0,0)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mdc-checkbox__background,.mdc-checkbox:hover .mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-hover-icon-color);background-color:var(--mdc-checkbox-selected-hover-icon-color)}.mdc-checkbox__native-control:focus:focus:not(:checked)~.mdc-checkbox__background,.mdc-checkbox__native-control:focus:focus:not(:indeterminate)~.mdc-checkbox__background{border-color:var(--mdc-checkbox-unselected-focus-icon-color)}.mdc-checkbox__native-control:focus:focus:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:focus:focus:indeterminate~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-focus-icon-color);background-color:var(--mdc-checkbox-selected-focus-icon-color)}.mdc-checkbox__checkmark{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;opacity:0;transition:opacity 180ms cubic-bezier(0.4, 0, 0.6, 1);color:var(--mdc-checkbox-selected-checkmark-color)}.mdc-checkbox--disabled .mdc-checkbox__checkmark{color:var(--mdc-checkbox-disabled-selected-checkmark-color)}.mdc-checkbox__checkmark-path{transition:stroke-dashoffset 180ms cubic-bezier(0.4, 0, 0.6, 1);stroke:currentColor;stroke-width:3.12px;stroke-dashoffset:29.7833385;stroke-dasharray:29.7833385}.mdc-checkbox__mixedmark{width:100%;height:0;transform:scaleX(0) rotate(0deg);border-width:1px;border-style:solid;opacity:0;transition:opacity 90ms cubic-bezier(0.4, 0, 0.6, 1),transform 90ms cubic-bezier(0.4, 0, 0.6, 1);border-color:var(--mdc-checkbox-selected-checkmark-color)}.cdk-high-contrast-active .mdc-checkbox__mixedmark{margin:0 1px}.mdc-checkbox--disabled .mdc-checkbox__mixedmark{border-color:var(--mdc-checkbox-disabled-selected-checkmark-color)}.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__background,.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__background,.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__background,.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__background{animation-duration:180ms;animation-timing-function:linear}.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__checkmark-path{animation:mdc-checkbox-unchecked-checked-checkmark-path 180ms linear;transition:none}.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__mixedmark{animation:mdc-checkbox-unchecked-indeterminate-mixedmark 90ms linear;transition:none}.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__checkmark-path{animation:mdc-checkbox-checked-unchecked-checkmark-path 90ms linear;transition:none}.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__checkmark{animation:mdc-checkbox-checked-indeterminate-checkmark 90ms linear;transition:none}.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__mixedmark{animation:mdc-checkbox-checked-indeterminate-mixedmark 90ms linear;transition:none}.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__checkmark{animation:mdc-checkbox-indeterminate-checked-checkmark 500ms linear;transition:none}.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__mixedmark{animation:mdc-checkbox-indeterminate-checked-mixedmark 500ms linear;transition:none}.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__mixedmark{animation:mdc-checkbox-indeterminate-unchecked-mixedmark 300ms linear;transition:none}.mdc-checkbox__native-control:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background{transition:border-color 90ms cubic-bezier(0, 0, 0.2, 1),background-color 90ms cubic-bezier(0, 0, 0.2, 1)}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__checkmark-path,.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__checkmark-path{stroke-dashoffset:0}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__checkmark{transition:opacity 180ms cubic-bezier(0, 0, 0.2, 1),transform 180ms cubic-bezier(0, 0, 0.2, 1);opacity:1}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__mixedmark{transform:scaleX(1) rotate(-45deg)}.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__checkmark{transform:rotate(45deg);opacity:0;transition:opacity 90ms cubic-bezier(0.4, 0, 0.6, 1),transform 90ms cubic-bezier(0.4, 0, 0.6, 1)}.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__mixedmark{transform:scaleX(1) rotate(0deg);opacity:1}@keyframes mdc-checkbox-unchecked-checked-checkmark-path{0%,50%{stroke-dashoffset:29.7833385}50%{animation-timing-function:cubic-bezier(0, 0, 0.2, 1)}100%{stroke-dashoffset:0}}@keyframes mdc-checkbox-unchecked-indeterminate-mixedmark{0%,68.2%{transform:scaleX(0)}68.2%{animation-timing-function:cubic-bezier(0, 0, 0, 1)}100%{transform:scaleX(1)}}@keyframes mdc-checkbox-checked-unchecked-checkmark-path{from{animation-timing-function:cubic-bezier(0.4, 0, 1, 1);opacity:1;stroke-dashoffset:0}to{opacity:0;stroke-dashoffset:-29.7833385}}@keyframes mdc-checkbox-checked-indeterminate-checkmark{from{animation-timing-function:cubic-bezier(0, 0, 0.2, 1);transform:rotate(0deg);opacity:1}to{transform:rotate(45deg);opacity:0}}@keyframes mdc-checkbox-indeterminate-checked-checkmark{from{animation-timing-function:cubic-bezier(0.14, 0, 0, 1);transform:rotate(45deg);opacity:0}to{transform:rotate(360deg);opacity:1}}@keyframes mdc-checkbox-checked-indeterminate-mixedmark{from{animation-timing-function:cubic-bezier(0, 0, 0.2, 1);transform:rotate(-45deg);opacity:0}to{transform:rotate(0deg);opacity:1}}@keyframes mdc-checkbox-indeterminate-checked-mixedmark{from{animation-timing-function:cubic-bezier(0.14, 0, 0, 1);transform:rotate(0deg);opacity:1}to{transform:rotate(315deg);opacity:0}}@keyframes mdc-checkbox-indeterminate-unchecked-mixedmark{0%{animation-timing-function:linear;transform:scaleX(1);opacity:1}32.8%,100%{transform:scaleX(0);opacity:0}}.mat-mdc-checkbox{display:inline-block;position:relative;-webkit-tap-highlight-color:rgba(0,0,0,0)}.mat-mdc-checkbox._mat-animation-noopable .mdc-checkbox *,.mat-mdc-checkbox._mat-animation-noopable .mdc-checkbox *::before{transition:none !important;animation:none !important}.mat-mdc-checkbox .mdc-checkbox__background{-webkit-print-color-adjust:exact;color-adjust:exact}.mat-mdc-checkbox label{cursor:pointer}.mat-mdc-checkbox .mat-internal-form-field{color:var(--mat-checkbox-label-text-color);font-family:var(--mat-checkbox-label-text-font);line-height:var(--mat-checkbox-label-text-line-height);font-size:var(--mat-checkbox-label-text-size);letter-spacing:var(--mat-checkbox-label-text-tracking);font-weight:var(--mat-checkbox-label-text-weight)}.mat-mdc-checkbox.mat-mdc-checkbox-disabled label{cursor:default;color:var(--mat-checkbox-disabled-label-color)}.mat-mdc-checkbox label:empty{display:none}.cdk-high-contrast-active .mat-mdc-checkbox.mat-mdc-checkbox-disabled{opacity:.5}.cdk-high-contrast-active .mat-mdc-checkbox .mdc-checkbox__checkmark{--mdc-checkbox-selected-checkmark-color: CanvasText;--mdc-checkbox-disabled-selected-checkmark-color: CanvasText}.mat-mdc-checkbox .mdc-checkbox__ripple{opacity:0}.mat-mdc-checkbox-ripple,.mdc-checkbox__ripple{top:0;left:0;right:0;bottom:0;position:absolute;border-radius:50%;pointer-events:none}.mat-mdc-checkbox-ripple:not(:empty),.mdc-checkbox__ripple:not(:empty){transform:translateZ(0)}.mat-mdc-checkbox-ripple .mat-ripple-element{opacity:.1}.mat-mdc-checkbox-touch-target{position:absolute;top:50%;left:50%;height:48px;width:48px;transform:translate(-50%, -50%);display:var(--mat-checkbox-touch-target-display)}.mat-mdc-checkbox-ripple::before{border-radius:50%}.mdc-checkbox__native-control:focus~.mat-mdc-focus-indicator::before{content:""}'],
-  encapsulation: 2,
-  changeDetection: 0
-});
-var MatCheckbox = _MatCheckbox;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatCheckbox, [{
-    type: Component,
-    args: [{
-      selector: "mat-checkbox",
-      host: {
-        "class": "mat-mdc-checkbox",
-        "[attr.tabindex]": "null",
-        "[attr.aria-label]": "null",
-        "[attr.aria-labelledby]": "null",
-        "[class._mat-animation-noopable]": `_animationMode === 'NoopAnimations'`,
-        "[class.mdc-checkbox--disabled]": "disabled",
-        "[id]": "id",
-        // Add classes that users can use to more easily target disabled or checked checkboxes.
-        "[class.mat-mdc-checkbox-disabled]": "disabled",
-        "[class.mat-mdc-checkbox-checked]": "checked",
-        "[class]": 'color ? "mat-" + color : "mat-accent"'
-      },
-      providers: [MAT_CHECKBOX_CONTROL_VALUE_ACCESSOR, {
-        provide: NG_VALIDATORS,
-        useExisting: MatCheckbox,
-        multi: true
-      }],
-      exportAs: "matCheckbox",
-      encapsulation: ViewEncapsulation$1.None,
-      changeDetection: ChangeDetectionStrategy.OnPush,
-      standalone: true,
-      imports: [MatRipple, _MatInternalFormField],
-      template: `<div mat-internal-form-field [labelPosition]="labelPosition" (click)="_preventBubblingFromLabel($event)">
-  <div #checkbox class="mdc-checkbox">
-    <!-- Render this element first so the input is on top. -->
-    <div class="mat-mdc-checkbox-touch-target" (click)="_onTouchTargetClick()"></div>
-    <input #input
-           type="checkbox"
-           class="mdc-checkbox__native-control"
-           [class.mdc-checkbox--selected]="checked"
-           [attr.aria-label]="ariaLabel || null"
-           [attr.aria-labelledby]="ariaLabelledby"
-           [attr.aria-describedby]="ariaDescribedby"
-           [attr.aria-checked]="indeterminate ? 'mixed' : null"
-           [attr.name]="name"
-           [attr.value]="value"
-           [checked]="checked"
-           [indeterminate]="indeterminate"
-           [disabled]="disabled"
-           [id]="inputId"
-           [required]="required"
-           [tabIndex]="disabled ? -1 : tabIndex"
-           (blur)="_onBlur()"
-           (click)="_onInputClick()"
-           (change)="_onInteractionEvent($event)"/>
-    <div class="mdc-checkbox__ripple"></div>
-    <div class="mdc-checkbox__background">
-      <svg class="mdc-checkbox__checkmark"
-           focusable="false"
-           viewBox="0 0 24 24"
-           aria-hidden="true">
-        <path class="mdc-checkbox__checkmark-path"
-              fill="none"
-              d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
-      </svg>
-      <div class="mdc-checkbox__mixedmark"></div>
-    </div>
-    <div class="mat-mdc-checkbox-ripple mat-mdc-focus-indicator" mat-ripple
-      [matRippleTrigger]="checkbox"
-      [matRippleDisabled]="disableRipple || disabled"
-      [matRippleCentered]="true"></div>
-  </div>
-  <!--
-    Avoid putting a click handler on the <label/> to fix duplicate navigation stop on Talk Back
-    (#14385). Putting a click handler on the <label/> caused this bug because the browser produced
-    an unnecessary accessibility tree node.
-  -->
-  <label class="mdc-label"
-         #label
-         [for]="inputId">
-    <ng-content></ng-content>
-  </label>
-</div>
-`,
-      styles: ['.mdc-checkbox{display:inline-block;position:relative;flex:0 0 18px;box-sizing:content-box;width:18px;height:18px;line-height:0;white-space:nowrap;cursor:pointer;vertical-align:bottom;padding:calc((var(--mdc-checkbox-state-layer-size, 40px) - 18px)/2);margin:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2)}.mdc-checkbox:hover .mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-hover-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-hover-state-layer-color)}.mdc-checkbox:hover .mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-hover-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-focus-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-focus-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-focus-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-pressed-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-pressed-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-pressed-state-layer-color)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-hover-state-layer-opacity);background-color:var(--mdc-checkbox-selected-hover-state-layer-color)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-hover-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-focus-state-layer-opacity);background-color:var(--mdc-checkbox-selected-focus-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-focus-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-pressed-state-layer-opacity);background-color:var(--mdc-checkbox-selected-pressed-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-pressed-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control{position:absolute;margin:0;padding:0;opacity:0;cursor:inherit;width:var(--mdc-checkbox-state-layer-size, 40px);height:var(--mdc-checkbox-state-layer-size, 40px);top:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2);right:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2);left:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2)}.mdc-checkbox--disabled{cursor:default;pointer-events:none}.mdc-checkbox__background{display:inline-flex;position:absolute;align-items:center;justify-content:center;box-sizing:border-box;width:18px;height:18px;border:2px solid currentColor;border-radius:2px;background-color:rgba(0,0,0,0);pointer-events:none;will-change:background-color,border-color;transition:background-color 90ms cubic-bezier(0.4, 0, 0.6, 1),border-color 90ms cubic-bezier(0.4, 0, 0.6, 1);border-color:var(--mdc-checkbox-unselected-icon-color);top:calc((var(--mdc-checkbox-state-layer-size, 40px) - 18px)/2);left:calc((var(--mdc-checkbox-state-layer-size, 40px) - 18px)/2)}.mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-icon-color);background-color:var(--mdc-checkbox-selected-icon-color)}.mdc-checkbox--disabled .mdc-checkbox__background{border-color:var(--mdc-checkbox-disabled-unselected-icon-color)}.mdc-checkbox__native-control:disabled:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:disabled:indeterminate~.mdc-checkbox__background{background-color:var(--mdc-checkbox-disabled-selected-icon-color);border-color:rgba(0,0,0,0)}.mdc-checkbox:hover .mdc-checkbox__native-control:not(:checked)~.mdc-checkbox__background,.mdc-checkbox:hover .mdc-checkbox__native-control:not(:indeterminate)~.mdc-checkbox__background{border-color:var(--mdc-checkbox-unselected-hover-icon-color);background-color:rgba(0,0,0,0)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mdc-checkbox__background,.mdc-checkbox:hover .mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-hover-icon-color);background-color:var(--mdc-checkbox-selected-hover-icon-color)}.mdc-checkbox__native-control:focus:focus:not(:checked)~.mdc-checkbox__background,.mdc-checkbox__native-control:focus:focus:not(:indeterminate)~.mdc-checkbox__background{border-color:var(--mdc-checkbox-unselected-focus-icon-color)}.mdc-checkbox__native-control:focus:focus:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:focus:focus:indeterminate~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-focus-icon-color);background-color:var(--mdc-checkbox-selected-focus-icon-color)}.mdc-checkbox__checkmark{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;opacity:0;transition:opacity 180ms cubic-bezier(0.4, 0, 0.6, 1);color:var(--mdc-checkbox-selected-checkmark-color)}.mdc-checkbox--disabled .mdc-checkbox__checkmark{color:var(--mdc-checkbox-disabled-selected-checkmark-color)}.mdc-checkbox__checkmark-path{transition:stroke-dashoffset 180ms cubic-bezier(0.4, 0, 0.6, 1);stroke:currentColor;stroke-width:3.12px;stroke-dashoffset:29.7833385;stroke-dasharray:29.7833385}.mdc-checkbox__mixedmark{width:100%;height:0;transform:scaleX(0) rotate(0deg);border-width:1px;border-style:solid;opacity:0;transition:opacity 90ms cubic-bezier(0.4, 0, 0.6, 1),transform 90ms cubic-bezier(0.4, 0, 0.6, 1);border-color:var(--mdc-checkbox-selected-checkmark-color)}.cdk-high-contrast-active .mdc-checkbox__mixedmark{margin:0 1px}.mdc-checkbox--disabled .mdc-checkbox__mixedmark{border-color:var(--mdc-checkbox-disabled-selected-checkmark-color)}.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__background,.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__background,.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__background,.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__background{animation-duration:180ms;animation-timing-function:linear}.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__checkmark-path{animation:mdc-checkbox-unchecked-checked-checkmark-path 180ms linear;transition:none}.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__mixedmark{animation:mdc-checkbox-unchecked-indeterminate-mixedmark 90ms linear;transition:none}.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__checkmark-path{animation:mdc-checkbox-checked-unchecked-checkmark-path 90ms linear;transition:none}.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__checkmark{animation:mdc-checkbox-checked-indeterminate-checkmark 90ms linear;transition:none}.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__mixedmark{animation:mdc-checkbox-checked-indeterminate-mixedmark 90ms linear;transition:none}.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__checkmark{animation:mdc-checkbox-indeterminate-checked-checkmark 500ms linear;transition:none}.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__mixedmark{animation:mdc-checkbox-indeterminate-checked-mixedmark 500ms linear;transition:none}.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__mixedmark{animation:mdc-checkbox-indeterminate-unchecked-mixedmark 300ms linear;transition:none}.mdc-checkbox__native-control:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background{transition:border-color 90ms cubic-bezier(0, 0, 0.2, 1),background-color 90ms cubic-bezier(0, 0, 0.2, 1)}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__checkmark-path,.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__checkmark-path{stroke-dashoffset:0}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__checkmark{transition:opacity 180ms cubic-bezier(0, 0, 0.2, 1),transform 180ms cubic-bezier(0, 0, 0.2, 1);opacity:1}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__mixedmark{transform:scaleX(1) rotate(-45deg)}.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__checkmark{transform:rotate(45deg);opacity:0;transition:opacity 90ms cubic-bezier(0.4, 0, 0.6, 1),transform 90ms cubic-bezier(0.4, 0, 0.6, 1)}.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__mixedmark{transform:scaleX(1) rotate(0deg);opacity:1}@keyframes mdc-checkbox-unchecked-checked-checkmark-path{0%,50%{stroke-dashoffset:29.7833385}50%{animation-timing-function:cubic-bezier(0, 0, 0.2, 1)}100%{stroke-dashoffset:0}}@keyframes mdc-checkbox-unchecked-indeterminate-mixedmark{0%,68.2%{transform:scaleX(0)}68.2%{animation-timing-function:cubic-bezier(0, 0, 0, 1)}100%{transform:scaleX(1)}}@keyframes mdc-checkbox-checked-unchecked-checkmark-path{from{animation-timing-function:cubic-bezier(0.4, 0, 1, 1);opacity:1;stroke-dashoffset:0}to{opacity:0;stroke-dashoffset:-29.7833385}}@keyframes mdc-checkbox-checked-indeterminate-checkmark{from{animation-timing-function:cubic-bezier(0, 0, 0.2, 1);transform:rotate(0deg);opacity:1}to{transform:rotate(45deg);opacity:0}}@keyframes mdc-checkbox-indeterminate-checked-checkmark{from{animation-timing-function:cubic-bezier(0.14, 0, 0, 1);transform:rotate(45deg);opacity:0}to{transform:rotate(360deg);opacity:1}}@keyframes mdc-checkbox-checked-indeterminate-mixedmark{from{animation-timing-function:cubic-bezier(0, 0, 0.2, 1);transform:rotate(-45deg);opacity:0}to{transform:rotate(0deg);opacity:1}}@keyframes mdc-checkbox-indeterminate-checked-mixedmark{from{animation-timing-function:cubic-bezier(0.14, 0, 0, 1);transform:rotate(0deg);opacity:1}to{transform:rotate(315deg);opacity:0}}@keyframes mdc-checkbox-indeterminate-unchecked-mixedmark{0%{animation-timing-function:linear;transform:scaleX(1);opacity:1}32.8%,100%{transform:scaleX(0);opacity:0}}.mat-mdc-checkbox{display:inline-block;position:relative;-webkit-tap-highlight-color:rgba(0,0,0,0)}.mat-mdc-checkbox._mat-animation-noopable .mdc-checkbox *,.mat-mdc-checkbox._mat-animation-noopable .mdc-checkbox *::before{transition:none !important;animation:none !important}.mat-mdc-checkbox .mdc-checkbox__background{-webkit-print-color-adjust:exact;color-adjust:exact}.mat-mdc-checkbox label{cursor:pointer}.mat-mdc-checkbox .mat-internal-form-field{color:var(--mat-checkbox-label-text-color);font-family:var(--mat-checkbox-label-text-font);line-height:var(--mat-checkbox-label-text-line-height);font-size:var(--mat-checkbox-label-text-size);letter-spacing:var(--mat-checkbox-label-text-tracking);font-weight:var(--mat-checkbox-label-text-weight)}.mat-mdc-checkbox.mat-mdc-checkbox-disabled label{cursor:default;color:var(--mat-checkbox-disabled-label-color)}.mat-mdc-checkbox label:empty{display:none}.cdk-high-contrast-active .mat-mdc-checkbox.mat-mdc-checkbox-disabled{opacity:.5}.cdk-high-contrast-active .mat-mdc-checkbox .mdc-checkbox__checkmark{--mdc-checkbox-selected-checkmark-color: CanvasText;--mdc-checkbox-disabled-selected-checkmark-color: CanvasText}.mat-mdc-checkbox .mdc-checkbox__ripple{opacity:0}.mat-mdc-checkbox-ripple,.mdc-checkbox__ripple{top:0;left:0;right:0;bottom:0;position:absolute;border-radius:50%;pointer-events:none}.mat-mdc-checkbox-ripple:not(:empty),.mdc-checkbox__ripple:not(:empty){transform:translateZ(0)}.mat-mdc-checkbox-ripple .mat-ripple-element{opacity:.1}.mat-mdc-checkbox-touch-target{position:absolute;top:50%;left:50%;height:48px;width:48px;transform:translate(-50%, -50%);display:var(--mat-checkbox-touch-target-display)}.mat-mdc-checkbox-ripple::before{border-radius:50%}.mdc-checkbox__native-control:focus~.mat-mdc-focus-indicator::before{content:""}']
-    }]
-  }], () => [{
-    type: ElementRef
-  }, {
-    type: ChangeDetectorRef
-  }, {
-    type: NgZone
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Attribute2,
-      args: ["tabindex"]
-    }]
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Optional
-    }, {
-      type: Inject,
-      args: [ANIMATION_MODULE_TYPE]
-    }]
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Optional
-    }, {
-      type: Inject,
-      args: [MAT_CHECKBOX_DEFAULT_OPTIONS]
-    }]
-  }], {
-    ariaLabel: [{
-      type: Input,
-      args: ["aria-label"]
-    }],
-    ariaLabelledby: [{
-      type: Input,
-      args: ["aria-labelledby"]
-    }],
-    ariaDescribedby: [{
-      type: Input,
-      args: ["aria-describedby"]
-    }],
-    id: [{
-      type: Input
-    }],
-    required: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    labelPosition: [{
-      type: Input
-    }],
-    name: [{
-      type: Input
-    }],
-    change: [{
-      type: Output
-    }],
-    indeterminateChange: [{
-      type: Output
-    }],
-    value: [{
-      type: Input
-    }],
-    disableRipple: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    _inputElement: [{
-      type: ViewChild,
-      args: ["input"]
-    }],
-    _labelElement: [{
-      type: ViewChild,
-      args: ["label"]
-    }],
-    tabIndex: [{
-      type: Input,
-      args: [{
-        transform: (value) => value == null ? void 0 : numberAttribute(value)
-      }]
-    }],
-    color: [{
-      type: Input
-    }],
-    ripple: [{
-      type: ViewChild,
-      args: [MatRipple]
-    }],
-    checked: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    disabled: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    indeterminate: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }]
-  });
-})();
-var MAT_CHECKBOX_REQUIRED_VALIDATOR = {
-  provide: NG_VALIDATORS,
-  useExisting: forwardRef(() => MatCheckboxRequiredValidator),
-  multi: true
-};
-var _MatCheckboxRequiredValidator = class _MatCheckboxRequiredValidator extends CheckboxRequiredValidator {
-};
-_MatCheckboxRequiredValidator.\u0275fac = /* @__PURE__ */ (() => {
-  let \u0275MatCheckboxRequiredValidator_BaseFactory;
-  return function MatCheckboxRequiredValidator_Factory(t) {
-    return (\u0275MatCheckboxRequiredValidator_BaseFactory || (\u0275MatCheckboxRequiredValidator_BaseFactory = \u0275\u0275getInheritedFactory(_MatCheckboxRequiredValidator)))(t || _MatCheckboxRequiredValidator);
-  };
-})();
-_MatCheckboxRequiredValidator.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-  type: _MatCheckboxRequiredValidator,
-  selectors: [["mat-checkbox", "required", "", "formControlName", ""], ["mat-checkbox", "required", "", "formControl", ""], ["mat-checkbox", "required", "", "ngModel", ""]],
-  standalone: true,
-  features: [\u0275\u0275ProvidersFeature([MAT_CHECKBOX_REQUIRED_VALIDATOR]), \u0275\u0275InheritDefinitionFeature]
-});
-var MatCheckboxRequiredValidator = _MatCheckboxRequiredValidator;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatCheckboxRequiredValidator, [{
-    type: Directive,
-    args: [{
-      selector: `mat-checkbox[required][formControlName],
-             mat-checkbox[required][formControl], mat-checkbox[required][ngModel]`,
-      providers: [MAT_CHECKBOX_REQUIRED_VALIDATOR],
-      standalone: true
-    }]
-  }], null, null);
-})();
-var __MatCheckboxRequiredValidatorModule = class __MatCheckboxRequiredValidatorModule {
-};
-__MatCheckboxRequiredValidatorModule.\u0275fac = function _MatCheckboxRequiredValidatorModule_Factory(t) {
-  return new (t || __MatCheckboxRequiredValidatorModule)();
-};
-__MatCheckboxRequiredValidatorModule.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
-  type: __MatCheckboxRequiredValidatorModule
-});
-__MatCheckboxRequiredValidatorModule.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({});
-var _MatCheckboxRequiredValidatorModule = __MatCheckboxRequiredValidatorModule;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(_MatCheckboxRequiredValidatorModule, [{
-    type: NgModule,
-    args: [{
-      imports: [MatCheckboxRequiredValidator],
-      exports: [MatCheckboxRequiredValidator]
-    }]
-  }], null, null);
-})();
-var _MatCheckboxModule = class _MatCheckboxModule {
-};
-_MatCheckboxModule.\u0275fac = function MatCheckboxModule_Factory(t) {
-  return new (t || _MatCheckboxModule)();
-};
-_MatCheckboxModule.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
-  type: _MatCheckboxModule
-});
-_MatCheckboxModule.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
-  imports: [MatCheckbox, MatCommonModule, MatCommonModule]
-});
-var MatCheckboxModule = _MatCheckboxModule;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatCheckboxModule, [{
-    type: NgModule,
-    args: [{
-      imports: [MatCheckbox, MatCommonModule],
-      exports: [MatCheckbox, MatCommonModule]
-    }]
-  }], null, null);
-})();
 
 // node_modules/@angular/cdk/fesm2022/collections.mjs
 var DataSource = class {
@@ -65719,8 +61523,8 @@ var UniqueSelectionDispatcher = _UniqueSelectionDispatcher;
 })();
 
 // node_modules/@angular/cdk/fesm2022/scrolling.mjs
-var _c08 = ["contentWrapper"];
-var _c16 = ["*"];
+var _c06 = ["contentWrapper"];
+var _c14 = ["*"];
 var VIRTUAL_SCROLL_STRATEGY = new InjectionToken("VIRTUAL_SCROLL_STRATEGY");
 var FixedSizeVirtualScrollStrategy = class {
   /**
@@ -66709,7 +62513,7 @@ _CdkVirtualScrollViewport.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
   selectors: [["cdk-virtual-scroll-viewport"]],
   viewQuery: function CdkVirtualScrollViewport_Query(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275viewQuery(_c08, 7);
+      \u0275\u0275viewQuery(_c06, 7);
     }
     if (rf & 2) {
       let _t;
@@ -66736,7 +62540,7 @@ _CdkVirtualScrollViewport.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     useFactory: (virtualScrollable, viewport) => virtualScrollable || viewport,
     deps: [[new Optional(), new Inject(VIRTUAL_SCROLLABLE)], _CdkVirtualScrollViewport]
   }]), \u0275\u0275InputTransformsFeature, \u0275\u0275InheritDefinitionFeature, \u0275\u0275StandaloneFeature],
-  ngContentSelectors: _c16,
+  ngContentSelectors: _c14,
   decls: 4,
   vars: 4,
   consts: [["contentWrapper", ""], [1, "cdk-virtual-scroll-content-wrapper"], [1, "cdk-virtual-scroll-spacer"]],
@@ -69781,7 +65585,7 @@ var OverlayPositionBuilder = _OverlayPositionBuilder;
     type: OverlayContainer
   }], null);
 })();
-var nextUniqueId5 = 0;
+var nextUniqueId3 = 0;
 var _Overlay = class _Overlay {
   constructor(scrollStrategies, _overlayContainer, _componentFactoryResolver, _positionBuilder, _keyboardDispatcher, _injector, _ngZone, _document2, _directionality, _location, _outsideClickDispatcher, _animationsModuleType) {
     this.scrollStrategies = scrollStrategies;
@@ -69824,7 +65628,7 @@ var _Overlay = class _Overlay {
    */
   _createPaneElement(host) {
     const pane = this._document.createElement("div");
-    pane.id = `cdk-overlay-${nextUniqueId5++}`;
+    pane.id = `cdk-overlay-${nextUniqueId3++}`;
     pane.classList.add("cdk-overlay-pane");
     host.appendChild(pane);
     return pane;
@@ -71592,6 +67396,3762 @@ var MatBottomSheetModule = _MatBottomSheetModule;
       imports: [DialogModule, MatCommonModule, PortalModule, MatBottomSheetContainer],
       exports: [MatBottomSheetContainer, MatCommonModule],
       providers: [MatBottomSheet]
+    }]
+  }], null, null);
+})();
+
+// node_modules/@angular/material/fesm2022/badge.mjs
+var nextId2 = 0;
+var BADGE_CONTENT_CLASS = "mat-badge-content";
+var badgeApps = /* @__PURE__ */ new Set();
+var __MatBadgeStyleLoader = class __MatBadgeStyleLoader {
+};
+__MatBadgeStyleLoader.\u0275fac = function _MatBadgeStyleLoader_Factory(t) {
+  return new (t || __MatBadgeStyleLoader)();
+};
+__MatBadgeStyleLoader.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
+  type: __MatBadgeStyleLoader,
+  selectors: [["ng-component"]],
+  standalone: true,
+  features: [\u0275\u0275StandaloneFeature],
+  decls: 0,
+  vars: 0,
+  template: function _MatBadgeStyleLoader_Template(rf, ctx) {
+  },
+  styles: [".mat-badge{position:relative}.mat-badge.mat-badge{overflow:visible}.mat-badge-content{position:absolute;text-align:center;display:inline-block;transition:transform 200ms ease-in-out;transform:scale(0.6);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;box-sizing:border-box;pointer-events:none;background-color:var(--mat-badge-background-color);color:var(--mat-badge-text-color);font-family:var(--mat-badge-text-font);font-weight:var(--mat-badge-text-weight);border-radius:var(--mat-badge-container-shape)}.cdk-high-contrast-active .mat-badge-content{outline:solid 1px;border-radius:0}.mat-badge-above .mat-badge-content{bottom:100%}.mat-badge-below .mat-badge-content{top:100%}.mat-badge-before .mat-badge-content{right:100%}[dir=rtl] .mat-badge-before .mat-badge-content{right:auto;left:100%}.mat-badge-after .mat-badge-content{left:100%}[dir=rtl] .mat-badge-after .mat-badge-content{left:auto;right:100%}.mat-badge-disabled .mat-badge-content{background-color:var(--mat-badge-disabled-state-background-color);color:var(--mat-badge-disabled-state-text-color)}.mat-badge-hidden .mat-badge-content{display:none}.ng-animate-disabled .mat-badge-content,.mat-badge-content._mat-animation-noopable{transition:none}.mat-badge-content.mat-badge-active{transform:none}.mat-badge-small .mat-badge-content{width:var(--mat-badge-legacy-small-size-container-size, unset);height:var(--mat-badge-legacy-small-size-container-size, unset);min-width:var(--mat-badge-small-size-container-size, unset);min-height:var(--mat-badge-small-size-container-size, unset);line-height:var(--mat-badge-legacy-small-size-container-size, var(--mat-badge-small-size-container-size));padding:var(--mat-badge-small-size-container-padding);font-size:var(--mat-badge-small-size-text-size);margin:var(--mat-badge-small-size-container-offset)}.mat-badge-small.mat-badge-overlap .mat-badge-content{margin:var(--mat-badge-small-size-container-overlap-offset)}.mat-badge-medium .mat-badge-content{width:var(--mat-badge-legacy-container-size, unset);height:var(--mat-badge-legacy-container-size, unset);min-width:var(--mat-badge-container-size, unset);min-height:var(--mat-badge-container-size, unset);line-height:var(--mat-badge-legacy-container-size, var(--mat-badge-container-size));padding:var(--mat-badge-container-padding);font-size:var(--mat-badge-text-size);margin:var(--mat-badge-container-offset)}.mat-badge-medium.mat-badge-overlap .mat-badge-content{margin:var(--mat-badge-container-overlap-offset)}.mat-badge-large .mat-badge-content{width:var(--mat-badge-legacy-large-size-container-size, unset);height:var(--mat-badge-legacy-large-size-container-size, unset);min-width:var(--mat-badge-large-size-container-size, unset);min-height:var(--mat-badge-large-size-container-size, unset);line-height:var(--mat-badge-legacy-large-size-container-size, var(--mat-badge-large-size-container-size));padding:var(--mat-badge-large-size-container-padding);font-size:var(--mat-badge-large-size-text-size);margin:var(--mat-badge-large-size-container-offset)}.mat-badge-large.mat-badge-overlap .mat-badge-content{margin:var(--mat-badge-large-size-container-overlap-offset)}"],
+  encapsulation: 2,
+  changeDetection: 0
+});
+var _MatBadgeStyleLoader = __MatBadgeStyleLoader;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(_MatBadgeStyleLoader, [{
+    type: Component,
+    args: [{
+      standalone: true,
+      encapsulation: ViewEncapsulation$1.None,
+      template: "",
+      changeDetection: ChangeDetectionStrategy.OnPush,
+      styles: [".mat-badge{position:relative}.mat-badge.mat-badge{overflow:visible}.mat-badge-content{position:absolute;text-align:center;display:inline-block;transition:transform 200ms ease-in-out;transform:scale(0.6);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;box-sizing:border-box;pointer-events:none;background-color:var(--mat-badge-background-color);color:var(--mat-badge-text-color);font-family:var(--mat-badge-text-font);font-weight:var(--mat-badge-text-weight);border-radius:var(--mat-badge-container-shape)}.cdk-high-contrast-active .mat-badge-content{outline:solid 1px;border-radius:0}.mat-badge-above .mat-badge-content{bottom:100%}.mat-badge-below .mat-badge-content{top:100%}.mat-badge-before .mat-badge-content{right:100%}[dir=rtl] .mat-badge-before .mat-badge-content{right:auto;left:100%}.mat-badge-after .mat-badge-content{left:100%}[dir=rtl] .mat-badge-after .mat-badge-content{left:auto;right:100%}.mat-badge-disabled .mat-badge-content{background-color:var(--mat-badge-disabled-state-background-color);color:var(--mat-badge-disabled-state-text-color)}.mat-badge-hidden .mat-badge-content{display:none}.ng-animate-disabled .mat-badge-content,.mat-badge-content._mat-animation-noopable{transition:none}.mat-badge-content.mat-badge-active{transform:none}.mat-badge-small .mat-badge-content{width:var(--mat-badge-legacy-small-size-container-size, unset);height:var(--mat-badge-legacy-small-size-container-size, unset);min-width:var(--mat-badge-small-size-container-size, unset);min-height:var(--mat-badge-small-size-container-size, unset);line-height:var(--mat-badge-legacy-small-size-container-size, var(--mat-badge-small-size-container-size));padding:var(--mat-badge-small-size-container-padding);font-size:var(--mat-badge-small-size-text-size);margin:var(--mat-badge-small-size-container-offset)}.mat-badge-small.mat-badge-overlap .mat-badge-content{margin:var(--mat-badge-small-size-container-overlap-offset)}.mat-badge-medium .mat-badge-content{width:var(--mat-badge-legacy-container-size, unset);height:var(--mat-badge-legacy-container-size, unset);min-width:var(--mat-badge-container-size, unset);min-height:var(--mat-badge-container-size, unset);line-height:var(--mat-badge-legacy-container-size, var(--mat-badge-container-size));padding:var(--mat-badge-container-padding);font-size:var(--mat-badge-text-size);margin:var(--mat-badge-container-offset)}.mat-badge-medium.mat-badge-overlap .mat-badge-content{margin:var(--mat-badge-container-overlap-offset)}.mat-badge-large .mat-badge-content{width:var(--mat-badge-legacy-large-size-container-size, unset);height:var(--mat-badge-legacy-large-size-container-size, unset);min-width:var(--mat-badge-large-size-container-size, unset);min-height:var(--mat-badge-large-size-container-size, unset);line-height:var(--mat-badge-legacy-large-size-container-size, var(--mat-badge-large-size-container-size));padding:var(--mat-badge-large-size-container-padding);font-size:var(--mat-badge-large-size-text-size);margin:var(--mat-badge-large-size-container-offset)}.mat-badge-large.mat-badge-overlap .mat-badge-content{margin:var(--mat-badge-large-size-container-overlap-offset)}"]
+    }]
+  }], null, null);
+})();
+var _MatBadge = class _MatBadge {
+  /**
+   * The color of the badge. Can be `primary`, `accent`, or `warn`.
+   * Not recommended in M3, for more information see https://material.angular.io/guide/material-2-theming#optional-add-backwards-compatibility-styles-for-color-variants.
+   */
+  get color() {
+    return this._color;
+  }
+  set color(value) {
+    this._setColor(value);
+    this._color = value;
+  }
+  /** The content for the badge */
+  get content() {
+    return this._content;
+  }
+  set content(newContent) {
+    this._updateRenderedContent(newContent);
+  }
+  /** Message used to describe the decorated element via aria-describedby */
+  get description() {
+    return this._description;
+  }
+  set description(newDescription) {
+    this._updateDescription(newDescription);
+  }
+  constructor(_ngZone, _elementRef, _ariaDescriber, _renderer, _animationMode) {
+    this._ngZone = _ngZone;
+    this._elementRef = _elementRef;
+    this._ariaDescriber = _ariaDescriber;
+    this._renderer = _renderer;
+    this._animationMode = _animationMode;
+    this._color = "primary";
+    this.overlap = true;
+    this.position = "above after";
+    this.size = "medium";
+    this._id = nextId2++;
+    this._isInitialized = false;
+    this._interactivityChecker = inject(InteractivityChecker);
+    this._document = inject(DOCUMENT2);
+    const appRef = inject(ApplicationRef);
+    if (!badgeApps.has(appRef)) {
+      badgeApps.add(appRef);
+      const componentRef = createComponent(_MatBadgeStyleLoader, {
+        environmentInjector: inject(EnvironmentInjector)
+      });
+      appRef.onDestroy(() => {
+        badgeApps.delete(appRef);
+        if (badgeApps.size === 0) {
+          componentRef.destroy();
+        }
+      });
+    }
+    if (typeof ngDevMode === "undefined" || ngDevMode) {
+      const nativeElement = _elementRef.nativeElement;
+      if (nativeElement.nodeType !== nativeElement.ELEMENT_NODE) {
+        throw Error("matBadge must be attached to an element node.");
+      }
+      const matIconTagName = "mat-icon";
+      if (nativeElement.tagName.toLowerCase() === matIconTagName && nativeElement.getAttribute("aria-hidden") === "true") {
+        console.warn(`Detected a matBadge on an "aria-hidden" "<mat-icon>". Consider setting aria-hidden="false" in order to surface the information assistive technology.
+${nativeElement.outerHTML}`);
+      }
+    }
+  }
+  /** Whether the badge is above the host or not */
+  isAbove() {
+    return this.position.indexOf("below") === -1;
+  }
+  /** Whether the badge is after the host or not */
+  isAfter() {
+    return this.position.indexOf("before") === -1;
+  }
+  /**
+   * Gets the element into which the badge's content is being rendered. Undefined if the element
+   * hasn't been created (e.g. if the badge doesn't have content).
+   */
+  getBadgeElement() {
+    return this._badgeElement;
+  }
+  ngOnInit() {
+    this._clearExistingBadges();
+    if (this.content && !this._badgeElement) {
+      this._badgeElement = this._createBadgeElement();
+      this._updateRenderedContent(this.content);
+    }
+    this._isInitialized = true;
+  }
+  ngOnDestroy() {
+    if (this._renderer.destroyNode) {
+      this._renderer.destroyNode(this._badgeElement);
+      this._inlineBadgeDescription?.remove();
+    }
+    this._ariaDescriber.removeDescription(this._elementRef.nativeElement, this.description);
+  }
+  /** Gets whether the badge's host element is interactive. */
+  _isHostInteractive() {
+    return this._interactivityChecker.isFocusable(this._elementRef.nativeElement, {
+      ignoreVisibility: true
+    });
+  }
+  /** Creates the badge element */
+  _createBadgeElement() {
+    const badgeElement = this._renderer.createElement("span");
+    const activeClass = "mat-badge-active";
+    badgeElement.setAttribute("id", `mat-badge-content-${this._id}`);
+    badgeElement.setAttribute("aria-hidden", "true");
+    badgeElement.classList.add(BADGE_CONTENT_CLASS);
+    if (this._animationMode === "NoopAnimations") {
+      badgeElement.classList.add("_mat-animation-noopable");
+    }
+    this._elementRef.nativeElement.appendChild(badgeElement);
+    if (typeof requestAnimationFrame === "function" && this._animationMode !== "NoopAnimations") {
+      this._ngZone.runOutsideAngular(() => {
+        requestAnimationFrame(() => {
+          badgeElement.classList.add(activeClass);
+        });
+      });
+    } else {
+      badgeElement.classList.add(activeClass);
+    }
+    return badgeElement;
+  }
+  /** Update the text content of the badge element in the DOM, creating the element if necessary. */
+  _updateRenderedContent(newContent) {
+    const newContentNormalized = `${newContent ?? ""}`.trim();
+    if (this._isInitialized && newContentNormalized && !this._badgeElement) {
+      this._badgeElement = this._createBadgeElement();
+    }
+    if (this._badgeElement) {
+      this._badgeElement.textContent = newContentNormalized;
+    }
+    this._content = newContentNormalized;
+  }
+  /** Updates the host element's aria description via AriaDescriber. */
+  _updateDescription(newDescription) {
+    this._ariaDescriber.removeDescription(this._elementRef.nativeElement, this.description);
+    if (!newDescription || this._isHostInteractive()) {
+      this._removeInlineDescription();
+    }
+    this._description = newDescription;
+    if (this._isHostInteractive()) {
+      this._ariaDescriber.describe(this._elementRef.nativeElement, newDescription);
+    } else {
+      this._updateInlineDescription();
+    }
+  }
+  _updateInlineDescription() {
+    if (!this._inlineBadgeDescription) {
+      this._inlineBadgeDescription = this._document.createElement("span");
+      this._inlineBadgeDescription.classList.add("cdk-visually-hidden");
+    }
+    this._inlineBadgeDescription.textContent = this.description;
+    this._badgeElement?.appendChild(this._inlineBadgeDescription);
+  }
+  _removeInlineDescription() {
+    this._inlineBadgeDescription?.remove();
+    this._inlineBadgeDescription = void 0;
+  }
+  /** Adds css theme class given the color to the component host */
+  _setColor(colorPalette) {
+    const classList = this._elementRef.nativeElement.classList;
+    classList.remove(`mat-badge-${this._color}`);
+    if (colorPalette) {
+      classList.add(`mat-badge-${colorPalette}`);
+    }
+  }
+  /** Clears any existing badges that might be left over from server-side rendering. */
+  _clearExistingBadges() {
+    const badges = this._elementRef.nativeElement.querySelectorAll(`:scope > .${BADGE_CONTENT_CLASS}`);
+    for (const badgeElement of Array.from(badges)) {
+      if (badgeElement !== this._badgeElement) {
+        badgeElement.remove();
+      }
+    }
+  }
+};
+_MatBadge.\u0275fac = function MatBadge_Factory(t) {
+  return new (t || _MatBadge)(\u0275\u0275directiveInject(NgZone), \u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(AriaDescriber), \u0275\u0275directiveInject(Renderer2), \u0275\u0275directiveInject(ANIMATION_MODULE_TYPE, 8));
+};
+_MatBadge.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+  type: _MatBadge,
+  selectors: [["", "matBadge", ""]],
+  hostAttrs: [1, "mat-badge"],
+  hostVars: 20,
+  hostBindings: function MatBadge_HostBindings(rf, ctx) {
+    if (rf & 2) {
+      \u0275\u0275classProp("mat-badge-overlap", ctx.overlap)("mat-badge-above", ctx.isAbove())("mat-badge-below", !ctx.isAbove())("mat-badge-before", !ctx.isAfter())("mat-badge-after", ctx.isAfter())("mat-badge-small", ctx.size === "small")("mat-badge-medium", ctx.size === "medium")("mat-badge-large", ctx.size === "large")("mat-badge-hidden", ctx.hidden || !ctx.content)("mat-badge-disabled", ctx.disabled);
+    }
+  },
+  inputs: {
+    color: [0, "matBadgeColor", "color"],
+    overlap: [2, "matBadgeOverlap", "overlap", booleanAttribute],
+    disabled: [2, "matBadgeDisabled", "disabled", booleanAttribute],
+    position: [0, "matBadgePosition", "position"],
+    content: [0, "matBadge", "content"],
+    description: [0, "matBadgeDescription", "description"],
+    size: [0, "matBadgeSize", "size"],
+    hidden: [2, "matBadgeHidden", "hidden", booleanAttribute]
+  },
+  standalone: true,
+  features: [\u0275\u0275InputTransformsFeature]
+});
+var MatBadge = _MatBadge;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatBadge, [{
+    type: Directive,
+    args: [{
+      selector: "[matBadge]",
+      host: {
+        "class": "mat-badge",
+        "[class.mat-badge-overlap]": "overlap",
+        "[class.mat-badge-above]": "isAbove()",
+        "[class.mat-badge-below]": "!isAbove()",
+        "[class.mat-badge-before]": "!isAfter()",
+        "[class.mat-badge-after]": "isAfter()",
+        "[class.mat-badge-small]": 'size === "small"',
+        "[class.mat-badge-medium]": 'size === "medium"',
+        "[class.mat-badge-large]": 'size === "large"',
+        "[class.mat-badge-hidden]": "hidden || !content",
+        "[class.mat-badge-disabled]": "disabled"
+      },
+      standalone: true
+    }]
+  }], () => [{
+    type: NgZone
+  }, {
+    type: ElementRef
+  }, {
+    type: AriaDescriber
+  }, {
+    type: Renderer2
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [ANIMATION_MODULE_TYPE]
+    }]
+  }], {
+    color: [{
+      type: Input,
+      args: ["matBadgeColor"]
+    }],
+    overlap: [{
+      type: Input,
+      args: [{
+        alias: "matBadgeOverlap",
+        transform: booleanAttribute
+      }]
+    }],
+    disabled: [{
+      type: Input,
+      args: [{
+        alias: "matBadgeDisabled",
+        transform: booleanAttribute
+      }]
+    }],
+    position: [{
+      type: Input,
+      args: ["matBadgePosition"]
+    }],
+    content: [{
+      type: Input,
+      args: ["matBadge"]
+    }],
+    description: [{
+      type: Input,
+      args: ["matBadgeDescription"]
+    }],
+    size: [{
+      type: Input,
+      args: ["matBadgeSize"]
+    }],
+    hidden: [{
+      type: Input,
+      args: [{
+        alias: "matBadgeHidden",
+        transform: booleanAttribute
+      }]
+    }]
+  });
+})();
+var _MatBadgeModule = class _MatBadgeModule {
+};
+_MatBadgeModule.\u0275fac = function MatBadgeModule_Factory(t) {
+  return new (t || _MatBadgeModule)();
+};
+_MatBadgeModule.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+  type: _MatBadgeModule
+});
+_MatBadgeModule.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
+  imports: [A11yModule, MatCommonModule, MatCommonModule]
+});
+var MatBadgeModule = _MatBadgeModule;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatBadgeModule, [{
+    type: NgModule,
+    args: [{
+      // Note: we _shouldn't_ have to import `_MatBadgeStyleLoader`,
+      // but it seems to be necessary for tests.
+      imports: [A11yModule, MatCommonModule, MatBadge, _MatBadgeStyleLoader],
+      exports: [MatBadge, MatCommonModule]
+    }]
+  }], null, null);
+})();
+
+// node_modules/@angular/material/fesm2022/chips.mjs
+var _c07 = ["*", [["mat-chip-avatar"], ["", "matChipAvatar", ""]], [["mat-chip-trailing-icon"], ["", "matChipRemove", ""], ["", "matChipTrailingIcon", ""]]];
+var _c15 = ["*", "mat-chip-avatar, [matChipAvatar]", "mat-chip-trailing-icon,[matChipRemove],[matChipTrailingIcon]"];
+function MatChip_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 3);
+    \u0275\u0275projection(1, 1);
+    \u0275\u0275elementEnd();
+  }
+}
+function MatChip_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 6);
+    \u0275\u0275projection(1, 2);
+    \u0275\u0275elementEnd();
+  }
+}
+function MatChipOption_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 3);
+    \u0275\u0275projection(1, 1);
+    \u0275\u0275elementStart(2, "span", 8);
+    \u0275\u0275namespaceSVG();
+    \u0275\u0275elementStart(3, "svg", 9);
+    \u0275\u0275element(4, "path", 10);
+    \u0275\u0275elementEnd()()();
+  }
+}
+function MatChipOption_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 6);
+    \u0275\u0275projection(1, 2);
+    \u0275\u0275elementEnd();
+  }
+}
+var _c24 = '.mdc-evolution-chip,.mdc-evolution-chip__cell,.mdc-evolution-chip__action{display:inline-flex;align-items:center}.mdc-evolution-chip{position:relative;max-width:100%}.mdc-evolution-chip .mdc-elevation-overlay{width:100%;height:100%;top:0;left:0}.mdc-evolution-chip__cell,.mdc-evolution-chip__action{height:100%}.mdc-evolution-chip__cell--primary{overflow-x:hidden}.mdc-evolution-chip__cell--trailing{flex:1 0 auto}.mdc-evolution-chip__action{align-items:center;background:none;border:none;box-sizing:content-box;cursor:pointer;display:inline-flex;justify-content:center;outline:none;padding:0;text-decoration:none;color:inherit}.mdc-evolution-chip__action--presentational{cursor:auto}.mdc-evolution-chip--disabled,.mdc-evolution-chip__action:disabled{pointer-events:none}.mdc-evolution-chip__action--primary{overflow-x:hidden}.mdc-evolution-chip__action--trailing{position:relative;overflow:visible}.mdc-evolution-chip__action--primary:before{box-sizing:border-box;content:"";height:100%;left:0;position:absolute;pointer-events:none;top:0;width:100%;z-index:1}.mdc-evolution-chip--touch{margin-top:8px;margin-bottom:8px}.mdc-evolution-chip__action-touch{position:absolute;top:50%;height:48px;left:0;right:0;transform:translateY(-50%)}.mdc-evolution-chip__text-label{white-space:nowrap;user-select:none;text-overflow:ellipsis;overflow:hidden}.mdc-evolution-chip__graphic{align-items:center;display:inline-flex;justify-content:center;overflow:hidden;pointer-events:none;position:relative;flex:1 0 auto}.mdc-evolution-chip__checkmark{position:absolute;opacity:0;top:50%;left:50%}.mdc-evolution-chip--selectable:not(.mdc-evolution-chip--selected):not(.mdc-evolution-chip--with-primary-icon) .mdc-evolution-chip__graphic{width:0}.mdc-evolution-chip__checkmark-background{opacity:0}.mdc-evolution-chip__checkmark-svg{display:block}.mdc-evolution-chip__checkmark-path{stroke-width:2px;stroke-dasharray:29.7833385;stroke-dashoffset:29.7833385;stroke:currentColor}.mdc-evolution-chip--selecting .mdc-evolution-chip__graphic{transition:width 150ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--selecting .mdc-evolution-chip__checkmark{transition:transform 150ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-75%, -50%)}.mdc-evolution-chip--selecting .mdc-evolution-chip__checkmark-path{transition:stroke-dashoffset 150ms 45ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__graphic{transition:width 100ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__checkmark{transition:opacity 50ms 0ms linear,transform 100ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-75%, -50%)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}.mdc-evolution-chip--selecting-with-primary-icon .mdc-evolution-chip__icon--primary{transition:opacity 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--selecting-with-primary-icon .mdc-evolution-chip__checkmark-path{transition:stroke-dashoffset 150ms 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__icon--primary{transition:opacity 150ms 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__checkmark{transition:opacity 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-50%, -50%)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}.mdc-evolution-chip--selected .mdc-evolution-chip__icon--primary{opacity:0}.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark{transform:translate(-50%, -50%);opacity:1}.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}@keyframes mdc-evolution-chip-enter{from{transform:scale(0.8);opacity:.4}to{transform:scale(1);opacity:1}}.mdc-evolution-chip--enter{animation:mdc-evolution-chip-enter 100ms 0ms cubic-bezier(0, 0, 0.2, 1)}@keyframes mdc-evolution-chip-exit{from{opacity:1}to{opacity:0}}.mdc-evolution-chip--exit{animation:mdc-evolution-chip-exit 75ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mdc-evolution-chip--hidden{opacity:0;pointer-events:none;transition:width 150ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mat-mdc-standard-chip{border-radius:var(--mdc-chip-container-shape-radius);height:var(--mdc-chip-container-height)}.mat-mdc-standard-chip .mdc-evolution-chip__ripple{border-radius:var(--mdc-chip-container-shape-radius)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-radius:var(--mdc-chip-container-shape-radius)}.mat-mdc-standard-chip .mdc-evolution-chip__icon--primary{border-radius:var(--mdc-chip-with-avatar-avatar-shape-radius)}.mat-mdc-standard-chip.mdc-evolution-chip--selectable:not(.mdc-evolution-chip--with-primary-icon){--mdc-chip-graphic-selected-width:var(--mdc-chip-with-avatar-avatar-size)}.mat-mdc-standard-chip .mdc-evolution-chip__graphic{height:var(--mdc-chip-with-avatar-avatar-size);width:var(--mdc-chip-with-avatar-avatar-size);font-size:var(--mdc-chip-with-avatar-avatar-size)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__action--primary:before{border-color:var(--mdc-chip-outline-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-evolution-chip__action--presentational).mdc-ripple-upgraded--background-focused:before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-evolution-chip__action--presentational):not(.mdc-ripple-upgraded):focus:before{border-color:var(--mdc-chip-focus-outline-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__action--primary:before{border-color:var(--mdc-chip-disabled-outline-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-width:var(--mdc-chip-outline-width)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:before{border-width:var(--mdc-chip-flat-selected-outline-width)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled){background-color:var(--mdc-chip-elevated-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-elevated-disabled-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected:not(.mdc-evolution-chip--disabled){background-color:var(--mdc-chip-elevated-selected-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-elevated-disabled-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-flat-disabled-selected-container-color)}.mat-mdc-standard-chip .mdc-evolution-chip__text-label{font-family:var(--mdc-chip-label-text-font);line-height:var(--mdc-chip-label-text-line-height);font-size:var(--mdc-chip-label-text-size);font-weight:var(--mdc-chip-label-text-weight);letter-spacing:var(--mdc-chip-label-text-tracking)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label{color:var(--mdc-chip-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__text-label{color:var(--mdc-chip-disabled-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label{color:var(--mdc-chip-selected-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled .mdc-evolution-chip__text-label{color:var(--mdc-chip-disabled-label-text-color)}.mat-mdc-standard-chip .mdc-evolution-chip__icon--primary{height:var(--mdc-chip-with-icon-icon-size);width:var(--mdc-chip-with-icon-icon-size);font-size:var(--mdc-chip-with-icon-icon-size)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__icon--primary{color:var(--mdc-chip-with-icon-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--primary{color:var(--mdc-chip-with-icon-disabled-icon-color)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__checkmark{color:var(--mdc-chip-with-icon-selected-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__checkmark{color:var(--mdc-chip-with-icon-disabled-icon-color)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__icon--trailing{color:var(--mdc-chip-with-trailing-icon-trailing-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{color:var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::after{background-color:var(--mdc-chip-hover-state-layer-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:hover .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary.mdc-ripple-surface--hover .mdc-evolution-chip__ripple::before{opacity:var(--mdc-chip-hover-state-layer-opacity)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary.mdc-ripple-upgraded--background-focused .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-ripple-upgraded):focus .mdc-evolution-chip__ripple::before{transition-duration:75ms;opacity:var(--mdc-chip-focus-state-layer-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::after{background-color:var(--mdc-chip-selected-hover-state-layer-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:hover .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary.mdc-ripple-surface--hover .mdc-evolution-chip__ripple::before{opacity:var(--mdc-chip-selected-hover-state-layer-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary.mdc-ripple-upgraded--background-focused .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:not(.mdc-ripple-upgraded):focus .mdc-evolution-chip__ripple::before{transition-duration:75ms;opacity:var(--mdc-chip-selected-focus-state-layer-opacity)}.mat-mdc-chip-highlighted{--mdc-chip-with-icon-icon-color:var(--mdc-chip-with-icon-selected-icon-color);--mdc-chip-elevated-container-color:var(--mdc-chip-elevated-selected-container-color);--mdc-chip-label-text-color:var(--mdc-chip-selected-label-text-color);--mdc-chip-outline-width:var(--mdc-chip-flat-selected-outline-width)}.mat-mdc-chip-focus-overlay{background:var(--mdc-chip-focus-state-layer-color)}.mat-mdc-chip-selected .mat-mdc-chip-focus-overlay,.mat-mdc-chip-highlighted .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-focus-state-layer-color)}.mat-mdc-chip:hover .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-hover-state-layer-color);opacity:var(--mdc-chip-hover-state-layer-opacity)}.mat-mdc-chip-focus-overlay .mat-mdc-chip-selected:hover,.mat-mdc-chip-highlighted:hover .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-hover-state-layer-color);opacity:var(--mdc-chip-selected-hover-state-layer-opacity)}.mat-mdc-chip.cdk-focused .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-focus-state-layer-color);opacity:var(--mdc-chip-focus-state-layer-opacity)}.mat-mdc-chip-selected.cdk-focused .mat-mdc-chip-focus-overlay,.mat-mdc-chip-highlighted.cdk-focused .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-focus-state-layer-color);opacity:var(--mdc-chip-selected-focus-state-layer-opacity)}.mdc-evolution-chip--disabled:not(.mdc-evolution-chip--selected) .mat-mdc-chip-avatar{opacity:var(--mdc-chip-with-avatar-disabled-avatar-opacity)}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{opacity:var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity)}.mdc-evolution-chip--disabled.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark{opacity:var(--mdc-chip-with-icon-disabled-icon-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled{opacity:var(--mat-chip-disabled-container-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__icon--trailing,.mat-mdc-standard-chip.mat-mdc-chip-highlighted .mdc-evolution-chip__icon--trailing{color:var(--mat-chip-selected-trailing-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing,.mat-mdc-standard-chip.mat-mdc-chip-highlighted.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{color:var(--mat-chip-selected-disabled-trailing-icon-color)}.mat-mdc-chip-remove{opacity:var(--mat-chip-trailing-action-opacity)}.mat-mdc-chip-remove:focus{opacity:var(--mat-chip-trailing-action-focus-opacity)}.mat-mdc-chip-remove::after{background:var(--mat-chip-trailing-action-state-layer-color)}.mat-mdc-chip-remove:hover::after{opacity:var(--mat-chip-trailing-action-hover-state-layer-opacity)}.mat-mdc-chip-remove:focus::after{opacity:var(--mat-chip-trailing-action-focus-state-layer-opacity)}.mat-mdc-chip-selected .mat-mdc-chip-remove::after,.mat-mdc-chip-highlighted .mat-mdc-chip-remove::after{background:var(--mat-chip-selected-trailing-action-state-layer-color)}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing.mat-mdc-chip-remove{opacity:calc(var(--mat-chip-trailing-action-opacity)*var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity))}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing.mat-mdc-chip-remove:focus{opacity:calc(var(--mat-chip-trailing-action-focus-opacity)*var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity))}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-style:solid}.mat-mdc-standard-chip .mdc-evolution-chip__checkmark{height:20px;width:20px}.mat-mdc-standard-chip .mdc-evolution-chip__icon--trailing{height:18px;width:18px;font-size:18px}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary{padding-left:12px;padding-right:12px}[dir=rtl] .mat-mdc-standard-chip .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:12px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic{padding-left:6px;padding-right:6px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic[dir=rtl]{padding-left:6px;padding-right:6px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary{padding-left:0;padding-right:12px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:0}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:12px;padding-right:0}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:12px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic{padding-left:6px;padding-right:6px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic[dir=rtl]{padding-left:6px;padding-right:6px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:0;padding-right:0}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:0}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic{padding-left:4px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic[dir=rtl]{padding-left:8px;padding-right:4px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary{padding-left:0;padding-right:12px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:0}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic{padding-left:4px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic[dir=rtl]{padding-left:8px;padding-right:4px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:0;padding-right:0}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:0}.mat-mdc-standard-chip{-webkit-tap-highlight-color:rgba(0,0,0,0)}.cdk-high-contrast-active .mat-mdc-standard-chip{outline:solid 1px}.cdk-high-contrast-active .mat-mdc-standard-chip .mdc-evolution-chip__checkmark-path{stroke:CanvasText !important}.mat-mdc-standard-chip .mdc-evolution-chip__cell--primary,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip .mat-mdc-chip-action-label{overflow:visible}.mat-mdc-standard-chip .mdc-evolution-chip__cell--primary{flex-basis:100%}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary{font:inherit;letter-spacing:inherit;white-space:inherit}.mat-mdc-standard-chip .mat-mdc-chip-graphic,.mat-mdc-standard-chip .mat-mdc-chip-trailing-icon{box-sizing:content-box}.mat-mdc-standard-chip._mat-animation-noopable,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__graphic,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__checkmark,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__checkmark-path{transition-duration:1ms;animation-duration:1ms}.mat-mdc-basic-chip .mdc-evolution-chip__action--primary{font:inherit}.mat-mdc-chip-focus-overlay{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none;opacity:0;border-radius:inherit;transition:opacity 150ms linear}._mat-animation-noopable .mat-mdc-chip-focus-overlay{transition:none}.mat-mdc-basic-chip .mat-mdc-chip-focus-overlay{display:none}.mat-mdc-chip .mat-ripple.mat-mdc-chip-ripple{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none;border-radius:inherit}.mat-mdc-chip-avatar{text-align:center;line-height:1;color:var(--mdc-chip-with-icon-icon-color, currentColor)}.mat-mdc-chip{position:relative;z-index:0}.mat-mdc-chip-action-label{text-align:left;z-index:1}[dir=rtl] .mat-mdc-chip-action-label{text-align:right}.mat-mdc-chip.mdc-evolution-chip--with-trailing-action .mat-mdc-chip-action-label{position:relative}.mat-mdc-chip-action-label .mat-mdc-chip-primary-focus-indicator{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none}.mat-mdc-chip-action-label .mat-mdc-focus-indicator::before{margin:calc(calc(var(--mat-mdc-focus-indicator-border-width, 3px) + 2px)*-1)}.mat-mdc-chip-remove::before{margin:calc(var(--mat-mdc-focus-indicator-border-width, 3px)*-1);left:8px;right:8px}.mat-mdc-chip-remove::after{content:"";display:block;opacity:0;position:absolute;top:-2px;bottom:-2px;left:6px;right:6px;border-radius:50%}.mat-mdc-chip-remove .mat-icon{width:18px;height:18px;font-size:18px;box-sizing:content-box}.mat-chip-edit-input{cursor:text;display:inline-block;color:inherit;outline:0}.cdk-high-contrast-active .mat-mdc-chip-selected:not(.mat-mdc-chip-multiple){outline-width:3px}.mat-mdc-chip-action:focus .mat-mdc-focus-indicator::before{content:""}';
+var _c34 = [[["mat-chip-avatar"], ["", "matChipAvatar", ""]], [["", "matChipEditInput", ""]], "*", [["mat-chip-trailing-icon"], ["", "matChipRemove", ""], ["", "matChipTrailingIcon", ""]]];
+var _c44 = ["mat-chip-avatar, [matChipAvatar]", "[matChipEditInput]", "*", "mat-chip-trailing-icon,[matChipRemove],[matChipTrailingIcon]"];
+function MatChipRow_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "span", 0);
+  }
+}
+function MatChipRow_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 2);
+    \u0275\u0275projection(1);
+    \u0275\u0275elementEnd();
+  }
+}
+function MatChipRow_Conditional_4_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275projection(0, 1);
+  }
+}
+function MatChipRow_Conditional_4_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "span", 7);
+  }
+}
+function MatChipRow_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, MatChipRow_Conditional_4_Conditional_0_Template, 1, 0)(1, MatChipRow_Conditional_4_Conditional_1_Template, 1, 0, "span", 7);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275conditional(ctx_r0.contentEditInput ? 0 : 1);
+  }
+}
+function MatChipRow_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275projection(0, 2);
+  }
+}
+function MatChipRow_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 5);
+    \u0275\u0275projection(1, 3);
+    \u0275\u0275elementEnd();
+  }
+}
+var _c54 = ["*"];
+var _c64 = ".mdc-evolution-chip-set{display:flex}.mdc-evolution-chip-set:focus{outline:none}.mdc-evolution-chip-set__chips{display:flex;flex-flow:wrap;min-width:0}.mdc-evolution-chip-set--overflow .mdc-evolution-chip-set__chips{flex-flow:nowrap}.mdc-evolution-chip-set .mdc-evolution-chip-set__chips{margin-left:-8px;margin-right:0}[dir=rtl] .mdc-evolution-chip-set .mdc-evolution-chip-set__chips,.mdc-evolution-chip-set .mdc-evolution-chip-set__chips[dir=rtl]{margin-left:0;margin-right:-8px}.mdc-evolution-chip-set .mdc-evolution-chip{margin-left:8px;margin-right:0}[dir=rtl] .mdc-evolution-chip-set .mdc-evolution-chip,.mdc-evolution-chip-set .mdc-evolution-chip[dir=rtl]{margin-left:0;margin-right:8px}.mdc-evolution-chip-set .mdc-evolution-chip{margin-top:4px;margin-bottom:4px}.mat-mdc-chip-set .mdc-evolution-chip-set__chips{min-width:100%}.mat-mdc-chip-set-stacked{flex-direction:column;align-items:flex-start}.mat-mdc-chip-set-stacked .mat-mdc-chip{width:100%}.mat-mdc-chip-set-stacked .mdc-evolution-chip__graphic{flex-grow:0}.mat-mdc-chip-set-stacked .mdc-evolution-chip__action--primary{flex-basis:100%;justify-content:start}input.mat-mdc-chip-input{flex:1 0 150px;margin-left:8px}[dir=rtl] input.mat-mdc-chip-input{margin-left:0;margin-right:8px}";
+var MAT_CHIPS_DEFAULT_OPTIONS = new InjectionToken("mat-chips-default-options", {
+  providedIn: "root",
+  factory: () => ({
+    separatorKeyCodes: [ENTER2]
+  })
+});
+var MAT_CHIP_AVATAR = new InjectionToken("MatChipAvatar");
+var MAT_CHIP_TRAILING_ICON = new InjectionToken("MatChipTrailingIcon");
+var MAT_CHIP_REMOVE = new InjectionToken("MatChipRemove");
+var MAT_CHIP = new InjectionToken("MatChip");
+var _MatChipAction = class _MatChipAction {
+  /** Whether the action is disabled. */
+  get disabled() {
+    return this._disabled || this._parentChip.disabled;
+  }
+  set disabled(value) {
+    this._disabled = value;
+  }
+  /**
+   * Determine the value of the disabled attribute for this chip action.
+   */
+  _getDisabledAttribute() {
+    return this.disabled && !this._allowFocusWhenDisabled ? "" : null;
+  }
+  /**
+   * Determine the value of the tabindex attribute for this chip action.
+   */
+  _getTabindex() {
+    return this.disabled && !this._allowFocusWhenDisabled || !this.isInteractive ? null : this.tabIndex.toString();
+  }
+  constructor(_elementRef, _parentChip) {
+    this._elementRef = _elementRef;
+    this._parentChip = _parentChip;
+    this.isInteractive = true;
+    this._isPrimary = true;
+    this._disabled = false;
+    this.tabIndex = -1;
+    this._allowFocusWhenDisabled = false;
+    if (_elementRef.nativeElement.nodeName === "BUTTON") {
+      _elementRef.nativeElement.setAttribute("type", "button");
+    }
+  }
+  focus() {
+    this._elementRef.nativeElement.focus();
+  }
+  _handleClick(event) {
+    if (!this.disabled && this.isInteractive && this._isPrimary) {
+      event.preventDefault();
+      this._parentChip._handlePrimaryActionInteraction();
+    }
+  }
+  _handleKeydown(event) {
+    if ((event.keyCode === ENTER2 || event.keyCode === SPACE2) && !this.disabled && this.isInteractive && this._isPrimary && !this._parentChip._isEditing) {
+      event.preventDefault();
+      this._parentChip._handlePrimaryActionInteraction();
+    }
+  }
+};
+_MatChipAction.\u0275fac = function MatChipAction_Factory(t) {
+  return new (t || _MatChipAction)(\u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(MAT_CHIP));
+};
+_MatChipAction.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+  type: _MatChipAction,
+  selectors: [["", "matChipAction", ""]],
+  hostAttrs: [1, "mdc-evolution-chip__action", "mat-mdc-chip-action"],
+  hostVars: 9,
+  hostBindings: function MatChipAction_HostBindings(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275listener("click", function MatChipAction_click_HostBindingHandler($event) {
+        return ctx._handleClick($event);
+      })("keydown", function MatChipAction_keydown_HostBindingHandler($event) {
+        return ctx._handleKeydown($event);
+      });
+    }
+    if (rf & 2) {
+      \u0275\u0275attribute("tabindex", ctx._getTabindex())("disabled", ctx._getDisabledAttribute())("aria-disabled", ctx.disabled);
+      \u0275\u0275classProp("mdc-evolution-chip__action--primary", ctx._isPrimary)("mdc-evolution-chip__action--presentational", !ctx.isInteractive)("mdc-evolution-chip__action--trailing", !ctx._isPrimary);
+    }
+  },
+  inputs: {
+    isInteractive: "isInteractive",
+    disabled: [2, "disabled", "disabled", booleanAttribute],
+    tabIndex: [2, "tabIndex", "tabIndex", (value) => value == null ? -1 : numberAttribute(value)],
+    _allowFocusWhenDisabled: "_allowFocusWhenDisabled"
+  },
+  standalone: true,
+  features: [\u0275\u0275InputTransformsFeature]
+});
+var MatChipAction = _MatChipAction;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipAction, [{
+    type: Directive,
+    args: [{
+      selector: "[matChipAction]",
+      host: {
+        "class": "mdc-evolution-chip__action mat-mdc-chip-action",
+        "[class.mdc-evolution-chip__action--primary]": "_isPrimary",
+        "[class.mdc-evolution-chip__action--presentational]": "!isInteractive",
+        "[class.mdc-evolution-chip__action--trailing]": "!_isPrimary",
+        "[attr.tabindex]": "_getTabindex()",
+        "[attr.disabled]": "_getDisabledAttribute()",
+        "[attr.aria-disabled]": "disabled",
+        "(click)": "_handleClick($event)",
+        "(keydown)": "_handleKeydown($event)"
+      },
+      standalone: true
+    }]
+  }], () => [{
+    type: ElementRef
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Inject,
+      args: [MAT_CHIP]
+    }]
+  }], {
+    isInteractive: [{
+      type: Input
+    }],
+    disabled: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    tabIndex: [{
+      type: Input,
+      args: [{
+        transform: (value) => value == null ? -1 : numberAttribute(value)
+      }]
+    }],
+    _allowFocusWhenDisabled: [{
+      type: Input
+    }]
+  });
+})();
+var _MatChipAvatar = class _MatChipAvatar {
+};
+_MatChipAvatar.\u0275fac = function MatChipAvatar_Factory(t) {
+  return new (t || _MatChipAvatar)();
+};
+_MatChipAvatar.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+  type: _MatChipAvatar,
+  selectors: [["mat-chip-avatar"], ["", "matChipAvatar", ""]],
+  hostAttrs: ["role", "img", 1, "mat-mdc-chip-avatar", "mdc-evolution-chip__icon", "mdc-evolution-chip__icon--primary"],
+  standalone: true,
+  features: [\u0275\u0275ProvidersFeature([{
+    provide: MAT_CHIP_AVATAR,
+    useExisting: _MatChipAvatar
+  }])]
+});
+var MatChipAvatar = _MatChipAvatar;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipAvatar, [{
+    type: Directive,
+    args: [{
+      selector: "mat-chip-avatar, [matChipAvatar]",
+      host: {
+        "class": "mat-mdc-chip-avatar mdc-evolution-chip__icon mdc-evolution-chip__icon--primary",
+        "role": "img"
+      },
+      providers: [{
+        provide: MAT_CHIP_AVATAR,
+        useExisting: MatChipAvatar
+      }],
+      standalone: true
+    }]
+  }], null, null);
+})();
+var _MatChipTrailingIcon = class _MatChipTrailingIcon extends MatChipAction {
+  constructor() {
+    super(...arguments);
+    this.isInteractive = false;
+    this._isPrimary = false;
+  }
+};
+_MatChipTrailingIcon.\u0275fac = /* @__PURE__ */ (() => {
+  let \u0275MatChipTrailingIcon_BaseFactory;
+  return function MatChipTrailingIcon_Factory(t) {
+    return (\u0275MatChipTrailingIcon_BaseFactory || (\u0275MatChipTrailingIcon_BaseFactory = \u0275\u0275getInheritedFactory(_MatChipTrailingIcon)))(t || _MatChipTrailingIcon);
+  };
+})();
+_MatChipTrailingIcon.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+  type: _MatChipTrailingIcon,
+  selectors: [["mat-chip-trailing-icon"], ["", "matChipTrailingIcon", ""]],
+  hostAttrs: ["aria-hidden", "true", 1, "mat-mdc-chip-trailing-icon", "mdc-evolution-chip__icon", "mdc-evolution-chip__icon--trailing"],
+  standalone: true,
+  features: [\u0275\u0275ProvidersFeature([{
+    provide: MAT_CHIP_TRAILING_ICON,
+    useExisting: _MatChipTrailingIcon
+  }]), \u0275\u0275InheritDefinitionFeature]
+});
+var MatChipTrailingIcon = _MatChipTrailingIcon;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipTrailingIcon, [{
+    type: Directive,
+    args: [{
+      selector: "mat-chip-trailing-icon, [matChipTrailingIcon]",
+      host: {
+        "class": "mat-mdc-chip-trailing-icon mdc-evolution-chip__icon mdc-evolution-chip__icon--trailing",
+        "aria-hidden": "true"
+      },
+      providers: [{
+        provide: MAT_CHIP_TRAILING_ICON,
+        useExisting: MatChipTrailingIcon
+      }],
+      standalone: true
+    }]
+  }], null, null);
+})();
+var _MatChipRemove = class _MatChipRemove extends MatChipAction {
+  constructor() {
+    super(...arguments);
+    this._isPrimary = false;
+  }
+  _handleClick(event) {
+    if (!this.disabled) {
+      event.stopPropagation();
+      event.preventDefault();
+      this._parentChip.remove();
+    }
+  }
+  _handleKeydown(event) {
+    if ((event.keyCode === ENTER2 || event.keyCode === SPACE2) && !this.disabled) {
+      event.stopPropagation();
+      event.preventDefault();
+      this._parentChip.remove();
+    }
+  }
+};
+_MatChipRemove.\u0275fac = /* @__PURE__ */ (() => {
+  let \u0275MatChipRemove_BaseFactory;
+  return function MatChipRemove_Factory(t) {
+    return (\u0275MatChipRemove_BaseFactory || (\u0275MatChipRemove_BaseFactory = \u0275\u0275getInheritedFactory(_MatChipRemove)))(t || _MatChipRemove);
+  };
+})();
+_MatChipRemove.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+  type: _MatChipRemove,
+  selectors: [["", "matChipRemove", ""]],
+  hostAttrs: ["role", "button", 1, "mat-mdc-chip-remove", "mat-mdc-chip-trailing-icon", "mat-mdc-focus-indicator", "mdc-evolution-chip__icon", "mdc-evolution-chip__icon--trailing"],
+  hostVars: 1,
+  hostBindings: function MatChipRemove_HostBindings(rf, ctx) {
+    if (rf & 2) {
+      \u0275\u0275attribute("aria-hidden", null);
+    }
+  },
+  standalone: true,
+  features: [\u0275\u0275ProvidersFeature([{
+    provide: MAT_CHIP_REMOVE,
+    useExisting: _MatChipRemove
+  }]), \u0275\u0275InheritDefinitionFeature]
+});
+var MatChipRemove = _MatChipRemove;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipRemove, [{
+    type: Directive,
+    args: [{
+      selector: "[matChipRemove]",
+      host: {
+        "class": "mat-mdc-chip-remove mat-mdc-chip-trailing-icon mat-mdc-focus-indicator mdc-evolution-chip__icon mdc-evolution-chip__icon--trailing",
+        "role": "button",
+        "[attr.aria-hidden]": "null"
+      },
+      providers: [{
+        provide: MAT_CHIP_REMOVE,
+        useExisting: MatChipRemove
+      }],
+      standalone: true
+    }]
+  }], null, null);
+})();
+var uid = 0;
+var _MatChip = class _MatChip {
+  _hasFocus() {
+    return this._hasFocusInternal;
+  }
+  /**
+   * The value of the chip. Defaults to the content inside
+   * the `mat-mdc-chip-action-label` element.
+   */
+  get value() {
+    return this._value !== void 0 ? this._value : this._textElement.textContent.trim();
+  }
+  set value(value) {
+    this._value = value;
+  }
+  /**
+   * Reference to the MatRipple instance of the chip.
+   * @deprecated Considered an implementation detail. To be removed.
+   * @breaking-change 17.0.0
+   */
+  get ripple() {
+    return this._rippleLoader?.getRipple(this._elementRef.nativeElement);
+  }
+  set ripple(v) {
+    this._rippleLoader?.attachRipple(this._elementRef.nativeElement, v);
+  }
+  constructor(_changeDetectorRef, _elementRef, _ngZone, _focusMonitor, _document2, animationMode, _globalRippleOptions, tabIndex) {
+    this._changeDetectorRef = _changeDetectorRef;
+    this._elementRef = _elementRef;
+    this._ngZone = _ngZone;
+    this._focusMonitor = _focusMonitor;
+    this._globalRippleOptions = _globalRippleOptions;
+    this._onFocus = new Subject();
+    this._onBlur = new Subject();
+    this.role = null;
+    this._hasFocusInternal = false;
+    this.id = `mat-mdc-chip-${uid++}`;
+    this.ariaLabel = null;
+    this.ariaDescription = null;
+    this._ariaDescriptionId = `${this.id}-aria-description`;
+    this.removable = true;
+    this.highlighted = false;
+    this.disableRipple = false;
+    this.disabled = false;
+    this.tabIndex = -1;
+    this.removed = new EventEmitter();
+    this.destroyed = new EventEmitter();
+    this.basicChipAttrName = "mat-basic-chip";
+    this._rippleLoader = inject(MatRippleLoader);
+    this._injector = inject(Injector);
+    this._document = _document2;
+    this._animationsDisabled = animationMode === "NoopAnimations";
+    if (tabIndex != null) {
+      this.tabIndex = parseInt(tabIndex) ?? -1;
+    }
+    this._monitorFocus();
+    this._rippleLoader?.configureRipple(this._elementRef.nativeElement, {
+      className: "mat-mdc-chip-ripple",
+      disabled: this._isRippleDisabled()
+    });
+  }
+  ngOnInit() {
+    const element = this._elementRef.nativeElement;
+    this._isBasicChip = element.hasAttribute(this.basicChipAttrName) || element.tagName.toLowerCase() === this.basicChipAttrName;
+  }
+  ngAfterViewInit() {
+    this._textElement = this._elementRef.nativeElement.querySelector(".mat-mdc-chip-action-label");
+    if (this._pendingFocus) {
+      this._pendingFocus = false;
+      this.focus();
+    }
+  }
+  ngAfterContentInit() {
+    this._actionChanges = merge(this._allLeadingIcons.changes, this._allTrailingIcons.changes, this._allRemoveIcons.changes).subscribe(() => this._changeDetectorRef.markForCheck());
+  }
+  ngDoCheck() {
+    this._rippleLoader.setDisabled(this._elementRef.nativeElement, this._isRippleDisabled());
+  }
+  ngOnDestroy() {
+    this._focusMonitor.stopMonitoring(this._elementRef);
+    this._rippleLoader?.destroyRipple(this._elementRef.nativeElement);
+    this._actionChanges?.unsubscribe();
+    this.destroyed.emit({
+      chip: this
+    });
+    this.destroyed.complete();
+  }
+  /**
+   * Allows for programmatic removal of the chip.
+   *
+   * Informs any listeners of the removal request. Does not remove the chip from the DOM.
+   */
+  remove() {
+    if (this.removable) {
+      this.removed.emit({
+        chip: this
+      });
+    }
+  }
+  /** Whether or not the ripple should be disabled. */
+  _isRippleDisabled() {
+    return this.disabled || this.disableRipple || this._animationsDisabled || this._isBasicChip || !!this._globalRippleOptions?.disabled;
+  }
+  /** Returns whether the chip has a trailing icon. */
+  _hasTrailingIcon() {
+    return !!(this.trailingIcon || this.removeIcon);
+  }
+  /** Handles keyboard events on the chip. */
+  _handleKeydown(event) {
+    if (event.keyCode === BACKSPACE && !event.repeat || event.keyCode === DELETE) {
+      event.preventDefault();
+      this.remove();
+    }
+  }
+  /** Allows for programmatic focusing of the chip. */
+  focus() {
+    if (!this.disabled) {
+      if (this.primaryAction) {
+        this.primaryAction.focus();
+      } else {
+        this._pendingFocus = true;
+      }
+    }
+  }
+  /** Gets the action that contains a specific target node. */
+  _getSourceAction(target) {
+    return this._getActions().find((action) => {
+      const element = action._elementRef.nativeElement;
+      return element === target || element.contains(target);
+    });
+  }
+  /** Gets all of the actions within the chip. */
+  _getActions() {
+    const result = [];
+    if (this.primaryAction) {
+      result.push(this.primaryAction);
+    }
+    if (this.removeIcon) {
+      result.push(this.removeIcon);
+    }
+    if (this.trailingIcon) {
+      result.push(this.trailingIcon);
+    }
+    return result;
+  }
+  /** Handles interactions with the primary action of the chip. */
+  _handlePrimaryActionInteraction() {
+  }
+  /** Gets the tabindex of the chip. */
+  _getTabIndex() {
+    if (!this.role) {
+      return null;
+    }
+    return this.disabled ? -1 : this.tabIndex;
+  }
+  /** Starts the focus monitoring process on the chip. */
+  _monitorFocus() {
+    this._focusMonitor.monitor(this._elementRef, true).subscribe((origin) => {
+      const hasFocus = origin !== null;
+      if (hasFocus !== this._hasFocusInternal) {
+        this._hasFocusInternal = hasFocus;
+        if (hasFocus) {
+          this._onFocus.next({
+            chip: this
+          });
+        } else {
+          afterNextRender(() => this._ngZone.run(() => this._onBlur.next({
+            chip: this
+          })), {
+            injector: this._injector
+          });
+        }
+      }
+    });
+  }
+};
+_MatChip.\u0275fac = function MatChip_Factory(t) {
+  return new (t || _MatChip)(\u0275\u0275directiveInject(ChangeDetectorRef), \u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(NgZone), \u0275\u0275directiveInject(FocusMonitor), \u0275\u0275directiveInject(DOCUMENT2), \u0275\u0275directiveInject(ANIMATION_MODULE_TYPE, 8), \u0275\u0275directiveInject(MAT_RIPPLE_GLOBAL_OPTIONS, 8), \u0275\u0275injectAttribute("tabindex"));
+};
+_MatChip.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
+  type: _MatChip,
+  selectors: [["mat-basic-chip"], ["", "mat-basic-chip", ""], ["mat-chip"], ["", "mat-chip", ""]],
+  contentQueries: function MatChip_ContentQueries(rf, ctx, dirIndex) {
+    if (rf & 1) {
+      \u0275\u0275contentQuery(dirIndex, MAT_CHIP_AVATAR, 5);
+      \u0275\u0275contentQuery(dirIndex, MAT_CHIP_TRAILING_ICON, 5);
+      \u0275\u0275contentQuery(dirIndex, MAT_CHIP_REMOVE, 5);
+      \u0275\u0275contentQuery(dirIndex, MAT_CHIP_AVATAR, 5);
+      \u0275\u0275contentQuery(dirIndex, MAT_CHIP_TRAILING_ICON, 5);
+      \u0275\u0275contentQuery(dirIndex, MAT_CHIP_REMOVE, 5);
+    }
+    if (rf & 2) {
+      let _t;
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.leadingIcon = _t.first);
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.trailingIcon = _t.first);
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.removeIcon = _t.first);
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._allLeadingIcons = _t);
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._allTrailingIcons = _t);
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._allRemoveIcons = _t);
+    }
+  },
+  viewQuery: function MatChip_Query(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275viewQuery(MatChipAction, 5);
+    }
+    if (rf & 2) {
+      let _t;
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.primaryAction = _t.first);
+    }
+  },
+  hostAttrs: [1, "mat-mdc-chip"],
+  hostVars: 32,
+  hostBindings: function MatChip_HostBindings(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275listener("keydown", function MatChip_keydown_HostBindingHandler($event) {
+        return ctx._handleKeydown($event);
+      });
+    }
+    if (rf & 2) {
+      \u0275\u0275hostProperty("id", ctx.id);
+      \u0275\u0275attribute("role", ctx.role)("tabindex", ctx._getTabIndex())("aria-label", ctx.ariaLabel);
+      \u0275\u0275classMap("mat-" + (ctx.color || "primary"));
+      \u0275\u0275classProp("mdc-evolution-chip", !ctx._isBasicChip)("mdc-evolution-chip--disabled", ctx.disabled)("mdc-evolution-chip--with-trailing-action", ctx._hasTrailingIcon())("mdc-evolution-chip--with-primary-graphic", ctx.leadingIcon)("mdc-evolution-chip--with-primary-icon", ctx.leadingIcon)("mdc-evolution-chip--with-avatar", ctx.leadingIcon)("mat-mdc-chip-with-avatar", ctx.leadingIcon)("mat-mdc-chip-highlighted", ctx.highlighted)("mat-mdc-chip-disabled", ctx.disabled)("mat-mdc-basic-chip", ctx._isBasicChip)("mat-mdc-standard-chip", !ctx._isBasicChip)("mat-mdc-chip-with-trailing-icon", ctx._hasTrailingIcon())("_mat-animation-noopable", ctx._animationsDisabled);
+    }
+  },
+  inputs: {
+    role: "role",
+    id: "id",
+    ariaLabel: [0, "aria-label", "ariaLabel"],
+    ariaDescription: [0, "aria-description", "ariaDescription"],
+    value: "value",
+    color: "color",
+    removable: [2, "removable", "removable", booleanAttribute],
+    highlighted: [2, "highlighted", "highlighted", booleanAttribute],
+    disableRipple: [2, "disableRipple", "disableRipple", booleanAttribute],
+    disabled: [2, "disabled", "disabled", booleanAttribute],
+    tabIndex: [2, "tabIndex", "tabIndex", (value) => value == null ? void 0 : numberAttribute(value)]
+  },
+  outputs: {
+    removed: "removed",
+    destroyed: "destroyed"
+  },
+  exportAs: ["matChip"],
+  standalone: true,
+  features: [\u0275\u0275ProvidersFeature([{
+    provide: MAT_CHIP,
+    useExisting: _MatChip
+  }]), \u0275\u0275InputTransformsFeature, \u0275\u0275StandaloneFeature],
+  ngContentSelectors: _c15,
+  decls: 8,
+  vars: 3,
+  consts: [[1, "mat-mdc-chip-focus-overlay"], [1, "mdc-evolution-chip__cell", "mdc-evolution-chip__cell--primary"], ["matChipAction", "", 3, "isInteractive"], [1, "mdc-evolution-chip__graphic", "mat-mdc-chip-graphic"], [1, "mdc-evolution-chip__text-label", "mat-mdc-chip-action-label"], [1, "mat-mdc-chip-primary-focus-indicator", "mat-mdc-focus-indicator"], [1, "mdc-evolution-chip__cell", "mdc-evolution-chip__cell--trailing"]],
+  template: function MatChip_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275projectionDef(_c07);
+      \u0275\u0275element(0, "span", 0);
+      \u0275\u0275elementStart(1, "span", 1)(2, "span", 2);
+      \u0275\u0275template(3, MatChip_Conditional_3_Template, 2, 0, "span", 3);
+      \u0275\u0275elementStart(4, "span", 4);
+      \u0275\u0275projection(5);
+      \u0275\u0275element(6, "span", 5);
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275template(7, MatChip_Conditional_7_Template, 2, 0, "span", 6);
+    }
+    if (rf & 2) {
+      \u0275\u0275advance(2);
+      \u0275\u0275property("isInteractive", false);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.leadingIcon ? 3 : -1);
+      \u0275\u0275advance(4);
+      \u0275\u0275conditional(ctx._hasTrailingIcon() ? 7 : -1);
+    }
+  },
+  dependencies: [MatChipAction],
+  styles: ['.mdc-evolution-chip,.mdc-evolution-chip__cell,.mdc-evolution-chip__action{display:inline-flex;align-items:center}.mdc-evolution-chip{position:relative;max-width:100%}.mdc-evolution-chip .mdc-elevation-overlay{width:100%;height:100%;top:0;left:0}.mdc-evolution-chip__cell,.mdc-evolution-chip__action{height:100%}.mdc-evolution-chip__cell--primary{overflow-x:hidden}.mdc-evolution-chip__cell--trailing{flex:1 0 auto}.mdc-evolution-chip__action{align-items:center;background:none;border:none;box-sizing:content-box;cursor:pointer;display:inline-flex;justify-content:center;outline:none;padding:0;text-decoration:none;color:inherit}.mdc-evolution-chip__action--presentational{cursor:auto}.mdc-evolution-chip--disabled,.mdc-evolution-chip__action:disabled{pointer-events:none}.mdc-evolution-chip__action--primary{overflow-x:hidden}.mdc-evolution-chip__action--trailing{position:relative;overflow:visible}.mdc-evolution-chip__action--primary:before{box-sizing:border-box;content:"";height:100%;left:0;position:absolute;pointer-events:none;top:0;width:100%;z-index:1}.mdc-evolution-chip--touch{margin-top:8px;margin-bottom:8px}.mdc-evolution-chip__action-touch{position:absolute;top:50%;height:48px;left:0;right:0;transform:translateY(-50%)}.mdc-evolution-chip__text-label{white-space:nowrap;user-select:none;text-overflow:ellipsis;overflow:hidden}.mdc-evolution-chip__graphic{align-items:center;display:inline-flex;justify-content:center;overflow:hidden;pointer-events:none;position:relative;flex:1 0 auto}.mdc-evolution-chip__checkmark{position:absolute;opacity:0;top:50%;left:50%}.mdc-evolution-chip--selectable:not(.mdc-evolution-chip--selected):not(.mdc-evolution-chip--with-primary-icon) .mdc-evolution-chip__graphic{width:0}.mdc-evolution-chip__checkmark-background{opacity:0}.mdc-evolution-chip__checkmark-svg{display:block}.mdc-evolution-chip__checkmark-path{stroke-width:2px;stroke-dasharray:29.7833385;stroke-dashoffset:29.7833385;stroke:currentColor}.mdc-evolution-chip--selecting .mdc-evolution-chip__graphic{transition:width 150ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--selecting .mdc-evolution-chip__checkmark{transition:transform 150ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-75%, -50%)}.mdc-evolution-chip--selecting .mdc-evolution-chip__checkmark-path{transition:stroke-dashoffset 150ms 45ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__graphic{transition:width 100ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__checkmark{transition:opacity 50ms 0ms linear,transform 100ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-75%, -50%)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}.mdc-evolution-chip--selecting-with-primary-icon .mdc-evolution-chip__icon--primary{transition:opacity 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--selecting-with-primary-icon .mdc-evolution-chip__checkmark-path{transition:stroke-dashoffset 150ms 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__icon--primary{transition:opacity 150ms 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__checkmark{transition:opacity 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-50%, -50%)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}.mdc-evolution-chip--selected .mdc-evolution-chip__icon--primary{opacity:0}.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark{transform:translate(-50%, -50%);opacity:1}.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}@keyframes mdc-evolution-chip-enter{from{transform:scale(0.8);opacity:.4}to{transform:scale(1);opacity:1}}.mdc-evolution-chip--enter{animation:mdc-evolution-chip-enter 100ms 0ms cubic-bezier(0, 0, 0.2, 1)}@keyframes mdc-evolution-chip-exit{from{opacity:1}to{opacity:0}}.mdc-evolution-chip--exit{animation:mdc-evolution-chip-exit 75ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mdc-evolution-chip--hidden{opacity:0;pointer-events:none;transition:width 150ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mat-mdc-standard-chip{border-radius:var(--mdc-chip-container-shape-radius);height:var(--mdc-chip-container-height)}.mat-mdc-standard-chip .mdc-evolution-chip__ripple{border-radius:var(--mdc-chip-container-shape-radius)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-radius:var(--mdc-chip-container-shape-radius)}.mat-mdc-standard-chip .mdc-evolution-chip__icon--primary{border-radius:var(--mdc-chip-with-avatar-avatar-shape-radius)}.mat-mdc-standard-chip.mdc-evolution-chip--selectable:not(.mdc-evolution-chip--with-primary-icon){--mdc-chip-graphic-selected-width:var(--mdc-chip-with-avatar-avatar-size)}.mat-mdc-standard-chip .mdc-evolution-chip__graphic{height:var(--mdc-chip-with-avatar-avatar-size);width:var(--mdc-chip-with-avatar-avatar-size);font-size:var(--mdc-chip-with-avatar-avatar-size)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__action--primary:before{border-color:var(--mdc-chip-outline-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-evolution-chip__action--presentational).mdc-ripple-upgraded--background-focused:before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-evolution-chip__action--presentational):not(.mdc-ripple-upgraded):focus:before{border-color:var(--mdc-chip-focus-outline-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__action--primary:before{border-color:var(--mdc-chip-disabled-outline-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-width:var(--mdc-chip-outline-width)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:before{border-width:var(--mdc-chip-flat-selected-outline-width)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled){background-color:var(--mdc-chip-elevated-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-elevated-disabled-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected:not(.mdc-evolution-chip--disabled){background-color:var(--mdc-chip-elevated-selected-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-elevated-disabled-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-flat-disabled-selected-container-color)}.mat-mdc-standard-chip .mdc-evolution-chip__text-label{font-family:var(--mdc-chip-label-text-font);line-height:var(--mdc-chip-label-text-line-height);font-size:var(--mdc-chip-label-text-size);font-weight:var(--mdc-chip-label-text-weight);letter-spacing:var(--mdc-chip-label-text-tracking)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label{color:var(--mdc-chip-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__text-label{color:var(--mdc-chip-disabled-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label{color:var(--mdc-chip-selected-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled .mdc-evolution-chip__text-label{color:var(--mdc-chip-disabled-label-text-color)}.mat-mdc-standard-chip .mdc-evolution-chip__icon--primary{height:var(--mdc-chip-with-icon-icon-size);width:var(--mdc-chip-with-icon-icon-size);font-size:var(--mdc-chip-with-icon-icon-size)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__icon--primary{color:var(--mdc-chip-with-icon-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--primary{color:var(--mdc-chip-with-icon-disabled-icon-color)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__checkmark{color:var(--mdc-chip-with-icon-selected-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__checkmark{color:var(--mdc-chip-with-icon-disabled-icon-color)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__icon--trailing{color:var(--mdc-chip-with-trailing-icon-trailing-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{color:var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::after{background-color:var(--mdc-chip-hover-state-layer-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:hover .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary.mdc-ripple-surface--hover .mdc-evolution-chip__ripple::before{opacity:var(--mdc-chip-hover-state-layer-opacity)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary.mdc-ripple-upgraded--background-focused .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-ripple-upgraded):focus .mdc-evolution-chip__ripple::before{transition-duration:75ms;opacity:var(--mdc-chip-focus-state-layer-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::after{background-color:var(--mdc-chip-selected-hover-state-layer-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:hover .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary.mdc-ripple-surface--hover .mdc-evolution-chip__ripple::before{opacity:var(--mdc-chip-selected-hover-state-layer-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary.mdc-ripple-upgraded--background-focused .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:not(.mdc-ripple-upgraded):focus .mdc-evolution-chip__ripple::before{transition-duration:75ms;opacity:var(--mdc-chip-selected-focus-state-layer-opacity)}.mat-mdc-chip-highlighted{--mdc-chip-with-icon-icon-color:var(--mdc-chip-with-icon-selected-icon-color);--mdc-chip-elevated-container-color:var(--mdc-chip-elevated-selected-container-color);--mdc-chip-label-text-color:var(--mdc-chip-selected-label-text-color);--mdc-chip-outline-width:var(--mdc-chip-flat-selected-outline-width)}.mat-mdc-chip-focus-overlay{background:var(--mdc-chip-focus-state-layer-color)}.mat-mdc-chip-selected .mat-mdc-chip-focus-overlay,.mat-mdc-chip-highlighted .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-focus-state-layer-color)}.mat-mdc-chip:hover .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-hover-state-layer-color);opacity:var(--mdc-chip-hover-state-layer-opacity)}.mat-mdc-chip-focus-overlay .mat-mdc-chip-selected:hover,.mat-mdc-chip-highlighted:hover .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-hover-state-layer-color);opacity:var(--mdc-chip-selected-hover-state-layer-opacity)}.mat-mdc-chip.cdk-focused .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-focus-state-layer-color);opacity:var(--mdc-chip-focus-state-layer-opacity)}.mat-mdc-chip-selected.cdk-focused .mat-mdc-chip-focus-overlay,.mat-mdc-chip-highlighted.cdk-focused .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-focus-state-layer-color);opacity:var(--mdc-chip-selected-focus-state-layer-opacity)}.mdc-evolution-chip--disabled:not(.mdc-evolution-chip--selected) .mat-mdc-chip-avatar{opacity:var(--mdc-chip-with-avatar-disabled-avatar-opacity)}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{opacity:var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity)}.mdc-evolution-chip--disabled.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark{opacity:var(--mdc-chip-with-icon-disabled-icon-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled{opacity:var(--mat-chip-disabled-container-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__icon--trailing,.mat-mdc-standard-chip.mat-mdc-chip-highlighted .mdc-evolution-chip__icon--trailing{color:var(--mat-chip-selected-trailing-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing,.mat-mdc-standard-chip.mat-mdc-chip-highlighted.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{color:var(--mat-chip-selected-disabled-trailing-icon-color)}.mat-mdc-chip-remove{opacity:var(--mat-chip-trailing-action-opacity)}.mat-mdc-chip-remove:focus{opacity:var(--mat-chip-trailing-action-focus-opacity)}.mat-mdc-chip-remove::after{background:var(--mat-chip-trailing-action-state-layer-color)}.mat-mdc-chip-remove:hover::after{opacity:var(--mat-chip-trailing-action-hover-state-layer-opacity)}.mat-mdc-chip-remove:focus::after{opacity:var(--mat-chip-trailing-action-focus-state-layer-opacity)}.mat-mdc-chip-selected .mat-mdc-chip-remove::after,.mat-mdc-chip-highlighted .mat-mdc-chip-remove::after{background:var(--mat-chip-selected-trailing-action-state-layer-color)}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing.mat-mdc-chip-remove{opacity:calc(var(--mat-chip-trailing-action-opacity)*var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity))}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing.mat-mdc-chip-remove:focus{opacity:calc(var(--mat-chip-trailing-action-focus-opacity)*var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity))}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-style:solid}.mat-mdc-standard-chip .mdc-evolution-chip__checkmark{height:20px;width:20px}.mat-mdc-standard-chip .mdc-evolution-chip__icon--trailing{height:18px;width:18px;font-size:18px}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary{padding-left:12px;padding-right:12px}[dir=rtl] .mat-mdc-standard-chip .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:12px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic{padding-left:6px;padding-right:6px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic[dir=rtl]{padding-left:6px;padding-right:6px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary{padding-left:0;padding-right:12px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:0}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:12px;padding-right:0}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:12px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic{padding-left:6px;padding-right:6px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic[dir=rtl]{padding-left:6px;padding-right:6px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:0;padding-right:0}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:0}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic{padding-left:4px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic[dir=rtl]{padding-left:8px;padding-right:4px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary{padding-left:0;padding-right:12px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:0}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic{padding-left:4px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic[dir=rtl]{padding-left:8px;padding-right:4px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:0;padding-right:0}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:0}.mat-mdc-standard-chip{-webkit-tap-highlight-color:rgba(0,0,0,0)}.cdk-high-contrast-active .mat-mdc-standard-chip{outline:solid 1px}.cdk-high-contrast-active .mat-mdc-standard-chip .mdc-evolution-chip__checkmark-path{stroke:CanvasText !important}.mat-mdc-standard-chip .mdc-evolution-chip__cell--primary,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip .mat-mdc-chip-action-label{overflow:visible}.mat-mdc-standard-chip .mdc-evolution-chip__cell--primary{flex-basis:100%}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary{font:inherit;letter-spacing:inherit;white-space:inherit}.mat-mdc-standard-chip .mat-mdc-chip-graphic,.mat-mdc-standard-chip .mat-mdc-chip-trailing-icon{box-sizing:content-box}.mat-mdc-standard-chip._mat-animation-noopable,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__graphic,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__checkmark,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__checkmark-path{transition-duration:1ms;animation-duration:1ms}.mat-mdc-basic-chip .mdc-evolution-chip__action--primary{font:inherit}.mat-mdc-chip-focus-overlay{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none;opacity:0;border-radius:inherit;transition:opacity 150ms linear}._mat-animation-noopable .mat-mdc-chip-focus-overlay{transition:none}.mat-mdc-basic-chip .mat-mdc-chip-focus-overlay{display:none}.mat-mdc-chip .mat-ripple.mat-mdc-chip-ripple{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none;border-radius:inherit}.mat-mdc-chip-avatar{text-align:center;line-height:1;color:var(--mdc-chip-with-icon-icon-color, currentColor)}.mat-mdc-chip{position:relative;z-index:0}.mat-mdc-chip-action-label{text-align:left;z-index:1}[dir=rtl] .mat-mdc-chip-action-label{text-align:right}.mat-mdc-chip.mdc-evolution-chip--with-trailing-action .mat-mdc-chip-action-label{position:relative}.mat-mdc-chip-action-label .mat-mdc-chip-primary-focus-indicator{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none}.mat-mdc-chip-action-label .mat-mdc-focus-indicator::before{margin:calc(calc(var(--mat-mdc-focus-indicator-border-width, 3px) + 2px)*-1)}.mat-mdc-chip-remove::before{margin:calc(var(--mat-mdc-focus-indicator-border-width, 3px)*-1);left:8px;right:8px}.mat-mdc-chip-remove::after{content:"";display:block;opacity:0;position:absolute;top:-2px;bottom:-2px;left:6px;right:6px;border-radius:50%}.mat-mdc-chip-remove .mat-icon{width:18px;height:18px;font-size:18px;box-sizing:content-box}.mat-chip-edit-input{cursor:text;display:inline-block;color:inherit;outline:0}.cdk-high-contrast-active .mat-mdc-chip-selected:not(.mat-mdc-chip-multiple){outline-width:3px}.mat-mdc-chip-action:focus .mat-mdc-focus-indicator::before{content:""}'],
+  encapsulation: 2,
+  changeDetection: 0
+});
+var MatChip = _MatChip;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChip, [{
+    type: Component,
+    args: [{
+      selector: "mat-basic-chip, [mat-basic-chip], mat-chip, [mat-chip]",
+      exportAs: "matChip",
+      host: {
+        "class": "mat-mdc-chip",
+        "[class]": '"mat-" + (color || "primary")',
+        "[class.mdc-evolution-chip]": "!_isBasicChip",
+        "[class.mdc-evolution-chip--disabled]": "disabled",
+        "[class.mdc-evolution-chip--with-trailing-action]": "_hasTrailingIcon()",
+        "[class.mdc-evolution-chip--with-primary-graphic]": "leadingIcon",
+        "[class.mdc-evolution-chip--with-primary-icon]": "leadingIcon",
+        "[class.mdc-evolution-chip--with-avatar]": "leadingIcon",
+        "[class.mat-mdc-chip-with-avatar]": "leadingIcon",
+        "[class.mat-mdc-chip-highlighted]": "highlighted",
+        "[class.mat-mdc-chip-disabled]": "disabled",
+        "[class.mat-mdc-basic-chip]": "_isBasicChip",
+        "[class.mat-mdc-standard-chip]": "!_isBasicChip",
+        "[class.mat-mdc-chip-with-trailing-icon]": "_hasTrailingIcon()",
+        "[class._mat-animation-noopable]": "_animationsDisabled",
+        "[id]": "id",
+        "[attr.role]": "role",
+        "[attr.tabindex]": "_getTabIndex()",
+        "[attr.aria-label]": "ariaLabel",
+        "(keydown)": "_handleKeydown($event)"
+      },
+      encapsulation: ViewEncapsulation$1.None,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+      providers: [{
+        provide: MAT_CHIP,
+        useExisting: MatChip
+      }],
+      standalone: true,
+      imports: [MatChipAction],
+      template: '<span class="mat-mdc-chip-focus-overlay"></span>\n\n<span class="mdc-evolution-chip__cell mdc-evolution-chip__cell--primary">\n  <span matChipAction [isInteractive]="false">\n    @if (leadingIcon) {\n      <span class="mdc-evolution-chip__graphic mat-mdc-chip-graphic">\n        <ng-content select="mat-chip-avatar, [matChipAvatar]"></ng-content>\n      </span>\n    }\n    <span class="mdc-evolution-chip__text-label mat-mdc-chip-action-label">\n      <ng-content></ng-content>\n      <span class="mat-mdc-chip-primary-focus-indicator mat-mdc-focus-indicator"></span>\n    </span>\n  </span>\n</span>\n\n@if (_hasTrailingIcon()) {\n  <span class="mdc-evolution-chip__cell mdc-evolution-chip__cell--trailing">\n    <ng-content select="mat-chip-trailing-icon,[matChipRemove],[matChipTrailingIcon]"></ng-content>\n  </span>\n}\n',
+      styles: ['.mdc-evolution-chip,.mdc-evolution-chip__cell,.mdc-evolution-chip__action{display:inline-flex;align-items:center}.mdc-evolution-chip{position:relative;max-width:100%}.mdc-evolution-chip .mdc-elevation-overlay{width:100%;height:100%;top:0;left:0}.mdc-evolution-chip__cell,.mdc-evolution-chip__action{height:100%}.mdc-evolution-chip__cell--primary{overflow-x:hidden}.mdc-evolution-chip__cell--trailing{flex:1 0 auto}.mdc-evolution-chip__action{align-items:center;background:none;border:none;box-sizing:content-box;cursor:pointer;display:inline-flex;justify-content:center;outline:none;padding:0;text-decoration:none;color:inherit}.mdc-evolution-chip__action--presentational{cursor:auto}.mdc-evolution-chip--disabled,.mdc-evolution-chip__action:disabled{pointer-events:none}.mdc-evolution-chip__action--primary{overflow-x:hidden}.mdc-evolution-chip__action--trailing{position:relative;overflow:visible}.mdc-evolution-chip__action--primary:before{box-sizing:border-box;content:"";height:100%;left:0;position:absolute;pointer-events:none;top:0;width:100%;z-index:1}.mdc-evolution-chip--touch{margin-top:8px;margin-bottom:8px}.mdc-evolution-chip__action-touch{position:absolute;top:50%;height:48px;left:0;right:0;transform:translateY(-50%)}.mdc-evolution-chip__text-label{white-space:nowrap;user-select:none;text-overflow:ellipsis;overflow:hidden}.mdc-evolution-chip__graphic{align-items:center;display:inline-flex;justify-content:center;overflow:hidden;pointer-events:none;position:relative;flex:1 0 auto}.mdc-evolution-chip__checkmark{position:absolute;opacity:0;top:50%;left:50%}.mdc-evolution-chip--selectable:not(.mdc-evolution-chip--selected):not(.mdc-evolution-chip--with-primary-icon) .mdc-evolution-chip__graphic{width:0}.mdc-evolution-chip__checkmark-background{opacity:0}.mdc-evolution-chip__checkmark-svg{display:block}.mdc-evolution-chip__checkmark-path{stroke-width:2px;stroke-dasharray:29.7833385;stroke-dashoffset:29.7833385;stroke:currentColor}.mdc-evolution-chip--selecting .mdc-evolution-chip__graphic{transition:width 150ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--selecting .mdc-evolution-chip__checkmark{transition:transform 150ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-75%, -50%)}.mdc-evolution-chip--selecting .mdc-evolution-chip__checkmark-path{transition:stroke-dashoffset 150ms 45ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__graphic{transition:width 100ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__checkmark{transition:opacity 50ms 0ms linear,transform 100ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-75%, -50%)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}.mdc-evolution-chip--selecting-with-primary-icon .mdc-evolution-chip__icon--primary{transition:opacity 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--selecting-with-primary-icon .mdc-evolution-chip__checkmark-path{transition:stroke-dashoffset 150ms 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__icon--primary{transition:opacity 150ms 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__checkmark{transition:opacity 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-50%, -50%)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}.mdc-evolution-chip--selected .mdc-evolution-chip__icon--primary{opacity:0}.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark{transform:translate(-50%, -50%);opacity:1}.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}@keyframes mdc-evolution-chip-enter{from{transform:scale(0.8);opacity:.4}to{transform:scale(1);opacity:1}}.mdc-evolution-chip--enter{animation:mdc-evolution-chip-enter 100ms 0ms cubic-bezier(0, 0, 0.2, 1)}@keyframes mdc-evolution-chip-exit{from{opacity:1}to{opacity:0}}.mdc-evolution-chip--exit{animation:mdc-evolution-chip-exit 75ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mdc-evolution-chip--hidden{opacity:0;pointer-events:none;transition:width 150ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mat-mdc-standard-chip{border-radius:var(--mdc-chip-container-shape-radius);height:var(--mdc-chip-container-height)}.mat-mdc-standard-chip .mdc-evolution-chip__ripple{border-radius:var(--mdc-chip-container-shape-radius)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-radius:var(--mdc-chip-container-shape-radius)}.mat-mdc-standard-chip .mdc-evolution-chip__icon--primary{border-radius:var(--mdc-chip-with-avatar-avatar-shape-radius)}.mat-mdc-standard-chip.mdc-evolution-chip--selectable:not(.mdc-evolution-chip--with-primary-icon){--mdc-chip-graphic-selected-width:var(--mdc-chip-with-avatar-avatar-size)}.mat-mdc-standard-chip .mdc-evolution-chip__graphic{height:var(--mdc-chip-with-avatar-avatar-size);width:var(--mdc-chip-with-avatar-avatar-size);font-size:var(--mdc-chip-with-avatar-avatar-size)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__action--primary:before{border-color:var(--mdc-chip-outline-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-evolution-chip__action--presentational).mdc-ripple-upgraded--background-focused:before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-evolution-chip__action--presentational):not(.mdc-ripple-upgraded):focus:before{border-color:var(--mdc-chip-focus-outline-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__action--primary:before{border-color:var(--mdc-chip-disabled-outline-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-width:var(--mdc-chip-outline-width)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:before{border-width:var(--mdc-chip-flat-selected-outline-width)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled){background-color:var(--mdc-chip-elevated-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-elevated-disabled-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected:not(.mdc-evolution-chip--disabled){background-color:var(--mdc-chip-elevated-selected-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-elevated-disabled-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-flat-disabled-selected-container-color)}.mat-mdc-standard-chip .mdc-evolution-chip__text-label{font-family:var(--mdc-chip-label-text-font);line-height:var(--mdc-chip-label-text-line-height);font-size:var(--mdc-chip-label-text-size);font-weight:var(--mdc-chip-label-text-weight);letter-spacing:var(--mdc-chip-label-text-tracking)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label{color:var(--mdc-chip-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__text-label{color:var(--mdc-chip-disabled-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label{color:var(--mdc-chip-selected-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled .mdc-evolution-chip__text-label{color:var(--mdc-chip-disabled-label-text-color)}.mat-mdc-standard-chip .mdc-evolution-chip__icon--primary{height:var(--mdc-chip-with-icon-icon-size);width:var(--mdc-chip-with-icon-icon-size);font-size:var(--mdc-chip-with-icon-icon-size)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__icon--primary{color:var(--mdc-chip-with-icon-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--primary{color:var(--mdc-chip-with-icon-disabled-icon-color)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__checkmark{color:var(--mdc-chip-with-icon-selected-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__checkmark{color:var(--mdc-chip-with-icon-disabled-icon-color)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__icon--trailing{color:var(--mdc-chip-with-trailing-icon-trailing-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{color:var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::after{background-color:var(--mdc-chip-hover-state-layer-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:hover .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary.mdc-ripple-surface--hover .mdc-evolution-chip__ripple::before{opacity:var(--mdc-chip-hover-state-layer-opacity)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary.mdc-ripple-upgraded--background-focused .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-ripple-upgraded):focus .mdc-evolution-chip__ripple::before{transition-duration:75ms;opacity:var(--mdc-chip-focus-state-layer-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::after{background-color:var(--mdc-chip-selected-hover-state-layer-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:hover .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary.mdc-ripple-surface--hover .mdc-evolution-chip__ripple::before{opacity:var(--mdc-chip-selected-hover-state-layer-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary.mdc-ripple-upgraded--background-focused .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:not(.mdc-ripple-upgraded):focus .mdc-evolution-chip__ripple::before{transition-duration:75ms;opacity:var(--mdc-chip-selected-focus-state-layer-opacity)}.mat-mdc-chip-highlighted{--mdc-chip-with-icon-icon-color:var(--mdc-chip-with-icon-selected-icon-color);--mdc-chip-elevated-container-color:var(--mdc-chip-elevated-selected-container-color);--mdc-chip-label-text-color:var(--mdc-chip-selected-label-text-color);--mdc-chip-outline-width:var(--mdc-chip-flat-selected-outline-width)}.mat-mdc-chip-focus-overlay{background:var(--mdc-chip-focus-state-layer-color)}.mat-mdc-chip-selected .mat-mdc-chip-focus-overlay,.mat-mdc-chip-highlighted .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-focus-state-layer-color)}.mat-mdc-chip:hover .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-hover-state-layer-color);opacity:var(--mdc-chip-hover-state-layer-opacity)}.mat-mdc-chip-focus-overlay .mat-mdc-chip-selected:hover,.mat-mdc-chip-highlighted:hover .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-hover-state-layer-color);opacity:var(--mdc-chip-selected-hover-state-layer-opacity)}.mat-mdc-chip.cdk-focused .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-focus-state-layer-color);opacity:var(--mdc-chip-focus-state-layer-opacity)}.mat-mdc-chip-selected.cdk-focused .mat-mdc-chip-focus-overlay,.mat-mdc-chip-highlighted.cdk-focused .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-focus-state-layer-color);opacity:var(--mdc-chip-selected-focus-state-layer-opacity)}.mdc-evolution-chip--disabled:not(.mdc-evolution-chip--selected) .mat-mdc-chip-avatar{opacity:var(--mdc-chip-with-avatar-disabled-avatar-opacity)}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{opacity:var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity)}.mdc-evolution-chip--disabled.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark{opacity:var(--mdc-chip-with-icon-disabled-icon-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled{opacity:var(--mat-chip-disabled-container-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__icon--trailing,.mat-mdc-standard-chip.mat-mdc-chip-highlighted .mdc-evolution-chip__icon--trailing{color:var(--mat-chip-selected-trailing-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing,.mat-mdc-standard-chip.mat-mdc-chip-highlighted.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{color:var(--mat-chip-selected-disabled-trailing-icon-color)}.mat-mdc-chip-remove{opacity:var(--mat-chip-trailing-action-opacity)}.mat-mdc-chip-remove:focus{opacity:var(--mat-chip-trailing-action-focus-opacity)}.mat-mdc-chip-remove::after{background:var(--mat-chip-trailing-action-state-layer-color)}.mat-mdc-chip-remove:hover::after{opacity:var(--mat-chip-trailing-action-hover-state-layer-opacity)}.mat-mdc-chip-remove:focus::after{opacity:var(--mat-chip-trailing-action-focus-state-layer-opacity)}.mat-mdc-chip-selected .mat-mdc-chip-remove::after,.mat-mdc-chip-highlighted .mat-mdc-chip-remove::after{background:var(--mat-chip-selected-trailing-action-state-layer-color)}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing.mat-mdc-chip-remove{opacity:calc(var(--mat-chip-trailing-action-opacity)*var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity))}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing.mat-mdc-chip-remove:focus{opacity:calc(var(--mat-chip-trailing-action-focus-opacity)*var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity))}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-style:solid}.mat-mdc-standard-chip .mdc-evolution-chip__checkmark{height:20px;width:20px}.mat-mdc-standard-chip .mdc-evolution-chip__icon--trailing{height:18px;width:18px;font-size:18px}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary{padding-left:12px;padding-right:12px}[dir=rtl] .mat-mdc-standard-chip .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:12px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic{padding-left:6px;padding-right:6px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic[dir=rtl]{padding-left:6px;padding-right:6px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary{padding-left:0;padding-right:12px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:0}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:12px;padding-right:0}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:12px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic{padding-left:6px;padding-right:6px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic[dir=rtl]{padding-left:6px;padding-right:6px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:0;padding-right:0}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:0}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic{padding-left:4px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic[dir=rtl]{padding-left:8px;padding-right:4px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary{padding-left:0;padding-right:12px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:0}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic{padding-left:4px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic[dir=rtl]{padding-left:8px;padding-right:4px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:0;padding-right:0}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:0}.mat-mdc-standard-chip{-webkit-tap-highlight-color:rgba(0,0,0,0)}.cdk-high-contrast-active .mat-mdc-standard-chip{outline:solid 1px}.cdk-high-contrast-active .mat-mdc-standard-chip .mdc-evolution-chip__checkmark-path{stroke:CanvasText !important}.mat-mdc-standard-chip .mdc-evolution-chip__cell--primary,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip .mat-mdc-chip-action-label{overflow:visible}.mat-mdc-standard-chip .mdc-evolution-chip__cell--primary{flex-basis:100%}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary{font:inherit;letter-spacing:inherit;white-space:inherit}.mat-mdc-standard-chip .mat-mdc-chip-graphic,.mat-mdc-standard-chip .mat-mdc-chip-trailing-icon{box-sizing:content-box}.mat-mdc-standard-chip._mat-animation-noopable,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__graphic,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__checkmark,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__checkmark-path{transition-duration:1ms;animation-duration:1ms}.mat-mdc-basic-chip .mdc-evolution-chip__action--primary{font:inherit}.mat-mdc-chip-focus-overlay{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none;opacity:0;border-radius:inherit;transition:opacity 150ms linear}._mat-animation-noopable .mat-mdc-chip-focus-overlay{transition:none}.mat-mdc-basic-chip .mat-mdc-chip-focus-overlay{display:none}.mat-mdc-chip .mat-ripple.mat-mdc-chip-ripple{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none;border-radius:inherit}.mat-mdc-chip-avatar{text-align:center;line-height:1;color:var(--mdc-chip-with-icon-icon-color, currentColor)}.mat-mdc-chip{position:relative;z-index:0}.mat-mdc-chip-action-label{text-align:left;z-index:1}[dir=rtl] .mat-mdc-chip-action-label{text-align:right}.mat-mdc-chip.mdc-evolution-chip--with-trailing-action .mat-mdc-chip-action-label{position:relative}.mat-mdc-chip-action-label .mat-mdc-chip-primary-focus-indicator{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none}.mat-mdc-chip-action-label .mat-mdc-focus-indicator::before{margin:calc(calc(var(--mat-mdc-focus-indicator-border-width, 3px) + 2px)*-1)}.mat-mdc-chip-remove::before{margin:calc(var(--mat-mdc-focus-indicator-border-width, 3px)*-1);left:8px;right:8px}.mat-mdc-chip-remove::after{content:"";display:block;opacity:0;position:absolute;top:-2px;bottom:-2px;left:6px;right:6px;border-radius:50%}.mat-mdc-chip-remove .mat-icon{width:18px;height:18px;font-size:18px;box-sizing:content-box}.mat-chip-edit-input{cursor:text;display:inline-block;color:inherit;outline:0}.cdk-high-contrast-active .mat-mdc-chip-selected:not(.mat-mdc-chip-multiple){outline-width:3px}.mat-mdc-chip-action:focus .mat-mdc-focus-indicator::before{content:""}']
+    }]
+  }], () => [{
+    type: ChangeDetectorRef
+  }, {
+    type: ElementRef
+  }, {
+    type: NgZone
+  }, {
+    type: FocusMonitor
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Inject,
+      args: [DOCUMENT2]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [ANIMATION_MODULE_TYPE]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [MAT_RIPPLE_GLOBAL_OPTIONS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Attribute2,
+      args: ["tabindex"]
+    }]
+  }], {
+    role: [{
+      type: Input
+    }],
+    _allLeadingIcons: [{
+      type: ContentChildren,
+      args: [MAT_CHIP_AVATAR, {
+        descendants: true
+      }]
+    }],
+    _allTrailingIcons: [{
+      type: ContentChildren,
+      args: [MAT_CHIP_TRAILING_ICON, {
+        descendants: true
+      }]
+    }],
+    _allRemoveIcons: [{
+      type: ContentChildren,
+      args: [MAT_CHIP_REMOVE, {
+        descendants: true
+      }]
+    }],
+    id: [{
+      type: Input
+    }],
+    ariaLabel: [{
+      type: Input,
+      args: ["aria-label"]
+    }],
+    ariaDescription: [{
+      type: Input,
+      args: ["aria-description"]
+    }],
+    value: [{
+      type: Input
+    }],
+    color: [{
+      type: Input
+    }],
+    removable: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    highlighted: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    disableRipple: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    disabled: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    tabIndex: [{
+      type: Input,
+      args: [{
+        transform: (value) => value == null ? void 0 : numberAttribute(value)
+      }]
+    }],
+    removed: [{
+      type: Output
+    }],
+    destroyed: [{
+      type: Output
+    }],
+    leadingIcon: [{
+      type: ContentChild,
+      args: [MAT_CHIP_AVATAR]
+    }],
+    trailingIcon: [{
+      type: ContentChild,
+      args: [MAT_CHIP_TRAILING_ICON]
+    }],
+    removeIcon: [{
+      type: ContentChild,
+      args: [MAT_CHIP_REMOVE]
+    }],
+    primaryAction: [{
+      type: ViewChild,
+      args: [MatChipAction]
+    }]
+  });
+})();
+var _MatChipOption = class _MatChipOption extends MatChip {
+  constructor() {
+    super(...arguments);
+    this._defaultOptions = inject(MAT_CHIPS_DEFAULT_OPTIONS, {
+      optional: true
+    });
+    this.chipListSelectable = true;
+    this._chipListMultiple = false;
+    this._chipListHideSingleSelectionIndicator = this._defaultOptions?.hideSingleSelectionIndicator ?? false;
+    this._selectable = true;
+    this._selected = false;
+    this.basicChipAttrName = "mat-basic-chip-option";
+    this.selectionChange = new EventEmitter();
+  }
+  /**
+   * Whether or not the chip is selectable.
+   *
+   * When a chip is not selectable, changes to its selected state are always
+   * ignored. By default an option chip is selectable, and it becomes
+   * non-selectable if its parent chip list is not selectable.
+   */
+  get selectable() {
+    return this._selectable && this.chipListSelectable;
+  }
+  set selectable(value) {
+    this._selectable = value;
+    this._changeDetectorRef.markForCheck();
+  }
+  /** Whether the chip is selected. */
+  get selected() {
+    return this._selected;
+  }
+  set selected(value) {
+    this._setSelectedState(value, false, true);
+  }
+  /**
+   * The ARIA selected applied to the chip. Conforms to WAI ARIA best practices for listbox
+   * interaction patterns.
+   *
+   * From [WAI ARIA Listbox authoring practices guide](
+   * https://www.w3.org/WAI/ARIA/apg/patterns/listbox/):
+   *  "If any options are selected, each selected option has either aria-selected or aria-checked
+   *  set to true. All options that are selectable but not selected have either aria-selected or
+   *  aria-checked set to false."
+   *
+   * Set `aria-selected="false"` on not-selected listbox options that are selectable to fix
+   * VoiceOver reading every option as "selected" (#25736).
+   */
+  get ariaSelected() {
+    return this.selectable ? this.selected.toString() : null;
+  }
+  ngOnInit() {
+    super.ngOnInit();
+    this.role = "presentation";
+  }
+  /** Selects the chip. */
+  select() {
+    this._setSelectedState(true, false, true);
+  }
+  /** Deselects the chip. */
+  deselect() {
+    this._setSelectedState(false, false, true);
+  }
+  /** Selects this chip and emits userInputSelection event */
+  selectViaInteraction() {
+    this._setSelectedState(true, true, true);
+  }
+  /** Toggles the current selected state of this chip. */
+  toggleSelected(isUserInput = false) {
+    this._setSelectedState(!this.selected, isUserInput, true);
+    return this.selected;
+  }
+  _handlePrimaryActionInteraction() {
+    if (!this.disabled) {
+      this.focus();
+      if (this.selectable) {
+        this.toggleSelected(true);
+      }
+    }
+  }
+  _hasLeadingGraphic() {
+    if (this.leadingIcon) {
+      return true;
+    }
+    return !this._chipListHideSingleSelectionIndicator || this._chipListMultiple;
+  }
+  _setSelectedState(isSelected, isUserInput, emitEvent) {
+    if (isSelected !== this.selected) {
+      this._selected = isSelected;
+      if (emitEvent) {
+        this.selectionChange.emit({
+          source: this,
+          isUserInput,
+          selected: this.selected
+        });
+      }
+      this._changeDetectorRef.markForCheck();
+    }
+  }
+};
+_MatChipOption.\u0275fac = /* @__PURE__ */ (() => {
+  let \u0275MatChipOption_BaseFactory;
+  return function MatChipOption_Factory(t) {
+    return (\u0275MatChipOption_BaseFactory || (\u0275MatChipOption_BaseFactory = \u0275\u0275getInheritedFactory(_MatChipOption)))(t || _MatChipOption);
+  };
+})();
+_MatChipOption.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
+  type: _MatChipOption,
+  selectors: [["mat-basic-chip-option"], ["", "mat-basic-chip-option", ""], ["mat-chip-option"], ["", "mat-chip-option", ""]],
+  hostAttrs: [1, "mat-mdc-chip", "mat-mdc-chip-option"],
+  hostVars: 37,
+  hostBindings: function MatChipOption_HostBindings(rf, ctx) {
+    if (rf & 2) {
+      \u0275\u0275hostProperty("id", ctx.id);
+      \u0275\u0275attribute("tabindex", null)("aria-label", null)("aria-description", null)("role", ctx.role);
+      \u0275\u0275classProp("mdc-evolution-chip", !ctx._isBasicChip)("mdc-evolution-chip--filter", !ctx._isBasicChip)("mdc-evolution-chip--selectable", !ctx._isBasicChip)("mat-mdc-chip-selected", ctx.selected)("mat-mdc-chip-multiple", ctx._chipListMultiple)("mat-mdc-chip-disabled", ctx.disabled)("mat-mdc-chip-with-avatar", ctx.leadingIcon)("mdc-evolution-chip--disabled", ctx.disabled)("mdc-evolution-chip--selected", ctx.selected)("mdc-evolution-chip--selecting", !ctx._animationsDisabled)("mdc-evolution-chip--with-trailing-action", ctx._hasTrailingIcon())("mdc-evolution-chip--with-primary-icon", ctx.leadingIcon)("mdc-evolution-chip--with-primary-graphic", ctx._hasLeadingGraphic())("mdc-evolution-chip--with-avatar", ctx.leadingIcon)("mat-mdc-chip-highlighted", ctx.highlighted)("mat-mdc-chip-with-trailing-icon", ctx._hasTrailingIcon());
+    }
+  },
+  inputs: {
+    selectable: [2, "selectable", "selectable", booleanAttribute],
+    selected: [2, "selected", "selected", booleanAttribute]
+  },
+  outputs: {
+    selectionChange: "selectionChange"
+  },
+  standalone: true,
+  features: [\u0275\u0275ProvidersFeature([{
+    provide: MatChip,
+    useExisting: _MatChipOption
+  }, {
+    provide: MAT_CHIP,
+    useExisting: _MatChipOption
+  }]), \u0275\u0275InputTransformsFeature, \u0275\u0275InheritDefinitionFeature, \u0275\u0275StandaloneFeature],
+  ngContentSelectors: _c15,
+  decls: 10,
+  vars: 9,
+  consts: [[1, "mat-mdc-chip-focus-overlay"], [1, "mdc-evolution-chip__cell", "mdc-evolution-chip__cell--primary"], ["matChipAction", "", "role", "option", 3, "tabIndex", "_allowFocusWhenDisabled"], [1, "mdc-evolution-chip__graphic", "mat-mdc-chip-graphic"], [1, "mdc-evolution-chip__text-label", "mat-mdc-chip-action-label"], [1, "mat-mdc-chip-primary-focus-indicator", "mat-mdc-focus-indicator"], [1, "mdc-evolution-chip__cell", "mdc-evolution-chip__cell--trailing"], [1, "cdk-visually-hidden", 3, "id"], [1, "mdc-evolution-chip__checkmark"], ["viewBox", "-2 -3 30 30", "focusable", "false", "aria-hidden", "true", 1, "mdc-evolution-chip__checkmark-svg"], ["fill", "none", "stroke", "currentColor", "d", "M1.73,12.91 8.1,19.28 22.79,4.59", 1, "mdc-evolution-chip__checkmark-path"]],
+  template: function MatChipOption_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275projectionDef(_c07);
+      \u0275\u0275element(0, "span", 0);
+      \u0275\u0275elementStart(1, "span", 1)(2, "button", 2);
+      \u0275\u0275template(3, MatChipOption_Conditional_3_Template, 5, 0, "span", 3);
+      \u0275\u0275elementStart(4, "span", 4);
+      \u0275\u0275projection(5);
+      \u0275\u0275element(6, "span", 5);
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275template(7, MatChipOption_Conditional_7_Template, 2, 0, "span", 6);
+      \u0275\u0275elementStart(8, "span", 7);
+      \u0275\u0275text(9);
+      \u0275\u0275elementEnd();
+    }
+    if (rf & 2) {
+      \u0275\u0275advance(2);
+      \u0275\u0275property("tabIndex", ctx.tabIndex)("_allowFocusWhenDisabled", true);
+      \u0275\u0275attribute("aria-selected", ctx.ariaSelected)("aria-label", ctx.ariaLabel)("aria-describedby", ctx._ariaDescriptionId);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx._hasLeadingGraphic() ? 3 : -1);
+      \u0275\u0275advance(4);
+      \u0275\u0275conditional(ctx._hasTrailingIcon() ? 7 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275property("id", ctx._ariaDescriptionId);
+      \u0275\u0275advance();
+      \u0275\u0275textInterpolate(ctx.ariaDescription);
+    }
+  },
+  dependencies: [MatChipAction],
+  styles: [_c24],
+  encapsulation: 2,
+  changeDetection: 0
+});
+var MatChipOption = _MatChipOption;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipOption, [{
+    type: Component,
+    args: [{
+      selector: "mat-basic-chip-option, [mat-basic-chip-option], mat-chip-option, [mat-chip-option]",
+      host: {
+        "class": "mat-mdc-chip mat-mdc-chip-option",
+        "[class.mdc-evolution-chip]": "!_isBasicChip",
+        "[class.mdc-evolution-chip--filter]": "!_isBasicChip",
+        "[class.mdc-evolution-chip--selectable]": "!_isBasicChip",
+        "[class.mat-mdc-chip-selected]": "selected",
+        "[class.mat-mdc-chip-multiple]": "_chipListMultiple",
+        "[class.mat-mdc-chip-disabled]": "disabled",
+        "[class.mat-mdc-chip-with-avatar]": "leadingIcon",
+        "[class.mdc-evolution-chip--disabled]": "disabled",
+        "[class.mdc-evolution-chip--selected]": "selected",
+        // This class enables the transition on the checkmark. Usually MDC adds it when selection
+        // starts and removes it once the animation is finished. We don't need to go through all
+        // the trouble, because we only care about the selection animation. MDC needs to do it,
+        // because they also have an exit animation that we don't care about.
+        "[class.mdc-evolution-chip--selecting]": "!_animationsDisabled",
+        "[class.mdc-evolution-chip--with-trailing-action]": "_hasTrailingIcon()",
+        "[class.mdc-evolution-chip--with-primary-icon]": "leadingIcon",
+        "[class.mdc-evolution-chip--with-primary-graphic]": "_hasLeadingGraphic()",
+        "[class.mdc-evolution-chip--with-avatar]": "leadingIcon",
+        "[class.mat-mdc-chip-highlighted]": "highlighted",
+        "[class.mat-mdc-chip-with-trailing-icon]": "_hasTrailingIcon()",
+        "[attr.tabindex]": "null",
+        "[attr.aria-label]": "null",
+        "[attr.aria-description]": "null",
+        "[attr.role]": "role",
+        "[id]": "id"
+      },
+      providers: [{
+        provide: MatChip,
+        useExisting: MatChipOption
+      }, {
+        provide: MAT_CHIP,
+        useExisting: MatChipOption
+      }],
+      encapsulation: ViewEncapsulation$1.None,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+      standalone: true,
+      imports: [MatChipAction],
+      template: '<span class="mat-mdc-chip-focus-overlay"></span>\n\n<span class="mdc-evolution-chip__cell mdc-evolution-chip__cell--primary">\n  <button\n    matChipAction\n    [tabIndex]="tabIndex"\n    [_allowFocusWhenDisabled]="true"\n    [attr.aria-selected]="ariaSelected"\n    [attr.aria-label]="ariaLabel"\n    [attr.aria-describedby]="_ariaDescriptionId"\n    role="option">\n    @if (_hasLeadingGraphic()) {\n      <span class="mdc-evolution-chip__graphic mat-mdc-chip-graphic">\n        <ng-content select="mat-chip-avatar, [matChipAvatar]"></ng-content>\n        <span class="mdc-evolution-chip__checkmark">\n          <svg\n            class="mdc-evolution-chip__checkmark-svg"\n            viewBox="-2 -3 30 30"\n            focusable="false"\n            aria-hidden="true">\n            <path class="mdc-evolution-chip__checkmark-path"\n                  fill="none" stroke="currentColor" d="M1.73,12.91 8.1,19.28 22.79,4.59" />\n          </svg>\n        </span>\n      </span>\n    }\n    <span class="mdc-evolution-chip__text-label mat-mdc-chip-action-label">\n      <ng-content></ng-content>\n      <span class="mat-mdc-chip-primary-focus-indicator mat-mdc-focus-indicator"></span>\n    </span>\n  </button>\n</span>\n\n@if (_hasTrailingIcon()) {\n  <span class="mdc-evolution-chip__cell mdc-evolution-chip__cell--trailing">\n    <ng-content select="mat-chip-trailing-icon,[matChipRemove],[matChipTrailingIcon]"></ng-content>\n  </span>\n}\n\n<span class="cdk-visually-hidden" [id]="_ariaDescriptionId">{{ariaDescription}}</span>\n',
+      styles: ['.mdc-evolution-chip,.mdc-evolution-chip__cell,.mdc-evolution-chip__action{display:inline-flex;align-items:center}.mdc-evolution-chip{position:relative;max-width:100%}.mdc-evolution-chip .mdc-elevation-overlay{width:100%;height:100%;top:0;left:0}.mdc-evolution-chip__cell,.mdc-evolution-chip__action{height:100%}.mdc-evolution-chip__cell--primary{overflow-x:hidden}.mdc-evolution-chip__cell--trailing{flex:1 0 auto}.mdc-evolution-chip__action{align-items:center;background:none;border:none;box-sizing:content-box;cursor:pointer;display:inline-flex;justify-content:center;outline:none;padding:0;text-decoration:none;color:inherit}.mdc-evolution-chip__action--presentational{cursor:auto}.mdc-evolution-chip--disabled,.mdc-evolution-chip__action:disabled{pointer-events:none}.mdc-evolution-chip__action--primary{overflow-x:hidden}.mdc-evolution-chip__action--trailing{position:relative;overflow:visible}.mdc-evolution-chip__action--primary:before{box-sizing:border-box;content:"";height:100%;left:0;position:absolute;pointer-events:none;top:0;width:100%;z-index:1}.mdc-evolution-chip--touch{margin-top:8px;margin-bottom:8px}.mdc-evolution-chip__action-touch{position:absolute;top:50%;height:48px;left:0;right:0;transform:translateY(-50%)}.mdc-evolution-chip__text-label{white-space:nowrap;user-select:none;text-overflow:ellipsis;overflow:hidden}.mdc-evolution-chip__graphic{align-items:center;display:inline-flex;justify-content:center;overflow:hidden;pointer-events:none;position:relative;flex:1 0 auto}.mdc-evolution-chip__checkmark{position:absolute;opacity:0;top:50%;left:50%}.mdc-evolution-chip--selectable:not(.mdc-evolution-chip--selected):not(.mdc-evolution-chip--with-primary-icon) .mdc-evolution-chip__graphic{width:0}.mdc-evolution-chip__checkmark-background{opacity:0}.mdc-evolution-chip__checkmark-svg{display:block}.mdc-evolution-chip__checkmark-path{stroke-width:2px;stroke-dasharray:29.7833385;stroke-dashoffset:29.7833385;stroke:currentColor}.mdc-evolution-chip--selecting .mdc-evolution-chip__graphic{transition:width 150ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--selecting .mdc-evolution-chip__checkmark{transition:transform 150ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-75%, -50%)}.mdc-evolution-chip--selecting .mdc-evolution-chip__checkmark-path{transition:stroke-dashoffset 150ms 45ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__graphic{transition:width 100ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__checkmark{transition:opacity 50ms 0ms linear,transform 100ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-75%, -50%)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}.mdc-evolution-chip--selecting-with-primary-icon .mdc-evolution-chip__icon--primary{transition:opacity 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--selecting-with-primary-icon .mdc-evolution-chip__checkmark-path{transition:stroke-dashoffset 150ms 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__icon--primary{transition:opacity 150ms 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__checkmark{transition:opacity 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-50%, -50%)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}.mdc-evolution-chip--selected .mdc-evolution-chip__icon--primary{opacity:0}.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark{transform:translate(-50%, -50%);opacity:1}.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}@keyframes mdc-evolution-chip-enter{from{transform:scale(0.8);opacity:.4}to{transform:scale(1);opacity:1}}.mdc-evolution-chip--enter{animation:mdc-evolution-chip-enter 100ms 0ms cubic-bezier(0, 0, 0.2, 1)}@keyframes mdc-evolution-chip-exit{from{opacity:1}to{opacity:0}}.mdc-evolution-chip--exit{animation:mdc-evolution-chip-exit 75ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mdc-evolution-chip--hidden{opacity:0;pointer-events:none;transition:width 150ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mat-mdc-standard-chip{border-radius:var(--mdc-chip-container-shape-radius);height:var(--mdc-chip-container-height)}.mat-mdc-standard-chip .mdc-evolution-chip__ripple{border-radius:var(--mdc-chip-container-shape-radius)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-radius:var(--mdc-chip-container-shape-radius)}.mat-mdc-standard-chip .mdc-evolution-chip__icon--primary{border-radius:var(--mdc-chip-with-avatar-avatar-shape-radius)}.mat-mdc-standard-chip.mdc-evolution-chip--selectable:not(.mdc-evolution-chip--with-primary-icon){--mdc-chip-graphic-selected-width:var(--mdc-chip-with-avatar-avatar-size)}.mat-mdc-standard-chip .mdc-evolution-chip__graphic{height:var(--mdc-chip-with-avatar-avatar-size);width:var(--mdc-chip-with-avatar-avatar-size);font-size:var(--mdc-chip-with-avatar-avatar-size)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__action--primary:before{border-color:var(--mdc-chip-outline-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-evolution-chip__action--presentational).mdc-ripple-upgraded--background-focused:before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-evolution-chip__action--presentational):not(.mdc-ripple-upgraded):focus:before{border-color:var(--mdc-chip-focus-outline-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__action--primary:before{border-color:var(--mdc-chip-disabled-outline-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-width:var(--mdc-chip-outline-width)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:before{border-width:var(--mdc-chip-flat-selected-outline-width)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled){background-color:var(--mdc-chip-elevated-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-elevated-disabled-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected:not(.mdc-evolution-chip--disabled){background-color:var(--mdc-chip-elevated-selected-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-elevated-disabled-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-flat-disabled-selected-container-color)}.mat-mdc-standard-chip .mdc-evolution-chip__text-label{font-family:var(--mdc-chip-label-text-font);line-height:var(--mdc-chip-label-text-line-height);font-size:var(--mdc-chip-label-text-size);font-weight:var(--mdc-chip-label-text-weight);letter-spacing:var(--mdc-chip-label-text-tracking)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label{color:var(--mdc-chip-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__text-label{color:var(--mdc-chip-disabled-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label{color:var(--mdc-chip-selected-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled .mdc-evolution-chip__text-label{color:var(--mdc-chip-disabled-label-text-color)}.mat-mdc-standard-chip .mdc-evolution-chip__icon--primary{height:var(--mdc-chip-with-icon-icon-size);width:var(--mdc-chip-with-icon-icon-size);font-size:var(--mdc-chip-with-icon-icon-size)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__icon--primary{color:var(--mdc-chip-with-icon-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--primary{color:var(--mdc-chip-with-icon-disabled-icon-color)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__checkmark{color:var(--mdc-chip-with-icon-selected-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__checkmark{color:var(--mdc-chip-with-icon-disabled-icon-color)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__icon--trailing{color:var(--mdc-chip-with-trailing-icon-trailing-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{color:var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::after{background-color:var(--mdc-chip-hover-state-layer-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:hover .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary.mdc-ripple-surface--hover .mdc-evolution-chip__ripple::before{opacity:var(--mdc-chip-hover-state-layer-opacity)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary.mdc-ripple-upgraded--background-focused .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-ripple-upgraded):focus .mdc-evolution-chip__ripple::before{transition-duration:75ms;opacity:var(--mdc-chip-focus-state-layer-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::after{background-color:var(--mdc-chip-selected-hover-state-layer-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:hover .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary.mdc-ripple-surface--hover .mdc-evolution-chip__ripple::before{opacity:var(--mdc-chip-selected-hover-state-layer-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary.mdc-ripple-upgraded--background-focused .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:not(.mdc-ripple-upgraded):focus .mdc-evolution-chip__ripple::before{transition-duration:75ms;opacity:var(--mdc-chip-selected-focus-state-layer-opacity)}.mat-mdc-chip-highlighted{--mdc-chip-with-icon-icon-color:var(--mdc-chip-with-icon-selected-icon-color);--mdc-chip-elevated-container-color:var(--mdc-chip-elevated-selected-container-color);--mdc-chip-label-text-color:var(--mdc-chip-selected-label-text-color);--mdc-chip-outline-width:var(--mdc-chip-flat-selected-outline-width)}.mat-mdc-chip-focus-overlay{background:var(--mdc-chip-focus-state-layer-color)}.mat-mdc-chip-selected .mat-mdc-chip-focus-overlay,.mat-mdc-chip-highlighted .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-focus-state-layer-color)}.mat-mdc-chip:hover .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-hover-state-layer-color);opacity:var(--mdc-chip-hover-state-layer-opacity)}.mat-mdc-chip-focus-overlay .mat-mdc-chip-selected:hover,.mat-mdc-chip-highlighted:hover .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-hover-state-layer-color);opacity:var(--mdc-chip-selected-hover-state-layer-opacity)}.mat-mdc-chip.cdk-focused .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-focus-state-layer-color);opacity:var(--mdc-chip-focus-state-layer-opacity)}.mat-mdc-chip-selected.cdk-focused .mat-mdc-chip-focus-overlay,.mat-mdc-chip-highlighted.cdk-focused .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-focus-state-layer-color);opacity:var(--mdc-chip-selected-focus-state-layer-opacity)}.mdc-evolution-chip--disabled:not(.mdc-evolution-chip--selected) .mat-mdc-chip-avatar{opacity:var(--mdc-chip-with-avatar-disabled-avatar-opacity)}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{opacity:var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity)}.mdc-evolution-chip--disabled.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark{opacity:var(--mdc-chip-with-icon-disabled-icon-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled{opacity:var(--mat-chip-disabled-container-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__icon--trailing,.mat-mdc-standard-chip.mat-mdc-chip-highlighted .mdc-evolution-chip__icon--trailing{color:var(--mat-chip-selected-trailing-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing,.mat-mdc-standard-chip.mat-mdc-chip-highlighted.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{color:var(--mat-chip-selected-disabled-trailing-icon-color)}.mat-mdc-chip-remove{opacity:var(--mat-chip-trailing-action-opacity)}.mat-mdc-chip-remove:focus{opacity:var(--mat-chip-trailing-action-focus-opacity)}.mat-mdc-chip-remove::after{background:var(--mat-chip-trailing-action-state-layer-color)}.mat-mdc-chip-remove:hover::after{opacity:var(--mat-chip-trailing-action-hover-state-layer-opacity)}.mat-mdc-chip-remove:focus::after{opacity:var(--mat-chip-trailing-action-focus-state-layer-opacity)}.mat-mdc-chip-selected .mat-mdc-chip-remove::after,.mat-mdc-chip-highlighted .mat-mdc-chip-remove::after{background:var(--mat-chip-selected-trailing-action-state-layer-color)}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing.mat-mdc-chip-remove{opacity:calc(var(--mat-chip-trailing-action-opacity)*var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity))}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing.mat-mdc-chip-remove:focus{opacity:calc(var(--mat-chip-trailing-action-focus-opacity)*var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity))}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-style:solid}.mat-mdc-standard-chip .mdc-evolution-chip__checkmark{height:20px;width:20px}.mat-mdc-standard-chip .mdc-evolution-chip__icon--trailing{height:18px;width:18px;font-size:18px}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary{padding-left:12px;padding-right:12px}[dir=rtl] .mat-mdc-standard-chip .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:12px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic{padding-left:6px;padding-right:6px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic[dir=rtl]{padding-left:6px;padding-right:6px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary{padding-left:0;padding-right:12px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:0}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:12px;padding-right:0}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:12px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic{padding-left:6px;padding-right:6px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic[dir=rtl]{padding-left:6px;padding-right:6px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:0;padding-right:0}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:0}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic{padding-left:4px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic[dir=rtl]{padding-left:8px;padding-right:4px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary{padding-left:0;padding-right:12px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:0}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic{padding-left:4px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic[dir=rtl]{padding-left:8px;padding-right:4px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:0;padding-right:0}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:0}.mat-mdc-standard-chip{-webkit-tap-highlight-color:rgba(0,0,0,0)}.cdk-high-contrast-active .mat-mdc-standard-chip{outline:solid 1px}.cdk-high-contrast-active .mat-mdc-standard-chip .mdc-evolution-chip__checkmark-path{stroke:CanvasText !important}.mat-mdc-standard-chip .mdc-evolution-chip__cell--primary,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip .mat-mdc-chip-action-label{overflow:visible}.mat-mdc-standard-chip .mdc-evolution-chip__cell--primary{flex-basis:100%}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary{font:inherit;letter-spacing:inherit;white-space:inherit}.mat-mdc-standard-chip .mat-mdc-chip-graphic,.mat-mdc-standard-chip .mat-mdc-chip-trailing-icon{box-sizing:content-box}.mat-mdc-standard-chip._mat-animation-noopable,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__graphic,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__checkmark,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__checkmark-path{transition-duration:1ms;animation-duration:1ms}.mat-mdc-basic-chip .mdc-evolution-chip__action--primary{font:inherit}.mat-mdc-chip-focus-overlay{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none;opacity:0;border-radius:inherit;transition:opacity 150ms linear}._mat-animation-noopable .mat-mdc-chip-focus-overlay{transition:none}.mat-mdc-basic-chip .mat-mdc-chip-focus-overlay{display:none}.mat-mdc-chip .mat-ripple.mat-mdc-chip-ripple{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none;border-radius:inherit}.mat-mdc-chip-avatar{text-align:center;line-height:1;color:var(--mdc-chip-with-icon-icon-color, currentColor)}.mat-mdc-chip{position:relative;z-index:0}.mat-mdc-chip-action-label{text-align:left;z-index:1}[dir=rtl] .mat-mdc-chip-action-label{text-align:right}.mat-mdc-chip.mdc-evolution-chip--with-trailing-action .mat-mdc-chip-action-label{position:relative}.mat-mdc-chip-action-label .mat-mdc-chip-primary-focus-indicator{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none}.mat-mdc-chip-action-label .mat-mdc-focus-indicator::before{margin:calc(calc(var(--mat-mdc-focus-indicator-border-width, 3px) + 2px)*-1)}.mat-mdc-chip-remove::before{margin:calc(var(--mat-mdc-focus-indicator-border-width, 3px)*-1);left:8px;right:8px}.mat-mdc-chip-remove::after{content:"";display:block;opacity:0;position:absolute;top:-2px;bottom:-2px;left:6px;right:6px;border-radius:50%}.mat-mdc-chip-remove .mat-icon{width:18px;height:18px;font-size:18px;box-sizing:content-box}.mat-chip-edit-input{cursor:text;display:inline-block;color:inherit;outline:0}.cdk-high-contrast-active .mat-mdc-chip-selected:not(.mat-mdc-chip-multiple){outline-width:3px}.mat-mdc-chip-action:focus .mat-mdc-focus-indicator::before{content:""}']
+    }]
+  }], null, {
+    selectable: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    selected: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    selectionChange: [{
+      type: Output
+    }]
+  });
+})();
+var _MatChipEditInput = class _MatChipEditInput {
+  constructor(_elementRef, _document2) {
+    this._elementRef = _elementRef;
+    this._document = _document2;
+  }
+  initialize(initialValue) {
+    this.getNativeElement().focus();
+    this.setValue(initialValue);
+  }
+  getNativeElement() {
+    return this._elementRef.nativeElement;
+  }
+  setValue(value) {
+    this.getNativeElement().textContent = value;
+    this._moveCursorToEndOfInput();
+  }
+  getValue() {
+    return this.getNativeElement().textContent || "";
+  }
+  _moveCursorToEndOfInput() {
+    const range3 = this._document.createRange();
+    range3.selectNodeContents(this.getNativeElement());
+    range3.collapse(false);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range3);
+  }
+};
+_MatChipEditInput.\u0275fac = function MatChipEditInput_Factory(t) {
+  return new (t || _MatChipEditInput)(\u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(DOCUMENT2));
+};
+_MatChipEditInput.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+  type: _MatChipEditInput,
+  selectors: [["span", "matChipEditInput", ""]],
+  hostAttrs: ["role", "textbox", "tabindex", "-1", "contenteditable", "true", 1, "mat-chip-edit-input"],
+  standalone: true
+});
+var MatChipEditInput = _MatChipEditInput;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipEditInput, [{
+    type: Directive,
+    args: [{
+      selector: "span[matChipEditInput]",
+      host: {
+        "class": "mat-chip-edit-input",
+        "role": "textbox",
+        "tabindex": "-1",
+        "contenteditable": "true"
+      },
+      standalone: true
+    }]
+  }], () => [{
+    type: ElementRef
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Inject,
+      args: [DOCUMENT2]
+    }]
+  }], null);
+})();
+var _MatChipRow = class _MatChipRow extends MatChip {
+  constructor(changeDetectorRef, elementRef, ngZone, focusMonitor, _document2, animationMode, globalRippleOptions, tabIndex) {
+    super(changeDetectorRef, elementRef, ngZone, focusMonitor, _document2, animationMode, globalRippleOptions, tabIndex);
+    this.basicChipAttrName = "mat-basic-chip-row";
+    this._editStartPending = false;
+    this.editable = false;
+    this.edited = new EventEmitter();
+    this._isEditing = false;
+    this.role = "row";
+    this._onBlur.pipe(takeUntil(this.destroyed)).subscribe(() => {
+      if (this._isEditing && !this._editStartPending) {
+        this._onEditFinish();
+      }
+    });
+  }
+  _hasTrailingIcon() {
+    return !this._isEditing && super._hasTrailingIcon();
+  }
+  /** Sends focus to the first gridcell when the user clicks anywhere inside the chip. */
+  _handleFocus() {
+    if (!this._isEditing && !this.disabled) {
+      this.focus();
+    }
+  }
+  _handleKeydown(event) {
+    if (event.keyCode === ENTER2 && !this.disabled) {
+      if (this._isEditing) {
+        event.preventDefault();
+        this._onEditFinish();
+      } else if (this.editable) {
+        this._startEditing(event);
+      }
+    } else if (this._isEditing) {
+      event.stopPropagation();
+    } else {
+      super._handleKeydown(event);
+    }
+  }
+  _handleDoubleclick(event) {
+    if (!this.disabled && this.editable) {
+      this._startEditing(event);
+    }
+  }
+  _startEditing(event) {
+    if (!this.primaryAction || this.removeIcon && this._getSourceAction(event.target) === this.removeIcon) {
+      return;
+    }
+    const value = this.value;
+    this._isEditing = this._editStartPending = true;
+    this._changeDetectorRef.detectChanges();
+    setTimeout(() => {
+      this._getEditInput().initialize(value);
+      this._editStartPending = false;
+    });
+  }
+  _onEditFinish() {
+    this._isEditing = this._editStartPending = false;
+    this.edited.emit({
+      chip: this,
+      value: this._getEditInput().getValue()
+    });
+    if (this._document.activeElement === this._getEditInput().getNativeElement() || this._document.activeElement === this._document.body) {
+      this.primaryAction.focus();
+    }
+  }
+  _isRippleDisabled() {
+    return super._isRippleDisabled() || this._isEditing;
+  }
+  /**
+   * Gets the projected chip edit input, or the default input if none is projected in. One of these
+   * two values is guaranteed to be defined.
+   */
+  _getEditInput() {
+    return this.contentEditInput || this.defaultEditInput;
+  }
+};
+_MatChipRow.\u0275fac = function MatChipRow_Factory(t) {
+  return new (t || _MatChipRow)(\u0275\u0275directiveInject(ChangeDetectorRef), \u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(NgZone), \u0275\u0275directiveInject(FocusMonitor), \u0275\u0275directiveInject(DOCUMENT2), \u0275\u0275directiveInject(ANIMATION_MODULE_TYPE, 8), \u0275\u0275directiveInject(MAT_RIPPLE_GLOBAL_OPTIONS, 8), \u0275\u0275injectAttribute("tabindex"));
+};
+_MatChipRow.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
+  type: _MatChipRow,
+  selectors: [["mat-chip-row"], ["", "mat-chip-row", ""], ["mat-basic-chip-row"], ["", "mat-basic-chip-row", ""]],
+  contentQueries: function MatChipRow_ContentQueries(rf, ctx, dirIndex) {
+    if (rf & 1) {
+      \u0275\u0275contentQuery(dirIndex, MatChipEditInput, 5);
+    }
+    if (rf & 2) {
+      let _t;
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.contentEditInput = _t.first);
+    }
+  },
+  viewQuery: function MatChipRow_Query(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275viewQuery(MatChipEditInput, 5);
+    }
+    if (rf & 2) {
+      let _t;
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.defaultEditInput = _t.first);
+    }
+  },
+  hostAttrs: [1, "mat-mdc-chip", "mat-mdc-chip-row", "mdc-evolution-chip"],
+  hostVars: 27,
+  hostBindings: function MatChipRow_HostBindings(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275listener("focus", function MatChipRow_focus_HostBindingHandler($event) {
+        return ctx._handleFocus($event);
+      })("dblclick", function MatChipRow_dblclick_HostBindingHandler($event) {
+        return ctx._handleDoubleclick($event);
+      });
+    }
+    if (rf & 2) {
+      \u0275\u0275hostProperty("id", ctx.id);
+      \u0275\u0275attribute("tabindex", ctx.disabled ? null : -1)("aria-label", null)("aria-description", null)("role", ctx.role);
+      \u0275\u0275classProp("mat-mdc-chip-with-avatar", ctx.leadingIcon)("mat-mdc-chip-disabled", ctx.disabled)("mat-mdc-chip-editing", ctx._isEditing)("mat-mdc-chip-editable", ctx.editable)("mdc-evolution-chip--disabled", ctx.disabled)("mdc-evolution-chip--with-trailing-action", ctx._hasTrailingIcon())("mdc-evolution-chip--with-primary-graphic", ctx.leadingIcon)("mdc-evolution-chip--with-primary-icon", ctx.leadingIcon)("mdc-evolution-chip--with-avatar", ctx.leadingIcon)("mat-mdc-chip-highlighted", ctx.highlighted)("mat-mdc-chip-with-trailing-icon", ctx._hasTrailingIcon());
+    }
+  },
+  inputs: {
+    editable: "editable"
+  },
+  outputs: {
+    edited: "edited"
+  },
+  standalone: true,
+  features: [\u0275\u0275ProvidersFeature([{
+    provide: MatChip,
+    useExisting: _MatChipRow
+  }, {
+    provide: MAT_CHIP,
+    useExisting: _MatChipRow
+  }]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275StandaloneFeature],
+  ngContentSelectors: _c44,
+  decls: 10,
+  vars: 10,
+  consts: [[1, "mat-mdc-chip-focus-overlay"], ["role", "gridcell", "matChipAction", "", 1, "mdc-evolution-chip__cell", "mdc-evolution-chip__cell--primary", 3, "tabIndex", "disabled"], [1, "mdc-evolution-chip__graphic", "mat-mdc-chip-graphic"], [1, "mdc-evolution-chip__text-label", "mat-mdc-chip-action-label"], ["aria-hidden", "true", 1, "mat-mdc-chip-primary-focus-indicator", "mat-mdc-focus-indicator"], ["role", "gridcell", 1, "mdc-evolution-chip__cell", "mdc-evolution-chip__cell--trailing"], [1, "cdk-visually-hidden", 3, "id"], ["matChipEditInput", ""]],
+  template: function MatChipRow_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275projectionDef(_c34);
+      \u0275\u0275template(0, MatChipRow_Conditional_0_Template, 1, 0, "span", 0);
+      \u0275\u0275elementStart(1, "span", 1);
+      \u0275\u0275template(2, MatChipRow_Conditional_2_Template, 2, 0, "span", 2);
+      \u0275\u0275elementStart(3, "span", 3);
+      \u0275\u0275template(4, MatChipRow_Conditional_4_Template, 2, 1)(5, MatChipRow_Conditional_5_Template, 1, 0);
+      \u0275\u0275element(6, "span", 4);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275template(7, MatChipRow_Conditional_7_Template, 2, 0, "span", 5);
+      \u0275\u0275elementStart(8, "span", 6);
+      \u0275\u0275text(9);
+      \u0275\u0275elementEnd();
+    }
+    if (rf & 2) {
+      \u0275\u0275conditional(!ctx._isEditing ? 0 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275property("tabIndex", ctx.tabIndex)("disabled", ctx.disabled);
+      \u0275\u0275attribute("aria-label", ctx.ariaLabel)("aria-describedby", ctx._ariaDescriptionId);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.leadingIcon ? 2 : -1);
+      \u0275\u0275advance(2);
+      \u0275\u0275conditional(ctx._isEditing ? 4 : 5);
+      \u0275\u0275advance(3);
+      \u0275\u0275conditional(ctx._hasTrailingIcon() ? 7 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275property("id", ctx._ariaDescriptionId);
+      \u0275\u0275advance();
+      \u0275\u0275textInterpolate(ctx.ariaDescription);
+    }
+  },
+  dependencies: [MatChipAction, MatChipEditInput],
+  styles: [_c24],
+  encapsulation: 2,
+  changeDetection: 0
+});
+var MatChipRow = _MatChipRow;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipRow, [{
+    type: Component,
+    args: [{
+      selector: "mat-chip-row, [mat-chip-row], mat-basic-chip-row, [mat-basic-chip-row]",
+      host: {
+        "class": "mat-mdc-chip mat-mdc-chip-row mdc-evolution-chip",
+        "[class.mat-mdc-chip-with-avatar]": "leadingIcon",
+        "[class.mat-mdc-chip-disabled]": "disabled",
+        "[class.mat-mdc-chip-editing]": "_isEditing",
+        "[class.mat-mdc-chip-editable]": "editable",
+        "[class.mdc-evolution-chip--disabled]": "disabled",
+        "[class.mdc-evolution-chip--with-trailing-action]": "_hasTrailingIcon()",
+        "[class.mdc-evolution-chip--with-primary-graphic]": "leadingIcon",
+        "[class.mdc-evolution-chip--with-primary-icon]": "leadingIcon",
+        "[class.mdc-evolution-chip--with-avatar]": "leadingIcon",
+        "[class.mat-mdc-chip-highlighted]": "highlighted",
+        "[class.mat-mdc-chip-with-trailing-icon]": "_hasTrailingIcon()",
+        "[id]": "id",
+        // Has to have a negative tabindex in order to capture
+        // focus and redirect it to the primary action.
+        "[attr.tabindex]": "disabled ? null : -1",
+        "[attr.aria-label]": "null",
+        "[attr.aria-description]": "null",
+        "[attr.role]": "role",
+        "(focus)": "_handleFocus($event)",
+        "(dblclick)": "_handleDoubleclick($event)"
+      },
+      providers: [{
+        provide: MatChip,
+        useExisting: MatChipRow
+      }, {
+        provide: MAT_CHIP,
+        useExisting: MatChipRow
+      }],
+      encapsulation: ViewEncapsulation$1.None,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+      standalone: true,
+      imports: [MatChipAction, MatChipEditInput],
+      template: '@if (!_isEditing) {\n  <span class="mat-mdc-chip-focus-overlay"></span>\n}\n\n<span class="mdc-evolution-chip__cell mdc-evolution-chip__cell--primary" role="gridcell"\n    matChipAction\n    [tabIndex]="tabIndex"\n    [disabled]="disabled"\n    [attr.aria-label]="ariaLabel"\n    [attr.aria-describedby]="_ariaDescriptionId">\n  @if (leadingIcon) {\n    <span class="mdc-evolution-chip__graphic mat-mdc-chip-graphic">\n      <ng-content select="mat-chip-avatar, [matChipAvatar]"></ng-content>\n    </span>\n  }\n\n  <span class="mdc-evolution-chip__text-label mat-mdc-chip-action-label">\n    @if (_isEditing) {\n      @if (contentEditInput) {\n        <ng-content select="[matChipEditInput]"></ng-content>\n      } @else {\n        <span matChipEditInput></span>\n      }\n    } @else {\n      <ng-content></ng-content>\n    }\n\n    <span class="mat-mdc-chip-primary-focus-indicator mat-mdc-focus-indicator" aria-hidden="true"></span>\n  </span>\n</span>\n\n@if (_hasTrailingIcon()) {\n  <span\n    class="mdc-evolution-chip__cell mdc-evolution-chip__cell--trailing"\n    role="gridcell">\n    <ng-content select="mat-chip-trailing-icon,[matChipRemove],[matChipTrailingIcon]"></ng-content>\n  </span>\n}\n\n<span class="cdk-visually-hidden" [id]="_ariaDescriptionId">{{ariaDescription}}</span>\n',
+      styles: ['.mdc-evolution-chip,.mdc-evolution-chip__cell,.mdc-evolution-chip__action{display:inline-flex;align-items:center}.mdc-evolution-chip{position:relative;max-width:100%}.mdc-evolution-chip .mdc-elevation-overlay{width:100%;height:100%;top:0;left:0}.mdc-evolution-chip__cell,.mdc-evolution-chip__action{height:100%}.mdc-evolution-chip__cell--primary{overflow-x:hidden}.mdc-evolution-chip__cell--trailing{flex:1 0 auto}.mdc-evolution-chip__action{align-items:center;background:none;border:none;box-sizing:content-box;cursor:pointer;display:inline-flex;justify-content:center;outline:none;padding:0;text-decoration:none;color:inherit}.mdc-evolution-chip__action--presentational{cursor:auto}.mdc-evolution-chip--disabled,.mdc-evolution-chip__action:disabled{pointer-events:none}.mdc-evolution-chip__action--primary{overflow-x:hidden}.mdc-evolution-chip__action--trailing{position:relative;overflow:visible}.mdc-evolution-chip__action--primary:before{box-sizing:border-box;content:"";height:100%;left:0;position:absolute;pointer-events:none;top:0;width:100%;z-index:1}.mdc-evolution-chip--touch{margin-top:8px;margin-bottom:8px}.mdc-evolution-chip__action-touch{position:absolute;top:50%;height:48px;left:0;right:0;transform:translateY(-50%)}.mdc-evolution-chip__text-label{white-space:nowrap;user-select:none;text-overflow:ellipsis;overflow:hidden}.mdc-evolution-chip__graphic{align-items:center;display:inline-flex;justify-content:center;overflow:hidden;pointer-events:none;position:relative;flex:1 0 auto}.mdc-evolution-chip__checkmark{position:absolute;opacity:0;top:50%;left:50%}.mdc-evolution-chip--selectable:not(.mdc-evolution-chip--selected):not(.mdc-evolution-chip--with-primary-icon) .mdc-evolution-chip__graphic{width:0}.mdc-evolution-chip__checkmark-background{opacity:0}.mdc-evolution-chip__checkmark-svg{display:block}.mdc-evolution-chip__checkmark-path{stroke-width:2px;stroke-dasharray:29.7833385;stroke-dashoffset:29.7833385;stroke:currentColor}.mdc-evolution-chip--selecting .mdc-evolution-chip__graphic{transition:width 150ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--selecting .mdc-evolution-chip__checkmark{transition:transform 150ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-75%, -50%)}.mdc-evolution-chip--selecting .mdc-evolution-chip__checkmark-path{transition:stroke-dashoffset 150ms 45ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__graphic{transition:width 100ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__checkmark{transition:opacity 50ms 0ms linear,transform 100ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-75%, -50%)}.mdc-evolution-chip--deselecting .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}.mdc-evolution-chip--selecting-with-primary-icon .mdc-evolution-chip__icon--primary{transition:opacity 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--selecting-with-primary-icon .mdc-evolution-chip__checkmark-path{transition:stroke-dashoffset 150ms 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__icon--primary{transition:opacity 150ms 75ms cubic-bezier(0.4, 0, 0.2, 1)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__checkmark{transition:opacity 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);transform:translate(-50%, -50%)}.mdc-evolution-chip--deselecting-with-primary-icon .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}.mdc-evolution-chip--selected .mdc-evolution-chip__icon--primary{opacity:0}.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark{transform:translate(-50%, -50%);opacity:1}.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark-path{stroke-dashoffset:0}@keyframes mdc-evolution-chip-enter{from{transform:scale(0.8);opacity:.4}to{transform:scale(1);opacity:1}}.mdc-evolution-chip--enter{animation:mdc-evolution-chip-enter 100ms 0ms cubic-bezier(0, 0, 0.2, 1)}@keyframes mdc-evolution-chip-exit{from{opacity:1}to{opacity:0}}.mdc-evolution-chip--exit{animation:mdc-evolution-chip-exit 75ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mdc-evolution-chip--hidden{opacity:0;pointer-events:none;transition:width 150ms 0ms cubic-bezier(0.4, 0, 1, 1)}.mat-mdc-standard-chip{border-radius:var(--mdc-chip-container-shape-radius);height:var(--mdc-chip-container-height)}.mat-mdc-standard-chip .mdc-evolution-chip__ripple{border-radius:var(--mdc-chip-container-shape-radius)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-radius:var(--mdc-chip-container-shape-radius)}.mat-mdc-standard-chip .mdc-evolution-chip__icon--primary{border-radius:var(--mdc-chip-with-avatar-avatar-shape-radius)}.mat-mdc-standard-chip.mdc-evolution-chip--selectable:not(.mdc-evolution-chip--with-primary-icon){--mdc-chip-graphic-selected-width:var(--mdc-chip-with-avatar-avatar-size)}.mat-mdc-standard-chip .mdc-evolution-chip__graphic{height:var(--mdc-chip-with-avatar-avatar-size);width:var(--mdc-chip-with-avatar-avatar-size);font-size:var(--mdc-chip-with-avatar-avatar-size)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__action--primary:before{border-color:var(--mdc-chip-outline-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-evolution-chip__action--presentational).mdc-ripple-upgraded--background-focused:before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-evolution-chip__action--presentational):not(.mdc-ripple-upgraded):focus:before{border-color:var(--mdc-chip-focus-outline-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__action--primary:before{border-color:var(--mdc-chip-disabled-outline-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-width:var(--mdc-chip-outline-width)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:before{border-width:var(--mdc-chip-flat-selected-outline-width)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled){background-color:var(--mdc-chip-elevated-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-elevated-disabled-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected:not(.mdc-evolution-chip--disabled){background-color:var(--mdc-chip-elevated-selected-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-elevated-disabled-container-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled{background-color:var(--mdc-chip-flat-disabled-selected-container-color)}.mat-mdc-standard-chip .mdc-evolution-chip__text-label{font-family:var(--mdc-chip-label-text-font);line-height:var(--mdc-chip-label-text-line-height);font-size:var(--mdc-chip-label-text-size);font-weight:var(--mdc-chip-label-text-weight);letter-spacing:var(--mdc-chip-label-text-tracking)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label{color:var(--mdc-chip-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__text-label{color:var(--mdc-chip-disabled-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label{color:var(--mdc-chip-selected-label-text-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled .mdc-evolution-chip__text-label{color:var(--mdc-chip-disabled-label-text-color)}.mat-mdc-standard-chip .mdc-evolution-chip__icon--primary{height:var(--mdc-chip-with-icon-icon-size);width:var(--mdc-chip-with-icon-icon-size);font-size:var(--mdc-chip-with-icon-icon-size)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__icon--primary{color:var(--mdc-chip-with-icon-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--primary{color:var(--mdc-chip-with-icon-disabled-icon-color)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__checkmark{color:var(--mdc-chip-with-icon-selected-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__checkmark{color:var(--mdc-chip-with-icon-disabled-icon-color)}.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__icon--trailing{color:var(--mdc-chip-with-trailing-icon-trailing-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{color:var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::after{background-color:var(--mdc-chip-hover-state-layer-color)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:hover .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary.mdc-ripple-surface--hover .mdc-evolution-chip__ripple::before{opacity:var(--mdc-chip-hover-state-layer-opacity)}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary.mdc-ripple-upgraded--background-focused .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:not(.mdc-ripple-upgraded):focus .mdc-evolution-chip__ripple::before{transition-duration:75ms;opacity:var(--mdc-chip-focus-state-layer-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary .mdc-evolution-chip__ripple::after{background-color:var(--mdc-chip-selected-hover-state-layer-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:hover .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary.mdc-ripple-surface--hover .mdc-evolution-chip__ripple::before{opacity:var(--mdc-chip-selected-hover-state-layer-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary.mdc-ripple-upgraded--background-focused .mdc-evolution-chip__ripple::before,.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__action--primary:not(.mdc-ripple-upgraded):focus .mdc-evolution-chip__ripple::before{transition-duration:75ms;opacity:var(--mdc-chip-selected-focus-state-layer-opacity)}.mat-mdc-chip-highlighted{--mdc-chip-with-icon-icon-color:var(--mdc-chip-with-icon-selected-icon-color);--mdc-chip-elevated-container-color:var(--mdc-chip-elevated-selected-container-color);--mdc-chip-label-text-color:var(--mdc-chip-selected-label-text-color);--mdc-chip-outline-width:var(--mdc-chip-flat-selected-outline-width)}.mat-mdc-chip-focus-overlay{background:var(--mdc-chip-focus-state-layer-color)}.mat-mdc-chip-selected .mat-mdc-chip-focus-overlay,.mat-mdc-chip-highlighted .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-focus-state-layer-color)}.mat-mdc-chip:hover .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-hover-state-layer-color);opacity:var(--mdc-chip-hover-state-layer-opacity)}.mat-mdc-chip-focus-overlay .mat-mdc-chip-selected:hover,.mat-mdc-chip-highlighted:hover .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-hover-state-layer-color);opacity:var(--mdc-chip-selected-hover-state-layer-opacity)}.mat-mdc-chip.cdk-focused .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-focus-state-layer-color);opacity:var(--mdc-chip-focus-state-layer-opacity)}.mat-mdc-chip-selected.cdk-focused .mat-mdc-chip-focus-overlay,.mat-mdc-chip-highlighted.cdk-focused .mat-mdc-chip-focus-overlay{background:var(--mdc-chip-selected-focus-state-layer-color);opacity:var(--mdc-chip-selected-focus-state-layer-opacity)}.mdc-evolution-chip--disabled:not(.mdc-evolution-chip--selected) .mat-mdc-chip-avatar{opacity:var(--mdc-chip-with-avatar-disabled-avatar-opacity)}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{opacity:var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity)}.mdc-evolution-chip--disabled.mdc-evolution-chip--selected .mdc-evolution-chip__checkmark{opacity:var(--mdc-chip-with-icon-disabled-icon-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--disabled{opacity:var(--mat-chip-disabled-container-opacity)}.mat-mdc-standard-chip.mdc-evolution-chip--selected .mdc-evolution-chip__icon--trailing,.mat-mdc-standard-chip.mat-mdc-chip-highlighted .mdc-evolution-chip__icon--trailing{color:var(--mat-chip-selected-trailing-icon-color)}.mat-mdc-standard-chip.mdc-evolution-chip--selected.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing,.mat-mdc-standard-chip.mat-mdc-chip-highlighted.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing{color:var(--mat-chip-selected-disabled-trailing-icon-color)}.mat-mdc-chip-remove{opacity:var(--mat-chip-trailing-action-opacity)}.mat-mdc-chip-remove:focus{opacity:var(--mat-chip-trailing-action-focus-opacity)}.mat-mdc-chip-remove::after{background:var(--mat-chip-trailing-action-state-layer-color)}.mat-mdc-chip-remove:hover::after{opacity:var(--mat-chip-trailing-action-hover-state-layer-opacity)}.mat-mdc-chip-remove:focus::after{opacity:var(--mat-chip-trailing-action-focus-state-layer-opacity)}.mat-mdc-chip-selected .mat-mdc-chip-remove::after,.mat-mdc-chip-highlighted .mat-mdc-chip-remove::after{background:var(--mat-chip-selected-trailing-action-state-layer-color)}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing.mat-mdc-chip-remove{opacity:calc(var(--mat-chip-trailing-action-opacity)*var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity))}.mdc-evolution-chip--disabled .mdc-evolution-chip__icon--trailing.mat-mdc-chip-remove:focus{opacity:calc(var(--mat-chip-trailing-action-focus-opacity)*var(--mdc-chip-with-trailing-icon-disabled-trailing-icon-opacity))}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary:before{border-style:solid}.mat-mdc-standard-chip .mdc-evolution-chip__checkmark{height:20px;width:20px}.mat-mdc-standard-chip .mdc-evolution-chip__icon--trailing{height:18px;width:18px;font-size:18px}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary{padding-left:12px;padding-right:12px}[dir=rtl] .mat-mdc-standard-chip .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:12px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic{padding-left:6px;padding-right:6px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic[dir=rtl]{padding-left:6px;padding-right:6px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary{padding-left:0;padding-right:12px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:0}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:12px;padding-right:0}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:12px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic{padding-left:6px;padding-right:6px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic[dir=rtl]{padding-left:6px;padding-right:6px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:0;padding-right:0}[dir=rtl] .mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:0}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic{padding-left:4px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__graphic[dir=rtl]{padding-left:8px;padding-right:4px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary{padding-left:0;padding-right:12px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:12px;padding-right:0}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic{padding-left:4px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__graphic[dir=rtl]{padding-left:8px;padding-right:4px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing{padding-left:8px;padding-right:8px}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--trailing[dir=rtl]{padding-left:8px;padding-right:8px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing{left:8px;right:initial}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__ripple--trailing[dir=rtl]{left:initial;right:8px}.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary{padding-left:0;padding-right:0}[dir=rtl] .mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary,.mdc-evolution-chip--with-avatar.mdc-evolution-chip--with-primary-graphic.mdc-evolution-chip--with-trailing-action .mdc-evolution-chip__action--primary[dir=rtl]{padding-left:0;padding-right:0}.mat-mdc-standard-chip{-webkit-tap-highlight-color:rgba(0,0,0,0)}.cdk-high-contrast-active .mat-mdc-standard-chip{outline:solid 1px}.cdk-high-contrast-active .mat-mdc-standard-chip .mdc-evolution-chip__checkmark-path{stroke:CanvasText !important}.mat-mdc-standard-chip .mdc-evolution-chip__cell--primary,.mat-mdc-standard-chip .mdc-evolution-chip__action--primary,.mat-mdc-standard-chip .mat-mdc-chip-action-label{overflow:visible}.mat-mdc-standard-chip .mdc-evolution-chip__cell--primary{flex-basis:100%}.mat-mdc-standard-chip .mdc-evolution-chip__action--primary{font:inherit;letter-spacing:inherit;white-space:inherit}.mat-mdc-standard-chip .mat-mdc-chip-graphic,.mat-mdc-standard-chip .mat-mdc-chip-trailing-icon{box-sizing:content-box}.mat-mdc-standard-chip._mat-animation-noopable,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__graphic,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__checkmark,.mat-mdc-standard-chip._mat-animation-noopable .mdc-evolution-chip__checkmark-path{transition-duration:1ms;animation-duration:1ms}.mat-mdc-basic-chip .mdc-evolution-chip__action--primary{font:inherit}.mat-mdc-chip-focus-overlay{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none;opacity:0;border-radius:inherit;transition:opacity 150ms linear}._mat-animation-noopable .mat-mdc-chip-focus-overlay{transition:none}.mat-mdc-basic-chip .mat-mdc-chip-focus-overlay{display:none}.mat-mdc-chip .mat-ripple.mat-mdc-chip-ripple{top:0;left:0;right:0;bottom:0;position:absolute;pointer-events:none;border-radius:inherit}.mat-mdc-chip-avatar{text-align:center;line-height:1;color:var(--mdc-chip-with-icon-icon-color, currentColor)}.mat-mdc-chip{position:relative;z-index:0}.mat-mdc-chip-action-label{text-align:left;z-index:1}[dir=rtl] .mat-mdc-chip-action-label{text-align:right}.mat-mdc-chip.mdc-evolution-chip--with-trailing-action .mat-mdc-chip-action-label{position:relative}.mat-mdc-chip-action-label .mat-mdc-chip-primary-focus-indicator{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none}.mat-mdc-chip-action-label .mat-mdc-focus-indicator::before{margin:calc(calc(var(--mat-mdc-focus-indicator-border-width, 3px) + 2px)*-1)}.mat-mdc-chip-remove::before{margin:calc(var(--mat-mdc-focus-indicator-border-width, 3px)*-1);left:8px;right:8px}.mat-mdc-chip-remove::after{content:"";display:block;opacity:0;position:absolute;top:-2px;bottom:-2px;left:6px;right:6px;border-radius:50%}.mat-mdc-chip-remove .mat-icon{width:18px;height:18px;font-size:18px;box-sizing:content-box}.mat-chip-edit-input{cursor:text;display:inline-block;color:inherit;outline:0}.cdk-high-contrast-active .mat-mdc-chip-selected:not(.mat-mdc-chip-multiple){outline-width:3px}.mat-mdc-chip-action:focus .mat-mdc-focus-indicator::before{content:""}']
+    }]
+  }], () => [{
+    type: ChangeDetectorRef
+  }, {
+    type: ElementRef
+  }, {
+    type: NgZone
+  }, {
+    type: FocusMonitor
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Inject,
+      args: [DOCUMENT2]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [ANIMATION_MODULE_TYPE]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [MAT_RIPPLE_GLOBAL_OPTIONS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Attribute2,
+      args: ["tabindex"]
+    }]
+  }], {
+    editable: [{
+      type: Input
+    }],
+    edited: [{
+      type: Output
+    }],
+    defaultEditInput: [{
+      type: ViewChild,
+      args: [MatChipEditInput]
+    }],
+    contentEditInput: [{
+      type: ContentChild,
+      args: [MatChipEditInput]
+    }]
+  });
+})();
+var _MatChipSet = class _MatChipSet {
+  /** Combined stream of all of the child chips' focus events. */
+  get chipFocusChanges() {
+    return this._getChipStream((chip) => chip._onFocus);
+  }
+  /** Combined stream of all of the child chips' destroy events. */
+  get chipDestroyedChanges() {
+    return this._getChipStream((chip) => chip.destroyed);
+  }
+  /** Combined stream of all of the child chips' remove events. */
+  get chipRemovedChanges() {
+    return this._getChipStream((chip) => chip.removed);
+  }
+  /** Whether the chip set is disabled. */
+  get disabled() {
+    return this._disabled;
+  }
+  set disabled(value) {
+    this._disabled = value;
+    this._syncChipsState();
+  }
+  /** Whether the chip list contains chips or not. */
+  get empty() {
+    return !this._chips || this._chips.length === 0;
+  }
+  /** The ARIA role applied to the chip set. */
+  get role() {
+    if (this._explicitRole) {
+      return this._explicitRole;
+    }
+    return this.empty ? null : this._defaultRole;
+  }
+  set role(value) {
+    this._explicitRole = value;
+  }
+  /** Whether any of the chips inside of this chip-set has focus. */
+  get focused() {
+    return this._hasFocusedChip();
+  }
+  constructor(_elementRef, _changeDetectorRef, _dir) {
+    this._elementRef = _elementRef;
+    this._changeDetectorRef = _changeDetectorRef;
+    this._dir = _dir;
+    this._lastDestroyedFocusedChipIndex = null;
+    this._destroyed = new Subject();
+    this._defaultRole = "presentation";
+    this._disabled = false;
+    this.tabIndex = 0;
+    this._explicitRole = null;
+    this._chipActions = new QueryList();
+  }
+  ngAfterViewInit() {
+    this._setUpFocusManagement();
+    this._trackChipSetChanges();
+    this._trackDestroyedFocusedChip();
+  }
+  ngOnDestroy() {
+    this._keyManager?.destroy();
+    this._chipActions.destroy();
+    this._destroyed.next();
+    this._destroyed.complete();
+  }
+  /** Checks whether any of the chips is focused. */
+  _hasFocusedChip() {
+    return this._chips && this._chips.some((chip) => chip._hasFocus());
+  }
+  /** Syncs the chip-set's state with the individual chips. */
+  _syncChipsState() {
+    if (this._chips) {
+      this._chips.forEach((chip) => {
+        chip.disabled = this._disabled;
+        chip._changeDetectorRef.markForCheck();
+      });
+    }
+  }
+  /** Dummy method for subclasses to override. Base chip set cannot be focused. */
+  focus() {
+  }
+  /** Handles keyboard events on the chip set. */
+  _handleKeydown(event) {
+    if (this._originatesFromChip(event)) {
+      this._keyManager.onKeydown(event);
+    }
+  }
+  /**
+   * Utility to ensure all indexes are valid.
+   *
+   * @param index The index to be checked.
+   * @returns True if the index is valid for our list of chips.
+   */
+  _isValidIndex(index) {
+    return index >= 0 && index < this._chips.length;
+  }
+  /**
+   * Removes the `tabindex` from the chip set and resets it back afterwards, allowing the
+   * user to tab out of it. This prevents the set from capturing focus and redirecting
+   * it back to the first chip, creating a focus trap, if it user tries to tab away.
+   */
+  _allowFocusEscape() {
+    if (this.tabIndex !== -1) {
+      const previousTabIndex = this.tabIndex;
+      this.tabIndex = -1;
+      setTimeout(() => this.tabIndex = previousTabIndex);
+    }
+  }
+  /**
+   * Gets a stream of events from all the chips within the set.
+   * The stream will automatically incorporate any newly-added chips.
+   */
+  _getChipStream(mappingFunction) {
+    return this._chips.changes.pipe(startWith(null), switchMap(() => merge(...this._chips.map(mappingFunction))));
+  }
+  /** Checks whether an event comes from inside a chip element. */
+  _originatesFromChip(event) {
+    let currentElement = event.target;
+    while (currentElement && currentElement !== this._elementRef.nativeElement) {
+      if (currentElement.classList.contains("mat-mdc-chip")) {
+        return true;
+      }
+      currentElement = currentElement.parentElement;
+    }
+    return false;
+  }
+  /** Sets up the chip set's focus management logic. */
+  _setUpFocusManagement() {
+    this._chips.changes.pipe(startWith(this._chips)).subscribe((chips) => {
+      const actions = [];
+      chips.forEach((chip) => chip._getActions().forEach((action) => actions.push(action)));
+      this._chipActions.reset(actions);
+      this._chipActions.notifyOnChanges();
+    });
+    this._keyManager = new FocusKeyManager(this._chipActions).withVerticalOrientation().withHorizontalOrientation(this._dir ? this._dir.value : "ltr").withHomeAndEnd().skipPredicate((action) => this._skipPredicate(action));
+    this.chipFocusChanges.pipe(takeUntil(this._destroyed)).subscribe(({
+      chip
+    }) => {
+      const action = chip._getSourceAction(document.activeElement);
+      if (action) {
+        this._keyManager.updateActiveItem(action);
+      }
+    });
+    this._dir?.change.pipe(takeUntil(this._destroyed)).subscribe((direction) => this._keyManager.withHorizontalOrientation(direction));
+  }
+  /**
+   * Determines if key manager should avoid putting a given chip action in the tab index. Skip
+   * non-interactive and disabled actions since the user can't do anything with them.
+   */
+  _skipPredicate(action) {
+    return !action.isInteractive || action.disabled;
+  }
+  /** Listens to changes in the chip set and syncs up the state of the individual chips. */
+  _trackChipSetChanges() {
+    this._chips.changes.pipe(startWith(null), takeUntil(this._destroyed)).subscribe(() => {
+      if (this.disabled) {
+        Promise.resolve().then(() => this._syncChipsState());
+      }
+      this._redirectDestroyedChipFocus();
+    });
+  }
+  /** Starts tracking the destroyed chips in order to capture the focused one. */
+  _trackDestroyedFocusedChip() {
+    this.chipDestroyedChanges.pipe(takeUntil(this._destroyed)).subscribe((event) => {
+      const chipArray = this._chips.toArray();
+      const chipIndex = chipArray.indexOf(event.chip);
+      if (this._isValidIndex(chipIndex) && event.chip._hasFocus()) {
+        this._lastDestroyedFocusedChipIndex = chipIndex;
+      }
+    });
+  }
+  /**
+   * Finds the next appropriate chip to move focus to,
+   * if the currently-focused chip is destroyed.
+   */
+  _redirectDestroyedChipFocus() {
+    if (this._lastDestroyedFocusedChipIndex == null) {
+      return;
+    }
+    if (this._chips.length) {
+      const newIndex = Math.min(this._lastDestroyedFocusedChipIndex, this._chips.length - 1);
+      const chipToFocus = this._chips.toArray()[newIndex];
+      if (chipToFocus.disabled) {
+        if (this._chips.length === 1) {
+          this.focus();
+        } else {
+          this._keyManager.setPreviousItemActive();
+        }
+      } else {
+        chipToFocus.focus();
+      }
+    } else {
+      this.focus();
+    }
+    this._lastDestroyedFocusedChipIndex = null;
+  }
+};
+_MatChipSet.\u0275fac = function MatChipSet_Factory(t) {
+  return new (t || _MatChipSet)(\u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(ChangeDetectorRef), \u0275\u0275directiveInject(Directionality, 8));
+};
+_MatChipSet.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
+  type: _MatChipSet,
+  selectors: [["mat-chip-set"]],
+  contentQueries: function MatChipSet_ContentQueries(rf, ctx, dirIndex) {
+    if (rf & 1) {
+      \u0275\u0275contentQuery(dirIndex, MatChip, 5);
+    }
+    if (rf & 2) {
+      let _t;
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._chips = _t);
+    }
+  },
+  hostAttrs: [1, "mat-mdc-chip-set", "mdc-evolution-chip-set"],
+  hostVars: 1,
+  hostBindings: function MatChipSet_HostBindings(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275listener("keydown", function MatChipSet_keydown_HostBindingHandler($event) {
+        return ctx._handleKeydown($event);
+      });
+    }
+    if (rf & 2) {
+      \u0275\u0275attribute("role", ctx.role);
+    }
+  },
+  inputs: {
+    disabled: [2, "disabled", "disabled", booleanAttribute],
+    role: "role",
+    tabIndex: [2, "tabIndex", "tabIndex", (value) => value == null ? 0 : numberAttribute(value)]
+  },
+  standalone: true,
+  features: [\u0275\u0275InputTransformsFeature, \u0275\u0275StandaloneFeature],
+  ngContentSelectors: _c54,
+  decls: 2,
+  vars: 0,
+  consts: [["role", "presentation", 1, "mdc-evolution-chip-set__chips"]],
+  template: function MatChipSet_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275projectionDef();
+      \u0275\u0275elementStart(0, "div", 0);
+      \u0275\u0275projection(1);
+      \u0275\u0275elementEnd();
+    }
+  },
+  styles: [".mdc-evolution-chip-set{display:flex}.mdc-evolution-chip-set:focus{outline:none}.mdc-evolution-chip-set__chips{display:flex;flex-flow:wrap;min-width:0}.mdc-evolution-chip-set--overflow .mdc-evolution-chip-set__chips{flex-flow:nowrap}.mdc-evolution-chip-set .mdc-evolution-chip-set__chips{margin-left:-8px;margin-right:0}[dir=rtl] .mdc-evolution-chip-set .mdc-evolution-chip-set__chips,.mdc-evolution-chip-set .mdc-evolution-chip-set__chips[dir=rtl]{margin-left:0;margin-right:-8px}.mdc-evolution-chip-set .mdc-evolution-chip{margin-left:8px;margin-right:0}[dir=rtl] .mdc-evolution-chip-set .mdc-evolution-chip,.mdc-evolution-chip-set .mdc-evolution-chip[dir=rtl]{margin-left:0;margin-right:8px}.mdc-evolution-chip-set .mdc-evolution-chip{margin-top:4px;margin-bottom:4px}.mat-mdc-chip-set .mdc-evolution-chip-set__chips{min-width:100%}.mat-mdc-chip-set-stacked{flex-direction:column;align-items:flex-start}.mat-mdc-chip-set-stacked .mat-mdc-chip{width:100%}.mat-mdc-chip-set-stacked .mdc-evolution-chip__graphic{flex-grow:0}.mat-mdc-chip-set-stacked .mdc-evolution-chip__action--primary{flex-basis:100%;justify-content:start}input.mat-mdc-chip-input{flex:1 0 150px;margin-left:8px}[dir=rtl] input.mat-mdc-chip-input{margin-left:0;margin-right:8px}"],
+  encapsulation: 2,
+  changeDetection: 0
+});
+var MatChipSet = _MatChipSet;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipSet, [{
+    type: Component,
+    args: [{
+      selector: "mat-chip-set",
+      template: `
+    <div class="mdc-evolution-chip-set__chips" role="presentation">
+      <ng-content></ng-content>
+    </div>
+  `,
+      host: {
+        "class": "mat-mdc-chip-set mdc-evolution-chip-set",
+        "(keydown)": "_handleKeydown($event)",
+        "[attr.role]": "role"
+      },
+      encapsulation: ViewEncapsulation$1.None,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+      standalone: true,
+      styles: [".mdc-evolution-chip-set{display:flex}.mdc-evolution-chip-set:focus{outline:none}.mdc-evolution-chip-set__chips{display:flex;flex-flow:wrap;min-width:0}.mdc-evolution-chip-set--overflow .mdc-evolution-chip-set__chips{flex-flow:nowrap}.mdc-evolution-chip-set .mdc-evolution-chip-set__chips{margin-left:-8px;margin-right:0}[dir=rtl] .mdc-evolution-chip-set .mdc-evolution-chip-set__chips,.mdc-evolution-chip-set .mdc-evolution-chip-set__chips[dir=rtl]{margin-left:0;margin-right:-8px}.mdc-evolution-chip-set .mdc-evolution-chip{margin-left:8px;margin-right:0}[dir=rtl] .mdc-evolution-chip-set .mdc-evolution-chip,.mdc-evolution-chip-set .mdc-evolution-chip[dir=rtl]{margin-left:0;margin-right:8px}.mdc-evolution-chip-set .mdc-evolution-chip{margin-top:4px;margin-bottom:4px}.mat-mdc-chip-set .mdc-evolution-chip-set__chips{min-width:100%}.mat-mdc-chip-set-stacked{flex-direction:column;align-items:flex-start}.mat-mdc-chip-set-stacked .mat-mdc-chip{width:100%}.mat-mdc-chip-set-stacked .mdc-evolution-chip__graphic{flex-grow:0}.mat-mdc-chip-set-stacked .mdc-evolution-chip__action--primary{flex-basis:100%;justify-content:start}input.mat-mdc-chip-input{flex:1 0 150px;margin-left:8px}[dir=rtl] input.mat-mdc-chip-input{margin-left:0;margin-right:8px}"]
+    }]
+  }], () => [{
+    type: ElementRef
+  }, {
+    type: ChangeDetectorRef
+  }, {
+    type: Directionality,
+    decorators: [{
+      type: Optional
+    }]
+  }], {
+    disabled: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    role: [{
+      type: Input
+    }],
+    tabIndex: [{
+      type: Input,
+      args: [{
+        transform: (value) => value == null ? 0 : numberAttribute(value)
+      }]
+    }],
+    _chips: [{
+      type: ContentChildren,
+      args: [MatChip, {
+        // We need to use `descendants: true`, because Ivy will no longer match
+        // indirect descendants if it's left as false.
+        descendants: true
+      }]
+    }]
+  });
+})();
+var MatChipListboxChange = class {
+  constructor(source, value) {
+    this.source = source;
+    this.value = value;
+  }
+};
+var MAT_CHIP_LISTBOX_CONTROL_VALUE_ACCESSOR = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => MatChipListbox),
+  multi: true
+};
+var _MatChipListbox = class _MatChipListbox extends MatChipSet {
+  constructor() {
+    super(...arguments);
+    this._onTouched = () => {
+    };
+    this._onChange = () => {
+    };
+    this._defaultRole = "listbox";
+    this._defaultOptions = inject(MAT_CHIPS_DEFAULT_OPTIONS, {
+      optional: true
+    });
+    this._multiple = false;
+    this.ariaOrientation = "horizontal";
+    this._selectable = true;
+    this.compareWith = (o1, o2) => o1 === o2;
+    this.required = false;
+    this._hideSingleSelectionIndicator = this._defaultOptions?.hideSingleSelectionIndicator ?? false;
+    this.change = new EventEmitter();
+    this._chips = void 0;
+  }
+  /** Whether the user should be allowed to select multiple chips. */
+  get multiple() {
+    return this._multiple;
+  }
+  set multiple(value) {
+    this._multiple = value;
+    this._syncListboxProperties();
+  }
+  /** The array of selected chips inside the chip listbox. */
+  get selected() {
+    const selectedChips = this._chips.toArray().filter((chip) => chip.selected);
+    return this.multiple ? selectedChips : selectedChips[0];
+  }
+  /**
+   * Whether or not this chip listbox is selectable.
+   *
+   * When a chip listbox is not selectable, the selected states for all
+   * the chips inside the chip listbox are always ignored.
+   */
+  get selectable() {
+    return this._selectable;
+  }
+  set selectable(value) {
+    this._selectable = value;
+    this._syncListboxProperties();
+  }
+  /** Whether checkmark indicator for single-selection options is hidden. */
+  get hideSingleSelectionIndicator() {
+    return this._hideSingleSelectionIndicator;
+  }
+  set hideSingleSelectionIndicator(value) {
+    this._hideSingleSelectionIndicator = value;
+    this._syncListboxProperties();
+  }
+  /** Combined stream of all of the child chips' selection change events. */
+  get chipSelectionChanges() {
+    return this._getChipStream((chip) => chip.selectionChange);
+  }
+  /** Combined stream of all of the child chips' blur events. */
+  get chipBlurChanges() {
+    return this._getChipStream((chip) => chip._onBlur);
+  }
+  /** The value of the listbox, which is the combined value of the selected chips. */
+  get value() {
+    return this._value;
+  }
+  set value(value) {
+    this.writeValue(value);
+    this._value = value;
+  }
+  ngAfterContentInit() {
+    if (this._pendingInitialValue !== void 0) {
+      Promise.resolve().then(() => {
+        this._setSelectionByValue(this._pendingInitialValue, false);
+        this._pendingInitialValue = void 0;
+      });
+    }
+    this._chips.changes.pipe(startWith(null), takeUntil(this._destroyed)).subscribe(() => {
+      this._syncListboxProperties();
+    });
+    this.chipBlurChanges.pipe(takeUntil(this._destroyed)).subscribe(() => this._blur());
+    this.chipSelectionChanges.pipe(takeUntil(this._destroyed)).subscribe((event) => {
+      if (!this.multiple) {
+        this._chips.forEach((chip) => {
+          if (chip !== event.source) {
+            chip._setSelectedState(false, false, false);
+          }
+        });
+      }
+      if (event.isUserInput) {
+        this._propagateChanges();
+      }
+    });
+  }
+  /**
+   * Focuses the first selected chip in this chip listbox, or the first non-disabled chip when there
+   * are no selected chips.
+   */
+  focus() {
+    if (this.disabled) {
+      return;
+    }
+    const firstSelectedChip = this._getFirstSelectedChip();
+    if (firstSelectedChip && !firstSelectedChip.disabled) {
+      firstSelectedChip.focus();
+    } else if (this._chips.length > 0) {
+      this._keyManager.setFirstItemActive();
+    } else {
+      this._elementRef.nativeElement.focus();
+    }
+  }
+  /**
+   * Implemented as part of ControlValueAccessor.
+   * @docs-private
+   */
+  writeValue(value) {
+    if (this._chips) {
+      this._setSelectionByValue(value, false);
+    } else if (value != null) {
+      this._pendingInitialValue = value;
+    }
+  }
+  /**
+   * Implemented as part of ControlValueAccessor.
+   * @docs-private
+   */
+  registerOnChange(fn) {
+    this._onChange = fn;
+  }
+  /**
+   * Implemented as part of ControlValueAccessor.
+   * @docs-private
+   */
+  registerOnTouched(fn) {
+    this._onTouched = fn;
+  }
+  /**
+   * Implemented as part of ControlValueAccessor.
+   * @docs-private
+   */
+  setDisabledState(isDisabled) {
+    this.disabled = isDisabled;
+  }
+  /** Selects all chips with value. */
+  _setSelectionByValue(value, isUserInput = true) {
+    this._clearSelection();
+    if (Array.isArray(value)) {
+      value.forEach((currentValue) => this._selectValue(currentValue, isUserInput));
+    } else {
+      this._selectValue(value, isUserInput);
+    }
+  }
+  /** When blurred, marks the field as touched when focus moved outside the chip listbox. */
+  _blur() {
+    if (!this.disabled) {
+      setTimeout(() => {
+        if (!this.focused) {
+          this._markAsTouched();
+        }
+      });
+    }
+  }
+  _keydown(event) {
+    if (event.keyCode === TAB) {
+      super._allowFocusEscape();
+    }
+  }
+  /** Marks the field as touched */
+  _markAsTouched() {
+    this._onTouched();
+    this._changeDetectorRef.markForCheck();
+  }
+  /** Emits change event to set the model value. */
+  _propagateChanges() {
+    let valueToEmit = null;
+    if (Array.isArray(this.selected)) {
+      valueToEmit = this.selected.map((chip) => chip.value);
+    } else {
+      valueToEmit = this.selected ? this.selected.value : void 0;
+    }
+    this._value = valueToEmit;
+    this.change.emit(new MatChipListboxChange(this, valueToEmit));
+    this._onChange(valueToEmit);
+    this._changeDetectorRef.markForCheck();
+  }
+  /**
+   * Deselects every chip in the listbox.
+   * @param skip Chip that should not be deselected.
+   */
+  _clearSelection(skip2) {
+    this._chips.forEach((chip) => {
+      if (chip !== skip2) {
+        chip.deselect();
+      }
+    });
+  }
+  /**
+   * Finds and selects the chip based on its value.
+   * @returns Chip that has the corresponding value.
+   */
+  _selectValue(value, isUserInput) {
+    const correspondingChip = this._chips.find((chip) => {
+      return chip.value != null && this.compareWith(chip.value, value);
+    });
+    if (correspondingChip) {
+      isUserInput ? correspondingChip.selectViaInteraction() : correspondingChip.select();
+    }
+    return correspondingChip;
+  }
+  /** Syncs the chip-listbox selection state with the individual chips. */
+  _syncListboxProperties() {
+    if (this._chips) {
+      Promise.resolve().then(() => {
+        this._chips.forEach((chip) => {
+          chip._chipListMultiple = this.multiple;
+          chip.chipListSelectable = this._selectable;
+          chip._chipListHideSingleSelectionIndicator = this.hideSingleSelectionIndicator;
+          chip._changeDetectorRef.markForCheck();
+        });
+      });
+    }
+  }
+  /** Returns the first selected chip in this listbox, or undefined if no chips are selected. */
+  _getFirstSelectedChip() {
+    if (Array.isArray(this.selected)) {
+      return this.selected.length ? this.selected[0] : void 0;
+    } else {
+      return this.selected;
+    }
+  }
+  /**
+   * Determines if key manager should avoid putting a given chip action in the tab index. Skip
+   * non-interactive actions since the user can't do anything with them.
+   */
+  _skipPredicate(action) {
+    return !action.isInteractive;
+  }
+};
+_MatChipListbox.\u0275fac = /* @__PURE__ */ (() => {
+  let \u0275MatChipListbox_BaseFactory;
+  return function MatChipListbox_Factory(t) {
+    return (\u0275MatChipListbox_BaseFactory || (\u0275MatChipListbox_BaseFactory = \u0275\u0275getInheritedFactory(_MatChipListbox)))(t || _MatChipListbox);
+  };
+})();
+_MatChipListbox.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
+  type: _MatChipListbox,
+  selectors: [["mat-chip-listbox"]],
+  contentQueries: function MatChipListbox_ContentQueries(rf, ctx, dirIndex) {
+    if (rf & 1) {
+      \u0275\u0275contentQuery(dirIndex, MatChipOption, 5);
+    }
+    if (rf & 2) {
+      let _t;
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._chips = _t);
+    }
+  },
+  hostAttrs: [1, "mdc-evolution-chip-set", "mat-mdc-chip-listbox"],
+  hostVars: 11,
+  hostBindings: function MatChipListbox_HostBindings(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275listener("focus", function MatChipListbox_focus_HostBindingHandler() {
+        return ctx.focus();
+      })("blur", function MatChipListbox_blur_HostBindingHandler() {
+        return ctx._blur();
+      })("keydown", function MatChipListbox_keydown_HostBindingHandler($event) {
+        return ctx._keydown($event);
+      });
+    }
+    if (rf & 2) {
+      \u0275\u0275hostProperty("tabIndex", ctx.disabled || ctx.empty ? -1 : ctx.tabIndex);
+      \u0275\u0275attribute("role", ctx.role)("aria-describedby", ctx._ariaDescribedby || null)("aria-required", ctx.role ? ctx.required : null)("aria-disabled", ctx.disabled.toString())("aria-multiselectable", ctx.multiple)("aria-orientation", ctx.ariaOrientation);
+      \u0275\u0275classProp("mat-mdc-chip-list-disabled", ctx.disabled)("mat-mdc-chip-list-required", ctx.required);
+    }
+  },
+  inputs: {
+    multiple: [2, "multiple", "multiple", booleanAttribute],
+    ariaOrientation: [0, "aria-orientation", "ariaOrientation"],
+    selectable: [2, "selectable", "selectable", booleanAttribute],
+    compareWith: "compareWith",
+    required: [2, "required", "required", booleanAttribute],
+    hideSingleSelectionIndicator: [2, "hideSingleSelectionIndicator", "hideSingleSelectionIndicator", booleanAttribute],
+    value: "value"
+  },
+  outputs: {
+    change: "change"
+  },
+  standalone: true,
+  features: [\u0275\u0275ProvidersFeature([MAT_CHIP_LISTBOX_CONTROL_VALUE_ACCESSOR]), \u0275\u0275InputTransformsFeature, \u0275\u0275InheritDefinitionFeature, \u0275\u0275StandaloneFeature],
+  ngContentSelectors: _c54,
+  decls: 2,
+  vars: 0,
+  consts: [["role", "presentation", 1, "mdc-evolution-chip-set__chips"]],
+  template: function MatChipListbox_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275projectionDef();
+      \u0275\u0275elementStart(0, "div", 0);
+      \u0275\u0275projection(1);
+      \u0275\u0275elementEnd();
+    }
+  },
+  styles: [_c64],
+  encapsulation: 2,
+  changeDetection: 0
+});
+var MatChipListbox = _MatChipListbox;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipListbox, [{
+    type: Component,
+    args: [{
+      selector: "mat-chip-listbox",
+      template: `
+    <div class="mdc-evolution-chip-set__chips" role="presentation">
+      <ng-content></ng-content>
+    </div>
+  `,
+      host: {
+        "class": "mdc-evolution-chip-set mat-mdc-chip-listbox",
+        "[attr.role]": "role",
+        "[tabIndex]": "(disabled || empty) ? -1 : tabIndex",
+        // TODO: replace this binding with use of AriaDescriber
+        "[attr.aria-describedby]": "_ariaDescribedby || null",
+        "[attr.aria-required]": "role ? required : null",
+        "[attr.aria-disabled]": "disabled.toString()",
+        "[attr.aria-multiselectable]": "multiple",
+        "[attr.aria-orientation]": "ariaOrientation",
+        "[class.mat-mdc-chip-list-disabled]": "disabled",
+        "[class.mat-mdc-chip-list-required]": "required",
+        "(focus)": "focus()",
+        "(blur)": "_blur()",
+        "(keydown)": "_keydown($event)"
+      },
+      providers: [MAT_CHIP_LISTBOX_CONTROL_VALUE_ACCESSOR],
+      encapsulation: ViewEncapsulation$1.None,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+      standalone: true,
+      styles: [".mdc-evolution-chip-set{display:flex}.mdc-evolution-chip-set:focus{outline:none}.mdc-evolution-chip-set__chips{display:flex;flex-flow:wrap;min-width:0}.mdc-evolution-chip-set--overflow .mdc-evolution-chip-set__chips{flex-flow:nowrap}.mdc-evolution-chip-set .mdc-evolution-chip-set__chips{margin-left:-8px;margin-right:0}[dir=rtl] .mdc-evolution-chip-set .mdc-evolution-chip-set__chips,.mdc-evolution-chip-set .mdc-evolution-chip-set__chips[dir=rtl]{margin-left:0;margin-right:-8px}.mdc-evolution-chip-set .mdc-evolution-chip{margin-left:8px;margin-right:0}[dir=rtl] .mdc-evolution-chip-set .mdc-evolution-chip,.mdc-evolution-chip-set .mdc-evolution-chip[dir=rtl]{margin-left:0;margin-right:8px}.mdc-evolution-chip-set .mdc-evolution-chip{margin-top:4px;margin-bottom:4px}.mat-mdc-chip-set .mdc-evolution-chip-set__chips{min-width:100%}.mat-mdc-chip-set-stacked{flex-direction:column;align-items:flex-start}.mat-mdc-chip-set-stacked .mat-mdc-chip{width:100%}.mat-mdc-chip-set-stacked .mdc-evolution-chip__graphic{flex-grow:0}.mat-mdc-chip-set-stacked .mdc-evolution-chip__action--primary{flex-basis:100%;justify-content:start}input.mat-mdc-chip-input{flex:1 0 150px;margin-left:8px}[dir=rtl] input.mat-mdc-chip-input{margin-left:0;margin-right:8px}"]
+    }]
+  }], null, {
+    multiple: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    ariaOrientation: [{
+      type: Input,
+      args: ["aria-orientation"]
+    }],
+    selectable: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    compareWith: [{
+      type: Input
+    }],
+    required: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    hideSingleSelectionIndicator: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    value: [{
+      type: Input
+    }],
+    change: [{
+      type: Output
+    }],
+    _chips: [{
+      type: ContentChildren,
+      args: [MatChipOption, {
+        // We need to use `descendants: true`, because Ivy will no longer match
+        // indirect descendants if it's left as false.
+        descendants: true
+      }]
+    }]
+  });
+})();
+var MatChipGridChange = class {
+  constructor(source, value) {
+    this.source = source;
+    this.value = value;
+  }
+};
+var _MatChipGrid = class _MatChipGrid extends MatChipSet {
+  /**
+   * Implemented as part of MatFormFieldControl.
+   * @docs-private
+   */
+  get disabled() {
+    return this.ngControl ? !!this.ngControl.disabled : this._disabled;
+  }
+  set disabled(value) {
+    this._disabled = value;
+    this._syncChipsState();
+  }
+  /**
+   * Implemented as part of MatFormFieldControl.
+   * @docs-private
+   */
+  get id() {
+    return this._chipInput.id;
+  }
+  /**
+   * Implemented as part of MatFormFieldControl.
+   * @docs-private
+   */
+  get empty() {
+    return (!this._chipInput || this._chipInput.empty) && (!this._chips || this._chips.length === 0);
+  }
+  /**
+   * Implemented as part of MatFormFieldControl.
+   * @docs-private
+   */
+  get placeholder() {
+    return this._chipInput ? this._chipInput.placeholder : this._placeholder;
+  }
+  set placeholder(value) {
+    this._placeholder = value;
+    this.stateChanges.next();
+  }
+  /** Whether any chips or the matChipInput inside of this chip-grid has focus. */
+  get focused() {
+    return this._chipInput.focused || this._hasFocusedChip();
+  }
+  /**
+   * Implemented as part of MatFormFieldControl.
+   * @docs-private
+   */
+  get required() {
+    return this._required ?? this.ngControl?.control?.hasValidator(Validators.required) ?? false;
+  }
+  set required(value) {
+    this._required = value;
+    this.stateChanges.next();
+  }
+  /**
+   * Implemented as part of MatFormFieldControl.
+   * @docs-private
+   */
+  get shouldLabelFloat() {
+    return !this.empty || this.focused;
+  }
+  /**
+   * Implemented as part of MatFormFieldControl.
+   * @docs-private
+   */
+  get value() {
+    return this._value;
+  }
+  set value(value) {
+    this._value = value;
+  }
+  /** An object used to control when error messages are shown. */
+  get errorStateMatcher() {
+    return this._errorStateTracker.matcher;
+  }
+  set errorStateMatcher(value) {
+    this._errorStateTracker.matcher = value;
+  }
+  /** Combined stream of all of the child chips' blur events. */
+  get chipBlurChanges() {
+    return this._getChipStream((chip) => chip._onBlur);
+  }
+  /** Whether the chip grid is in an error state. */
+  get errorState() {
+    return this._errorStateTracker.errorState;
+  }
+  set errorState(value) {
+    this._errorStateTracker.errorState = value;
+  }
+  constructor(elementRef, changeDetectorRef, dir, parentForm, parentFormGroup, defaultErrorStateMatcher, ngControl) {
+    super(elementRef, changeDetectorRef, dir);
+    this.ngControl = ngControl;
+    this.controlType = "mat-chip-grid";
+    this._defaultRole = "grid";
+    this._ariaDescribedbyIds = [];
+    this._onTouched = () => {
+    };
+    this._onChange = () => {
+    };
+    this._value = [];
+    this.change = new EventEmitter();
+    this.valueChange = new EventEmitter();
+    this._chips = void 0;
+    this.stateChanges = new Subject();
+    if (this.ngControl) {
+      this.ngControl.valueAccessor = this;
+    }
+    this._errorStateTracker = new _ErrorStateTracker(defaultErrorStateMatcher, ngControl, parentFormGroup, parentForm, this.stateChanges);
+  }
+  ngAfterContentInit() {
+    this.chipBlurChanges.pipe(takeUntil(this._destroyed)).subscribe(() => {
+      this._blur();
+      this.stateChanges.next();
+    });
+    merge(this.chipFocusChanges, this._chips.changes).pipe(takeUntil(this._destroyed)).subscribe(() => this.stateChanges.next());
+  }
+  ngAfterViewInit() {
+    super.ngAfterViewInit();
+    if (!this._chipInput && (typeof ngDevMode === "undefined" || ngDevMode)) {
+      throw Error("mat-chip-grid must be used in combination with matChipInputFor.");
+    }
+  }
+  ngDoCheck() {
+    if (this.ngControl) {
+      this.updateErrorState();
+    }
+  }
+  ngOnDestroy() {
+    super.ngOnDestroy();
+    this.stateChanges.complete();
+  }
+  /** Associates an HTML input element with this chip grid. */
+  registerInput(inputElement) {
+    this._chipInput = inputElement;
+    this._chipInput.setDescribedByIds(this._ariaDescribedbyIds);
+  }
+  /**
+   * Implemented as part of MatFormFieldControl.
+   * @docs-private
+   */
+  onContainerClick(event) {
+    if (!this.disabled && !this._originatesFromChip(event)) {
+      this.focus();
+    }
+  }
+  /**
+   * Focuses the first chip in this chip grid, or the associated input when there
+   * are no eligible chips.
+   */
+  focus() {
+    if (this.disabled || this._chipInput.focused) {
+      return;
+    }
+    if (!this._chips.length || this._chips.first.disabled) {
+      Promise.resolve().then(() => this._chipInput.focus());
+    } else if (this._chips.length) {
+      this._keyManager.setFirstItemActive();
+    }
+    this.stateChanges.next();
+  }
+  /**
+   * Implemented as part of MatFormFieldControl.
+   * @docs-private
+   */
+  setDescribedByIds(ids) {
+    this._ariaDescribedbyIds = ids;
+    this._chipInput?.setDescribedByIds(ids);
+  }
+  /**
+   * Implemented as part of ControlValueAccessor.
+   * @docs-private
+   */
+  writeValue(value) {
+    this._value = value;
+  }
+  /**
+   * Implemented as part of ControlValueAccessor.
+   * @docs-private
+   */
+  registerOnChange(fn) {
+    this._onChange = fn;
+  }
+  /**
+   * Implemented as part of ControlValueAccessor.
+   * @docs-private
+   */
+  registerOnTouched(fn) {
+    this._onTouched = fn;
+  }
+  /**
+   * Implemented as part of ControlValueAccessor.
+   * @docs-private
+   */
+  setDisabledState(isDisabled) {
+    this.disabled = isDisabled;
+    this.stateChanges.next();
+  }
+  /** Refreshes the error state of the chip grid. */
+  updateErrorState() {
+    this._errorStateTracker.updateErrorState();
+  }
+  /** When blurred, mark the field as touched when focus moved outside the chip grid. */
+  _blur() {
+    if (!this.disabled) {
+      setTimeout(() => {
+        if (!this.focused) {
+          this._propagateChanges();
+          this._markAsTouched();
+        }
+      });
+    }
+  }
+  /**
+   * Removes the `tabindex` from the chip grid and resets it back afterwards, allowing the
+   * user to tab out of it. This prevents the grid from capturing focus and redirecting
+   * it back to the first chip, creating a focus trap, if it user tries to tab away.
+   */
+  _allowFocusEscape() {
+    if (!this._chipInput.focused) {
+      super._allowFocusEscape();
+    }
+  }
+  /** Handles custom keyboard events. */
+  _handleKeydown(event) {
+    if (event.keyCode === TAB) {
+      if (this._chipInput.focused && hasModifierKey2(event, "shiftKey") && this._chips.length && !this._chips.last.disabled) {
+        event.preventDefault();
+        if (this._keyManager.activeItem) {
+          this._keyManager.setActiveItem(this._keyManager.activeItem);
+        } else {
+          this._focusLastChip();
+        }
+      } else {
+        super._allowFocusEscape();
+      }
+    } else if (!this._chipInput.focused) {
+      super._handleKeydown(event);
+    }
+    this.stateChanges.next();
+  }
+  _focusLastChip() {
+    if (this._chips.length) {
+      this._chips.last.focus();
+    }
+  }
+  /** Emits change event to set the model value. */
+  _propagateChanges() {
+    const valueToEmit = this._chips.length ? this._chips.toArray().map((chip) => chip.value) : [];
+    this._value = valueToEmit;
+    this.change.emit(new MatChipGridChange(this, valueToEmit));
+    this.valueChange.emit(valueToEmit);
+    this._onChange(valueToEmit);
+    this._changeDetectorRef.markForCheck();
+  }
+  /** Mark the field as touched */
+  _markAsTouched() {
+    this._onTouched();
+    this._changeDetectorRef.markForCheck();
+    this.stateChanges.next();
+  }
+};
+_MatChipGrid.\u0275fac = function MatChipGrid_Factory(t) {
+  return new (t || _MatChipGrid)(\u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(ChangeDetectorRef), \u0275\u0275directiveInject(Directionality, 8), \u0275\u0275directiveInject(NgForm, 8), \u0275\u0275directiveInject(FormGroupDirective, 8), \u0275\u0275directiveInject(ErrorStateMatcher), \u0275\u0275directiveInject(NgControl, 10));
+};
+_MatChipGrid.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
+  type: _MatChipGrid,
+  selectors: [["mat-chip-grid"]],
+  contentQueries: function MatChipGrid_ContentQueries(rf, ctx, dirIndex) {
+    if (rf & 1) {
+      \u0275\u0275contentQuery(dirIndex, MatChipRow, 5);
+    }
+    if (rf & 2) {
+      let _t;
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._chips = _t);
+    }
+  },
+  hostAttrs: [1, "mat-mdc-chip-set", "mat-mdc-chip-grid", "mdc-evolution-chip-set"],
+  hostVars: 10,
+  hostBindings: function MatChipGrid_HostBindings(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275listener("focus", function MatChipGrid_focus_HostBindingHandler() {
+        return ctx.focus();
+      })("blur", function MatChipGrid_blur_HostBindingHandler() {
+        return ctx._blur();
+      });
+    }
+    if (rf & 2) {
+      \u0275\u0275attribute("role", ctx.role)("tabindex", ctx.disabled || ctx._chips && ctx._chips.length === 0 ? -1 : ctx.tabIndex)("aria-disabled", ctx.disabled.toString())("aria-invalid", ctx.errorState);
+      \u0275\u0275classProp("mat-mdc-chip-list-disabled", ctx.disabled)("mat-mdc-chip-list-invalid", ctx.errorState)("mat-mdc-chip-list-required", ctx.required);
+    }
+  },
+  inputs: {
+    disabled: [2, "disabled", "disabled", booleanAttribute],
+    placeholder: "placeholder",
+    required: [2, "required", "required", booleanAttribute],
+    value: "value",
+    errorStateMatcher: "errorStateMatcher"
+  },
+  outputs: {
+    change: "change",
+    valueChange: "valueChange"
+  },
+  standalone: true,
+  features: [\u0275\u0275ProvidersFeature([{
+    provide: MatFormFieldControl,
+    useExisting: _MatChipGrid
+  }]), \u0275\u0275InputTransformsFeature, \u0275\u0275InheritDefinitionFeature, \u0275\u0275StandaloneFeature],
+  ngContentSelectors: _c54,
+  decls: 2,
+  vars: 0,
+  consts: [["role", "presentation", 1, "mdc-evolution-chip-set__chips"]],
+  template: function MatChipGrid_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275projectionDef();
+      \u0275\u0275elementStart(0, "div", 0);
+      \u0275\u0275projection(1);
+      \u0275\u0275elementEnd();
+    }
+  },
+  styles: [_c64],
+  encapsulation: 2,
+  changeDetection: 0
+});
+var MatChipGrid = _MatChipGrid;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipGrid, [{
+    type: Component,
+    args: [{
+      selector: "mat-chip-grid",
+      template: `
+    <div class="mdc-evolution-chip-set__chips" role="presentation">
+      <ng-content></ng-content>
+    </div>
+  `,
+      host: {
+        "class": "mat-mdc-chip-set mat-mdc-chip-grid mdc-evolution-chip-set",
+        "[attr.role]": "role",
+        "[attr.tabindex]": "(disabled || (_chips && _chips.length === 0)) ? -1 : tabIndex",
+        "[attr.aria-disabled]": "disabled.toString()",
+        "[attr.aria-invalid]": "errorState",
+        "[class.mat-mdc-chip-list-disabled]": "disabled",
+        "[class.mat-mdc-chip-list-invalid]": "errorState",
+        "[class.mat-mdc-chip-list-required]": "required",
+        "(focus)": "focus()",
+        "(blur)": "_blur()"
+      },
+      providers: [{
+        provide: MatFormFieldControl,
+        useExisting: MatChipGrid
+      }],
+      encapsulation: ViewEncapsulation$1.None,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+      standalone: true,
+      styles: [".mdc-evolution-chip-set{display:flex}.mdc-evolution-chip-set:focus{outline:none}.mdc-evolution-chip-set__chips{display:flex;flex-flow:wrap;min-width:0}.mdc-evolution-chip-set--overflow .mdc-evolution-chip-set__chips{flex-flow:nowrap}.mdc-evolution-chip-set .mdc-evolution-chip-set__chips{margin-left:-8px;margin-right:0}[dir=rtl] .mdc-evolution-chip-set .mdc-evolution-chip-set__chips,.mdc-evolution-chip-set .mdc-evolution-chip-set__chips[dir=rtl]{margin-left:0;margin-right:-8px}.mdc-evolution-chip-set .mdc-evolution-chip{margin-left:8px;margin-right:0}[dir=rtl] .mdc-evolution-chip-set .mdc-evolution-chip,.mdc-evolution-chip-set .mdc-evolution-chip[dir=rtl]{margin-left:0;margin-right:8px}.mdc-evolution-chip-set .mdc-evolution-chip{margin-top:4px;margin-bottom:4px}.mat-mdc-chip-set .mdc-evolution-chip-set__chips{min-width:100%}.mat-mdc-chip-set-stacked{flex-direction:column;align-items:flex-start}.mat-mdc-chip-set-stacked .mat-mdc-chip{width:100%}.mat-mdc-chip-set-stacked .mdc-evolution-chip__graphic{flex-grow:0}.mat-mdc-chip-set-stacked .mdc-evolution-chip__action--primary{flex-basis:100%;justify-content:start}input.mat-mdc-chip-input{flex:1 0 150px;margin-left:8px}[dir=rtl] input.mat-mdc-chip-input{margin-left:0;margin-right:8px}"]
+    }]
+  }], () => [{
+    type: ElementRef
+  }, {
+    type: ChangeDetectorRef
+  }, {
+    type: Directionality,
+    decorators: [{
+      type: Optional
+    }]
+  }, {
+    type: NgForm,
+    decorators: [{
+      type: Optional
+    }]
+  }, {
+    type: FormGroupDirective,
+    decorators: [{
+      type: Optional
+    }]
+  }, {
+    type: ErrorStateMatcher
+  }, {
+    type: NgControl,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }]
+  }], {
+    disabled: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    placeholder: [{
+      type: Input
+    }],
+    required: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    value: [{
+      type: Input
+    }],
+    errorStateMatcher: [{
+      type: Input
+    }],
+    change: [{
+      type: Output
+    }],
+    valueChange: [{
+      type: Output
+    }],
+    _chips: [{
+      type: ContentChildren,
+      args: [MatChipRow, {
+        // We need to use `descendants: true`, because Ivy will no longer match
+        // indirect descendants if it's left as false.
+        descendants: true
+      }]
+    }]
+  });
+})();
+var nextUniqueId4 = 0;
+var _MatChipInput = class _MatChipInput {
+  /** Register input for chip list */
+  get chipGrid() {
+    return this._chipGrid;
+  }
+  set chipGrid(value) {
+    if (value) {
+      this._chipGrid = value;
+      this._chipGrid.registerInput(this);
+    }
+  }
+  /** Whether the input is disabled. */
+  get disabled() {
+    return this._disabled || this._chipGrid && this._chipGrid.disabled;
+  }
+  set disabled(value) {
+    this._disabled = value;
+  }
+  /** Whether the input is empty. */
+  get empty() {
+    return !this.inputElement.value;
+  }
+  constructor(_elementRef, defaultOptions, formField) {
+    this._elementRef = _elementRef;
+    this.focused = false;
+    this.addOnBlur = false;
+    this.chipEnd = new EventEmitter();
+    this.placeholder = "";
+    this.id = `mat-mdc-chip-list-input-${nextUniqueId4++}`;
+    this._disabled = false;
+    this.inputElement = this._elementRef.nativeElement;
+    this.separatorKeyCodes = defaultOptions.separatorKeyCodes;
+    if (formField) {
+      this.inputElement.classList.add("mat-mdc-form-field-input-control");
+    }
+  }
+  ngOnChanges() {
+    this._chipGrid.stateChanges.next();
+  }
+  ngOnDestroy() {
+    this.chipEnd.complete();
+  }
+  /** Utility method to make host definition/tests more clear. */
+  _keydown(event) {
+    if (this.empty && event.keyCode === BACKSPACE) {
+      if (!event.repeat) {
+        this._chipGrid._focusLastChip();
+      }
+      event.preventDefault();
+    } else {
+      this._emitChipEnd(event);
+    }
+  }
+  /** Checks to see if the blur should emit the (chipEnd) event. */
+  _blur() {
+    if (this.addOnBlur) {
+      this._emitChipEnd();
+    }
+    this.focused = false;
+    if (!this._chipGrid.focused) {
+      this._chipGrid._blur();
+    }
+    this._chipGrid.stateChanges.next();
+  }
+  _focus() {
+    this.focused = true;
+    this._chipGrid.stateChanges.next();
+  }
+  /** Checks to see if the (chipEnd) event needs to be emitted. */
+  _emitChipEnd(event) {
+    if (!event || this._isSeparatorKey(event)) {
+      this.chipEnd.emit({
+        input: this.inputElement,
+        value: this.inputElement.value,
+        chipInput: this
+      });
+      event?.preventDefault();
+    }
+  }
+  _onInput() {
+    this._chipGrid.stateChanges.next();
+  }
+  /** Focuses the input. */
+  focus() {
+    this.inputElement.focus();
+  }
+  /** Clears the input */
+  clear() {
+    this.inputElement.value = "";
+  }
+  setDescribedByIds(ids) {
+    const element = this._elementRef.nativeElement;
+    if (ids.length) {
+      element.setAttribute("aria-describedby", ids.join(" "));
+    } else {
+      element.removeAttribute("aria-describedby");
+    }
+  }
+  /** Checks whether a keycode is one of the configured separators. */
+  _isSeparatorKey(event) {
+    return !hasModifierKey2(event) && new Set(this.separatorKeyCodes).has(event.keyCode);
+  }
+};
+_MatChipInput.\u0275fac = function MatChipInput_Factory(t) {
+  return new (t || _MatChipInput)(\u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(MAT_CHIPS_DEFAULT_OPTIONS), \u0275\u0275directiveInject(MAT_FORM_FIELD, 8));
+};
+_MatChipInput.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+  type: _MatChipInput,
+  selectors: [["input", "matChipInputFor", ""]],
+  hostAttrs: [1, "mat-mdc-chip-input", "mat-mdc-input-element", "mdc-text-field__input", "mat-input-element"],
+  hostVars: 6,
+  hostBindings: function MatChipInput_HostBindings(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275listener("keydown", function MatChipInput_keydown_HostBindingHandler($event) {
+        return ctx._keydown($event);
+      })("blur", function MatChipInput_blur_HostBindingHandler() {
+        return ctx._blur();
+      })("focus", function MatChipInput_focus_HostBindingHandler() {
+        return ctx._focus();
+      })("input", function MatChipInput_input_HostBindingHandler() {
+        return ctx._onInput();
+      });
+    }
+    if (rf & 2) {
+      \u0275\u0275hostProperty("id", ctx.id);
+      \u0275\u0275attribute("disabled", ctx.disabled || null)("placeholder", ctx.placeholder || null)("aria-invalid", ctx._chipGrid && ctx._chipGrid.ngControl ? ctx._chipGrid.ngControl.invalid : null)("aria-required", ctx._chipGrid && ctx._chipGrid.required || null)("required", ctx._chipGrid && ctx._chipGrid.required || null);
+    }
+  },
+  inputs: {
+    chipGrid: [0, "matChipInputFor", "chipGrid"],
+    addOnBlur: [2, "matChipInputAddOnBlur", "addOnBlur", booleanAttribute],
+    separatorKeyCodes: [0, "matChipInputSeparatorKeyCodes", "separatorKeyCodes"],
+    placeholder: "placeholder",
+    id: "id",
+    disabled: [2, "disabled", "disabled", booleanAttribute]
+  },
+  outputs: {
+    chipEnd: "matChipInputTokenEnd"
+  },
+  exportAs: ["matChipInput", "matChipInputFor"],
+  standalone: true,
+  features: [\u0275\u0275InputTransformsFeature, \u0275\u0275NgOnChangesFeature]
+});
+var MatChipInput = _MatChipInput;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipInput, [{
+    type: Directive,
+    args: [{
+      selector: "input[matChipInputFor]",
+      exportAs: "matChipInput, matChipInputFor",
+      host: {
+        // TODO: eventually we should remove `mat-input-element` from here since it comes from the
+        // non-MDC version of the input. It's currently being kept for backwards compatibility, because
+        // the MDC chips were landed initially with it.
+        "class": "mat-mdc-chip-input mat-mdc-input-element mdc-text-field__input mat-input-element",
+        "(keydown)": "_keydown($event)",
+        "(blur)": "_blur()",
+        "(focus)": "_focus()",
+        "(input)": "_onInput()",
+        "[id]": "id",
+        "[attr.disabled]": "disabled || null",
+        "[attr.placeholder]": "placeholder || null",
+        "[attr.aria-invalid]": "_chipGrid && _chipGrid.ngControl ? _chipGrid.ngControl.invalid : null",
+        "[attr.aria-required]": "_chipGrid && _chipGrid.required || null",
+        "[attr.required]": "_chipGrid && _chipGrid.required || null"
+      },
+      standalone: true
+    }]
+  }], () => [{
+    type: ElementRef
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Inject,
+      args: [MAT_CHIPS_DEFAULT_OPTIONS]
+    }]
+  }, {
+    type: MatFormField,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [MAT_FORM_FIELD]
+    }]
+  }], {
+    chipGrid: [{
+      type: Input,
+      args: ["matChipInputFor"]
+    }],
+    addOnBlur: [{
+      type: Input,
+      args: [{
+        alias: "matChipInputAddOnBlur",
+        transform: booleanAttribute
+      }]
+    }],
+    separatorKeyCodes: [{
+      type: Input,
+      args: ["matChipInputSeparatorKeyCodes"]
+    }],
+    chipEnd: [{
+      type: Output,
+      args: ["matChipInputTokenEnd"]
+    }],
+    placeholder: [{
+      type: Input
+    }],
+    id: [{
+      type: Input
+    }],
+    disabled: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }]
+  });
+})();
+var CHIP_DECLARATIONS = [MatChip, MatChipAvatar, MatChipEditInput, MatChipGrid, MatChipInput, MatChipListbox, MatChipOption, MatChipRemove, MatChipRow, MatChipSet, MatChipTrailingIcon];
+var _MatChipsModule = class _MatChipsModule {
+};
+_MatChipsModule.\u0275fac = function MatChipsModule_Factory(t) {
+  return new (t || _MatChipsModule)();
+};
+_MatChipsModule.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+  type: _MatChipsModule
+});
+_MatChipsModule.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
+  providers: [ErrorStateMatcher, {
+    provide: MAT_CHIPS_DEFAULT_OPTIONS,
+    useValue: {
+      separatorKeyCodes: [ENTER2]
+    }
+  }],
+  imports: [MatCommonModule, MatRippleModule, MatCommonModule]
+});
+var MatChipsModule = _MatChipsModule;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatChipsModule, [{
+    type: NgModule,
+    args: [{
+      imports: [MatCommonModule, MatRippleModule, MatChipAction, CHIP_DECLARATIONS],
+      exports: [MatCommonModule, CHIP_DECLARATIONS],
+      providers: [ErrorStateMatcher, {
+        provide: MAT_CHIPS_DEFAULT_OPTIONS,
+        useValue: {
+          separatorKeyCodes: [ENTER2]
+        }
+      }]
+    }]
+  }], null, null);
+})();
+
+// node_modules/@angular/material/fesm2022/checkbox.mjs
+var _c08 = ["input"];
+var _c16 = ["label"];
+var _c25 = ["*"];
+var MAT_CHECKBOX_DEFAULT_OPTIONS = new InjectionToken("mat-checkbox-default-options", {
+  providedIn: "root",
+  factory: MAT_CHECKBOX_DEFAULT_OPTIONS_FACTORY
+});
+function MAT_CHECKBOX_DEFAULT_OPTIONS_FACTORY() {
+  return {
+    color: "accent",
+    clickAction: "check-indeterminate"
+  };
+}
+var TransitionCheckState;
+(function(TransitionCheckState2) {
+  TransitionCheckState2[TransitionCheckState2["Init"] = 0] = "Init";
+  TransitionCheckState2[TransitionCheckState2["Checked"] = 1] = "Checked";
+  TransitionCheckState2[TransitionCheckState2["Unchecked"] = 2] = "Unchecked";
+  TransitionCheckState2[TransitionCheckState2["Indeterminate"] = 3] = "Indeterminate";
+})(TransitionCheckState || (TransitionCheckState = {}));
+var MAT_CHECKBOX_CONTROL_VALUE_ACCESSOR = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => MatCheckbox),
+  multi: true
+};
+var MatCheckboxChange = class {
+};
+var nextUniqueId5 = 0;
+var defaults2 = MAT_CHECKBOX_DEFAULT_OPTIONS_FACTORY();
+var _MatCheckbox = class _MatCheckbox {
+  /** Focuses the checkbox. */
+  focus() {
+    this._inputElement.nativeElement.focus();
+  }
+  /** Creates the change event that will be emitted by the checkbox. */
+  _createChangeEvent(isChecked) {
+    const event = new MatCheckboxChange();
+    event.source = this;
+    event.checked = isChecked;
+    return event;
+  }
+  /** Gets the element on which to add the animation CSS classes. */
+  _getAnimationTargetElement() {
+    return this._inputElement?.nativeElement;
+  }
+  /** Returns the unique id for the visual hidden input. */
+  get inputId() {
+    return `${this.id || this._uniqueId}-input`;
+  }
+  constructor(_elementRef, _changeDetectorRef, _ngZone, tabIndex, _animationMode, _options) {
+    this._elementRef = _elementRef;
+    this._changeDetectorRef = _changeDetectorRef;
+    this._ngZone = _ngZone;
+    this._animationMode = _animationMode;
+    this._options = _options;
+    this._animationClasses = {
+      uncheckedToChecked: "mdc-checkbox--anim-unchecked-checked",
+      uncheckedToIndeterminate: "mdc-checkbox--anim-unchecked-indeterminate",
+      checkedToUnchecked: "mdc-checkbox--anim-checked-unchecked",
+      checkedToIndeterminate: "mdc-checkbox--anim-checked-indeterminate",
+      indeterminateToChecked: "mdc-checkbox--anim-indeterminate-checked",
+      indeterminateToUnchecked: "mdc-checkbox--anim-indeterminate-unchecked"
+    };
+    this.ariaLabel = "";
+    this.ariaLabelledby = null;
+    this.labelPosition = "after";
+    this.name = null;
+    this.change = new EventEmitter();
+    this.indeterminateChange = new EventEmitter();
+    this._onTouched = () => {
+    };
+    this._currentAnimationClass = "";
+    this._currentCheckState = TransitionCheckState.Init;
+    this._controlValueAccessorChangeFn = () => {
+    };
+    this._validatorChangeFn = () => {
+    };
+    this._checked = false;
+    this._disabled = false;
+    this._indeterminate = false;
+    this._options = this._options || defaults2;
+    this.color = this._options.color || defaults2.color;
+    this.tabIndex = parseInt(tabIndex) || 0;
+    this.id = this._uniqueId = `mat-mdc-checkbox-${++nextUniqueId5}`;
+  }
+  ngOnChanges(changes) {
+    if (changes["required"]) {
+      this._validatorChangeFn();
+    }
+  }
+  ngAfterViewInit() {
+    this._syncIndeterminate(this._indeterminate);
+  }
+  /** Whether the checkbox is checked. */
+  get checked() {
+    return this._checked;
+  }
+  set checked(value) {
+    if (value != this.checked) {
+      this._checked = value;
+      this._changeDetectorRef.markForCheck();
+    }
+  }
+  /** Whether the checkbox is disabled. */
+  get disabled() {
+    return this._disabled;
+  }
+  set disabled(value) {
+    if (value !== this.disabled) {
+      this._disabled = value;
+      this._changeDetectorRef.markForCheck();
+    }
+  }
+  /**
+   * Whether the checkbox is indeterminate. This is also known as "mixed" mode and can be used to
+   * represent a checkbox with three states, e.g. a checkbox that represents a nested list of
+   * checkable items. Note that whenever checkbox is manually clicked, indeterminate is immediately
+   * set to false.
+   */
+  get indeterminate() {
+    return this._indeterminate;
+  }
+  set indeterminate(value) {
+    const changed = value != this._indeterminate;
+    this._indeterminate = value;
+    if (changed) {
+      if (this._indeterminate) {
+        this._transitionCheckState(TransitionCheckState.Indeterminate);
+      } else {
+        this._transitionCheckState(this.checked ? TransitionCheckState.Checked : TransitionCheckState.Unchecked);
+      }
+      this.indeterminateChange.emit(this._indeterminate);
+    }
+    this._syncIndeterminate(this._indeterminate);
+  }
+  _isRippleDisabled() {
+    return this.disableRipple || this.disabled;
+  }
+  /** Method being called whenever the label text changes. */
+  _onLabelTextChange() {
+    this._changeDetectorRef.detectChanges();
+  }
+  // Implemented as part of ControlValueAccessor.
+  writeValue(value) {
+    this.checked = !!value;
+  }
+  // Implemented as part of ControlValueAccessor.
+  registerOnChange(fn) {
+    this._controlValueAccessorChangeFn = fn;
+  }
+  // Implemented as part of ControlValueAccessor.
+  registerOnTouched(fn) {
+    this._onTouched = fn;
+  }
+  // Implemented as part of ControlValueAccessor.
+  setDisabledState(isDisabled) {
+    this.disabled = isDisabled;
+  }
+  // Implemented as a part of Validator.
+  validate(control) {
+    return this.required && control.value !== true ? {
+      "required": true
+    } : null;
+  }
+  // Implemented as a part of Validator.
+  registerOnValidatorChange(fn) {
+    this._validatorChangeFn = fn;
+  }
+  _transitionCheckState(newState) {
+    let oldState = this._currentCheckState;
+    let element = this._getAnimationTargetElement();
+    if (oldState === newState || !element) {
+      return;
+    }
+    if (this._currentAnimationClass) {
+      element.classList.remove(this._currentAnimationClass);
+    }
+    this._currentAnimationClass = this._getAnimationClassForCheckStateTransition(oldState, newState);
+    this._currentCheckState = newState;
+    if (this._currentAnimationClass.length > 0) {
+      element.classList.add(this._currentAnimationClass);
+      const animationClass = this._currentAnimationClass;
+      this._ngZone.runOutsideAngular(() => {
+        setTimeout(() => {
+          element.classList.remove(animationClass);
+        }, 1e3);
+      });
+    }
+  }
+  _emitChangeEvent() {
+    this._controlValueAccessorChangeFn(this.checked);
+    this.change.emit(this._createChangeEvent(this.checked));
+    if (this._inputElement) {
+      this._inputElement.nativeElement.checked = this.checked;
+    }
+  }
+  /** Toggles the `checked` state of the checkbox. */
+  toggle() {
+    this.checked = !this.checked;
+    this._controlValueAccessorChangeFn(this.checked);
+  }
+  _handleInputClick() {
+    const clickAction = this._options?.clickAction;
+    if (!this.disabled && clickAction !== "noop") {
+      if (this.indeterminate && clickAction !== "check") {
+        Promise.resolve().then(() => {
+          this._indeterminate = false;
+          this.indeterminateChange.emit(this._indeterminate);
+        });
+      }
+      this._checked = !this._checked;
+      this._transitionCheckState(this._checked ? TransitionCheckState.Checked : TransitionCheckState.Unchecked);
+      this._emitChangeEvent();
+    } else if (!this.disabled && clickAction === "noop") {
+      this._inputElement.nativeElement.checked = this.checked;
+      this._inputElement.nativeElement.indeterminate = this.indeterminate;
+    }
+  }
+  _onInteractionEvent(event) {
+    event.stopPropagation();
+  }
+  _onBlur() {
+    Promise.resolve().then(() => {
+      this._onTouched();
+      this._changeDetectorRef.markForCheck();
+    });
+  }
+  _getAnimationClassForCheckStateTransition(oldState, newState) {
+    if (this._animationMode === "NoopAnimations") {
+      return "";
+    }
+    switch (oldState) {
+      case TransitionCheckState.Init:
+        if (newState === TransitionCheckState.Checked) {
+          return this._animationClasses.uncheckedToChecked;
+        } else if (newState == TransitionCheckState.Indeterminate) {
+          return this._checked ? this._animationClasses.checkedToIndeterminate : this._animationClasses.uncheckedToIndeterminate;
+        }
+        break;
+      case TransitionCheckState.Unchecked:
+        return newState === TransitionCheckState.Checked ? this._animationClasses.uncheckedToChecked : this._animationClasses.uncheckedToIndeterminate;
+      case TransitionCheckState.Checked:
+        return newState === TransitionCheckState.Unchecked ? this._animationClasses.checkedToUnchecked : this._animationClasses.checkedToIndeterminate;
+      case TransitionCheckState.Indeterminate:
+        return newState === TransitionCheckState.Checked ? this._animationClasses.indeterminateToChecked : this._animationClasses.indeterminateToUnchecked;
+    }
+    return "";
+  }
+  /**
+   * Syncs the indeterminate value with the checkbox DOM node.
+   *
+   * We sync `indeterminate` directly on the DOM node, because in Ivy the check for whether a
+   * property is supported on an element boils down to `if (propName in element)`. Domino's
+   * HTMLInputElement doesn't have an `indeterminate` property so Ivy will warn during
+   * server-side rendering.
+   */
+  _syncIndeterminate(value) {
+    const nativeCheckbox = this._inputElement;
+    if (nativeCheckbox) {
+      nativeCheckbox.nativeElement.indeterminate = value;
+    }
+  }
+  _onInputClick() {
+    this._handleInputClick();
+  }
+  _onTouchTargetClick() {
+    this._handleInputClick();
+    if (!this.disabled) {
+      this._inputElement.nativeElement.focus();
+    }
+  }
+  /**
+   *  Prevent click events that come from the `<label/>` element from bubbling. This prevents the
+   *  click handler on the host from triggering twice when clicking on the `<label/>` element. After
+   *  the click event on the `<label/>` propagates, the browsers dispatches click on the associated
+   *  `<input/>`. By preventing clicks on the label by bubbling, we ensure only one click event
+   *  bubbles when the label is clicked.
+   */
+  _preventBubblingFromLabel(event) {
+    if (!!event.target && this._labelElement.nativeElement.contains(event.target)) {
+      event.stopPropagation();
+    }
+  }
+};
+_MatCheckbox.\u0275fac = function MatCheckbox_Factory(t) {
+  return new (t || _MatCheckbox)(\u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(ChangeDetectorRef), \u0275\u0275directiveInject(NgZone), \u0275\u0275injectAttribute("tabindex"), \u0275\u0275directiveInject(ANIMATION_MODULE_TYPE, 8), \u0275\u0275directiveInject(MAT_CHECKBOX_DEFAULT_OPTIONS, 8));
+};
+_MatCheckbox.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
+  type: _MatCheckbox,
+  selectors: [["mat-checkbox"]],
+  viewQuery: function MatCheckbox_Query(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275viewQuery(_c08, 5);
+      \u0275\u0275viewQuery(_c16, 5);
+      \u0275\u0275viewQuery(MatRipple, 5);
+    }
+    if (rf & 2) {
+      let _t;
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._inputElement = _t.first);
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._labelElement = _t.first);
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.ripple = _t.first);
+    }
+  },
+  hostAttrs: [1, "mat-mdc-checkbox"],
+  hostVars: 14,
+  hostBindings: function MatCheckbox_HostBindings(rf, ctx) {
+    if (rf & 2) {
+      \u0275\u0275hostProperty("id", ctx.id);
+      \u0275\u0275attribute("tabindex", null)("aria-label", null)("aria-labelledby", null);
+      \u0275\u0275classMap(ctx.color ? "mat-" + ctx.color : "mat-accent");
+      \u0275\u0275classProp("_mat-animation-noopable", ctx._animationMode === "NoopAnimations")("mdc-checkbox--disabled", ctx.disabled)("mat-mdc-checkbox-disabled", ctx.disabled)("mat-mdc-checkbox-checked", ctx.checked);
+    }
+  },
+  inputs: {
+    ariaLabel: [0, "aria-label", "ariaLabel"],
+    ariaLabelledby: [0, "aria-labelledby", "ariaLabelledby"],
+    ariaDescribedby: [0, "aria-describedby", "ariaDescribedby"],
+    id: "id",
+    required: [2, "required", "required", booleanAttribute],
+    labelPosition: "labelPosition",
+    name: "name",
+    value: "value",
+    disableRipple: [2, "disableRipple", "disableRipple", booleanAttribute],
+    tabIndex: [2, "tabIndex", "tabIndex", (value) => value == null ? void 0 : numberAttribute(value)],
+    color: "color",
+    checked: [2, "checked", "checked", booleanAttribute],
+    disabled: [2, "disabled", "disabled", booleanAttribute],
+    indeterminate: [2, "indeterminate", "indeterminate", booleanAttribute]
+  },
+  outputs: {
+    change: "change",
+    indeterminateChange: "indeterminateChange"
+  },
+  exportAs: ["matCheckbox"],
+  standalone: true,
+  features: [\u0275\u0275ProvidersFeature([MAT_CHECKBOX_CONTROL_VALUE_ACCESSOR, {
+    provide: NG_VALIDATORS,
+    useExisting: _MatCheckbox,
+    multi: true
+  }]), \u0275\u0275InputTransformsFeature, \u0275\u0275NgOnChangesFeature, \u0275\u0275StandaloneFeature],
+  ngContentSelectors: _c25,
+  decls: 15,
+  vars: 19,
+  consts: [["checkbox", ""], ["input", ""], ["label", ""], ["mat-internal-form-field", "", 3, "click", "labelPosition"], [1, "mdc-checkbox"], [1, "mat-mdc-checkbox-touch-target", 3, "click"], ["type", "checkbox", 1, "mdc-checkbox__native-control", 3, "blur", "click", "change", "checked", "indeterminate", "disabled", "id", "required", "tabIndex"], [1, "mdc-checkbox__ripple"], [1, "mdc-checkbox__background"], ["focusable", "false", "viewBox", "0 0 24 24", "aria-hidden", "true", 1, "mdc-checkbox__checkmark"], ["fill", "none", "d", "M1.73,12.91 8.1,19.28 22.79,4.59", 1, "mdc-checkbox__checkmark-path"], [1, "mdc-checkbox__mixedmark"], ["mat-ripple", "", 1, "mat-mdc-checkbox-ripple", "mat-mdc-focus-indicator", 3, "matRippleTrigger", "matRippleDisabled", "matRippleCentered"], [1, "mdc-label", 3, "for"]],
+  template: function MatCheckbox_Template(rf, ctx) {
+    if (rf & 1) {
+      const _r1 = \u0275\u0275getCurrentView();
+      \u0275\u0275projectionDef();
+      \u0275\u0275elementStart(0, "div", 3);
+      \u0275\u0275listener("click", function MatCheckbox_Template_div_click_0_listener($event) {
+        \u0275\u0275restoreView(_r1);
+        return \u0275\u0275resetView(ctx._preventBubblingFromLabel($event));
+      });
+      \u0275\u0275elementStart(1, "div", 4, 0)(3, "div", 5);
+      \u0275\u0275listener("click", function MatCheckbox_Template_div_click_3_listener() {
+        \u0275\u0275restoreView(_r1);
+        return \u0275\u0275resetView(ctx._onTouchTargetClick());
+      });
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(4, "input", 6, 1);
+      \u0275\u0275listener("blur", function MatCheckbox_Template_input_blur_4_listener() {
+        \u0275\u0275restoreView(_r1);
+        return \u0275\u0275resetView(ctx._onBlur());
+      })("click", function MatCheckbox_Template_input_click_4_listener() {
+        \u0275\u0275restoreView(_r1);
+        return \u0275\u0275resetView(ctx._onInputClick());
+      })("change", function MatCheckbox_Template_input_change_4_listener($event) {
+        \u0275\u0275restoreView(_r1);
+        return \u0275\u0275resetView(ctx._onInteractionEvent($event));
+      });
+      \u0275\u0275elementEnd();
+      \u0275\u0275element(6, "div", 7);
+      \u0275\u0275elementStart(7, "div", 8);
+      \u0275\u0275namespaceSVG();
+      \u0275\u0275elementStart(8, "svg", 9);
+      \u0275\u0275element(9, "path", 10);
+      \u0275\u0275elementEnd();
+      \u0275\u0275namespaceHTML();
+      \u0275\u0275element(10, "div", 11);
+      \u0275\u0275elementEnd();
+      \u0275\u0275element(11, "div", 12);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(12, "label", 13, 2);
+      \u0275\u0275projection(14);
+      \u0275\u0275elementEnd()();
+    }
+    if (rf & 2) {
+      const checkbox_r2 = \u0275\u0275reference(2);
+      \u0275\u0275property("labelPosition", ctx.labelPosition);
+      \u0275\u0275advance(4);
+      \u0275\u0275classProp("mdc-checkbox--selected", ctx.checked);
+      \u0275\u0275property("checked", ctx.checked)("indeterminate", ctx.indeterminate)("disabled", ctx.disabled)("id", ctx.inputId)("required", ctx.required)("tabIndex", ctx.disabled ? -1 : ctx.tabIndex);
+      \u0275\u0275attribute("aria-label", ctx.ariaLabel || null)("aria-labelledby", ctx.ariaLabelledby)("aria-describedby", ctx.ariaDescribedby)("aria-checked", ctx.indeterminate ? "mixed" : null)("name", ctx.name)("value", ctx.value);
+      \u0275\u0275advance(7);
+      \u0275\u0275property("matRippleTrigger", checkbox_r2)("matRippleDisabled", ctx.disableRipple || ctx.disabled)("matRippleCentered", true);
+      \u0275\u0275advance();
+      \u0275\u0275property("for", ctx.inputId);
+    }
+  },
+  dependencies: [MatRipple, _MatInternalFormField],
+  styles: ['.mdc-checkbox{display:inline-block;position:relative;flex:0 0 18px;box-sizing:content-box;width:18px;height:18px;line-height:0;white-space:nowrap;cursor:pointer;vertical-align:bottom;padding:calc((var(--mdc-checkbox-state-layer-size, 40px) - 18px)/2);margin:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2)}.mdc-checkbox:hover .mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-hover-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-hover-state-layer-color)}.mdc-checkbox:hover .mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-hover-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-focus-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-focus-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-focus-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-pressed-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-pressed-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-pressed-state-layer-color)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-hover-state-layer-opacity);background-color:var(--mdc-checkbox-selected-hover-state-layer-color)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-hover-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-focus-state-layer-opacity);background-color:var(--mdc-checkbox-selected-focus-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-focus-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-pressed-state-layer-opacity);background-color:var(--mdc-checkbox-selected-pressed-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-pressed-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control{position:absolute;margin:0;padding:0;opacity:0;cursor:inherit;width:var(--mdc-checkbox-state-layer-size, 40px);height:var(--mdc-checkbox-state-layer-size, 40px);top:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2);right:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2);left:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2)}.mdc-checkbox--disabled{cursor:default;pointer-events:none}.mdc-checkbox__background{display:inline-flex;position:absolute;align-items:center;justify-content:center;box-sizing:border-box;width:18px;height:18px;border:2px solid currentColor;border-radius:2px;background-color:rgba(0,0,0,0);pointer-events:none;will-change:background-color,border-color;transition:background-color 90ms cubic-bezier(0.4, 0, 0.6, 1),border-color 90ms cubic-bezier(0.4, 0, 0.6, 1);border-color:var(--mdc-checkbox-unselected-icon-color);top:calc((var(--mdc-checkbox-state-layer-size, 40px) - 18px)/2);left:calc((var(--mdc-checkbox-state-layer-size, 40px) - 18px)/2)}.mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-icon-color);background-color:var(--mdc-checkbox-selected-icon-color)}.mdc-checkbox--disabled .mdc-checkbox__background{border-color:var(--mdc-checkbox-disabled-unselected-icon-color)}.mdc-checkbox__native-control:disabled:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:disabled:indeterminate~.mdc-checkbox__background{background-color:var(--mdc-checkbox-disabled-selected-icon-color);border-color:rgba(0,0,0,0)}.mdc-checkbox:hover .mdc-checkbox__native-control:not(:checked)~.mdc-checkbox__background,.mdc-checkbox:hover .mdc-checkbox__native-control:not(:indeterminate)~.mdc-checkbox__background{border-color:var(--mdc-checkbox-unselected-hover-icon-color);background-color:rgba(0,0,0,0)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mdc-checkbox__background,.mdc-checkbox:hover .mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-hover-icon-color);background-color:var(--mdc-checkbox-selected-hover-icon-color)}.mdc-checkbox__native-control:focus:focus:not(:checked)~.mdc-checkbox__background,.mdc-checkbox__native-control:focus:focus:not(:indeterminate)~.mdc-checkbox__background{border-color:var(--mdc-checkbox-unselected-focus-icon-color)}.mdc-checkbox__native-control:focus:focus:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:focus:focus:indeterminate~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-focus-icon-color);background-color:var(--mdc-checkbox-selected-focus-icon-color)}.mdc-checkbox__checkmark{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;opacity:0;transition:opacity 180ms cubic-bezier(0.4, 0, 0.6, 1);color:var(--mdc-checkbox-selected-checkmark-color)}.mdc-checkbox--disabled .mdc-checkbox__checkmark{color:var(--mdc-checkbox-disabled-selected-checkmark-color)}.mdc-checkbox__checkmark-path{transition:stroke-dashoffset 180ms cubic-bezier(0.4, 0, 0.6, 1);stroke:currentColor;stroke-width:3.12px;stroke-dashoffset:29.7833385;stroke-dasharray:29.7833385}.mdc-checkbox__mixedmark{width:100%;height:0;transform:scaleX(0) rotate(0deg);border-width:1px;border-style:solid;opacity:0;transition:opacity 90ms cubic-bezier(0.4, 0, 0.6, 1),transform 90ms cubic-bezier(0.4, 0, 0.6, 1);border-color:var(--mdc-checkbox-selected-checkmark-color)}.cdk-high-contrast-active .mdc-checkbox__mixedmark{margin:0 1px}.mdc-checkbox--disabled .mdc-checkbox__mixedmark{border-color:var(--mdc-checkbox-disabled-selected-checkmark-color)}.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__background,.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__background,.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__background,.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__background{animation-duration:180ms;animation-timing-function:linear}.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__checkmark-path{animation:mdc-checkbox-unchecked-checked-checkmark-path 180ms linear;transition:none}.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__mixedmark{animation:mdc-checkbox-unchecked-indeterminate-mixedmark 90ms linear;transition:none}.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__checkmark-path{animation:mdc-checkbox-checked-unchecked-checkmark-path 90ms linear;transition:none}.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__checkmark{animation:mdc-checkbox-checked-indeterminate-checkmark 90ms linear;transition:none}.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__mixedmark{animation:mdc-checkbox-checked-indeterminate-mixedmark 90ms linear;transition:none}.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__checkmark{animation:mdc-checkbox-indeterminate-checked-checkmark 500ms linear;transition:none}.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__mixedmark{animation:mdc-checkbox-indeterminate-checked-mixedmark 500ms linear;transition:none}.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__mixedmark{animation:mdc-checkbox-indeterminate-unchecked-mixedmark 300ms linear;transition:none}.mdc-checkbox__native-control:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background{transition:border-color 90ms cubic-bezier(0, 0, 0.2, 1),background-color 90ms cubic-bezier(0, 0, 0.2, 1)}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__checkmark-path,.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__checkmark-path{stroke-dashoffset:0}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__checkmark{transition:opacity 180ms cubic-bezier(0, 0, 0.2, 1),transform 180ms cubic-bezier(0, 0, 0.2, 1);opacity:1}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__mixedmark{transform:scaleX(1) rotate(-45deg)}.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__checkmark{transform:rotate(45deg);opacity:0;transition:opacity 90ms cubic-bezier(0.4, 0, 0.6, 1),transform 90ms cubic-bezier(0.4, 0, 0.6, 1)}.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__mixedmark{transform:scaleX(1) rotate(0deg);opacity:1}@keyframes mdc-checkbox-unchecked-checked-checkmark-path{0%,50%{stroke-dashoffset:29.7833385}50%{animation-timing-function:cubic-bezier(0, 0, 0.2, 1)}100%{stroke-dashoffset:0}}@keyframes mdc-checkbox-unchecked-indeterminate-mixedmark{0%,68.2%{transform:scaleX(0)}68.2%{animation-timing-function:cubic-bezier(0, 0, 0, 1)}100%{transform:scaleX(1)}}@keyframes mdc-checkbox-checked-unchecked-checkmark-path{from{animation-timing-function:cubic-bezier(0.4, 0, 1, 1);opacity:1;stroke-dashoffset:0}to{opacity:0;stroke-dashoffset:-29.7833385}}@keyframes mdc-checkbox-checked-indeterminate-checkmark{from{animation-timing-function:cubic-bezier(0, 0, 0.2, 1);transform:rotate(0deg);opacity:1}to{transform:rotate(45deg);opacity:0}}@keyframes mdc-checkbox-indeterminate-checked-checkmark{from{animation-timing-function:cubic-bezier(0.14, 0, 0, 1);transform:rotate(45deg);opacity:0}to{transform:rotate(360deg);opacity:1}}@keyframes mdc-checkbox-checked-indeterminate-mixedmark{from{animation-timing-function:cubic-bezier(0, 0, 0.2, 1);transform:rotate(-45deg);opacity:0}to{transform:rotate(0deg);opacity:1}}@keyframes mdc-checkbox-indeterminate-checked-mixedmark{from{animation-timing-function:cubic-bezier(0.14, 0, 0, 1);transform:rotate(0deg);opacity:1}to{transform:rotate(315deg);opacity:0}}@keyframes mdc-checkbox-indeterminate-unchecked-mixedmark{0%{animation-timing-function:linear;transform:scaleX(1);opacity:1}32.8%,100%{transform:scaleX(0);opacity:0}}.mat-mdc-checkbox{display:inline-block;position:relative;-webkit-tap-highlight-color:rgba(0,0,0,0)}.mat-mdc-checkbox._mat-animation-noopable .mdc-checkbox *,.mat-mdc-checkbox._mat-animation-noopable .mdc-checkbox *::before{transition:none !important;animation:none !important}.mat-mdc-checkbox .mdc-checkbox__background{-webkit-print-color-adjust:exact;color-adjust:exact}.mat-mdc-checkbox label{cursor:pointer}.mat-mdc-checkbox .mat-internal-form-field{color:var(--mat-checkbox-label-text-color);font-family:var(--mat-checkbox-label-text-font);line-height:var(--mat-checkbox-label-text-line-height);font-size:var(--mat-checkbox-label-text-size);letter-spacing:var(--mat-checkbox-label-text-tracking);font-weight:var(--mat-checkbox-label-text-weight)}.mat-mdc-checkbox.mat-mdc-checkbox-disabled label{cursor:default;color:var(--mat-checkbox-disabled-label-color)}.mat-mdc-checkbox label:empty{display:none}.cdk-high-contrast-active .mat-mdc-checkbox.mat-mdc-checkbox-disabled{opacity:.5}.cdk-high-contrast-active .mat-mdc-checkbox .mdc-checkbox__checkmark{--mdc-checkbox-selected-checkmark-color: CanvasText;--mdc-checkbox-disabled-selected-checkmark-color: CanvasText}.mat-mdc-checkbox .mdc-checkbox__ripple{opacity:0}.mat-mdc-checkbox-ripple,.mdc-checkbox__ripple{top:0;left:0;right:0;bottom:0;position:absolute;border-radius:50%;pointer-events:none}.mat-mdc-checkbox-ripple:not(:empty),.mdc-checkbox__ripple:not(:empty){transform:translateZ(0)}.mat-mdc-checkbox-ripple .mat-ripple-element{opacity:.1}.mat-mdc-checkbox-touch-target{position:absolute;top:50%;left:50%;height:48px;width:48px;transform:translate(-50%, -50%);display:var(--mat-checkbox-touch-target-display)}.mat-mdc-checkbox-ripple::before{border-radius:50%}.mdc-checkbox__native-control:focus~.mat-mdc-focus-indicator::before{content:""}'],
+  encapsulation: 2,
+  changeDetection: 0
+});
+var MatCheckbox = _MatCheckbox;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatCheckbox, [{
+    type: Component,
+    args: [{
+      selector: "mat-checkbox",
+      host: {
+        "class": "mat-mdc-checkbox",
+        "[attr.tabindex]": "null",
+        "[attr.aria-label]": "null",
+        "[attr.aria-labelledby]": "null",
+        "[class._mat-animation-noopable]": `_animationMode === 'NoopAnimations'`,
+        "[class.mdc-checkbox--disabled]": "disabled",
+        "[id]": "id",
+        // Add classes that users can use to more easily target disabled or checked checkboxes.
+        "[class.mat-mdc-checkbox-disabled]": "disabled",
+        "[class.mat-mdc-checkbox-checked]": "checked",
+        "[class]": 'color ? "mat-" + color : "mat-accent"'
+      },
+      providers: [MAT_CHECKBOX_CONTROL_VALUE_ACCESSOR, {
+        provide: NG_VALIDATORS,
+        useExisting: MatCheckbox,
+        multi: true
+      }],
+      exportAs: "matCheckbox",
+      encapsulation: ViewEncapsulation$1.None,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+      standalone: true,
+      imports: [MatRipple, _MatInternalFormField],
+      template: `<div mat-internal-form-field [labelPosition]="labelPosition" (click)="_preventBubblingFromLabel($event)">
+  <div #checkbox class="mdc-checkbox">
+    <!-- Render this element first so the input is on top. -->
+    <div class="mat-mdc-checkbox-touch-target" (click)="_onTouchTargetClick()"></div>
+    <input #input
+           type="checkbox"
+           class="mdc-checkbox__native-control"
+           [class.mdc-checkbox--selected]="checked"
+           [attr.aria-label]="ariaLabel || null"
+           [attr.aria-labelledby]="ariaLabelledby"
+           [attr.aria-describedby]="ariaDescribedby"
+           [attr.aria-checked]="indeterminate ? 'mixed' : null"
+           [attr.name]="name"
+           [attr.value]="value"
+           [checked]="checked"
+           [indeterminate]="indeterminate"
+           [disabled]="disabled"
+           [id]="inputId"
+           [required]="required"
+           [tabIndex]="disabled ? -1 : tabIndex"
+           (blur)="_onBlur()"
+           (click)="_onInputClick()"
+           (change)="_onInteractionEvent($event)"/>
+    <div class="mdc-checkbox__ripple"></div>
+    <div class="mdc-checkbox__background">
+      <svg class="mdc-checkbox__checkmark"
+           focusable="false"
+           viewBox="0 0 24 24"
+           aria-hidden="true">
+        <path class="mdc-checkbox__checkmark-path"
+              fill="none"
+              d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
+      </svg>
+      <div class="mdc-checkbox__mixedmark"></div>
+    </div>
+    <div class="mat-mdc-checkbox-ripple mat-mdc-focus-indicator" mat-ripple
+      [matRippleTrigger]="checkbox"
+      [matRippleDisabled]="disableRipple || disabled"
+      [matRippleCentered]="true"></div>
+  </div>
+  <!--
+    Avoid putting a click handler on the <label/> to fix duplicate navigation stop on Talk Back
+    (#14385). Putting a click handler on the <label/> caused this bug because the browser produced
+    an unnecessary accessibility tree node.
+  -->
+  <label class="mdc-label"
+         #label
+         [for]="inputId">
+    <ng-content></ng-content>
+  </label>
+</div>
+`,
+      styles: ['.mdc-checkbox{display:inline-block;position:relative;flex:0 0 18px;box-sizing:content-box;width:18px;height:18px;line-height:0;white-space:nowrap;cursor:pointer;vertical-align:bottom;padding:calc((var(--mdc-checkbox-state-layer-size, 40px) - 18px)/2);margin:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2)}.mdc-checkbox:hover .mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-hover-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-hover-state-layer-color)}.mdc-checkbox:hover .mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-hover-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-focus-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-focus-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-focus-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-unselected-pressed-state-layer-opacity);background-color:var(--mdc-checkbox-unselected-pressed-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-unselected-pressed-state-layer-color)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-hover-state-layer-opacity);background-color:var(--mdc-checkbox-selected-hover-state-layer-color)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-hover-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-focus-state-layer-opacity);background-color:var(--mdc-checkbox-selected-focus-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control:focus:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-focus-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control:checked~.mdc-checkbox__ripple{opacity:var(--mdc-checkbox-selected-pressed-state-layer-opacity);background-color:var(--mdc-checkbox-selected-pressed-state-layer-color)}.mdc-checkbox:active .mdc-checkbox__native-control:checked~.mat-mdc-checkbox-ripple .mat-ripple-element{background-color:var(--mdc-checkbox-selected-pressed-state-layer-color)}.mdc-checkbox .mdc-checkbox__native-control{position:absolute;margin:0;padding:0;opacity:0;cursor:inherit;width:var(--mdc-checkbox-state-layer-size, 40px);height:var(--mdc-checkbox-state-layer-size, 40px);top:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2);right:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2);left:calc((var(--mdc-checkbox-state-layer-size, 40px) - var(--mdc-checkbox-state-layer-size, 40px))/2)}.mdc-checkbox--disabled{cursor:default;pointer-events:none}.mdc-checkbox__background{display:inline-flex;position:absolute;align-items:center;justify-content:center;box-sizing:border-box;width:18px;height:18px;border:2px solid currentColor;border-radius:2px;background-color:rgba(0,0,0,0);pointer-events:none;will-change:background-color,border-color;transition:background-color 90ms cubic-bezier(0.4, 0, 0.6, 1),border-color 90ms cubic-bezier(0.4, 0, 0.6, 1);border-color:var(--mdc-checkbox-unselected-icon-color);top:calc((var(--mdc-checkbox-state-layer-size, 40px) - 18px)/2);left:calc((var(--mdc-checkbox-state-layer-size, 40px) - 18px)/2)}.mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-icon-color);background-color:var(--mdc-checkbox-selected-icon-color)}.mdc-checkbox--disabled .mdc-checkbox__background{border-color:var(--mdc-checkbox-disabled-unselected-icon-color)}.mdc-checkbox__native-control:disabled:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:disabled:indeterminate~.mdc-checkbox__background{background-color:var(--mdc-checkbox-disabled-selected-icon-color);border-color:rgba(0,0,0,0)}.mdc-checkbox:hover .mdc-checkbox__native-control:not(:checked)~.mdc-checkbox__background,.mdc-checkbox:hover .mdc-checkbox__native-control:not(:indeterminate)~.mdc-checkbox__background{border-color:var(--mdc-checkbox-unselected-hover-icon-color);background-color:rgba(0,0,0,0)}.mdc-checkbox:hover .mdc-checkbox__native-control:checked~.mdc-checkbox__background,.mdc-checkbox:hover .mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-hover-icon-color);background-color:var(--mdc-checkbox-selected-hover-icon-color)}.mdc-checkbox__native-control:focus:focus:not(:checked)~.mdc-checkbox__background,.mdc-checkbox__native-control:focus:focus:not(:indeterminate)~.mdc-checkbox__background{border-color:var(--mdc-checkbox-unselected-focus-icon-color)}.mdc-checkbox__native-control:focus:focus:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:focus:focus:indeterminate~.mdc-checkbox__background{border-color:var(--mdc-checkbox-selected-focus-icon-color);background-color:var(--mdc-checkbox-selected-focus-icon-color)}.mdc-checkbox__checkmark{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;opacity:0;transition:opacity 180ms cubic-bezier(0.4, 0, 0.6, 1);color:var(--mdc-checkbox-selected-checkmark-color)}.mdc-checkbox--disabled .mdc-checkbox__checkmark{color:var(--mdc-checkbox-disabled-selected-checkmark-color)}.mdc-checkbox__checkmark-path{transition:stroke-dashoffset 180ms cubic-bezier(0.4, 0, 0.6, 1);stroke:currentColor;stroke-width:3.12px;stroke-dashoffset:29.7833385;stroke-dasharray:29.7833385}.mdc-checkbox__mixedmark{width:100%;height:0;transform:scaleX(0) rotate(0deg);border-width:1px;border-style:solid;opacity:0;transition:opacity 90ms cubic-bezier(0.4, 0, 0.6, 1),transform 90ms cubic-bezier(0.4, 0, 0.6, 1);border-color:var(--mdc-checkbox-selected-checkmark-color)}.cdk-high-contrast-active .mdc-checkbox__mixedmark{margin:0 1px}.mdc-checkbox--disabled .mdc-checkbox__mixedmark{border-color:var(--mdc-checkbox-disabled-selected-checkmark-color)}.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__background,.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__background,.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__background,.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__background{animation-duration:180ms;animation-timing-function:linear}.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__checkmark-path{animation:mdc-checkbox-unchecked-checked-checkmark-path 180ms linear;transition:none}.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__mixedmark{animation:mdc-checkbox-unchecked-indeterminate-mixedmark 90ms linear;transition:none}.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__checkmark-path{animation:mdc-checkbox-checked-unchecked-checkmark-path 90ms linear;transition:none}.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__checkmark{animation:mdc-checkbox-checked-indeterminate-checkmark 90ms linear;transition:none}.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__mixedmark{animation:mdc-checkbox-checked-indeterminate-mixedmark 90ms linear;transition:none}.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__checkmark{animation:mdc-checkbox-indeterminate-checked-checkmark 500ms linear;transition:none}.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__mixedmark{animation:mdc-checkbox-indeterminate-checked-mixedmark 500ms linear;transition:none}.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__mixedmark{animation:mdc-checkbox-indeterminate-unchecked-mixedmark 300ms linear;transition:none}.mdc-checkbox__native-control:checked~.mdc-checkbox__background,.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background{transition:border-color 90ms cubic-bezier(0, 0, 0.2, 1),background-color 90ms cubic-bezier(0, 0, 0.2, 1)}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__checkmark-path,.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__checkmark-path{stroke-dashoffset:0}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__checkmark{transition:opacity 180ms cubic-bezier(0, 0, 0.2, 1),transform 180ms cubic-bezier(0, 0, 0.2, 1);opacity:1}.mdc-checkbox__native-control:checked~.mdc-checkbox__background .mdc-checkbox__mixedmark{transform:scaleX(1) rotate(-45deg)}.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__checkmark{transform:rotate(45deg);opacity:0;transition:opacity 90ms cubic-bezier(0.4, 0, 0.6, 1),transform 90ms cubic-bezier(0.4, 0, 0.6, 1)}.mdc-checkbox__native-control:indeterminate~.mdc-checkbox__background .mdc-checkbox__mixedmark{transform:scaleX(1) rotate(0deg);opacity:1}@keyframes mdc-checkbox-unchecked-checked-checkmark-path{0%,50%{stroke-dashoffset:29.7833385}50%{animation-timing-function:cubic-bezier(0, 0, 0.2, 1)}100%{stroke-dashoffset:0}}@keyframes mdc-checkbox-unchecked-indeterminate-mixedmark{0%,68.2%{transform:scaleX(0)}68.2%{animation-timing-function:cubic-bezier(0, 0, 0, 1)}100%{transform:scaleX(1)}}@keyframes mdc-checkbox-checked-unchecked-checkmark-path{from{animation-timing-function:cubic-bezier(0.4, 0, 1, 1);opacity:1;stroke-dashoffset:0}to{opacity:0;stroke-dashoffset:-29.7833385}}@keyframes mdc-checkbox-checked-indeterminate-checkmark{from{animation-timing-function:cubic-bezier(0, 0, 0.2, 1);transform:rotate(0deg);opacity:1}to{transform:rotate(45deg);opacity:0}}@keyframes mdc-checkbox-indeterminate-checked-checkmark{from{animation-timing-function:cubic-bezier(0.14, 0, 0, 1);transform:rotate(45deg);opacity:0}to{transform:rotate(360deg);opacity:1}}@keyframes mdc-checkbox-checked-indeterminate-mixedmark{from{animation-timing-function:cubic-bezier(0, 0, 0.2, 1);transform:rotate(-45deg);opacity:0}to{transform:rotate(0deg);opacity:1}}@keyframes mdc-checkbox-indeterminate-checked-mixedmark{from{animation-timing-function:cubic-bezier(0.14, 0, 0, 1);transform:rotate(0deg);opacity:1}to{transform:rotate(315deg);opacity:0}}@keyframes mdc-checkbox-indeterminate-unchecked-mixedmark{0%{animation-timing-function:linear;transform:scaleX(1);opacity:1}32.8%,100%{transform:scaleX(0);opacity:0}}.mat-mdc-checkbox{display:inline-block;position:relative;-webkit-tap-highlight-color:rgba(0,0,0,0)}.mat-mdc-checkbox._mat-animation-noopable .mdc-checkbox *,.mat-mdc-checkbox._mat-animation-noopable .mdc-checkbox *::before{transition:none !important;animation:none !important}.mat-mdc-checkbox .mdc-checkbox__background{-webkit-print-color-adjust:exact;color-adjust:exact}.mat-mdc-checkbox label{cursor:pointer}.mat-mdc-checkbox .mat-internal-form-field{color:var(--mat-checkbox-label-text-color);font-family:var(--mat-checkbox-label-text-font);line-height:var(--mat-checkbox-label-text-line-height);font-size:var(--mat-checkbox-label-text-size);letter-spacing:var(--mat-checkbox-label-text-tracking);font-weight:var(--mat-checkbox-label-text-weight)}.mat-mdc-checkbox.mat-mdc-checkbox-disabled label{cursor:default;color:var(--mat-checkbox-disabled-label-color)}.mat-mdc-checkbox label:empty{display:none}.cdk-high-contrast-active .mat-mdc-checkbox.mat-mdc-checkbox-disabled{opacity:.5}.cdk-high-contrast-active .mat-mdc-checkbox .mdc-checkbox__checkmark{--mdc-checkbox-selected-checkmark-color: CanvasText;--mdc-checkbox-disabled-selected-checkmark-color: CanvasText}.mat-mdc-checkbox .mdc-checkbox__ripple{opacity:0}.mat-mdc-checkbox-ripple,.mdc-checkbox__ripple{top:0;left:0;right:0;bottom:0;position:absolute;border-radius:50%;pointer-events:none}.mat-mdc-checkbox-ripple:not(:empty),.mdc-checkbox__ripple:not(:empty){transform:translateZ(0)}.mat-mdc-checkbox-ripple .mat-ripple-element{opacity:.1}.mat-mdc-checkbox-touch-target{position:absolute;top:50%;left:50%;height:48px;width:48px;transform:translate(-50%, -50%);display:var(--mat-checkbox-touch-target-display)}.mat-mdc-checkbox-ripple::before{border-radius:50%}.mdc-checkbox__native-control:focus~.mat-mdc-focus-indicator::before{content:""}']
+    }]
+  }], () => [{
+    type: ElementRef
+  }, {
+    type: ChangeDetectorRef
+  }, {
+    type: NgZone
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Attribute2,
+      args: ["tabindex"]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [ANIMATION_MODULE_TYPE]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [MAT_CHECKBOX_DEFAULT_OPTIONS]
+    }]
+  }], {
+    ariaLabel: [{
+      type: Input,
+      args: ["aria-label"]
+    }],
+    ariaLabelledby: [{
+      type: Input,
+      args: ["aria-labelledby"]
+    }],
+    ariaDescribedby: [{
+      type: Input,
+      args: ["aria-describedby"]
+    }],
+    id: [{
+      type: Input
+    }],
+    required: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    labelPosition: [{
+      type: Input
+    }],
+    name: [{
+      type: Input
+    }],
+    change: [{
+      type: Output
+    }],
+    indeterminateChange: [{
+      type: Output
+    }],
+    value: [{
+      type: Input
+    }],
+    disableRipple: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    _inputElement: [{
+      type: ViewChild,
+      args: ["input"]
+    }],
+    _labelElement: [{
+      type: ViewChild,
+      args: ["label"]
+    }],
+    tabIndex: [{
+      type: Input,
+      args: [{
+        transform: (value) => value == null ? void 0 : numberAttribute(value)
+      }]
+    }],
+    color: [{
+      type: Input
+    }],
+    ripple: [{
+      type: ViewChild,
+      args: [MatRipple]
+    }],
+    checked: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    disabled: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    indeterminate: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }]
+  });
+})();
+var MAT_CHECKBOX_REQUIRED_VALIDATOR = {
+  provide: NG_VALIDATORS,
+  useExisting: forwardRef(() => MatCheckboxRequiredValidator),
+  multi: true
+};
+var _MatCheckboxRequiredValidator = class _MatCheckboxRequiredValidator extends CheckboxRequiredValidator {
+};
+_MatCheckboxRequiredValidator.\u0275fac = /* @__PURE__ */ (() => {
+  let \u0275MatCheckboxRequiredValidator_BaseFactory;
+  return function MatCheckboxRequiredValidator_Factory(t) {
+    return (\u0275MatCheckboxRequiredValidator_BaseFactory || (\u0275MatCheckboxRequiredValidator_BaseFactory = \u0275\u0275getInheritedFactory(_MatCheckboxRequiredValidator)))(t || _MatCheckboxRequiredValidator);
+  };
+})();
+_MatCheckboxRequiredValidator.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+  type: _MatCheckboxRequiredValidator,
+  selectors: [["mat-checkbox", "required", "", "formControlName", ""], ["mat-checkbox", "required", "", "formControl", ""], ["mat-checkbox", "required", "", "ngModel", ""]],
+  standalone: true,
+  features: [\u0275\u0275ProvidersFeature([MAT_CHECKBOX_REQUIRED_VALIDATOR]), \u0275\u0275InheritDefinitionFeature]
+});
+var MatCheckboxRequiredValidator = _MatCheckboxRequiredValidator;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatCheckboxRequiredValidator, [{
+    type: Directive,
+    args: [{
+      selector: `mat-checkbox[required][formControlName],
+             mat-checkbox[required][formControl], mat-checkbox[required][ngModel]`,
+      providers: [MAT_CHECKBOX_REQUIRED_VALIDATOR],
+      standalone: true
+    }]
+  }], null, null);
+})();
+var __MatCheckboxRequiredValidatorModule = class __MatCheckboxRequiredValidatorModule {
+};
+__MatCheckboxRequiredValidatorModule.\u0275fac = function _MatCheckboxRequiredValidatorModule_Factory(t) {
+  return new (t || __MatCheckboxRequiredValidatorModule)();
+};
+__MatCheckboxRequiredValidatorModule.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+  type: __MatCheckboxRequiredValidatorModule
+});
+__MatCheckboxRequiredValidatorModule.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({});
+var _MatCheckboxRequiredValidatorModule = __MatCheckboxRequiredValidatorModule;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(_MatCheckboxRequiredValidatorModule, [{
+    type: NgModule,
+    args: [{
+      imports: [MatCheckboxRequiredValidator],
+      exports: [MatCheckboxRequiredValidator]
+    }]
+  }], null, null);
+})();
+var _MatCheckboxModule = class _MatCheckboxModule {
+};
+_MatCheckboxModule.\u0275fac = function MatCheckboxModule_Factory(t) {
+  return new (t || _MatCheckboxModule)();
+};
+_MatCheckboxModule.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+  type: _MatCheckboxModule
+});
+_MatCheckboxModule.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
+  imports: [MatCheckbox, MatCommonModule, MatCommonModule]
+});
+var MatCheckboxModule = _MatCheckboxModule;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatCheckboxModule, [{
+    type: NgModule,
+    args: [{
+      imports: [MatCheckbox, MatCommonModule],
+      exports: [MatCheckbox, MatCommonModule]
     }]
   }], null, null);
 })();
@@ -82502,6 +82062,567 @@ _MaterialModule.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({ imports
 ] });
 var MaterialModule = _MaterialModule;
 
+// src/app/components/bottom-sheets/add-sheet/add-sheet.component.ts
+var _AddSheetComponent = class _AddSheetComponent {
+  constructor(bottomSheetRef, data, fb) {
+    this.bottomSheetRef = bottomSheetRef;
+    this.data = data;
+    this.fb = fb;
+    this.title = "Liste Hinzuf\xFCgen";
+    if (data) {
+      this.title = "Liste Bearbeiten";
+    }
+    this.form = fb.group({
+      "name": [this.data?.name || "", Validators.required],
+      "groceries": [this.data?.groceries || false, Validators.required]
+    });
+  }
+  returnFormContent() {
+    this.bottomSheetRef.dismiss({
+      "name": this.form.controls["name"].value.trim(),
+      "groceries": this.form.controls["groceries"].value
+    });
+  }
+};
+_AddSheetComponent.\u0275fac = function AddSheetComponent_Factory(t) {
+  return new (t || _AddSheetComponent)(\u0275\u0275directiveInject(MatBottomSheetRef), \u0275\u0275directiveInject(MAT_BOTTOM_SHEET_DATA), \u0275\u0275directiveInject(FormBuilder));
+};
+_AddSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AddSheetComponent, selectors: [["app-add-sheet"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 11, vars: 4, consts: [["autocomplete", "off", 3, "formGroup"], ["appearance", "outline"], ["matInput", "", "formControlName", "name", "placeholder", "Name"], ["color", "primary", "formControlName", "groceries"], ["mat-flat-button", "", "color", "primary", 3, "click"], ["mat-stroked-button", "", 3, "click", "disabled"]], template: function AddSheetComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "h2");
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(2, "form", 0)(3, "mat-form-field", 1);
+    \u0275\u0275element(4, "input", 2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "mat-slide-toggle", 3);
+    \u0275\u0275text(6, "Einkaufsliste");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(7, "button", 4);
+    \u0275\u0275listener("click", function AddSheetComponent_Template_button_click_7_listener() {
+      return ctx.bottomSheetRef.dismiss();
+    });
+    \u0275\u0275text(8, "Abbrechen");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(9, "button", 5);
+    \u0275\u0275listener("click", function AddSheetComponent_Template_button_click_9_listener() {
+      return ctx.returnFormContent();
+    });
+    \u0275\u0275text(10);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx.title);
+    \u0275\u0275advance();
+    \u0275\u0275property("formGroup", ctx.form);
+    \u0275\u0275advance(7);
+    \u0275\u0275property("disabled", !ctx.form.valid);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx.data ? "Speichern" : "Hinzuf\xFCgen");
+  }
+}, dependencies: [
+  FormsModule,
+  \u0275NgNoValidate,
+  DefaultValueAccessor,
+  NgControlStatus,
+  NgControlStatusGroup,
+  ReactiveFormsModule,
+  FormGroupDirective,
+  FormControlName,
+  CommonModule,
+  MaterialModule,
+  MatButton,
+  MatFormField,
+  MatInput,
+  MatSlideToggle
+], styles: ["\n\nbutton[_ngcontent-%COMP%] {\n  width: 100%;\n  margin: 6px 0;\n}\nbutton[_ngcontent-%COMP%]:last-child {\n  margin-bottom: 38pt;\n}\nform[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  margin-bottom: 24px;\n}\n/*# sourceMappingURL=add-sheet.component.css.map */"] });
+var AddSheetComponent = _AddSheetComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AddSheetComponent, { className: "AddSheetComponent", filePath: "src/app/components/bottom-sheets/add-sheet/add-sheet.component.ts", lineNumber: 20 });
+})();
+
+// src/app/components/lists-overview/lists-overview.component.ts
+var _ListsOverviewComponent = class _ListsOverviewComponent {
+  constructor(bottomSheet) {
+    this.bottomSheet = bottomSheet;
+  }
+  addList() {
+    const dialogRef = this.bottomSheet.open(AddSheetComponent);
+    dialogRef.afterDismissed().subscribe((res) => {
+      if (!!res) {
+      }
+    });
+  }
+};
+_ListsOverviewComponent.\u0275fac = function ListsOverviewComponent_Factory(t) {
+  return new (t || _ListsOverviewComponent)(\u0275\u0275directiveInject(MatBottomSheet));
+};
+_ListsOverviewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ListsOverviewComponent, selectors: [["app-lists-overview"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 6, vars: 0, consts: [[1, "container"], ["mat-raised-button", "", 1, "list-card", 3, "click"], [1, "add-list"]], template: function ListsOverviewComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "h2");
+    \u0275\u0275text(1, "Lists");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(2, "div", 0)(3, "button", 1);
+    \u0275\u0275listener("click", function ListsOverviewComponent_Template_button_click_3_listener() {
+      return ctx.addList();
+    });
+    \u0275\u0275elementStart(4, "mat-icon", 2);
+    \u0275\u0275text(5, "add");
+    \u0275\u0275elementEnd()()();
+  }
+}, dependencies: [
+  CommonModule,
+  MaterialModule,
+  MatButton,
+  MatIcon
+], styles: ["\n\n.list-card[_ngcontent-%COMP%] {\n  padding: 12px;\n  width: calc(50% - 6px);\n  white-space: pre-line;\n  word-break: break-all;\n  position: relative;\n  height: fit-content !important;\n}\n.list-card[_ngcontent-%COMP%]   mat-icon[_ngcontent-%COMP%]:not(.add-list) {\n  position: absolute;\n  left: 6px;\n  top: 6px;\n  width: 12px;\n  height: 12px;\n  font-size: 12px;\n}\n.list-card[_ngcontent-%COMP%]   .add-list[_ngcontent-%COMP%] {\n  margin: 0;\n}\n.container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: space-between;\n  gap: 12px;\n  align-content: flex-start;\n  height: calc(100% - 35px);\n  overflow-y: auto;\n}\n/*# sourceMappingURL=lists-overview.component.css.map */"] });
+var ListsOverviewComponent = _ListsOverviewComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ListsOverviewComponent, { className: "ListsOverviewComponent", filePath: "src/app/components/lists-overview/lists-overview.component.ts", lineNumber: 21 });
+})();
+
+// src/app/app.routes.ts
+var routes = [
+  { path: "user", canActivate: [authGuard], children: [
+    { path: "lists", component: ListsOverviewComponent }
+    //   {path: 'list/:id', component: ListComponent},
+    //   {path: 'settings', component: SettingsComponent},
+  ] },
+  { path: "login", component: LoginComponent, canActivate: [isLoggedGuard] },
+  { path: "register", component: RegisterComponent, canActivate: [isLoggedGuard] },
+  { path: "cookies", component: CookieComponent },
+  { path: "**", redirectTo: "/login" }
+];
+var _AppRoutingModule = class _AppRoutingModule {
+};
+_AppRoutingModule.\u0275fac = function AppRoutingModule_Factory(t) {
+  return new (t || _AppRoutingModule)();
+};
+_AppRoutingModule.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({ type: _AppRoutingModule });
+_AppRoutingModule.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({ imports: [RouterModule.forRoot(routes), RouterModule] });
+var AppRoutingModule = _AppRoutingModule;
+
+// src/app/interceptors/laravel-tokens.ts
+function laravelInterceptor(req, next) {
+  const pusher = inject(PusherService);
+  let headers = req.headers;
+  if (pusher.socketID) {
+    headers = headers.append("X-Socket-ID", pusher.socketID);
+  }
+  const newReq = req.clone({ headers });
+  return next(newReq);
+}
+
+// node_modules/@angular/service-worker/fesm2022/service-worker.mjs
+var ERR_SW_NOT_SUPPORTED = "Service workers are disabled or not supported by this browser";
+function errorObservable(message) {
+  return defer(() => throwError(new Error(message)));
+}
+var NgswCommChannel = class {
+  constructor(serviceWorker) {
+    this.serviceWorker = serviceWorker;
+    if (!serviceWorker) {
+      this.worker = this.events = this.registration = errorObservable(ERR_SW_NOT_SUPPORTED);
+    } else {
+      const controllerChangeEvents = fromEvent(serviceWorker, "controllerchange");
+      const controllerChanges = controllerChangeEvents.pipe(map(() => serviceWorker.controller));
+      const currentController = defer(() => of(serviceWorker.controller));
+      const controllerWithChanges = concat(currentController, controllerChanges);
+      this.worker = controllerWithChanges.pipe(filter((c) => !!c));
+      this.registration = this.worker.pipe(switchMap(() => serviceWorker.getRegistration()));
+      const rawEvents = fromEvent(serviceWorker, "message");
+      const rawEventPayload = rawEvents.pipe(map((event) => event.data));
+      const eventsUnconnected = rawEventPayload.pipe(filter((event) => event && event.type));
+      const events = eventsUnconnected.pipe(publish());
+      events.connect();
+      this.events = events;
+    }
+  }
+  postMessage(action, payload) {
+    return this.worker.pipe(take(1), tap((sw) => {
+      sw.postMessage(__spreadValues({
+        action
+      }, payload));
+    })).toPromise().then(() => void 0);
+  }
+  postMessageWithOperation(type, payload, operationNonce) {
+    const waitForOperationCompleted = this.waitForOperationCompleted(operationNonce);
+    const postMessage = this.postMessage(type, payload);
+    return Promise.all([postMessage, waitForOperationCompleted]).then(([, result]) => result);
+  }
+  generateNonce() {
+    return Math.round(Math.random() * 1e7);
+  }
+  eventsOfType(type) {
+    let filterFn;
+    if (typeof type === "string") {
+      filterFn = (event) => event.type === type;
+    } else {
+      filterFn = (event) => type.includes(event.type);
+    }
+    return this.events.pipe(filter(filterFn));
+  }
+  nextEventOfType(type) {
+    return this.eventsOfType(type).pipe(take(1));
+  }
+  waitForOperationCompleted(nonce) {
+    return this.eventsOfType("OPERATION_COMPLETED").pipe(filter((event) => event.nonce === nonce), take(1), map((event) => {
+      if (event.result !== void 0) {
+        return event.result;
+      }
+      throw new Error(event.error);
+    })).toPromise();
+  }
+  get isEnabled() {
+    return !!this.serviceWorker;
+  }
+};
+var _SwPush = class _SwPush {
+  /**
+   * True if the Service Worker is enabled (supported by the browser and enabled via
+   * `ServiceWorkerModule`).
+   */
+  get isEnabled() {
+    return this.sw.isEnabled;
+  }
+  constructor(sw) {
+    this.sw = sw;
+    this.pushManager = null;
+    this.subscriptionChanges = new Subject();
+    if (!sw.isEnabled) {
+      this.messages = NEVER;
+      this.notificationClicks = NEVER;
+      this.subscription = NEVER;
+      return;
+    }
+    this.messages = this.sw.eventsOfType("PUSH").pipe(map((message) => message.data));
+    this.notificationClicks = this.sw.eventsOfType("NOTIFICATION_CLICK").pipe(map((message) => message.data));
+    this.pushManager = this.sw.registration.pipe(map((registration) => registration.pushManager));
+    const workerDrivenSubscriptions = this.pushManager.pipe(switchMap((pm) => pm.getSubscription()));
+    this.subscription = merge(workerDrivenSubscriptions, this.subscriptionChanges);
+  }
+  /**
+   * Subscribes to Web Push Notifications,
+   * after requesting and receiving user permission.
+   *
+   * @param options An object containing the `serverPublicKey` string.
+   * @returns A Promise that resolves to the new subscription object.
+   */
+  requestSubscription(options) {
+    if (!this.sw.isEnabled || this.pushManager === null) {
+      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
+    }
+    const pushOptions = {
+      userVisibleOnly: true
+    };
+    let key = this.decodeBase64(options.serverPublicKey.replace(/_/g, "/").replace(/-/g, "+"));
+    let applicationServerKey = new Uint8Array(new ArrayBuffer(key.length));
+    for (let i = 0; i < key.length; i++) {
+      applicationServerKey[i] = key.charCodeAt(i);
+    }
+    pushOptions.applicationServerKey = applicationServerKey;
+    return this.pushManager.pipe(switchMap((pm) => pm.subscribe(pushOptions)), take(1)).toPromise().then((sub) => {
+      this.subscriptionChanges.next(sub);
+      return sub;
+    });
+  }
+  /**
+   * Unsubscribes from Service Worker push notifications.
+   *
+   * @returns A Promise that is resolved when the operation succeeds, or is rejected if there is no
+   *          active subscription or the unsubscribe operation fails.
+   */
+  unsubscribe() {
+    if (!this.sw.isEnabled) {
+      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
+    }
+    const doUnsubscribe = (sub) => {
+      if (sub === null) {
+        throw new Error("Not subscribed to push notifications.");
+      }
+      return sub.unsubscribe().then((success) => {
+        if (!success) {
+          throw new Error("Unsubscribe failed!");
+        }
+        this.subscriptionChanges.next(null);
+      });
+    };
+    return this.subscription.pipe(take(1), switchMap(doUnsubscribe)).toPromise();
+  }
+  decodeBase64(input2) {
+    return atob(input2);
+  }
+};
+_SwPush.\u0275fac = function SwPush_Factory(t) {
+  return new (t || _SwPush)(\u0275\u0275inject(NgswCommChannel));
+};
+_SwPush.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
+  token: _SwPush,
+  factory: _SwPush.\u0275fac
+});
+var SwPush = _SwPush;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SwPush, [{
+    type: Injectable
+  }], () => [{
+    type: NgswCommChannel
+  }], null);
+})();
+var _SwUpdate = class _SwUpdate {
+  /**
+   * True if the Service Worker is enabled (supported by the browser and enabled via
+   * `ServiceWorkerModule`).
+   */
+  get isEnabled() {
+    return this.sw.isEnabled;
+  }
+  constructor(sw) {
+    this.sw = sw;
+    if (!sw.isEnabled) {
+      this.versionUpdates = NEVER;
+      this.unrecoverable = NEVER;
+      return;
+    }
+    this.versionUpdates = this.sw.eventsOfType(["VERSION_DETECTED", "VERSION_INSTALLATION_FAILED", "VERSION_READY", "NO_NEW_VERSION_DETECTED"]);
+    this.unrecoverable = this.sw.eventsOfType("UNRECOVERABLE_STATE");
+  }
+  /**
+   * Checks for an update and waits until the new version is downloaded from the server and ready
+   * for activation.
+   *
+   * @returns a promise that
+   * - resolves to `true` if a new version was found and is ready to be activated.
+   * - resolves to `false` if no new version was found
+   * - rejects if any error occurs
+   */
+  checkForUpdate() {
+    if (!this.sw.isEnabled) {
+      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
+    }
+    const nonce = this.sw.generateNonce();
+    return this.sw.postMessageWithOperation("CHECK_FOR_UPDATES", {
+      nonce
+    }, nonce);
+  }
+  /**
+   * Updates the current client (i.e. browser tab) to the latest version that is ready for
+   * activation.
+   *
+   * In most cases, you should not use this method and instead should update a client by reloading
+   * the page.
+   *
+   * <div class="alert is-important">
+   *
+   * Updating a client without reloading can easily result in a broken application due to a version
+   * mismatch between the application shell and other page resources,
+   * such as lazy-loaded chunks, whose filenames may change between
+   * versions.
+   *
+   * Only use this method, if you are certain it is safe for your specific use case.
+   *
+   * </div>
+   *
+   * @returns a promise that
+   *  - resolves to `true` if an update was activated successfully
+   *  - resolves to `false` if no update was available (for example, the client was already on the
+   *    latest version).
+   *  - rejects if any error occurs
+   */
+  activateUpdate() {
+    if (!this.sw.isEnabled) {
+      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
+    }
+    const nonce = this.sw.generateNonce();
+    return this.sw.postMessageWithOperation("ACTIVATE_UPDATE", {
+      nonce
+    }, nonce);
+  }
+};
+_SwUpdate.\u0275fac = function SwUpdate_Factory(t) {
+  return new (t || _SwUpdate)(\u0275\u0275inject(NgswCommChannel));
+};
+_SwUpdate.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
+  token: _SwUpdate,
+  factory: _SwUpdate.\u0275fac
+});
+var SwUpdate = _SwUpdate;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SwUpdate, [{
+    type: Injectable
+  }], () => [{
+    type: NgswCommChannel
+  }], null);
+})();
+var SCRIPT = new InjectionToken(ngDevMode ? "NGSW_REGISTER_SCRIPT" : "");
+function ngswAppInitializer(injector, script, options, platformId) {
+  return () => {
+    if (!(isPlatformBrowser2(platformId) && "serviceWorker" in navigator && options.enabled !== false)) {
+      return;
+    }
+    const ngZone = injector.get(NgZone);
+    const appRef = injector.get(ApplicationRef);
+    ngZone.runOutsideAngular(() => {
+      const sw = navigator.serviceWorker;
+      const onControllerChange = () => sw.controller?.postMessage({
+        action: "INITIALIZE"
+      });
+      sw.addEventListener("controllerchange", onControllerChange);
+      appRef.onDestroy(() => {
+        sw.removeEventListener("controllerchange", onControllerChange);
+      });
+    });
+    let readyToRegister$;
+    if (typeof options.registrationStrategy === "function") {
+      readyToRegister$ = options.registrationStrategy();
+    } else {
+      const [strategy, ...args] = (options.registrationStrategy || "registerWhenStable:30000").split(":");
+      switch (strategy) {
+        case "registerImmediately":
+          readyToRegister$ = of(null);
+          break;
+        case "registerWithDelay":
+          readyToRegister$ = delayWithTimeout(+args[0] || 0);
+          break;
+        case "registerWhenStable":
+          readyToRegister$ = !args[0] ? whenStable2(injector) : merge(whenStable2(injector), delayWithTimeout(+args[0]));
+          break;
+        default:
+          throw new Error(`Unknown ServiceWorker registration strategy: ${options.registrationStrategy}`);
+      }
+    }
+    ngZone.runOutsideAngular(() => readyToRegister$.pipe(take(1)).subscribe(() => navigator.serviceWorker.register(script, {
+      scope: options.scope
+    }).catch((err) => console.error("Service worker registration failed with:", err))));
+  };
+}
+function delayWithTimeout(timeout) {
+  return of(null).pipe(delay(timeout));
+}
+function whenStable2(injector) {
+  const appRef = injector.get(ApplicationRef);
+  return appRef.isStable.pipe(filter((stable) => stable));
+}
+function ngswCommChannelFactory(opts, platformId) {
+  return new NgswCommChannel(isPlatformBrowser2(platformId) && opts.enabled !== false ? navigator.serviceWorker : void 0);
+}
+var SwRegistrationOptions = class {
+};
+function provideServiceWorker(script, options = {}) {
+  return makeEnvironmentProviders([SwPush, SwUpdate, {
+    provide: SCRIPT,
+    useValue: script
+  }, {
+    provide: SwRegistrationOptions,
+    useValue: options
+  }, {
+    provide: NgswCommChannel,
+    useFactory: ngswCommChannelFactory,
+    deps: [SwRegistrationOptions, PLATFORM_ID]
+  }, {
+    provide: APP_INITIALIZER,
+    useFactory: ngswAppInitializer,
+    deps: [Injector, SCRIPT, SwRegistrationOptions, PLATFORM_ID],
+    multi: true
+  }]);
+}
+var _ServiceWorkerModule = class _ServiceWorkerModule {
+  /**
+   * Register the given Angular Service Worker script.
+   *
+   * If `enabled` is set to `false` in the given options, the module will behave as if service
+   * workers are not supported by the browser, and the service worker will not be registered.
+   */
+  static register(script, options = {}) {
+    return {
+      ngModule: _ServiceWorkerModule,
+      providers: [provideServiceWorker(script, options)]
+    };
+  }
+};
+_ServiceWorkerModule.\u0275fac = function ServiceWorkerModule_Factory(t) {
+  return new (t || _ServiceWorkerModule)();
+};
+_ServiceWorkerModule.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+  type: _ServiceWorkerModule
+});
+_ServiceWorkerModule.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
+  providers: [SwPush, SwUpdate]
+});
+var ServiceWorkerModule = _ServiceWorkerModule;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ServiceWorkerModule, [{
+    type: NgModule,
+    args: [{
+      providers: [SwPush, SwUpdate]
+    }]
+  }], null, null);
+})();
+
+// src/app/app.config.ts
+var appConfig = {
+  providers: [
+    provideRouter(routes),
+    importProvidersFrom(HttpClientModule),
+    provideAnimations(),
+    CookieService,
+    provideHttpClient(withInterceptors([laravelInterceptor])),
+    provideServiceWorker("ngsw-worker.js", {
+      enabled: !isDevMode(),
+      registrationStrategy: "registerWhenStable:30000"
+    })
+  ]
+};
+
+// node_modules/uuid/dist/esm-browser/stringify.js
+var byteToHex = [];
+for (i = 0; i < 256; ++i) {
+  byteToHex.push((i + 256).toString(16).slice(1));
+}
+var i;
+function unsafeStringify(arr, offset = 0) {
+  return (byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + "-" + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + "-" + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + "-" + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + "-" + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]]).toLowerCase();
+}
+
+// node_modules/uuid/dist/esm-browser/rng.js
+var getRandomValues;
+var rnds8 = new Uint8Array(16);
+function rng() {
+  if (!getRandomValues) {
+    getRandomValues = typeof crypto !== "undefined" && crypto.getRandomValues && crypto.getRandomValues.bind(crypto);
+    if (!getRandomValues) {
+      throw new Error("crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported");
+    }
+  }
+  return getRandomValues(rnds8);
+}
+
+// node_modules/uuid/dist/esm-browser/native.js
+var randomUUID = typeof crypto !== "undefined" && crypto.randomUUID && crypto.randomUUID.bind(crypto);
+var native_default = {
+  randomUUID
+};
+
+// node_modules/uuid/dist/esm-browser/v4.js
+function v4(options, buf, offset) {
+  if (native_default.randomUUID && !buf && !options) {
+    return native_default.randomUUID();
+  }
+  options = options || {};
+  var rnds = options.random || (options.rng || rng)();
+  rnds[6] = rnds[6] & 15 | 64;
+  rnds[8] = rnds[8] & 63 | 128;
+  if (buf) {
+    offset = offset || 0;
+    for (var i = 0; i < 16; ++i) {
+      buf[offset + i] = rnds[i];
+    }
+    return buf;
+  }
+  return unsafeStringify(rnds);
+}
+var v4_default = v4;
+
 // src/app/services/theme/theme.service.ts
 var _ThemeService = class _ThemeService {
   constructor() {
@@ -82538,7 +82659,7 @@ function AppComponent_div_3_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
 }
-function AppComponent_mat_toolbar_7_Template(rf, ctx) {
+function AppComponent_mat_toolbar_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-toolbar")(1, "button", 5)(2, "div", 6)(3, "mat-icon");
     \u0275\u0275text(4, "list");
@@ -82675,7 +82796,7 @@ _AppComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _A
       return ctx.negativeScroll($event);
     });
   }
-}, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 8, vars: 9, consts: [["id", "refresh"], ["id", "offline-indicator", 4, "ngIf"], [1, "content"], [4, "ngIf"], ["id", "offline-indicator"], ["mat-button", "", "routerLink", "/user/lists", 3, "color"], [1, "toolbar-button"], ["mat-button", "", "routerLink", "/user/settings", 3, "color"]], template: function AppComponent_Template(rf, ctx) {
+}, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 10, vars: 13, consts: [["id", "refresh"], ["id", "offline-indicator", 4, "ngIf"], [1, "content"], [4, "ngIf"], ["id", "offline-indicator"], ["mat-button", "", "routerLink", "/user/lists", 3, "color"], [1, "toolbar-button"], ["mat-button", "", "routerLink", "/user/settings", 3, "color"]], template: function AppComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "mat-icon");
     \u0275\u0275listener("@rotate.done", function AppComponent_Template_mat_icon_animation_rotate_done_1_listener() {
@@ -82685,21 +82806,23 @@ _AppComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _A
     \u0275\u0275elementEnd()();
     \u0275\u0275template(3, AppComponent_div_3_Template, 2, 0, "div", 1);
     \u0275\u0275pipe(4, "async");
-    \u0275\u0275elementStart(5, "div", 2);
-    \u0275\u0275element(6, "router-outlet");
+    \u0275\u0275pipe(5, "async");
+    \u0275\u0275elementStart(6, "div", 2);
+    \u0275\u0275element(7, "router-outlet");
     \u0275\u0275elementEnd();
-    \u0275\u0275template(7, AppComponent_mat_toolbar_7_Template, 13, 2, "mat-toolbar", 3);
+    \u0275\u0275template(8, AppComponent_mat_toolbar_8_Template, 13, 2, "mat-toolbar", 3);
+    \u0275\u0275pipe(9, "async");
   }
   if (rf & 2) {
     \u0275\u0275advance();
     \u0275\u0275styleProp("opacity", ctx.refreshOpacity);
     \u0275\u0275property("@rotate", ctx.animationState);
     \u0275\u0275advance(2);
-    \u0275\u0275property("ngIf", !\u0275\u0275pipeBind1(4, 7, ctx.pusher.online.asObservable()));
-    \u0275\u0275advance(2);
+    \u0275\u0275property("ngIf", !\u0275\u0275pipeBind1(4, 7, ctx.pusher.online.asObservable()) && \u0275\u0275pipeBind1(5, 9, ctx.authService.isLoggedIn));
+    \u0275\u0275advance(3);
     \u0275\u0275styleProp("top", ctx.marginTopContent + "px");
     \u0275\u0275advance(2);
-    \u0275\u0275property("ngIf", ctx.authService.isLoggedIn);
+    \u0275\u0275property("ngIf", \u0275\u0275pipeBind1(9, 11, ctx.authService.isLoggedIn));
   }
 }, dependencies: [
   CommonModule,

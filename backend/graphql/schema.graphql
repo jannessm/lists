@@ -14,17 +14,17 @@ type Query @guard {
 
     me: User! @auth
 
-    tasks: [Task!]! @all @whereAuth(relation: "user")
+    # tasks: [Task!]! @all @whereAuth(relation: "user")
 
-    pullTasks(checkpoint: TasksInputCheckpoint @spread, limit: Int!): TaskPullBulk!
+    # pullTasks(checkpoint: TasksInputCheckpoint @spread, limit: Int!): TaskPullBulk!
 }
 
 type Mutation @guard {
-  upsertTask(task: TaskInput! @spread): Task @upsert @inject(context: "user.id", name: "user_id") @broadcast(subscription: "streamTasks")
+  # upsertTask(task: TaskInput! @spread): Task @upsert @inject(context: "user.id", name: "user_id") @broadcast(subscription: "streamTasks")
 
-  pushTasks(tasksPushRow: [TasksInputPushRow!]): [Task!]! @field(resolver: "App\\Models\\Task@pushResolver")
+  # pushTasks(tasksPushRow: [TasksInputPushRow!]): [Task!]! @field(resolver: "App\\Models\\Task@pushResolver")
 }
 
 type Subscription @guard {
-  streamTasks(headers: TasksInputHeaders): TaskPullBulk
+  # streamTasks(headers: TasksInputHeaders): TaskPullBulk
 }

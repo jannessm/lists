@@ -5,10 +5,11 @@ import { authGuard } from './guards/auth/auth.guard';
 import { RegisterComponent } from './components/register/register.component';
 import { CookieComponent } from './components/cookie/cookie.component';
 import { isLoggedGuard } from './guards/is-logged/is-logged.guard';
+import { ListsOverviewComponent } from './components/lists-overview/lists-overview.component';
 
 export const routes: Routes = [
     {path: 'user', canActivate: [authGuard], children: [
-    //   {path: 'lists', component: ListsOverviewComponent},
+      {path: 'lists', component: ListsOverviewComponent},
     //   {path: 'list/:id', component: ListComponent},
     //   {path: 'settings', component: SettingsComponent},
     ]},

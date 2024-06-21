@@ -14,8 +14,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\User::factory(10)->hasTasks(5)->create();
+        if (file_exists(__DIR__ . '/data.db')) {
+            $this->seedFromSqlite();
+        } else {
+            $this->seedRandomly();
+        }
+    }
 
+    private function seedRandomly() {
+        \App\Models\User::factory(10)->hasLists(5)->create();
+    
         \App\Models\User::factory()
             ->hasTasks(5)
             ->create([
@@ -23,5 +31,27 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@test',
             'password' => Hash::make(md5("test")),
         ]);
+    }
+
+    private function seedFromSqlite() {
+        $pdo = null;
+
+        try {
+            $pdo = new \PDO("sqlite:" . __DIR__ . '/data.db');
+        } catch (\PDOException $e) {
+            respondErrorMsg(500, "Database not available.");
+        }
+
+        if (!$pdo) {
+            return;
+        }
+
+        //user
+        $stmt = $pdo->prepare('Select email as name, email, password, dark_theme as theme from user;');
+        $stmt->execute();
+
+        while ($user = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            \App\Models\User::factory()->create($user);
+        }
     }
 }
