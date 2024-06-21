@@ -8,7 +8,7 @@ services:
       - MYSQL_ROOT_PASSWORD=password
 
   soketi:
-    image: 'quay.io/soketi/soketi:latest-16-alpine'
+    image: 'quay.io/soketi/soketi:16-16-distroless'
     environment:
       SOKETI_DEBUG: '0'
       SOKETI_METRICS_SERVER_PORT: '9601'
@@ -20,7 +20,7 @@ services:
       - '${SOKETI_METRICS_SERVER_PORT:-9601}:9601'
   
   laravel:
-    image: bitnami/laravel:latest
+    image: bitnami/laravel:11
     depends_on:
       - mysql
       - soketi
