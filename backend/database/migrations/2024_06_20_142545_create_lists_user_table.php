@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_lists', function (Blueprint $table) {
+        Schema::create('lists_user', function (Blueprint $table) {
             $table->id();
             $table->foreignUlid('user_id')->cascadeOnDelete();
             $table->foreignUlid('lists_id')->cascadeOnDelete();
@@ -23,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_lists');
+        Schema::dropIfExists('lists_user');
     }
 };

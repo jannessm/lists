@@ -15,6 +15,7 @@ return new class extends Migration
             $table->ulid('id')->primary();
             $table->string('name')->nullable(false);
             $table->boolean('is_shopping_list')->default(false);
+            $table->foreignUlid('created_by')->references('id')->on('users')->nullable(false);
             $table->timestamps();
             $table->boolean('_deleted')->default(false);
         });

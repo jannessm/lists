@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +14,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         if (file_exists(__DIR__ . '/data.db')) {
+            echo 'seed from sqlite database\n';
             $this->seedFromSqlite();
         } else {
             $this->seedRandomly();
@@ -45,13 +45,75 @@ class DatabaseSeeder extends Seeder
         if (!$pdo) {
             return;
         }
+        
+        $new_lists = [];
+        $new_users = [];
 
-        //user
-        $stmt = $pdo->prepare('Select email as name, email, password, dark_theme as theme from user;');
+        //lists_user relations
+        $relations_stmt = $pdo->prepare('SELECT email AS user_id, uuid AS list_id FROM user_list;');
+        $relations_stmt->execute();
+
+        while($relation = $relations_stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $created_list = FALSE;
+
+            // create user if not done yet
+            if (!array_key_exists($relation['user_id'], $new_users)) {
+                $stmt = $pdo->prepare('SELECT email AS name, email, password, dark_theme AS theme FROM user WHERE email = :email;');
+                $stmt->execute([
+                    ':email' => $relation['user_id']
+                ]);
+                
+                $user = $stmt->fetch(\PDO::FETCH_ASSOC);
+                if ($user) {
+                    $new_user = \App\Models\User::create($user);
+                    $new_users[$relation['user_id']] = $new_user;
+                } else {
+                    echo $relation['user_id'] . " not found\n";
+                }
+            }
+
+
+            // create list if not done yet
+            if (!array_key_exists($relation['list_id'], $new_lists)) {
+                $stmt = $pdo->prepare('SELECT name, groceries AS is_shopping_list FROM lists WHERE uuid = :uuid;');
+                $stmt->execute([
+                    ':uuid' => $relation['list_id']
+                ]);
+    
+                $list = $stmt->fetch(\PDO::FETCH_ASSOC);
+                $list['created_by'] = $new_user->id;
+                $list['is_shopping_list'] = $list['is_shopping_list'] === 1 || $list['is_shopping_list'] === '1';
+                $new_list = \App\Models\Lists::create($list);
+                
+                $new_lists[$relation['list_id']] = $new_list;
+                $created_list = TRUE;
+            }
+
+
+            //add relation if relation is "shared_with"
+            if (!$created_list) {
+                $new_user = $new_users[$relation['user_id']];
+                $new_list = $new_lists[$relation['list_id']];
+                $new_list->sharedWith()->attach($new_user);
+            }
+        }
+
+        //process list items
+        $stmt = $pdo->prepare('SELECT name, time AS due, done, list_id, created_by from list_items;');
         $stmt->execute();
 
-        while ($user = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            \App\Models\User::factory()->create($user);
+        while ($item = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $item['lists_id'] = $new_lists[$item['list_id']]->id;
+            $item['created_by'] = $new_users[$item['created_by']]->id;
+            $item['done'] = $item['done'] === 1 || $item['done'] === '1';
+            unset($item['list_id']);
+
+            if (strlen($item['name']) > 100) {
+                $item['description'] = $item['name'];
+                $item['name'] = substr($item['name'], 0, 100);
+            }
+
+            \App\Models\ListItem::create($item);
         }
     }
 }

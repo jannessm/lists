@@ -6,6 +6,8 @@ services:
     environment:
       - MYSQL_DATABASE=bitnami_myapp
       - MYSQL_ROOT_PASSWORD=password
+    ports:
+      - 3306:3306
 
   soketi:
     image: 'quay.io/soketi/soketi:1.6-16-distroless'
