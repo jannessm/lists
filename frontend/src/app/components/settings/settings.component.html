@@ -1,6 +1,6 @@
 <div class="container">
-    <button disabled mat-fab class="user-fab-0" *ngIf="userEmail">{{userEmail.substr(0, 2).toUpperCase()}}</button>
-    <div>{{userEmail}}</div>
+    <button disabled mat-fab class="user-fab-0" *ngIf="(user | async)?.name">{{(user | async)?.name?.substr(0, 2)?.toUpperCase()}}</button>
+    <div>{{(user | async)?.email}}</div>
 
     <mat-form-field appearance="outline">
         <mat-label>Theme</mat-label>

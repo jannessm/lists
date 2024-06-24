@@ -1,4 +1,4 @@
-#import interfaces.graphql
+####### Query Types #############
 
 "Account of a person who utilizes this application."
 type User implements Item {
@@ -12,7 +12,10 @@ type User implements Item {
   email: String!
 
   "When the email was verified."
-  email_verified_at: DateTime
+  emailVerifiedAt: DateTime @canRoot(ability: "view") @rename(attribute: "email_verified_at")
+
+  "Theme setting: One of ['auto', 'dark', 'light']"
+  theme: String @canRoot(ability: "view")
   
   "When item was created."
   createdAt: DateTime! @rename(attribute: "created_at")
@@ -24,6 +27,57 @@ type User implements Item {
   _deleted: Boolean!
 }
 
+
+
+####### Input Types #########
+
 input UserInput {
   id: String!
+  name: String!
+  email: String!
+  emailVerifiedAt: DateTime @canRoot(ability: "canView") @rename(attribute: "email_verified_at")
+  theme: String @canRoot(ability: "canView")
+  createdAt: DateTime! @rename(attribute: "created_at")
+  updatedAt: DateTime! @rename(attribute: "updated_at")
+  _deleted: Boolean!
+}
+
+input MeInputHeaders {
+  id: String
+}
+
+input MeInputPushRow {
+  newDocumentState: UserInput!
+  assumedMasterState: UserInput!
+}
+
+input MeInputCheckpoint {
+  updatedAt: DateTime @where(key: "updated_at", operator: ">=")
+}
+
+input UsersInputHeaders {
+  id: String
+}
+
+input UsersInputPushRow {
+  newDocumentState: UserInput!
+  assumedMasterState: UserInput!
+}
+
+input UsersInputCheckpoint {
+  id: String @where(operator: ">=")
+  updatedAt: DateTime @where(key: "updated_at", operator: ">=")
+}
+
+
+####### Response Types #######
+
+type UserPullBulk {
+  documents: [User]!
+  checkpoint: CheckpointType
+}
+
+type MePullBulk {
+  documents: [User]!
+  checkpoint: CheckpointType
 }

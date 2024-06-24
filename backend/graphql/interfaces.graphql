@@ -12,16 +12,7 @@ type Item {
     _deleted: Boolean!
 }
 
-input TasksInputCheckpoint {
-    id: String @where(operator: ">=")
-    updatedAt: DateTime! @where(key: "updated_at", operator: ">=")
-}
-
 type CheckpointType {
     id: String
     updatedAt: DateTime!
-}
-
-input TasksInputHeaders {
-    user_id: String
 }

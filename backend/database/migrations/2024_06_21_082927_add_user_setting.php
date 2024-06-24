@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->tinyInteger('theme')
                 ->after('password')
-                ->nullable();
+                ->default('light');
         });
     }
 
@@ -24,7 +24,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['theme']);
+            $table->dropColumn(['theme', 'default_list']);
         });
     }
 };

@@ -4,7 +4,7 @@ import { replicateRxCollection } from 'rxdb/plugins/replication';
 import { DataApiService } from '../data-api/data-api.service';
 import { Subject, firstValueFrom } from 'rxjs';
 import { pullQueryBuilderFromRxSchema, pullStreamBuilderFromRxSchema, pushQueryBuilderFromRxSchema } from 'rxdb/plugins/replication-graphql';
-import { graphQLGenerationInput } from '../../../models/data';
+import { graphQLGenerationInput } from '../../../models/rxdb/me';
 import { MutationResponse, PullResult, PushResult, QueryResponse, SubscriptionResponse } from '../../../models/responses';
 import { PusherService } from '../pusher/pusher.service';
 

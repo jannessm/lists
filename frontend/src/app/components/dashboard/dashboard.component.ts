@@ -53,56 +53,6 @@ export class DashboardComponent {
     })
   }
 
-  logout() {
-    this.authService.logout().subscribe(loggedOut => {
-      if (!loggedOut) {
-        this.snackBar.open('Der Logout hat nicht funktioniert.', 'OK');
-      }
-    });
-  }
-
-  save() {
-    if (this.dataService.db) {
-      const tasks = Array.from(document.querySelectorAll('.task')).map(tItem => {
-        let doneItem = tItem.querySelector('input[type="checkbox"]');
-        let done = false;
-        if (doneItem) {
-          done = (doneItem as HTMLInputElement).checked;
-        }
-        
-        let nameItem = tItem.querySelector('input.name');
-        let name = "";
-        if (nameItem) {
-          name = (nameItem as HTMLInputElement).value;
-        }
-
-        let idItem = tItem.querySelector('span.item-id');
-        let id = "";
-        if (idItem) {
-          id = (idItem as HTMLElement).innerText;
-        }
-
-        let userItem = tItem.querySelector('span.user');
-        let user = "";
-        if (userItem) {
-          user = (userItem as HTMLElement).innerText;
-        }
-
-        return {
-          id,
-          done,
-          name,
-          user: {
-            id: user,
-          }
-        }
-      });
-
-      this.dataService.db['tasks'].bulkUpsert(tasks);
-    }
-
-  }
-
   execQuery() {
     this.api.graphQL<any>(this.query).subscribe(res => {
       this.data = res;

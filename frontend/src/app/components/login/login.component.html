@@ -22,6 +22,6 @@
         <mat-error *ngIf="wrongCredentials">Leider stimmen Passwort und Email nicht.</mat-error>
         <button mat-stroked-button (click)="login()" [disabled]="form.invalid || form.disabled">Login</button>
         
-        <button mat-flat-button color="primary" routerLink="/register" [state]="{email: form.get('email')?.value}" type="button">Register</button>
+        <button mat-flat-button color="primary" routerLink="/register" type="button">Register</button>
     </form>
 </div>

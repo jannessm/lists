@@ -2,8 +2,10 @@ import { Injectable } from '@angular/core';
 import { RxDatabase, addRxPlugin, createRxDatabase } from 'rxdb';
 import { RxDBDevModePlugin } from 'rxdb/plugins/dev-mode';
 import { RxDBCleanupPlugin} from 'rxdb/plugins/cleanup';
+import { RxDBQueryBuilderPlugin } from 'rxdb/plugins/query-builder';
 addRxPlugin(RxDBDevModePlugin);
 addRxPlugin(RxDBCleanupPlugin);
+addRxPlugin(RxDBQueryBuilderPlugin);
 
 import { getRxStorageDexie } from 'rxdb/plugins/storage-dexie';
 
@@ -14,7 +16,7 @@ import { getRxStorageDexie } from 'rxdb/plugins/storage-dexie';
  */
 import 'zone.js/plugins/zone-patch-rxjs';
 
-import { DATA_TYPE, Task, taskSchema } from '../../../models/data';
+import { DATA_TYPE, Task, meSchema, taskSchema } from '../../../models/rxdb/me';
 import { RxReplicationState } from 'rxdb/dist/types/plugins/replication';
 import { BehaviorSubject } from 'rxjs';
 
@@ -22,6 +24,7 @@ import { DataApiService } from '../data-api/data-api.service';
 import { CookieService } from 'ngx-cookie-service';
 import { PusherService } from '../pusher/pusher.service';
 import { ReplicationService } from '../replication/replication.service';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -32,12 +35,17 @@ export class DataService {
   dbInitialized = new BehaviorSubject<boolean>(false);
 
   constructor(
+    private authService: AuthService,
     private api: DataApiService,
     private pusher: PusherService,
     private cookieService: CookieService,
     private replicationService: ReplicationService
   ) {
-    this.initDB();
+    this.authService.isLoggedIn.subscribe(isLoggedIn => {
+      if (isLoggedIn && !this.dbInitialized.getValue()) {
+        this.initDB();
+      }
+    })
   }
 
   async initDB() {
@@ -49,34 +57,34 @@ export class DataService {
     });
 
     await this.db.addCollections({
-      tasks: {
-        schema: taskSchema
+      me: {
+        schema: meSchema
       }
     });
 
-    this.replication = await this.replicationService.setupReplication('tasks', this.db['tasks']);
+    this.replication = await this.replicationService.setupReplication('me', this.db['me']);
     this.replication.error$.subscribe(console.error);
 
     this.dbInitialized.next(true);
   }
 
-  async getById(id: string, type: DATA_TYPE) {
-    if (!this.db || !type)
-      return;
+  // async getById(id: string, type: DATA_TYPE) {
+  //   if (!this.db || !type)
+  //     return;
 
-    const query = {
-      selector: {
-        id: {
-          $eq: id
-        }
-      }
-    };
+  //   const query = {
+  //     selector: {
+  //       id: {
+  //         $eq: id
+  //       }
+  //     }
+  //   };
 
-    switch(type) {
-      case DATA_TYPE.TASK:
-        return await this.db["tasks"].find(query).exec();
-      case DATA_TYPE.USER:
-        return await this.db["users"].find(query).exec();
-    }
-  }
+  //   switch(type) {
+  //     case DATA_TYPE.TASK:
+  //       return await this.db["tasks"].find(query).exec();
+  //     case DATA_TYPE.USER:
+  //       return await this.db["users"].find(query).exec();
+  //   }
+  // }
 }

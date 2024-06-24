@@ -9,6 +9,7 @@ import { MaterialModule } from './material.module';
 import { PusherService } from './services/pusher/pusher.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ThemeService } from './services/theme/theme.service';
+import { DataService } from './services/data/data.service';
 
 @Component({
   selector: 'app-root',
@@ -49,6 +50,7 @@ export class AppComponent {
   constructor(
     public pusher: PusherService,
     public authService: AuthService,
+    public dataService: DataService,
     public router: Router,
     private snackBar: MatSnackBar,
     private themeService: ThemeService,

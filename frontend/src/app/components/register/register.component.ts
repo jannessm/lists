@@ -45,12 +45,9 @@ export class RegisterComponent {
       }
     });
 
-    const nav = this.router.getCurrentNavigation();
-    const defaultEmail = nav && nav.extras.state ? nav.extras.state['email'] : '';
-
     this.form = this.fb.group({
       name: [undefined, [Validators.required]],
-      email: [defaultEmail, [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.email]],
       pwd: ['', Validators.required],
       pwd_confirmation: [undefined, Validators.required],
     },

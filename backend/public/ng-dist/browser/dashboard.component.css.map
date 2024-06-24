@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/dashboard/dashboard.component.scss"],
+  "sourcesContent": ["div:not(.task) {\n    display: flex;\n    flex-direction: column;\n    gap: 12px;\n    width: max(50%, 800px);\n    margin: auto;\n\n    textarea {\n        min-height: 300px;\n    }\n\n    pre {\n        overflow: auto;\n        border: solid lightgrey;\n        padding: 8px;\n        max-height: 500px;\n    }\n}"],
+  "mappings": ";AAAA,GAAA,KAAA,CAAA;AACI,WAAA;AACA,kBAAA;AACA,OAAA;AACA,SAAA,IAAA,GAAA,EAAA;AACA,UAAA;;AAEA,GAAA,KAAA,CAPJ,MAOI;AACI,cAAA;;AAGJ,GAAA,KAAA,CAXJ,MAWI;AACI,YAAA;AACA,UAAA,MAAA;AACA,WAAA;AACA,cAAA;;",
+  "names": []
+}

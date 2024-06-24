@@ -37,7 +37,7 @@
         </mat-error>
 
         <mat-error *ngIf="form.hasError('emailOccupied')">Email bereits registriert.</mat-error>
-        <button mat-stroked-button type="button" routerLink="/login" [state]="{email: form.get('email')?.value}">Login</button>
+        <button mat-stroked-button type="button" routerLink="/login">Login</button>
         <button mat-flat-button color="primary" (click)="register()" [disabled]="form.invalid || form.disabled">Register</button>
     </form>
 </div>

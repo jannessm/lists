@@ -45,10 +45,9 @@ export class LoginComponent {
     });
 
     const nav = this.router.getCurrentNavigation();
-    const defaultEmail = nav && nav.extras.state ? nav.extras.state['email'] : '';
 
     this.form = this.fb.group({
-      email: [defaultEmail, [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.email]],
       pwd: ['', Validators.required],
     });
 

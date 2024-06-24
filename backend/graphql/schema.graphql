@@ -3,16 +3,9 @@
 #import task.graphql
 
 type Query @guard {
-    "Find a single user by an identifying attribute."
-    user(
-      "Search by primary key."
-      id: ID @eq @rules(apply: ["prohibits:email", "required_without:email"])
-
-      "Search by email address."
-      email: String @eq @rules(apply: ["prohibits:id", "required_without:id", "email"])
-    ): User @find
-
-    me: User! @auth
+    pullMe(checkpoint: MeInputCheckpoint @spread, limit: Int!): MePullBulk!
+  
+    pullUsers(checkpoint: UsersInputCheckpoint @spread, limit: Int!): UserPullBulk!
 
     # tasks: [Task!]! @all @whereAuth(relation: "user")
 
@@ -20,11 +13,17 @@ type Query @guard {
 }
 
 type Mutation @guard {
+  pushMe(MePushRow: [MeInputPushRow!]): [User!]! @field(resolver: "App\\Models\\User@pushMeResolver")
+
+  pushUsers(userPushRow: [UsersInputPushRow!]): [User!]! @field(resolver: "App\\Models\\User@pushResolver")
   # upsertTask(task: TaskInput! @spread): Task @upsert @inject(context: "user.id", name: "user_id") @broadcast(subscription: "streamTasks")
 
   # pushTasks(tasksPushRow: [TasksInputPushRow!]): [Task!]! @field(resolver: "App\\Models\\Task@pushResolver")
 }
 
 type Subscription @guard {
+  streamMe(headers: MeInputHeaders): MePullBulk
+
+  streamUsers(headers: UsersInputHeaders): UserPullBulk
   # streamTasks(headers: TasksInputHeaders): TaskPullBulk
 }
