@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->tinyInteger('theme')
+            $table->string('theme')
                 ->after('password')
-                ->default('light');
+                ->default('auto');
         });
     }
 

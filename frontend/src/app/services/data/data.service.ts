@@ -16,7 +16,7 @@ import { getRxStorageDexie } from 'rxdb/plugins/storage-dexie';
  */
 import 'zone.js/plugins/zone-patch-rxjs';
 
-import { DATA_TYPE, Task, meSchema, taskSchema } from '../../../models/rxdb/me';
+import { Task, meSchema } from '../../../models/rxdb/me';
 import { RxReplicationState } from 'rxdb/dist/types/plugins/replication';
 import { BehaviorSubject } from 'rxjs';
 

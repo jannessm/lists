@@ -1,6 +1,6 @@
 import { Component, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterOutlet } from '@angular/router';
+import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { CookieService } from 'ngx-cookie-service';
 import { v4 as uuid } from 'uuid';
@@ -17,6 +17,7 @@ import { DataService } from './services/data/data.service';
   imports: [
     CommonModule,
     RouterOutlet,
+    RouterModule,
     MaterialModule,
   ],
   templateUrl: './app.component.html',

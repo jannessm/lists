@@ -65,6 +65,19 @@ class DatabaseSeeder extends Seeder
                 
                 $user = $stmt->fetch(\PDO::FETCH_ASSOC);
                 if ($user) {
+                    switch($user['theme']) {
+                        default:
+                        case null:
+                            $user['theme'] = 'auto';
+                            break;
+                        case 1:
+                        case '1':
+                            $user['theme'] = 'dark';
+                            break;
+                        case 0:
+                        case '0':
+                            $user['theme'] = 'light';
+                    }
                     $new_user = \App\Models\User::create($user);
                     $new_users[$relation['user_id']] = $new_user;
                 } else {

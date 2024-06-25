@@ -7,8 +7,10 @@ import { MaterialModule } from '../../material.module';
 import { AuthService } from '../../services/auth/auth.service';
 import { environment } from '../../../environments/environment';
 import { DataService } from '../../services/data/data.service';
-import { User } from '../../../models/rxdb/me';
-import { BehaviorSubject, map } from 'rxjs';
+import { THEME, User } from '../../../models/rxdb/me';
+import { RxDocument } from 'rxdb';
+import { Observable } from 'rxjs';
+import { ThemeService } from '../../services/theme/theme.service';
 
 @Component({
   selector: 'app-settings',
@@ -23,7 +25,7 @@ import { BehaviorSubject, map } from 'rxjs';
   styleUrls: ['./settings.component.scss']
 })
 export class SettingsComponent {
-  user?: BehaviorSubject<User>;
+  user?: RxDocument<User>;
   version = environment.version;
 
   theme: FormControl;
@@ -31,6 +33,7 @@ export class SettingsComponent {
 
   constructor(
     private authService: AuthService,
+    private themeService: ThemeService,
     private dataService: DataService,
     private router: Router,
     private swPush: SwPush
@@ -38,44 +41,33 @@ export class SettingsComponent {
     this.dataService.dbInitialized.subscribe(initialized => {
       if (initialized) {
         if (this.dataService.db && this.dataService.db['me']) {
-          this.user = this.dataService.db['me'].find()
-                        .where('updatedAt').gte('0').$
-                        .pipe(map(arr => arr[0])) as BehaviorSubject<User>;
+          // subscribe to RxDocument to get updates and immediately apply them
+          this.dataService.db['me'].find().exec()
+            .then((docs: RxDocument<User>[]) => {
+              docs[0].$.subscribe(user => {
+                this.user = user;
+  
+                // update FormControls on changes
+                this.theme.setValue(this.user?.get('theme'), {emitEvent: false});
+              });
+            });
         }
       }
     });
-    const darkTheme = null;
-    this.theme = new FormControl<string>(this.getDarkThemeFormValue(darkTheme));
-    // this.pushSubscription = new FormControl<boolean>(this.authService.loggedUser?.subscription || false);
+    this.theme = new FormControl<string>('auto');
 
-    this.theme.valueChanges.subscribe(darkTheme => {
-      const darkThemeValue = this.getDarkThemeValue(darkTheme);
-      // if (this.userEmail) {
-      //   this.authService.updateTheme(darkThemeValue).subscribe(new_val => {
-      //     this.theme.setValue(this.getDarkThemeFormValue(new_val), {emitEvent: false});
-      //   });
-      // }
+    this.theme.valueChanges.subscribe(theme => {
+      // push changes
+      if (this.user) {
+        this.user.patch({
+        // this.user.patch({
+          theme
+        });
+
+        // update theme
+        this.themeService.updateTheme(theme);
+      }
     });
-  }
-
-  getDarkThemeFormValue(darkTheme: boolean | null): string {
-    if (darkTheme === null) {
-      return 'auto';
-    } else if (darkTheme) {
-      return 'dark';
-    } else {
-      return 'light';
-    }
-  }
-
-  getDarkThemeValue(darkTheme: string): boolean | null {
-    if (darkTheme === 'auto') {
-      return null;
-    } else if (darkTheme === 'light') {
-      return false;
-    } else {
-      return true;
-    }
   }
 
   logout() {

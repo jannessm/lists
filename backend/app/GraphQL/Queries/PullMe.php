@@ -33,15 +33,9 @@ final class PullMe
                 ["id", "=", Auth::id()],
                 ["updated_at", ">", $updatedAt]
             ])
-            ->orWhere(function (Builder $query) use ($id, $updatedAt) {
-                $query->where([
-                    ["updated_at", "=", $updatedAt],
-                    ["id", ">", $id]
-                ]);
-            })
             ->limit($args["limit"])
             ->get()->all();
-        
+
         $last_user = end($users);
         $result = [
             "documents" => $users,
@@ -49,13 +43,11 @@ final class PullMe
         ];
         
         if (!!$last_user) {
-            $result["checkpoint"] = [
-                "id" => $last_user->id,
+            $result["checkpoint"] = [   
                 "updatedAt" => $last_user->updated_at
             ];
         } else {
             $result["checkpoint"] = [
-                "id" => $args["id"],
                 "updatedAt" => $args["updatedAt"]
             ];
         }

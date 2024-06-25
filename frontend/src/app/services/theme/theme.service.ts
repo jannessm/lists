@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
+import { THEME } from '../../../models/rxdb/me';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ThemeService {
   isDark = new ReplaySubject<boolean>(1);
-  userPreference: boolean | null = null;
+  userPreference: THEME = THEME.AUTO;
 
   constructor() {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
@@ -16,11 +17,16 @@ export class ThemeService {
     this.updateTheme();
   }
 
-  updateTheme() {
+  updateTheme(userPreference?: THEME) {
+    if (userPreference) {
+      this.userPreference = userPreference;
+    }
+
     let isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     
-    if (this.userPreference !== null) {
-      isDark = this.userPreference;
+    // evaluate userPreference if it is not auto
+    if (this.userPreference !== THEME.AUTO) {
+      isDark = this.userPreference === THEME.DARK;
     }
 
     this.isDark.next(isDark);

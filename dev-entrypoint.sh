@@ -1,5 +1,5 @@
 #!/bin/bash
-sleep 10
+# sleep 20
 php artisan cache:clear
 php artisan config:clear
 # php artisan migrate --seed

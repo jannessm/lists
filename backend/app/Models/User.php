@@ -12,6 +12,8 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\HasApiTokens;
 
+use Nuwave\Lighthouse\Execution\Utils\Subscription;
+
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasUlids;
@@ -116,36 +118,37 @@ class User extends Authenticatable
         $upserts = [];
         $conflicts = [];
 
-        foreach($args['mesPushRow'] as $user) {
-            if ($user[$this->primaryKey] !== Auth::id()) {
-                continue;
-            }
-
+        foreach($args['mePushRow'] as $user) {
             $newState = $user['newDocumentState'];
             $assumedMaster = $user['assumedMasterState'];
-            $masterTask = NULL;
+            $masterUser = NULL;
             
-            $masterTask = User::find($assumedMaster[$this->primaryKey]);
+            if ($newState[$this->primaryKey] !== Auth::id()) {
+                throw new ErrorException('cannot push other users than me');
+            }
+
+            $masterUser = User::find($assumedMaster[$this->primaryKey]);
             
             $conflict = FALSE;
             foreach ($assumedMaster as $param => $val) {
-                if ($masterTask[$param] != $val && $param != 'user') {
-                    array_push($conflicts, $masterTask);
+                if ($masterUser[$param] != $val) {
+                    array_push($conflicts, $masterUser);
                     $conflict = TRUE;
                     break;
                 }
             }
 
             if (!$conflict) {
+                $newState['password'] = $masterUser->password;
                 array_push($upserts, $newState);
             }
         }
 
         if (count($upserts) > 0) {
-            User::upsert($upserts, ["id"]);
+            User::upsert($upserts, ['id']);
             $ids = array_column($upserts, 'id');
-            $updatedTasks = User::whereIn('id', $ids)->orderBy('updated_at')->get()->all();
-            Subscription::broadcast('streamMe', $updatedTasks);
+            $updatedMe = User::whereIn('id', $ids)->orderBy('updated_at')->get()->all();
+            Subscription::broadcast('streamMe', $updatedMe);
         }
 
         return $conflicts;

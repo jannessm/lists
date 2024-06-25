@@ -35,4 +35,4 @@ Route::get('/{file}', function(string $file) {
 
     return response(File::get($filename))->header('Content-Type', $mime);
 
-})->where('file', '.+\.(css|js|png|ico)');
+})->where('file', '.+\.(css|js|png|ico|webmanifest)');

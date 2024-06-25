@@ -35,8 +35,8 @@ input UserInput {
   id: String!
   name: String!
   email: String!
-  emailVerifiedAt: DateTime @canRoot(ability: "canView") @rename(attribute: "email_verified_at")
-  theme: String @canRoot(ability: "canView")
+  emailVerifiedAt: DateTime @canRoot(ability: "view") @rename(attribute: "email_verified_at")
+  theme: String @canRoot(ability: "view")
   createdAt: DateTime! @rename(attribute: "created_at")
   updatedAt: DateTime! @rename(attribute: "updated_at")
   _deleted: Boolean!

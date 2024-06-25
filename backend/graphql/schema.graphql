@@ -13,7 +13,7 @@ type Query @guard {
 }
 
 type Mutation @guard {
-  pushMe(MePushRow: [MeInputPushRow!]): [User!]! @field(resolver: "App\\Models\\User@pushMeResolver")
+  pushMe(mePushRow: [MeInputPushRow!]): [User!]! @field(resolver: "App\\Models\\User@pushMeResolver")
 
   pushUsers(userPushRow: [UsersInputPushRow!]): [User!]! @field(resolver: "App\\Models\\User@pushResolver")
   # upsertTask(task: TaskInput! @spread): Task @upsert @inject(context: "user.id", name: "user_id") @broadcast(subscription: "streamTasks")
