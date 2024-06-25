@@ -1,6 +1,53 @@
 <div class="container">
-    <button disabled mat-fab class="user-fab-0" *ngIf="user && !!(user.get$('name') | async)">{{(user.get$('name') | async)?.substr(0, 2)?.toUpperCase()}}</button>
-    <div>{{user?.get$('email') | async}}</div>
+    <button mat-icon-button
+        *ngIf="!editMode"
+        class="edit-buttons"
+        (click)="enterEditMode()">
+            <mat-icon>edit</mat-icon>
+    </button>
+
+    <button
+        disabled
+        mat-fab
+        class="user-fab-0"
+        *ngIf="!editMode && user && !!(user.get$('name') | async)">
+            {{(user.get$('name') | async) | nameBadge}}
+    </button>
+    <button
+        disabled
+        mat-fab
+        class="user-fab-0"
+        *ngIf="editMode">
+            {{nameEmailForm.get('name')?.value | nameBadge}}
+    </button>
+
+    <div *ngIf="!editMode">{{user?.get$('name') | async}}</div>
+    <div *ngIf="!editMode">{{user?.get$('email') | async}}</div>
+
+    <form [formGroup]="nameEmailForm" *ngIf="editMode">
+        <mat-form-field appearance="outline">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name">
+            <mat-error *ngIf="nameEmailForm.get('name')?.hasError('required')">
+                Name muss angegeben werden!
+            </mat-error>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email">
+            <mat-error *ngIf="nameEmailForm.get('email')?.hasError('required')">
+                Email muss angegeben werden!
+            </mat-error>
+            <mat-error *ngIf="nameEmailForm.get('email')?.hasError('email')">
+                Bitte eine gültige Email Adresse angeben!
+            </mat-error>
+        </mat-form-field>
+    </form>
+
+    <button mat-stroked-button (click)="saveNameEmail()" *ngIf="editMode">Speichern</button>
+
+    <hr>
 
     <mat-form-field appearance="outline">
         <mat-label>Theme</mat-label>
@@ -10,8 +57,6 @@
             <mat-option value="dark">dunkel</mat-option>
         </mat-select>
     </mat-form-field>
-
-    <!-- <mat-slide-toggle color="primary" [formControl]="pushSubscription">Push-Nachrichten</mat-slide-toggle> -->
     
     <button mat-stroked-button (click)="logout()">Logout</button>
     <div id="version">v{{version}}</div>

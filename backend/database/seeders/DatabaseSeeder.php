@@ -58,7 +58,7 @@ class DatabaseSeeder extends Seeder
 
             // create user if not done yet
             if (!array_key_exists($relation['user_id'], $new_users)) {
-                $stmt = $pdo->prepare('SELECT email AS name, email, password, dark_theme AS theme FROM user WHERE email = :email;');
+                $stmt = $pdo->prepare('SELECT email, password, dark_theme AS theme FROM user WHERE email = :email;');
                 $stmt->execute([
                     ':email' => $relation['user_id']
                 ]);
@@ -78,6 +78,7 @@ class DatabaseSeeder extends Seeder
                         case '0':
                             $user['theme'] = 'light';
                     }
+                    $user['name'] = str_replace(['.', '-', '_'], ' ', explode('@', $user['email'])[0]);
                     $new_user = \App\Models\User::create($user);
                     $new_users[$relation['user_id']] = $new_user;
                 } else {

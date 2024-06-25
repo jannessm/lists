@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["src/app/components/settings/settings.component.scss"],
-  "sourcesContent": [".container {\n    display: flex;\n    flex-direction: column;\n    align-items: center;\n    gap: 16px;\n\n    div {\n        margin: 12px;\n    }\n\n    button:not(.user-fab-0) {\n        width: 100%;\n    }\n\n    #version {\n        color: grey;\n        font-size: 12px;\n        margin-top: 48px;\n    }\n\n    mat-form-field {\n        width: 100%;\n    }\n}"],
-  "mappings": ";AAAA,CAAA;AACI,WAAA;AACA,kBAAA;AACA,eAAA;AACA,OAAA;;AAEA,CANJ,UAMI;AACI,UAAA;;AAGJ,CAVJ,UAUI,MAAA,KAAA,CAAA;AACI,SAAA;;AAGJ,CAdJ,UAcI,CAAA;AACI,SAAA;AACA,aAAA;AACA,cAAA;;AAGJ,CApBJ,UAoBI;AACI,SAAA;;",
+  "sourcesContent": [".container {\n    display: flex;\n    flex-direction: column;\n    align-items: center;\n    gap: 16px;\n\n    div:first-child {\n        margin: 12px;\n    }\n\n    button:not(.user-fab-0):not(.edit-buttons) {\n        width: 100%;\n    }\n\n    button.edit-buttons {\n        position: absolute;\n        top: 32px;\n        right: 0;\n    }\n\n    #version {\n        color: grey;\n        font-size: 12px;\n        margin-top: 48px;\n    }\n\n    form, mat-form-field {\n        width: 100%;\n    }\n\n    hr {\n        width: 100%;\n        border: none;\n        margin: 24px;\n    }\n}"],
+  "mappings": ";AAAA,CAAA;AACI,WAAA;AACA,kBAAA;AACA,eAAA;AACA,OAAA;;AAEA,CANJ,UAMI,GAAA;AACI,UAAA;;AAGJ,CAVJ,UAUI,MAAA,KAAA,CAAA,WAAA,KAAA,CAAA;AACI,SAAA;;AAGJ,CAdJ,UAcI,MAAA,CAJA;AAKI,YAAA;AACA,OAAA;AACA,SAAA;;AAGJ,CApBJ,UAoBI,CAAA;AACI,SAAA;AACA,aAAA;AACA,cAAA;;AAGJ,CA1BJ,UA0BI;AAAA,CA1BJ,UA0BI;AACI,SAAA;;AAGJ,CA9BJ,UA8BI;AACI,SAAA;AACA,UAAA;AACA,UAAA;;",
   "names": []
 }
