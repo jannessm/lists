@@ -46,10 +46,10 @@ export class RegisterComponent {
     });
 
     this.form = this.fb.group({
-      name: [undefined, [Validators.required]],
+      name: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       pwd: ['', Validators.required],
-      pwd_confirmation: [undefined, Validators.required],
+      pwd_confirmation: ['', Validators.required],
     },
     {
       validators: MatchValidator('pwd', 'pwd_confirmation')

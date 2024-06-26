@@ -33,7 +33,12 @@ export class AuthApiService {
     );
   }
 
-  register(name: string, email: string, password: string, password_confirmation: string): Observable<AuthResponse | REGISTER> {
+  register(
+    name: string,
+    email: string,
+    password: string,
+    password_confirmation: string
+  ): Observable<AuthResponse | REGISTER> {
     return this.http.post<AuthResponse>(BASE_API + "register", {
       name, email, password, password_confirmation
     }, { observe: 'response' }).pipe(

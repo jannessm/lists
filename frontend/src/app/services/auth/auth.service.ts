@@ -58,7 +58,12 @@ export class AuthService {
     }));
   }
 
-  register(name: string, email: string, password: string, password_confirmation: string): Observable<AuthResponse | REGISTER> {
+  register(
+    name: string,
+    email: string,
+    password: string,
+    password_confirmation: string
+  ): Observable<AuthResponse | REGISTER> {
     return this.api.register(name, email, password, password_confirmation);
   }
 

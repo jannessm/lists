@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["src/app/components/register/register.component.scss"],
-  "sourcesContent": ["div {\n    margin: 96px;\n}"],
-  "mappings": ";AAAA;AACI,UAAA;;",
+  "sourcesContent": ["div {\n    margin: 96px;\n\n    form {\n        display: flex;\n        flex-direction: column;\n    }\n}"],
+  "mappings": ";AAAA;AACI,UAAA;;AAEA,IAAA;AACI,WAAA;AACA,kBAAA;;",
   "names": []
 }

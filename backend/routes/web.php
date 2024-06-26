@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Response;
 
 /*
@@ -36,3 +37,7 @@ Route::get('/{file}', function(string $file) {
     return response(File::get($filename))->header('Content-Type', $mime);
 
 })->where('file', '.+\.(css|js|png|ico|webmanifest)');
+
+Route::get('/test-mail', function() {
+    Mail::to('j-magnusson@t-online.de')->send(new \App\Mail\Test());
+});
