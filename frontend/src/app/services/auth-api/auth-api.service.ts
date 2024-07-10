@@ -1,7 +1,7 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, map, of } from 'rxjs';
-import { AuthResponse, ValidateResponse } from '../../../models/responses';
+import { AuthResponse, ValidateResponse, VerifyMailResponse } from '../../../models/responses';
 import { BASE_API, REGISTER } from '../../globals';
 
 @Injectable({
@@ -69,6 +69,24 @@ export class AuthApiService {
     return this.http.get<ValidateResponse>(BASE_API + 'auth', {observe: 'response'}).pipe(
       map(res => {
         return res.status === 200 && !!res.body?.loggedIn;
+      }),
+      catchError(() => of(false))
+    );
+  }
+
+  verifyEmail(): Observable<boolean> {
+    return this.http.get<VerifyMailResponse>(BASE_API + 'email/verified', {observe: 'response'}).pipe(
+      map(res => {
+        return res.status === 200 && !!res.body?.verified;
+      }),
+      catchError(() => of(false))
+    );
+  }
+
+  resendVerificationMail(): Observable<boolean> {
+    return this.http.get(BASE_API + 'email/verification-notification', {observe: 'response'}).pipe(
+      map( res => {
+        return res.status === 200;
       }),
       catchError(() => of(false))
     );

@@ -64,54 +64,54 @@ class User extends Authenticatable implements MustVerifyEmail {
         return $this->belongsToMany(Lists::class);
     }
 
-    public function pushResolver($_, $args) {
-        $upserts = [];
-        $conflicts = [];
+    // public function pushResolver($_, $args) {
+    //     $upserts = [];
+    //     $conflicts = [];
 
-        foreach($args['usersPushRow'] as $task) {
-            $newState = $task['newDocumentState'];
-            $assumedMaster = $task['assumedMasterState'];
-            $masterTask = NULL;
+    //     foreach($args['usersPushRow'] as $user) {
+    //         $newState = $user['newDocumentState'];
+    //         $assumedMaster = $user['assumedMasterState'];
+    //         $masterUser = NULL;
 
-            $newState['user_id'] = $newState['user']['id'];
-            unset($newState['user']);
-            $assumedMaster['user_id'] = $assumedMaster['user']['id'];
-            unset($assumedMaster['user']);
+    //         $newState['user_id'] = $newState['user']['id'];
+    //         unset($newState['user']);
+    //         $assumedMaster['user_id'] = $assumedMaster['user']['id'];
+    //         unset($assumedMaster['user']);
             
-            if (array_key_exists($this->primaryKey, $assumedMaster)) {
-                $masterTask = Task::find($assumedMaster[$this->primaryKey]);
-            }
+    //         if (array_key_exists($this->primaryKey, $assumedMaster)) {
+    //             $masterUser = User::find($assumedMaster[$this->primaryKey]);
+    //         }
 
-            # record not found => new Instance
-            if (!$masterTask) {
-                array_push($upserts, $newState);
+    //         # record not found => new Instance
+    //         if (!$masterUser) {
+    //             array_push($upserts, ['new' => $newState, 'old' => null]);
             
-            # $masterTask != Null
-            } else {
-                $conflict = FALSE;
-                foreach ($assumedMaster as $param => $val) {
-                    if ($masterTask[$param] != $val && $param != 'user') {
-                        array_push($conflicts, $masterTask);
-                        $conflict = TRUE;
-                        break;
-                    }
-                }
+    //         # $masterUser != Null
+    //         } else {
+    //             $conflict = FALSE;
+    //             foreach ($assumedMaster as $param => $val) {
+    //                 if ($masterUser[$param] != $val && $param != 'user') {
+    //                     array_push($conflicts, $masterUser);
+    //                     $conflict = TRUE;
+    //                     break;
+    //                 }
+    //             }
 
-                if (!$conflict) {
-                    array_push($upserts, $newState);
-                }
-            }
-        }
+    //             if (!$conflict) {
+    //                 array_push($upserts, ['new' => $newState, 'old' => $masterUser]);
+    //             }
+    //         }
+    //     }
 
-        if (count($upserts) > 0) {
-            Task::upsert($upserts, ["id"]);
-            $ids = array_column($upserts, 'id');
-            $updatedTasks = Task::whereIn('id', $ids)->orderBy('updated_at')->get()->all();
-            Subscription::broadcast('streamTasks', $updatedTasks);
-        }
+    //     if (count($upserts) > 0) {
+    //         User::upsert($upserts, ["id"]);
+    //         $ids = array_column($upserts, 'id');
+    //         $updatedUsers = User::whereIn('id', $ids)->orderBy('updated_at')->get()->all();
+    //         Subscription::broadcast('streamUsers', $updatedUsers);
+    //     }
 
-        return $conflicts;
-    }
+    //     return $conflicts;
+    // }
 
     public function pushMeResolver($_, $args) {
         $upserts = [];
@@ -139,15 +139,22 @@ class User extends Authenticatable implements MustVerifyEmail {
 
             if (!$conflict) {
                 $newState['password'] = $masterUser->password;
-                array_push($upserts, $newState);
+                array_push($upserts, ['new' => $newState, 'master' => $masterUser]);
             }
         }
 
         if (count($upserts) > 0) {
-            User::upsert($upserts, ['id']);
-            $ids = array_column($upserts, 'id');
+            $newStates = array_column($upserts, 'new');
+            User::upsert($newStates, ['id']);
+            $ids = array_column($newStates, 'id');
             $updatedMe = User::whereIn('id', $ids)->orderBy('updated_at')->get()->all();
             Subscription::broadcast('streamMe', $updatedMe);
+
+            foreach($upserts as $key => $state) {
+                if ($state['new']['email'] !== $state['master']['email']) {
+                    $updatedMe[$key]->sendEmailVerificationNotification();
+                }
+            }
         }
 
         return $conflicts;

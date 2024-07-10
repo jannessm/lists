@@ -38,6 +38,16 @@ Route::get('/{file}', function(string $file) {
 
 })->where('file', '.+\.(css|js|png|ico|webmanifest)');
 
-Route::get('/test-mail', function() {
-    Mail::to('j-magnusson@t-online.de')->send(new \App\Mail\Test());
-});
+
+use Illuminate\Notifications\Messages\MailMessage;
+
+// Route::get('/notification', function () {
+//     $url = 'http://localhost:8000';
+
+//     return (new MailMessage)
+//         ->greeting('Hallo!')
+//         ->subject('Emailadresse Bestätigen')
+//         ->line('Klicke auf den Knopf um deine Emailadresse zu bestätigen.')
+//         ->action('Emailadresse bestätigen', $url)
+//         ->salutation("Mit freundlichen Grüßen");
+// });

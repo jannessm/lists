@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use Symfony\Component\HttpFoundation\Response;
 
@@ -20,4 +21,12 @@ use Symfony\Component\HttpFoundation\Response;
 Route::middleware("web")->get('auth', function(Request $request) {
     $user = Auth::user();
     return ["loggedIn" => $user !== null];
+});
+
+Route::middleware(["web"])->get('email/verified', function(Request $request) {
+    $user = $request->user();
+    if (!!$user && $user instanceof MustVerifyEmail && $user->hasVerifiedEmail()) {
+        return ["verified" => true];
+    }
+    return ["verified" => false];
 });

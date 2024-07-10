@@ -20,9 +20,6 @@ import { Task, meSchema } from '../../../models/rxdb/me';
 import { RxReplicationState } from 'rxdb/dist/types/plugins/replication';
 import { BehaviorSubject } from 'rxjs';
 
-import { DataApiService } from '../data-api/data-api.service';
-import { CookieService } from 'ngx-cookie-service';
-import { PusherService } from '../pusher/pusher.service';
 import { ReplicationService } from '../replication/replication.service';
 import { AuthService } from '../auth/auth.service';
 
@@ -36,16 +33,13 @@ export class DataService {
 
   constructor(
     private authService: AuthService,
-    private api: DataApiService,
-    private pusher: PusherService,
-    private cookieService: CookieService,
     private replicationService: ReplicationService
   ) {
     this.authService.isLoggedIn.subscribe(isLoggedIn => {
       if (isLoggedIn && !this.dbInitialized.getValue()) {
         this.initDB();
       }
-    })
+    });
   }
 
   async initDB() {
@@ -67,24 +61,4 @@ export class DataService {
 
     this.dbInitialized.next(true);
   }
-
-  // async getById(id: string, type: DATA_TYPE) {
-  //   if (!this.db || !type)
-  //     return;
-
-  //   const query = {
-  //     selector: {
-  //       id: {
-  //         $eq: id
-  //       }
-  //     }
-  //   };
-
-  //   switch(type) {
-  //     case DATA_TYPE.TASK:
-  //       return await this.db["tasks"].find(query).exec();
-  //     case DATA_TYPE.USER:
-  //       return await this.db["users"].find(query).exec();
-  //   }
-  // }
 }

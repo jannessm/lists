@@ -9,6 +9,9 @@ export interface AuthResponse {
 export interface ValidateResponse {
     loggedIn: boolean;
 }
+export interface VerifyMailResponse {
+    verified: boolean;
+}
 
 export interface QueryResponse<T> {
     data: T

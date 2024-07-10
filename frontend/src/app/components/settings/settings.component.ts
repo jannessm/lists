@@ -81,7 +81,6 @@ export class SettingsComponent {
 
   logout() {
     this.authService.logout();
-    this.router.navigate(['/login']);
   }
 
   enterEditMode() {
@@ -89,6 +88,11 @@ export class SettingsComponent {
     this.nameEmailForm.get('email')?.setValue(this.user?.get('email'));
 
     this.editMode = true;
+  }
+
+  cancelNameEmail() {
+    this.nameEmailForm.reset();
+    this.editMode = false;
   }
 
   saveNameEmail() {
@@ -104,6 +108,7 @@ export class SettingsComponent {
 
       if (this.user.email !== email) {
         patch = Object.assign(patch, {email, emailVerifiedAt: null});
+        this.snackBar.open('Bestätige deine neue Emailadresse per Link in der Bestätigungsmail.', 'Ok');
       }
 
       if (Object.keys(patch).length > 0) {

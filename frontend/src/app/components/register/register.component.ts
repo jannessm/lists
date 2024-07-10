@@ -70,28 +70,9 @@ export class RegisterComponent {
       if (res === REGISTER.FOUND) {
         this.form.setErrors({emailOccupied: true});
       } else {
-        this.router.navigateByUrl('/login');
+        this.authService.isLoggedIn.next(true);
       }
     });
-    // .subscribe(user => {
-    //   // no user data returned === wrong credentials
-    //   if (!user) {
-    //     this.wrongCredentials = true;
-
-    //     Object.values(this.form.controls).forEach(control => {
-    //       control.setErrors({});
-    //     });
-
-    //   // login successful => redirect to change-password/previous-url/default page
-    //   } else {
-    //     if (this.authService.redirectUrl) {
-    //       this.router.navigateByUrl(this.authService.redirectUrl);
-        
-    //     } else {
-    //       this.router.navigateByUrl('/user/lists');
-    //     }
-    //   }
-    // })
   }
 
 }
