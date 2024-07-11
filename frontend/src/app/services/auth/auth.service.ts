@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import md5 from 'md5-ts';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, map } from 'rxjs';
-import { AuthResponse } from '../../../models/responses';
+import { AuthResponse, ChangeEmailStatus } from '../../../models/responses';
 import { PusherService } from '../pusher/pusher.service';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { VerifyMailComponent } from '../../components/bottom-sheets/verify-mail/verify-mail.component';
@@ -117,5 +117,9 @@ export class AuthService {
         })
       }
     });
+  }
+
+  changeEmail(newEmail: string): Observable<ChangeEmailStatus> {
+    return this.api.changeEmail(newEmail);
   }
 }

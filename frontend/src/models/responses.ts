@@ -12,6 +12,15 @@ export interface ValidateResponse {
 export interface VerifyMailResponse {
     verified: boolean;
 }
+export interface ChangeEmailResponse {
+    status: ChangeEmailStatus
+}
+
+export enum ChangeEmailStatus {
+    OK = 'ok',
+    EMAIL_ALREADY_USED = 'email already used',
+    ERROR = 'error',
+}
 
 export interface QueryResponse<T> {
     data: T

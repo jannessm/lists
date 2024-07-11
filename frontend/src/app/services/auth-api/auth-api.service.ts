@@ -1,7 +1,7 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, map, of } from 'rxjs';
-import { AuthResponse, ValidateResponse, VerifyMailResponse } from '../../../models/responses';
+import { AuthResponse, ChangeEmailResponse, ChangeEmailStatus, ValidateResponse, VerifyMailResponse } from '../../../models/responses';
 import { BASE_API, REGISTER } from '../../globals';
 
 @Injectable({
@@ -84,11 +84,22 @@ export class AuthApiService {
   }
 
   resendVerificationMail(): Observable<boolean> {
-    return this.http.get(BASE_API + 'email/verification-notification', {observe: 'response'}).pipe(
-      map( res => {
+    return this.http.post(BASE_API + 'email/verification-notification',  {}, {observe: 'response'}).pipe(
+      map(res => {
         return res.status === 200;
       }),
       catchError(() => of(false))
+    );
+  }
+
+  changeEmail(newEmail: string): Observable<ChangeEmailStatus> {
+    return this.http.post<ChangeEmailResponse>(BASE_API + 'user/change-email', {
+      newEmail
+    }).pipe(
+      map(res => {
+        return res.status;
+      }),
+      catchError(() => of(ChangeEmailStatus.ERROR))
     );
   }
 }

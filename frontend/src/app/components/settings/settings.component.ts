@@ -12,6 +12,8 @@ import { RxDocument } from 'rxdb';
 import { ThemeService } from '../../services/theme/theme.service';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ChangeEmailStatus } from '../../../models/responses';
+import { PusherService } from '../../services/pusher/pusher.service';
 
 @Component({
   selector: 'app-settings',
@@ -42,6 +44,7 @@ export class SettingsComponent {
     private router: Router,
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
+    public pusher: PusherService,
   ) {
     this.dataService.dbInitialized.subscribe(initialized => {
       if (initialized) {
@@ -77,6 +80,14 @@ export class SettingsComponent {
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]]
     });
+
+    this.pusher.online.subscribe(isOnline => {
+      if (!isOnline) {
+        this.nameEmailForm.get('email')?.disable();
+      } else {
+        this.nameEmailForm.get('email')?.enable();
+      }
+    })
   }
 
   logout() {
@@ -107,8 +118,20 @@ export class SettingsComponent {
       }
 
       if (this.user.email !== email) {
-        patch = Object.assign(patch, {email, emailVerifiedAt: null});
-        this.snackBar.open('Bestätige deine neue Emailadresse per Link in der Bestätigungsmail.', 'Ok');
+        // patch = Object.assign(patch, {email, emailVerifiedAt: null});
+        this.authService.changeEmail(email).subscribe(res => {
+          if (res === ChangeEmailStatus.EMAIL_ALREADY_USED) {
+            this.snackBar.open('Emailadresse wird bereits verwendet. Bitte wähle eine andere!', 'Ok');
+          } else if (res === ChangeEmailStatus.ERROR) {
+            this.snackBar.open('Email konnte nicht geändert werden.', 'Ok');
+          } else {
+            this.snackBar.open('Bestätige deine neue Emailadresse per Link in der Bestätigungsmail.', 'Ok');
+            this.user?.patch({
+              email,
+              emailVerfiedAt: null
+            });
+          }
+        });
       }
 
       if (Object.keys(patch).length > 0) {

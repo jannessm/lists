@@ -8,7 +8,7 @@ export interface User {
     id: string;
     name: string;
     email: string;
-    emailVerfiedAt: boolean;
+    emailVerfiedAt: boolean | null;
     theme?: THEME;
     createdAt: string;
     updatedAt: string;
