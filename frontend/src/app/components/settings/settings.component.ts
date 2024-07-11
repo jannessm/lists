@@ -14,6 +14,8 @@ import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ChangeEmailStatus } from '../../../models/responses';
 import { PusherService } from '../../services/pusher/pusher.service';
+import { MatchValidator, NoMatchValidator } from '../../../models/match.validators';
+import md5 from 'md5-ts';
 
 @Component({
   selector: 'app-settings',
@@ -35,7 +37,7 @@ export class SettingsComponent {
   theme: FormControl;
 
   editMode = false;
-  nameEmailForm: FormGroup;
+  editForm: FormGroup;
 
   constructor(
     private authService: AuthService,
@@ -76,18 +78,34 @@ export class SettingsComponent {
       }
     });
 
-    this.nameEmailForm = fb.group({
+    this.editForm = fb.group({
       name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]]
+      email: ['', [Validators.required, Validators.email]],
+      oldPwd: ['', []],
+      pwd: ['', []],
+      pwdConfirmation: ['', []]
+    },
+    {
+      validators: [MatchValidator('pwd', 'pwdConfirmation'), NoMatchValidator('oldPwd', 'pwd')]
     });
+
+    Object.values(this.editForm.controls).forEach(control => 
+      control.valueChanges.subscribe(() => this.editForm.setErrors(null))
+    );
 
     this.pusher.online.subscribe(isOnline => {
       if (!isOnline) {
-        this.nameEmailForm.get('email')?.disable();
+        this.editForm.get('email')?.disable();
+        this.editForm.get('oldPwd')?.disable();
+        this.editForm.get('pwd')?.disable();
+        this.editForm.get('pwdConfirmation')?.disable();
       } else {
-        this.nameEmailForm.get('email')?.enable();
+        this.editForm.get('email')?.enable();
+        this.editForm.get('oldPwd')?.enable();
+        this.editForm.get('pwd')?.enable();
+        this.editForm.get('pwdConfirmation')?.enable();
       }
-    })
+    });
   }
 
   logout() {
@@ -95,30 +113,43 @@ export class SettingsComponent {
   }
 
   enterEditMode() {
-    this.nameEmailForm.get('name')?.setValue(this.user?.get('name'));
-    this.nameEmailForm.get('email')?.setValue(this.user?.get('email'));
+    this.editForm.get('name')?.setValue(this.user?.get('name'));
+    this.editForm.get('email')?.setValue(this.user?.get('email'));
+    this.editForm.get('oldPwd')?.setValue('');
+    this.editForm.get('pwd')?.setValue('');
+    this.editForm.get('pwdConfirmation')?.setValue('');
 
     this.editMode = true;
   }
 
-  cancelNameEmail() {
-    this.nameEmailForm.reset();
+  cancelChanges() {
+    this.editForm.reset();
     this.editMode = false;
   }
 
-  saveNameEmail() {
-    const name = this.nameEmailForm.get('name')?.value;
-    const email = this.nameEmailForm.get('email')?.value;
+  saveChanges() {
+    if (this.editForm.invalid) {
+      return;
+    }
+
+    const name = this.editForm.get('name')?.value;
+    const email = this.editForm.get('email')?.value;
+    const oldPwd = md5(this.editForm.get('oldPwd')?.value);
+    const pwd = md5(this.editForm.get('pwd')?.value);
+    const pwdConfirmation = md5(this.editForm.get('pwdConfirmation')?.value);
 
     let patch = {};
 
-    if (!!this.user && !!name && !!email && this.nameEmailForm.valid) {
+    if (!!this.user && !!name && !!email && this.editForm.valid) {
+      
+      // username
       if (this.user.name !== name) {
         patch = Object.assign(patch, {name});
       }
 
+
+      // email
       if (this.user.email !== email) {
-        // patch = Object.assign(patch, {email, emailVerifiedAt: null});
         this.authService.changeEmail(email).subscribe(res => {
           if (res === ChangeEmailStatus.EMAIL_ALREADY_USED) {
             this.snackBar.open('Emailadresse wird bereits verwendet. Bitte wähle eine andere!', 'Ok');
@@ -130,6 +161,18 @@ export class SettingsComponent {
               email,
               emailVerfiedAt: null
             });
+          }
+        });
+      }
+
+
+      // pwd
+      if (!!oldPwd && !!pwd && !!pwdConfirmation && oldPwd !== pwd) {
+        this.authService.changePwd(oldPwd, pwd, pwdConfirmation).subscribe(res => {
+          if (res) {
+            this.authService.logout();
+          } else {
+            this.snackBar.open('Passwörter konnten nicht geändert werden.', 'Ok');
           }
         });
       }

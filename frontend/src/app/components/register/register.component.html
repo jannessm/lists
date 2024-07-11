@@ -28,7 +28,7 @@
         <mat-form-field appearance="outline">
             <mat-label>Passwort wiederholen</mat-label>
             <input matInput type="password" placeholder="Passwort wiederholen" formControlName="pwd_confirmation">
-            <mat-error *ngIf="form.get('pwd')?.hasError('required')">
+            <mat-error *ngIf="form.get('pwd_confirmation')?.hasError('required')">
                 Passwort muss angegeben werden!
             </mat-error>
         </mat-form-field>

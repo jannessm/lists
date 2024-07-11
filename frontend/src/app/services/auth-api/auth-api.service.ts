@@ -102,4 +102,17 @@ export class AuthApiService {
       catchError(() => of(ChangeEmailStatus.ERROR))
     );
   }
+
+  changePwd(current_password: string, password: string, password_confirmation: string): Observable<boolean> {
+    return this.http.put(BASE_API + 'user/password', {
+      current_password,
+      password,
+      password_confirmation
+    }, { observe: 'response' }).pipe(
+      map(res => {
+        return res.status === 200;
+      }),
+      catchError(() => of(false))
+    );
+  }
 }

@@ -18,17 +18,17 @@
         mat-fab
         class="user-fab-0"
         *ngIf="editMode">
-            {{nameEmailForm.get('name')?.value | nameBadge}}
+            {{editForm.get('name')?.value | nameBadge}}
     </button>
 
     <div *ngIf="!editMode">{{user?.get$('name') | async}}</div>
     <div *ngIf="!editMode">{{user?.get$('email') | async}}</div>
 
-    <form [formGroup]="nameEmailForm" *ngIf="editMode">
+    <form [formGroup]="editForm" *ngIf="editMode">
         <mat-form-field appearance="outline">
             <mat-label>Name</mat-label>
             <input matInput formControlName="name">
-            <mat-error *ngIf="nameEmailForm.get('name')?.hasError('required')">
+            <mat-error *ngIf="editForm.get('name')?.hasError('required')">
                 Name muss angegeben werden!
             </mat-error>
         </mat-form-field>
@@ -37,17 +37,50 @@
             <mat-label>Email</mat-label>
             <input matInput formControlName="email">
             <mat-hint *ngIf="!(pusher.online | async)">Im Offlinemodus nicht änderbar.</mat-hint>
-            <mat-error *ngIf="nameEmailForm.get('email')?.hasError('required')">
+            <mat-error *ngIf="editForm.get('email')?.hasError('required')">
                 Email muss angegeben werden!
             </mat-error>
-            <mat-error *ngIf="nameEmailForm.get('email')?.hasError('email')">
+            <mat-error *ngIf="editForm.get('email')?.hasError('email')">
                 Bitte eine gültige Email Adresse angeben!
             </mat-error>
         </mat-form-field>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <mat-form-field appearance="outline">
+            <mat-label>Altes Passwort</mat-label>
+            <input matInput type="password" placeholder="Passwort" formControlName="oldPwd">
+            <mat-error *ngIf="editForm.get('oldPwd')?.hasError('required')">
+                Passwort muss angegeben werden!
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Neues Passwort</mat-label>
+            <input matInput type="password" placeholder="Passwort" formControlName="pwd">
+            <mat-error *ngIf="editForm.get('pwd')?.hasError('required')">
+                Ein neues Passwort muss angegeben werden!
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Passwort wiederholen</mat-label>
+            <input matInput type="password" placeholder="Passwort wiederholen" formControlName="pwdConfirmation">
+            <mat-error *ngIf="editForm.get('pwdConfirmation')?.hasError('required')">
+                Das neue Passwort muss wiederholt werden!
+            </mat-error>
+        </mat-form-field>
+        <mat-error *ngIf="editForm.hasError('notMatching')">
+            Neue Passwörter stimmen nicht überein!
+        </mat-error>
+        <mat-error *ngIf="editForm.hasError('matching')">
+            Das neue Passwort muss sich vom alten Passwort unterscheiden!
+        </mat-error>
+        <mat-hint>Nach einer Änderung des Passworts musst du dich erneut einloggen.</mat-hint>
     </form>
 
-    <button mat-stroked-button color="primary" (click)="cancelNameEmail()" *ngIf="editMode">Abbrechen</button>
-    <button mat-stroked-button (click)="saveNameEmail()" *ngIf="editMode">Speichern</button>
+    <button mat-stroked-button color="primary" (click)="cancelChanges()" *ngIf="editMode">Abbrechen</button>
+    <button mat-stroked-button (click)="saveChanges()" *ngIf="editMode" [disabled]="!editForm.valid">Speichern</button>
 
     <hr>
 

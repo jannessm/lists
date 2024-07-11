@@ -122,4 +122,8 @@ export class AuthService {
   changeEmail(newEmail: string): Observable<ChangeEmailStatus> {
     return this.api.changeEmail(newEmail);
   }
+
+  changePwd(current_password: string, password: string, password_confirmation: string) {
+    return this.api.changePwd(current_password, password, password_confirmation);
+  }
 }
