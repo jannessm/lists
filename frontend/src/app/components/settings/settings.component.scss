@@ -3,34 +3,52 @@
     flex-direction: column;
     align-items: center;
     gap: 16px;
-
-    div:first-child {
+    height: 100%;    
+        
+    button.user-fab-0 {
         margin: 12px;
     }
-
-    button:not(.user-fab-0):not(.edit-buttons) {
-        width: 100%;
-    }
-
+    
     button.edit-buttons {
         position: absolute;
         top: 32px;
         right: 0;
     }
 
-    #version {
-        color: grey;
-        font-size: 12px;
-        margin-top: 48px;
-    }
-
-    form, mat-form-field {
+    .inner-container {
+        overflow: hidden auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
         width: 100%;
-    }
+        box-sizing: border-box;
+        padding: 16px 0;
 
-    hr {
-        width: 100%;
-        border: none;
-        margin: 24px;
+        div:first-child {
+            margin: 12px;
+        }
+        
+        button {
+            width: 100%;
+            line-height: 36px;
+        }
+    
+        #version {
+            color: grey;
+            font-size: 12px;
+            margin-top: 48px;
+        }
+    
+        form, mat-form-field {
+            width: 100%;
+        }
+    
+        hr {
+            width: 100%;
+            border: none;
+            margin: 24px;
+        }
     }
+    
 }

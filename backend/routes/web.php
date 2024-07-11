@@ -15,13 +15,17 @@ use Illuminate\Http\Response;
 |
 */
 
-$routes = ['', 'login', 'register', 'user', 'user/lists', 'user/list/:id', 'user/settings', 'cookies', 'graphql'];
+$routes = ['', 'login', 'register', 'user', 'user/lists', 'user/list/:id', 'user/settings', 'cookies', 'graphql', 'forgot-password'];
 
 foreach ($routes as $route) {
     Route::get('/' . $route, function() {
         return response(File::get(public_path() . '/ng-dist/browser/index.html'))->header('Content-Type', 'text/html; charset=UTF-8');
     });
 }
+
+Route::get('/reset-password', function() {
+    return response(File::get(public_path() . '/ng-dist/browser/index.html'))->header('Content-Type', 'text/html; charset=UTF-8');
+})->name('password.reset');
 
 Route::get('/{file}', function(string $file) {
     $filename = public_path() . '/ng-dist/browser/' . $file;
@@ -39,7 +43,7 @@ Route::get('/{file}', function(string $file) {
 })->where('file', '.+\.(css|js|png|ico|webmanifest)');
 
 
-use Illuminate\Notifications\Messages\MailMessage;
+// use Illuminate\Notifications\Messages\MailMessage;
 
 // Route::get('/notification', function () {
 //     $url = 'http://localhost:8000';

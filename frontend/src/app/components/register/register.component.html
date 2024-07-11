@@ -32,12 +32,16 @@
                 Passwort muss angegeben werden!
             </mat-error>
         </mat-form-field>
+        
         <mat-error *ngIf="form.hasError('notMatching')">
             Passwörter stimmen nicht überein!
         </mat-error>
-
         <mat-error *ngIf="form.hasError('emailOccupied')">Email bereits registriert.</mat-error>
-        <button mat-stroked-button type="button" routerLink="/login">Login</button>
+        
         <button mat-flat-button color="primary" (click)="register()" [disabled]="form.invalid || form.disabled">Register</button>
+        
+        <div class="container">
+            <button mat-stroked-button type="button" routerLink="/login"><mat-icon>chevron_left</mat-icon>Login</button>
+        </div>
     </form>
 </div>

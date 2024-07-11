@@ -11,6 +11,7 @@ import { PusherService } from '../pusher/pusher.service';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { VerifyMailComponent } from '../../components/bottom-sheets/verify-mail/verify-mail.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Location } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +29,8 @@ export class AuthService {
               private router: Router,
               private pusher: PusherService,
               private bottomsheet: MatBottomSheet,
-              private snackBar: MatSnackBar) {
+              private snackBar: MatSnackBar,
+              private location: Location) {
     this.isLoggedIn = new BehaviorSubject<boolean>(this.cookies.check(SESSION_COOKIE));
     
     this.isLoggedIn.subscribe(loggedIn => {
@@ -40,7 +42,7 @@ export class AuthService {
         this.cookies.delete(SESSION_COOKIE);
       }
 
-      this.router.navigateByUrl(this.router.url, {skipLocationChange: true})
+      this.router.navigateByUrl(location.path(), {skipLocationChange: true})
     });
     
     this.api.validateLogin().subscribe(loggedIn => {
@@ -69,7 +71,7 @@ export class AuthService {
       if (success) {
         this.isLoggedIn.next(true);
 
-        this.router.navigateByUrl('');
+        this.router.navigateByUrl('/user/lists');
 
         return true;
       } else {
@@ -86,7 +88,15 @@ export class AuthService {
     password: string,
     password_confirmation: string
   ): Observable<AuthResponse | REGISTER> {
-    return this.api.register(name, email, password, password_confirmation);
+    return this.api.register(name, email, password, password_confirmation).pipe(
+      map(res => {
+        if (res === REGISTER.SUCCESS) {
+          this.isLoggedIn.next(true);
+        }
+
+        return res;
+      })
+    );
   }
 
   logout() {
@@ -125,5 +135,16 @@ export class AuthService {
 
   changePwd(current_password: string, password: string, password_confirmation: string) {
     return this.api.changePwd(current_password, password, password_confirmation);
+  }
+
+  forgotPwd(email: string) {
+    return this.api.forgotPwd(email);
+  }
+
+  resetPwd(
+    token: string, email: string,
+    password: string, password_confirmation: string
+  ) {
+    return this.api.resetPwd(token, email, password, password_confirmation);
   }
 }

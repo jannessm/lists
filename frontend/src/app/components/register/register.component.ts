@@ -13,6 +13,7 @@ import { AuthService } from '../../services/auth/auth.service';
 import { CommonModule } from '@angular/common';
 import { MatchValidator } from '../../../models/match.validators';
 import { REGISTER } from '../../globals';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-register',
@@ -23,6 +24,7 @@ import { REGISTER } from '../../globals';
     ReactiveFormsModule,
     MatButtonModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
   ],
   templateUrl: './register.component.html',
@@ -36,15 +38,8 @@ export class RegisterComponent {
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router,
+    private authService: AuthService
   ) {
-    this.authService.isLoggedIn.subscribe(loggedIn => {
-      if (loggedIn) {
-        this.router.navigateByUrl('');
-      }
-    });
-
     this.form = this.fb.group({
       name: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
@@ -69,8 +64,6 @@ export class RegisterComponent {
     ).subscribe(res => {
       if (res === REGISTER.FOUND) {
         this.form.setErrors({emailOccupied: true});
-      } else {
-        this.authService.isLoggedIn.next(true);
       }
     });
   }

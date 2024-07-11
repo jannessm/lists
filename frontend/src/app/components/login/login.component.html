@@ -19,9 +19,12 @@
             </mat-error>
         </mat-form-field>
     
-        <mat-error *ngIf="wrongCredentials">Leider stimmen Passwort und Email nicht.</mat-error>
-        <button mat-stroked-button (click)="login()" [disabled]="form.invalid || form.disabled">Login</button>
+        <mat-error *ngIf="wrongCredentials">Es wurde kein Benutzer für diese Nutzerdaten gefunden.</mat-error>
+        <button mat-flat-button color="primary" (click)="login()" [disabled]="form.invalid || form.disabled">Login</button>
         
-        <button mat-flat-button color="primary" routerLink="/register" type="button">Register</button>
+        <div class="container">
+            <button mat-stroked-button routerLink="/reset-password" type="button">Passwort vergessen</button>
+            <button mat-stroked-button routerLink="/register" type="button">Register<mat-icon>chevron_right</mat-icon></button>
+        </div>
     </form>
 </div>

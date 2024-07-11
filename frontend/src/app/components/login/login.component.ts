@@ -11,6 +11,7 @@ import md5 from 'md5-ts';
 
 import { AuthService } from '../../services/auth/auth.service';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-login',
@@ -21,6 +22,7 @@ import { CommonModule } from '@angular/common';
     ReactiveFormsModule,
     MatButtonModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
   ],
   templateUrl: './login.component.html',
@@ -38,14 +40,6 @@ export class LoginComponent {
     private authService: AuthService,
     private router: Router,
   ) {
-    this.authService.isLoggedIn.subscribe(loggedIn => {
-      if (loggedIn) {
-        this.router.navigateByUrl('');
-      }
-    });
-
-    const nav = this.router.getCurrentNavigation();
-
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       pwd: ['', Validators.required],
@@ -67,8 +61,6 @@ export class LoginComponent {
         Object.values(this.form.controls).forEach(control => {
           control.setErrors({});
         });
-      } else {
-        this.router.navigateByUrl('/user/lists');
       }
     })
   }
