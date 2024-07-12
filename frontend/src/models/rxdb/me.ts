@@ -10,6 +10,7 @@ export interface User {
     email: string;
     emailVerfiedAt: boolean | null;
     theme?: THEME;
+    defaultList: string | null;
     createdAt: string;
     updatedAt: string;
     _deleted: boolean;

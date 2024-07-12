@@ -35,6 +35,7 @@ export class SettingsComponent {
   version = environment.version;
 
   theme: FormControl;
+  defaultList: FormControl;
 
   editMode = false;
   editForm: FormGroup;
@@ -65,6 +66,7 @@ export class SettingsComponent {
       }
     });
     this.theme = new FormControl<string>('auto');
+    this.defaultList = new FormControl<string>('null');
 
     this.theme.valueChanges.subscribe(theme => {
       // push changes
@@ -77,6 +79,18 @@ export class SettingsComponent {
         this.themeService.updateTheme(theme);
       }
     });
+
+    this.defaultList.valueChanges.subscribe(listId => {
+      if (listId === 'null') {
+        listId = null;
+      }
+      
+      if (listId !== this.user?.defaultList) {
+        this.user?.patch({
+          defaultList: listId
+        });
+      }
+    })
 
     this.editForm = fb.group({
       name: ['', Validators.required],

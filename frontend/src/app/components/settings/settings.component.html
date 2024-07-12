@@ -94,6 +94,14 @@
                 <mat-option value="dark">dunkel</mat-option>
             </mat-select>
         </mat-form-field>
+
+        <!-- <mat-form-field appearance="outline">
+            <mat-label>Startliste</mat-label>
+            <mat-select [formControl]="defaultList">
+                <mat-option value="null">keine</mat-option>
+                <mat-option [value]="l.id" *ngFor="let l in lists">{{l.name}}</mat-option>
+            </mat-select>
+        </mat-form-field> -->
         
         <button mat-stroked-button (click)="logout()">Logout</button>
         <div id="version">v{{version}}</div>

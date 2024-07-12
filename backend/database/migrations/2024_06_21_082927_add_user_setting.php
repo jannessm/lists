@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('theme')
                 ->after('password')
                 ->default('auto');
+            $table->foreignUlid('default_list')->references('id')->on('lists');
         });
     }
 
