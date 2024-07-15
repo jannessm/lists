@@ -1,49 +1,61 @@
 import { Component } from '@angular/core';
-import { Observable } from 'rxjs';
-// import { ListService } from 'src/app/services/list/list.service';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.component';
 
 import { MaterialModule } from '../../material.module';
 import { CommonModule } from '@angular/common';
-import { List } from '../../../models/lists';
+import { Lists } from '../../../models/rxdb/lists';
+import { DataService } from '../../services/data/data.service';
+import { DATA_TYPE } from '../../../models/rxdb/graphql-types';
+import { RxDocument } from 'rxdb';
+import { RouterModule } from '@angular/router';
+import { ulid } from 'ulid';
 
 @Component({
   selector: 'app-lists-overview',
   standalone: true,
   imports: [
     CommonModule,
-    MaterialModule
+    MaterialModule,
+    RouterModule
   ],
   templateUrl: './lists-overview.component.html',
   styleUrls: ['./lists-overview.component.scss']
 })
 export class ListsOverviewComponent {
 
-  lists: Observable<List[]> | undefined;
+  lists: RxDocument<Lists>[] | undefined;
 
   constructor(
     public bottomSheet: MatBottomSheet,
-    // private listService: ListService
+    private dataService: DataService,
   ) {
-    // this.lists = this.listService.lists;
-    // if (!this.listService.dataLoaded) {
-    //   this.listService.updateData().subscribe();
-    // }
+    this.dataService.dbInitialized.subscribe(initialized => {
+      if (initialized && this.dataService.db && this.dataService.db[DATA_TYPE.LISTS]) {
+        this.dataService.db[DATA_TYPE.LISTS].find().$.subscribe(lists => {
+          this.lists = lists;
+        })
+      }
+    });
   }
 
   addList() {
     const dialogRef = this.bottomSheet.open(AddSheetComponent);
 
-    dialogRef.afterDismissed().subscribe(res => {
-      if (!!res) {
-        // this.listService.addList({
-        //   uuid: uuid(),
-        //   name: res.name,
-        //   groceries: res.groceries,
-        //   shared: false,
-        //   users: []
-        // });
+    dialogRef.afterDismissed().subscribe(async (res) => {
+      if (!!res &&
+          this.dataService.db &&
+          this.dataService.db[DATA_TYPE.LISTS] &&
+          this.dataService.db[DATA_TYPE.ME]
+      ) {
+        const me = (await this.dataService.db[DATA_TYPE.ME].find().exec())[0];
+
+        this.dataService.db[DATA_TYPE.LISTS].insert({
+          id: ulid().toLowerCase(),
+          name: res.name,
+          isShoppingList: res.isShoppingList,
+          createdBy: {id: me.id}
+        });
       }
     });
   }

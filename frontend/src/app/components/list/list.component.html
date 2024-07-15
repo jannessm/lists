@@ -1,0 +1,67 @@
+<div id="toggle-overlay" (click)="closeFocusInput()" [class.focusInput]="focusInput" [class.groceries]="list?.groceries"></div>
+<button class="menu" mat-icon-button [matMenuTriggerFor]="menu"><mat-icon>more_vert</mat-icon></button>
+<mat-menu #menu="matMenu">
+    <button mat-menu-item (click)="listSettings()">Einstellungen</button>
+    <button mat-menu-item (click)="shareList()">Teilen</button>
+    <button mat-menu-item (click)="listToText()">Verschicken</button>
+    <button mat-menu-item (click)="markAllNotDone()">Alle Einträge abwählen</button>
+    <button mat-menu-item (click)="deleteAll()">Alle Einträge löschen</button>
+    <button mat-menu-item (click)="deleteAllDone()">Alle erledigten Einträge löschen</button>
+    <button mat-menu-item (click)="deleteList()">Löschen</button>
+</mat-menu>
+
+<h1 *ngIf="list">{{list.name}}</h1>
+<div class="users" *ngIf="list && list.shared">
+    <button mat-mini-fab *ngFor="let user of list.users; let i = index" [class]="'user-fab-' + i % 12" disabled >{{user.substr(0, 2).toUpperCase()}}</button>
+</div>
+
+<div id="items-container" #itemsContainer>
+    <div class="slots" *ngFor="let slot of slots">
+        <h2>
+            {{ slot.name }}
+            <mat-chip-listbox *ngIf="slot.nDone > 0" class="slot-done-toggle">
+                <mat-chip-option (click)="slot.collapsed = !slot.collapsed" [selected]="!slot.collapsed">
+                    {{ slot.nDone }}<!--mat-icon>done</mat-icon-->
+                </mat-chip-option>
+            </mat-chip-listbox>
+        </h2>
+    
+        <div class="item"
+             *ngFor="let item of slot.items"
+             [class.item-done]="item.done"
+             [class.dark-theme]="themeService.isDark | async"
+             (pointerdown)="openUpdateSheet($event, item)"
+             (pointerup)="cancelUpdateSheet()"
+             [id]="'uuid-' + item.uuid">
+            <div *ngIf="!slot.collapsed || !item.done">
+                <mat-checkbox (change)="toggleDone(item, slot.items)" [(ngModel)]="item.done" color="primary">
+                    <div class="item-content">{{ item.name }}
+                        <mat-chip-set *ngIf="list && !list.groceries" disabled>
+                            <mat-chip *ngIf="item.time && is_today(item)" [highlighted]="!!item.remind">{{item.time | date:'h:mm'}}</mat-chip>
+                            <mat-chip *ngIf="item.time && !is_today(item)" [highlighted]="!!item.remind">{{item.time | date:'short'}}</mat-chip>
+                        </mat-chip-set>
+                        <button mat-mini-fab disabled *ngIf="list && list.shared && userEmail !== item.created_by" [class]="'mini-user-fab user-fab-' + list.users.indexOf(item.created_by) % 12">{{item.created_by.substr(0, 2).toUpperCase()}}</button>
+                    </div>
+                    <button mat-icon-button (click)="deleteItem(item)" *ngIf="item.done"><mat-icon>close</mat-icon></button>
+                </mat-checkbox>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div (click)="focusInput=true">
+    <mat-toolbar class="toolbar-input" [class.focusInput]="focusInput" [class.groceries]="list?.groceries">
+            <input matInput placeholder="Hinzufügen" class="add-input" [class.dark-theme]="themeService.isDark | async" [(ngModel)]="newItem" autocomplete="off">
+            <button mat-icon-button (click)="addItem()"><mat-icon>add</mat-icon></button>
+    </mat-toolbar>
+
+    <mat-toolbar class="toolbar-time" [style.display]="focusInput ? 'block' : 'none'" *ngIf="list && !list.groceries">
+        <mat-chip-listbox [formControl]="newItemTime">
+            <mat-chip-option value="today">Heute</mat-chip-option>
+            <mat-chip-option value="tomorrow">Morgen</mat-chip-option>
+            <mat-chip-option value="different">{{(timePickerDate | date:'short') || 'Andere'}}</mat-chip-option>
+            <mat-chip-option value="sometime">Irgendwann</mat-chip-option>
+        </mat-chip-listbox>
+    </mat-toolbar>
+    <input id="picker" type="text" #picker (change)="setTimePickerDate($event)">
+</div>

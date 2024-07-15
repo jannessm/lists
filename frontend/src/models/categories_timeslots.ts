@@ -1,4 +1,4 @@
-import { ListItem } from "./lists";
+import { ListItem } from "./rxdb/lists";
 
 export enum TIMESLOTS {
     TODAY = 'Heute',

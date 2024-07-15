@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+use Illuminate\Support\Facades\Auth;
+use Nuwave\Lighthouse\Execution\Utils\Subscription;
+
+
 class Lists extends Model
 {
     use HasFactory, HasUlids;
@@ -49,6 +53,49 @@ class Lists extends Model
     }
 
     public function createdBy(): BelongsTo {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function pushResolver($_, $args) {
+        $user = Auth::user();
+
+        $upserts = [];
+        $conflicts = [];
+
+        foreach($args['listsPushRow'] as $list) {
+            $conflict = FALSE;
+            $newState = $list['newDocumentState'];
+
+            if (array_key_exists('assumedMasterState', $list)) {
+                $assumedMaster = $list['assumedMasterState'];
+                $masterList = Lists::find($assumedMaster[$this->primaryKey]);
+
+                foreach ($assumedMaster as $param => $val) {
+                    if ($masterList[$param] != $val) {
+                        array_push($conflicts, $masterList);
+                        $conflict = TRUE;
+                        break;
+                    }
+                }
+            } else {
+                $newState['createdBy'] = ["id" => $user->id];
+            }
+
+            if (!$conflict) {
+                $newState['created_by'] = $newState['createdBy']['id'];
+                unset($newState['createdBy']);
+                unset($newState['sharedWith']);
+                array_push($upserts, $newState);
+            }
+        }
+
+        if (count($upserts) > 0) {
+            Lists::upsert($upserts, ['id']);
+            $ids = array_column($upserts, 'id');
+            $updatedLists = User::whereIn('id', $ids)->orderBy('updated_at')->get()->all();
+            Subscription::broadcast('streamLists', $updatedLists);
+        }
+
+        return $conflicts;
     }
 }

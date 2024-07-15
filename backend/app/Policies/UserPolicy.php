@@ -20,6 +20,14 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
+        //
+    }
+
+    /**
+     * Determine whether the user can view the model.
+     */
+    public function viewDetails(User $user, User $model): bool
+    {
         return $user->id === $model->id;
     }
 

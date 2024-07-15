@@ -29,7 +29,7 @@ class User {
     }
 
     public function add($user) {
-        $sql = 'INSERT INTO user VALUES (:email, :password, 0, NULL, :last_login);';
+        $sql = 'INSERT INTO user (`email`, `password`, `activated`, `dark_theme`, `last_login`) VALUES (:email, :password, 0, NULL, :last_login);';
         $stmt = $this->pdo->prepare($sql);
 
         $stmt->bindValue(':email', $user['email']);

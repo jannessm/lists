@@ -16,6 +16,7 @@ import { ChangeEmailStatus } from '../../../models/responses';
 import { PusherService } from '../../services/pusher/pusher.service';
 import { MatchValidator, NoMatchValidator } from '../../../models/match.validators';
 import md5 from 'md5-ts';
+import { DATA_TYPE } from '../../../models/rxdb/graphql-types';
 
 @Component({
   selector: 'app-settings',
@@ -50,19 +51,17 @@ export class SettingsComponent {
     public pusher: PusherService,
   ) {
     this.dataService.dbInitialized.subscribe(initialized => {
-      if (initialized) {
-        if (this.dataService.db && this.dataService.db['me']) {
-          // subscribe to RxDocument to get updates and immediately apply them
-          this.dataService.db['me'].find().exec()
-            .then((docs: RxDocument<User>[]) => {
-              docs[0].$.subscribe(user => {
-                this.user = user;
-  
-                // update FormControls on changes
-                this.theme.setValue(this.user?.get('theme'), {emitEvent: false});
-              });
+      if (initialized && this.dataService.db && this.dataService.db[DATA_TYPE.ME]) {
+        // subscribe to RxDocument to get updates and immediately apply them
+        this.dataService.db[DATA_TYPE.ME].find().exec()
+          .then((docs: RxDocument<User>[]) => {
+            docs[0].$.subscribe(user => {
+              this.user = user;
+
+              // update FormControls on changes
+              this.theme.setValue(this.user?.get('theme'), {emitEvent: false});
             });
-        }
+          });
       }
     });
     this.theme = new FormControl<string>('auto');

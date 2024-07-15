@@ -16,19 +16,21 @@ import { getRxStorageDexie } from 'rxdb/plugins/storage-dexie';
  */
 import 'zone.js/plugins/zone-patch-rxjs';
 
-import { Task, meSchema } from '../../../models/rxdb/me';
+import { meSchema } from '../../../models/rxdb/me';
 import { RxReplicationState } from 'rxdb/dist/types/plugins/replication';
 import { BehaviorSubject } from 'rxjs';
 
 import { ReplicationService } from '../replication/replication.service';
 import { AuthService } from '../auth/auth.service';
+import { listsSchema } from '../../../models/rxdb/lists';
+import { DATA_TYPE, Replications } from '../../../models/rxdb/graphql-types';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
   db: RxDatabase | undefined;
-  replication: RxReplicationState<Task, unknown> | undefined;
+  replications: Replications = {};
   dbInitialized = new BehaviorSubject<boolean>(false);
 
   constructor(
@@ -38,6 +40,8 @@ export class DataService {
     this.authService.isLoggedIn.subscribe(isLoggedIn => {
       if (isLoggedIn && !this.dbInitialized.getValue()) {
         this.initDB();
+      } else if (!isLoggedIn) {
+        this.db?.destroy();
       }
     });
   }
@@ -53,11 +57,20 @@ export class DataService {
     await this.db.addCollections({
       me: {
         schema: meSchema
+      },
+      lists: {
+        schema: listsSchema
       }
     });
 
-    this.replication = await this.replicationService.setupReplication('me', this.db['me']);
-    this.replication.error$.subscribe(console.error);
+    Object.values(DATA_TYPE).forEach(async (dataType) => {
+      if (this.db) {
+        const repl = await this.replicationService.setupReplication(dataType, this.db[dataType]);
+        repl.error$.subscribe(err => {console.error(err)});
+
+        this.replications[dataType] = repl;
+      }
+    });
 
     this.dbInitialized.next(true);
   }

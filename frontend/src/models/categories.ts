@@ -1,6 +1,6 @@
 import { GroceryCategories, GROCERY_OTHERS } from "./categories_groceries";
 import { is_past, is_sometime, is_soon, is_today, is_tomorrow, TIMESLOTS } from "./categories_timeslots";
-import { ListItem } from "./lists";
+import { ListItem } from "./rxdb/lists";
 
 
 export interface Category {

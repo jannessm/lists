@@ -12,10 +12,13 @@ type User implements Item {
   email: String!
 
   "When the email was verified."
-  emailVerifiedAt: DateTime @canRoot(ability: "view") @rename(attribute: "email_verified_at")
+  emailVerifiedAt: DateTime @canRoot(ability: "viewDetails") @rename(attribute: "email_verified_at")
 
   "Theme setting: One of ['auto', 'dark', 'light']"
-  theme: String @canRoot(ability: "view")
+  theme: String @canRoot(ability: "viewDetails")
+
+  "Default list that is opened on startup"
+  defaultList: Lists @canRoot(ability: "viewDetails")
   
   "When item was created."
   createdAt: DateTime! @rename(attribute: "created_at")
@@ -33,13 +36,13 @@ type User implements Item {
 
 input UserInput {
   id: String!
-  name: String!
-  email: String!
-  emailVerifiedAt: DateTime @canRoot(ability: "view") @rename(attribute: "email_verified_at")
-  theme: String @canRoot(ability: "view")
-  createdAt: DateTime! @rename(attribute: "created_at")
-  updatedAt: DateTime! @rename(attribute: "updated_at")
-  _deleted: Boolean!
+  name: String
+  email: String
+  emailVerifiedAt: DateTime @canRoot(ability: "viewDetails") @rename(attribute: "email_verified_at")
+  theme: String @canRoot(ability: "viewDetails")
+  createdAt: DateTime @rename(attribute: "created_at")
+  updatedAt: DateTime @rename(attribute: "updated_at")
+  _deleted: Boolean
 }
 
 input MeInputHeaders {
@@ -52,7 +55,7 @@ input MeInputPushRow {
 }
 
 input MeInputCheckpoint {
-  updatedAt: DateTime @where(key: "updated_at", operator: ">=")
+  updatedAt: DateTime
 }
 
 input UsersInputHeaders {

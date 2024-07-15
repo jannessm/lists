@@ -14,7 +14,7 @@ import { ResetPasswordComponent } from './components/reset-password/reset-passwo
 export const routes: Routes = [
     {path: 'user', canActivate: [authGuard], children: [
       {path: 'lists', component: ListsOverviewComponent},
-    //   {path: 'list/:id', component: ListComponent},
+      // {path: 'list/:id', component: ListComponent},
       {path: 'settings', component: SettingsComponent},
     ]},
     {path: 'login', component: LoginComponent, canActivate:[isLoggedGuard]},

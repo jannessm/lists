@@ -1,29 +1,26 @@
 #import interfaces.graphql
 #import user.graphql
-#import task.graphql
+#import lists.graphql
+#import list-item.graphql
 
 type Query @guard {
     pullMe(checkpoint: MeInputCheckpoint @spread, limit: Int!): MePullBulk!
   
-    pullUsers(checkpoint: UsersInputCheckpoint @spread, limit: Int!): UserPullBulk!
+    pullLists(checkpoint: ListsInputCheckpoint @spread, limit: Int!): ListsPullBulk!
 
-    # tasks: [Task!]! @all @whereAuth(relation: "user")
-
-    # pullTasks(checkpoint: TasksInputCheckpoint @spread, limit: Int!): TaskPullBulk!
+    # pullUsers(checkpoint: UsersInputCheckpoint @spread, limit: Int!): UserPullBulk!
 }
 
 type Mutation @guard {
   pushMe(mePushRow: [MeInputPushRow!]): [User!]! @field(resolver: "App\\Models\\User@pushMeResolver")
 
-  pushUsers(userPushRow: [UsersInputPushRow!]): [User!]! @field(resolver: "App\\Models\\User@pushResolver")
-  # upsertTask(task: TaskInput! @spread): Task @upsert @inject(context: "user.id", name: "user_id") @broadcast(subscription: "streamTasks")
+  pushLists(listsPushRow: [ListsInputPushRow!]): [Lists!]! @field(resolver: "App\\Models\\Lists@pushResolver")
 
-  # pushTasks(tasksPushRow: [TasksInputPushRow!]): [Task!]! @field(resolver: "App\\Models\\Task@pushResolver")
+  # upsertTask(task: TaskInput! @spread): Task @upsert @inject(context: "user.id", name: "user_id") @broadcast(subscription: "streamTasks")
 }
 
 type Subscription @guard {
   streamMe(headers: MeInputHeaders): MePullBulk
-
-  streamUsers(headers: UsersInputHeaders): UserPullBulk
-  # streamTasks(headers: TasksInputHeaders): TaskPullBulk
+  streamLists(headers: ListsInputHeaders): ListsPullBulk
+  # streamUsers(headers: UsersInputHeaders): UserPullBulk
 }

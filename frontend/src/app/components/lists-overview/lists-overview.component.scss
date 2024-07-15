@@ -1,10 +1,16 @@
+.add-button {
+    position: absolute;
+    top: 36px;
+    right: 0;
+}
+
 .list-card {
     padding: 12px;
     width: calc(50% - 6px);
     white-space: pre-line;
     word-break: break-all;
     position: relative;
-    height: fit-content !important;
+    height: calc(60px + 24px);
 
     mat-icon:not(.add-list) {
         position: absolute;
@@ -13,10 +19,6 @@
         width: 12px;
         height: 12px;
         font-size: 12px;
-    }
-
-    .add-list {
-        margin: 0;
     }
 }
 

@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -62,58 +63,17 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
         '_deleted' => 'boolean'
     ];
 
-    public function lists(): BelongsToMany {
-        return $this->belongsToMany(Lists::class);
+    public function createdLists(): HasMany {
+        return $this->hasMany(Lists::class, 'created_by');
     }
 
-    // public function pushResolver($_, $args) {
-    //     $upserts = [];
-    //     $conflicts = [];
+    public function sharedLists(): BelongsToMany {
+        return $this->belongsToMany(Lists::class, 'lists_user');
+    }
 
-    //     foreach($args['usersPushRow'] as $user) {
-    //         $newState = $user['newDocumentState'];
-    //         $assumedMaster = $user['assumedMasterState'];
-    //         $masterUser = NULL;
-
-    //         $newState['user_id'] = $newState['user']['id'];
-    //         unset($newState['user']);
-    //         $assumedMaster['user_id'] = $assumedMaster['user']['id'];
-    //         unset($assumedMaster['user']);
-            
-    //         if (array_key_exists($this->primaryKey, $assumedMaster)) {
-    //             $masterUser = User::find($assumedMaster[$this->primaryKey]);
-    //         }
-
-    //         # record not found => new Instance
-    //         if (!$masterUser) {
-    //             array_push($upserts, ['new' => $newState, 'old' => null]);
-            
-    //         # $masterUser != Null
-    //         } else {
-    //             $conflict = FALSE;
-    //             foreach ($assumedMaster as $param => $val) {
-    //                 if ($masterUser[$param] != $val && $param != 'user') {
-    //                     array_push($conflicts, $masterUser);
-    //                     $conflict = TRUE;
-    //                     break;
-    //                 }
-    //             }
-
-    //             if (!$conflict) {
-    //                 array_push($upserts, ['new' => $newState, 'old' => $masterUser]);
-    //             }
-    //         }
-    //     }
-
-    //     if (count($upserts) > 0) {
-    //         User::upsert($upserts, ["id"]);
-    //         $ids = array_column($upserts, 'id');
-    //         $updatedUsers = User::whereIn('id', $ids)->orderBy('updated_at')->get()->all();
-    //         Subscription::broadcast('streamUsers', $updatedUsers);
-    //     }
-
-    //     return $conflicts;
-    // }
+    public function lists() {
+        return $this->createdLists->merge($this->sharedLists);
+    }
 
     public function pushMeResolver($_, $args) {
         $upserts = [];
@@ -151,12 +111,6 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
             $ids = array_column($newStates, 'id');
             $updatedMe = User::whereIn('id', $ids)->orderBy('updated_at')->get()->all();
             Subscription::broadcast('streamMe', $updatedMe);
-
-            foreach($upserts as $key => $state) {
-                if ($state['new']['email'] !== $state['master']['email']) {
-                    $updatedMe[$key]->sendEmailVerificationNotification();
-                }
-            }
         }
 
         return $conflicts;
