@@ -10,11 +10,12 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { ListComponent } from './components/list/list.component';
 
 export const routes: Routes = [
     {path: 'user', canActivate: [authGuard], children: [
       {path: 'lists', component: ListsOverviewComponent},
-      // {path: 'list/:id', component: ListComponent},
+      {path: 'list/:id', component: ListComponent},
       {path: 'settings', component: SettingsComponent},
     ]},
     {path: 'login', component: LoginComponent, canActivate:[isLoggedGuard]},

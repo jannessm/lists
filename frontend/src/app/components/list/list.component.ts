@@ -1,32 +1,43 @@
 import { AfterViewInit, Component, ElementRef, HostListener, ViewChild } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { List, ListItem } from 'src/app/models/lists';
-import { ListItemService } from 'src/app/services/list-item/list-item.service';
-import { ListService } from 'src/app/services/list/list.service';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.component';
 import { ShareListSheetComponent } from '../bottom-sheets/share-list-sheet/share-list-sheet.component';
 import { UpdateItemSheetComponent } from '../bottom-sheets/update-item-sheet/update-item-sheet.component';
 
 import flatpickr from "flatpickr";
-import { groupItems, Slot } from 'src/app/models/categories';
-import { is_today } from 'src/app/models/categories_timeslots';
-import { AuthService } from 'src/app/services/auth/auth.service';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Options } from 'flatpickr/dist/types/options';
-import { ThemeService } from 'src/app/services/theme/theme.service';
 import { ConfirmSheetComponent } from '../bottom-sheets/confirm-sheet/confirm-sheet.component';
+import { DataService } from '../../services/data/data.service';
+import { AuthService } from '../../services/auth/auth.service';
+import { Lists } from '../../../models/rxdb/lists';
+import { Slot } from '../../../models/categories';
+import { ListItem } from '../../../models/rxdb/list-item';
+import { is_today } from '../../../models/categories_timeslots';
+import { CommonModule } from '@angular/common';
+import { MaterialModule } from '../../material.module';
+import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 
 @Component({
   selector: 'app-list',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MaterialModule,
+    RouterModule,
+    ReactiveFormsModule,
+    FormsModule,
+    NameBadgePipe,
+  ],
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements AfterViewInit {
   @ViewChild('toolbar-time') toolbar!: Element;
 
-  list: List | undefined;
+  list: Lists | undefined;
 
   userEmail: string | undefined;
 
@@ -64,32 +75,30 @@ export class ListComponent implements AfterViewInit {
   }
 
   constructor(
-    private listService: ListService,
-    private listItemService: ListItemService,
     private activatedRoute: ActivatedRoute,
     private bottomSheet: MatBottomSheet,
     private router: Router,
     private authService: AuthService,
     private snackbar: MatSnackBar,
-    public themeService: ThemeService
+    private dataService: DataService
   ) {
-    this.listService.lists.subscribe(() => {
-      this.activatedRoute.paramMap.subscribe(params => {
-        const list = this.listService.getList(params.get('id'));
+    // this.listService.lists.subscribe(() => {
+    //   this.activatedRoute.paramMap.subscribe(params => {
+    //     const list = this.listService.getList(params.get('id'));
 
-        if (!!list) {
-          this.list = list;
-          this.listItemService.loadItemsForList(list.uuid);
-          this.listItemService.items.get(list.uuid)?.subscribe(items => {
-            this.items = items;
-            this.groupItems(items);
-          });
-        }
-      });
-    });
+    //     if (!!list) {
+    //       this.list = list;
+    //       this.listItemService.loadItemsForList(list.uuid);
+    //       this.listItemService.items.get(list.uuid)?.subscribe(items => {
+    //         this.items = items;
+    //         this.groupItems(items);
+    //       });
+    //     }
+    //   });
+    // });
 
-    this.listService.updateData().subscribe();
-    this.userEmail = this.authService.loggedUser?.email;
+    // this.listService.updateData().subscribe();
+    // this.userEmail = this.authService.loggedUser?.email;
 
     this.newItemTime.valueChanges.subscribe(this.toggleNewTimeSelected.bind(this));
   }
@@ -113,8 +122,8 @@ export class ListComponent implements AfterViewInit {
         
         if (!!new_values && this.list) {
           this.list.name = new_values.name;
-          this.list.groceries = new_values.groceries;
-          this.listService.updateList(this.list);
+          this.list.isShoppingList = new_values.isShoppingList;
+          // this.listService.updateList(this.list);
         }
       });
     }
@@ -126,7 +135,7 @@ export class ListComponent implements AfterViewInit {
 
       dialogRef.afterDismissed().subscribe(data => {
         if (!!data && this.list) {
-          this.listService.shareList(data.email, this.list.uuid);
+          // this.listService.shareList(data.email, this.list.uuid);
         }
       })
     }
@@ -138,11 +147,11 @@ export class ListComponent implements AfterViewInit {
       
       confirm.afterDismissed().subscribe(del => {
         if (del && this.list) {
-          this.listService.deleteList(this.list.uuid).subscribe(success => {
-            if (success) {
-              this.router.navigate(['/user/lists']);
-            }
-          });
+          // this.listService.deleteList(this.list.uuid).subscribe(success => {
+          //   if (success) {
+          //     this.router.navigate(['/user/lists']);
+          //   }
+          // });
         }
       })
     }
@@ -150,18 +159,18 @@ export class ListComponent implements AfterViewInit {
 
   groupItems(items: ListItem[]) {
     if (this.list) {
-      const slots = groupItems(items, this.list.groceries, this.listService.groceryCategories);
+      // const slots = groupItems(items, this.list.groceries, this.listService.groceryCategories);
 
       if (this.slots) {
-        slots.forEach(s => {
-          const this_s = this.slots.find(sl => sl.name === s.name);
+        // slots.forEach(s => {
+        //   const this_s = this.slots.find(sl => sl.name === s.name);
 
-          if (this_s) {
-            s.collapsed = this_s.collapsed;
-          }
-        });
+        //   if (this_s) {
+        //     s.collapsed = this_s.collapsed;
+        //   }
+        // });
 
-        this.slots = slots;
+        // this.slots = slots;
       }
     }
   }
@@ -193,9 +202,9 @@ export class ListComponent implements AfterViewInit {
         this.newItemTime.setValue('sometime');
       }, 1);
 
-      this.listItemService.addItem(this.newItem, this.list.uuid, newTime).subscribe(success => {
-        this.newItem = '';
-      });
+      // this.listItemService.addItem(this.newItem, this.list.uuid, newTime).subscribe(success => {
+      //   this.newItem = '';
+      // });
     }
   }
   
@@ -205,7 +214,7 @@ export class ListComponent implements AfterViewInit {
     confirm.afterDismissed().subscribe(del => {
       if (this.list && del) {
         
-        this.listItemService.deleteItems(this.list.uuid, [item.uuid]);
+        // this.listItemService.deleteItems(this.list.uuid, [item.uuid]);
       }
     });
   }
@@ -215,7 +224,7 @@ export class ListComponent implements AfterViewInit {
     
     confirm.afterDismissed().subscribe(del => {
       if (this.list && del) {
-        this.listItemService.deleteItems(this.list.uuid, this.items.map(i => i.uuid));
+        // this.listItemService.deleteItems(this.list.uuid, this.items.map(i => i.uuid));
       }
     });
   }
@@ -225,25 +234,25 @@ export class ListComponent implements AfterViewInit {
     
     confirm.afterDismissed().subscribe(del => {
       if (this.list && del) {
-        this.listItemService.deleteItems(this.list.uuid, this.items.filter(i => i.done).map(i => i.uuid));
+        // this.listItemService.deleteItems(this.list.uuid, this.items.filter(i => i.done).map(i => i.uuid));
       }
     });
   }
 
   markAllNotDone() {
     if (this.list) {
-      this.listItemService.updateDone(this.list.uuid, this.items.filter(i => i.done).map(i => i.uuid), false).subscribe(success => {
+      // this.listItemService.updateDone(this.list.uuid, this.items.filter(i => i.done).map(i => i.uuid), false).subscribe(success => {
         //TODO: count unmarked items
-      });
+      // });
     }
   }
 
   toggleDone(item: ListItem, itemList: ListItem[], done: boolean | null = null) {
     if (this.list) {
       const new_done = done !== null ? done : item.done;
-      this.listItemService.updateDone(this.list.uuid, [item.uuid], new_done).subscribe(success => {
+      // this.listItemService.updateDone(this.list.uuid, [item.uuid], new_done).subscribe(success => {
         //TODO: count unmarked items
-      });
+      // });
     }
   }
 
@@ -271,9 +280,9 @@ export class ListComponent implements AfterViewInit {
                 newItem.time = null;
               }
 
-              newItem.uuid = item.uuid;
+              newItem.uuid = item.id;
 
-              this.listItemService.updateItem(this.list.uuid, newItem);
+              // this.listItemService.updateItem(this.list.uuid, newItem);
             }
 
             setTimeout(() => {

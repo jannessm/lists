@@ -124,3 +124,7 @@ function fixArraysInSchema(query: string, schema: any): string {
 
   return query;
 }
+
+function parseDates(row: any) {
+  return row;
+}

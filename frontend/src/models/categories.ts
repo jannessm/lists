@@ -1,6 +1,6 @@
 import { GroceryCategories, GROCERY_OTHERS } from "./categories_groceries";
 import { is_past, is_sometime, is_soon, is_today, is_tomorrow, TIMESLOTS } from "./categories_timeslots";
-import { ListItem } from "./rxdb/lists";
+import { ListItem } from "./rxdb/list-item";
 
 
 export interface Category {
@@ -24,8 +24,8 @@ export function sortItems(items: ListItem[]) {
       return c - d;
     }
 
-    if (a.time && b.time) {
-      return a.time.getTime() - b.time.getTime();
+    if (a.due && b.due) {
+      return a.due.valueOf() - b.due.valueOf();
     }
 
     if (c - d == 0) {

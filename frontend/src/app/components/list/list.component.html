@@ -1,4 +1,4 @@
-<div id="toggle-overlay" (click)="closeFocusInput()" [class.focusInput]="focusInput" [class.groceries]="list?.groceries"></div>
+<div id="toggle-overlay" (click)="closeFocusInput()" [class.focusInput]="focusInput" [class.isShoppingList]="list?.isShoppingList"></div>
 <button class="menu" mat-icon-button [matMenuTriggerFor]="menu"><mat-icon>more_vert</mat-icon></button>
 <mat-menu #menu="matMenu">
     <button mat-menu-item (click)="listSettings()">Einstellungen</button>
@@ -11,8 +11,8 @@
 </mat-menu>
 
 <h1 *ngIf="list">{{list.name}}</h1>
-<div class="users" *ngIf="list && list.shared">
-    <button mat-mini-fab *ngFor="let user of list.users; let i = index" [class]="'user-fab-' + i % 12" disabled >{{user.substr(0, 2).toUpperCase()}}</button>
+<div class="users" *ngIf="list && list.sharedWith.length > 0">
+    <button mat-mini-fab *ngFor="let user of list.sharedWith; let i = index" [class]="'user-fab-' + i % 12" disabled >{{user.name.substr(0, 2).toUpperCase()}}</button>
 </div>
 
 <div id="items-container" #itemsContainer>
@@ -29,18 +29,17 @@
         <div class="item"
              *ngFor="let item of slot.items"
              [class.item-done]="item.done"
-             [class.dark-theme]="themeService.isDark | async"
              (pointerdown)="openUpdateSheet($event, item)"
              (pointerup)="cancelUpdateSheet()"
-             [id]="'uuid-' + item.uuid">
+             [id]="'id-' + item.id">
             <div *ngIf="!slot.collapsed || !item.done">
                 <mat-checkbox (change)="toggleDone(item, slot.items)" [(ngModel)]="item.done" color="primary">
                     <div class="item-content">{{ item.name }}
-                        <mat-chip-set *ngIf="list && !list.groceries" disabled>
-                            <mat-chip *ngIf="item.time && is_today(item)" [highlighted]="!!item.remind">{{item.time | date:'h:mm'}}</mat-chip>
-                            <mat-chip *ngIf="item.time && !is_today(item)" [highlighted]="!!item.remind">{{item.time | date:'short'}}</mat-chip>
+                        <mat-chip-set *ngIf="list && !list.isShoppingList" disabled>
+                            <mat-chip *ngIf="item.due && is_today(item)" [highlighted]="!!item.reminder">{{item.due | date:'h:mm'}}</mat-chip>
+                            <mat-chip *ngIf="item.due && !is_today(item)" [highlighted]="!!item.reminder">{{item.due | date:'short'}}</mat-chip>
                         </mat-chip-set>
-                        <button mat-mini-fab disabled *ngIf="list && list.shared && userEmail !== item.created_by" [class]="'mini-user-fab user-fab-' + list.users.indexOf(item.created_by) % 12">{{item.created_by.substr(0, 2).toUpperCase()}}</button>
+                        <!-- <button mat-mini-fab disabled *ngIf="list && list.shared && userEmail !== item.created_by" [class]="'mini-user-fab user-fab-' + list.users.indexOf(item.sharedWith.id) % 12">{{item.createdBy.id | nameBadge}}</button> -->
                     </div>
                     <button mat-icon-button (click)="deleteItem(item)" *ngIf="item.done"><mat-icon>close</mat-icon></button>
                 </mat-checkbox>
@@ -50,12 +49,12 @@
 </div>
 
 <div (click)="focusInput=true">
-    <mat-toolbar class="toolbar-input" [class.focusInput]="focusInput" [class.groceries]="list?.groceries">
-            <input matInput placeholder="Hinzufügen" class="add-input" [class.dark-theme]="themeService.isDark | async" [(ngModel)]="newItem" autocomplete="off">
+    <mat-toolbar class="toolbar-input" [class.focusInput]="focusInput" [class.isShoppingList]="list?.isShoppingList">
+            <input matInput placeholder="Hinzufügen" class="add-input" [(ngModel)]="newItem" autocomplete="off">
             <button mat-icon-button (click)="addItem()"><mat-icon>add</mat-icon></button>
     </mat-toolbar>
 
-    <mat-toolbar class="toolbar-time" [style.display]="focusInput ? 'block' : 'none'" *ngIf="list && !list.groceries">
+    <mat-toolbar class="toolbar-time" [style.display]="focusInput ? 'block' : 'none'" *ngIf="list && !list.isShoppingList">
         <mat-chip-listbox [formControl]="newItemTime">
             <mat-chip-option value="today">Heute</mat-chip-option>
             <mat-chip-option value="tomorrow">Morgen</mat-chip-option>

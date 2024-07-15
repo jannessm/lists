@@ -44,7 +44,51 @@ class ListItem extends Model
         return $this->belongsTo(Lists::class);
     }
 
-    public function created_by(): BelongsTo {
-        return $this->belongsTo(User::class);
+    public function createdBy(): BelongsTo {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function pushResolver($_, $args) {
+        $user = Auth::user();
+
+        $upserts = [];
+        $conflicts = [];
+
+        foreach($args['listItemPushRow'] as $item) {
+            $conflict = FALSE;
+            $newState = $item['newDocumentState'];
+
+            if (array_key_exists('assumedMasterState', $item)) {
+                $assumedMaster = $item['assumedMasterState'];
+                $masterItem = Lists::find($assumedMaster[$this->primaryKey]);
+
+                foreach ($assumedMaster as $param => $val) {
+                    if ($masterItem[$param] != $val) {
+                        array_push($conflicts, $masterItem);
+                        $conflict = TRUE;
+                        break;
+                    }
+                }
+            } else {
+                $newState['createdBy'] = ["id" => $user->id];
+            }
+
+            if (!$conflict) {
+                $newState['created_by'] = $newState['createdBy']['id'];
+                $newState['lists_id'] = $newState['lists']['id'];
+                unset($newState['createdBy']);
+                unset($newState['lists']);
+                array_push($upserts, $newState);
+            }
+        }
+
+        if (count($upserts) > 0) {
+            ListItem::upsert($upserts, ['id']);
+            $ids = array_column($upserts, 'id');
+            $updatedItems = ListItems::whereIn('id', $ids)->orderBy('updated_at')->get()->all();
+            Subscription::broadcast('streamLists', $updatedItems);
+        }
+
+        return $conflicts;
     }
 }

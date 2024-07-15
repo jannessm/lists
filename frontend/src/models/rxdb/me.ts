@@ -1,3 +1,5 @@
+import { ForeignId } from "./common";
+
 export enum THEME {
     AUTO = "auto",
     DARK = "dark",
@@ -10,7 +12,7 @@ export interface User {
     email: string;
     emailVerfiedAt: boolean | null;
     theme?: THEME;
-    defaultList: string | null;
+    defaultList: ForeignId | null;
     createdAt: string;
     updatedAt: string;
     _deleted: boolean;

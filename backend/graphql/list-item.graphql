@@ -2,7 +2,7 @@
 type ListItem {
   id: String!
   name: String!
-  description: String!
+  description: String
   reminder: DateTime
   due: DateTime
   createdBy: User! @belongsTo
@@ -19,34 +19,39 @@ type ListItem {
   _deleted: Boolean!
 }
 
-# ####### Input Types #########
-# input ListsInput {
-#   id: String
-#   name: String!
-#   isShoppingList: Boolean! @rename(attribute: "is_shopping_list")
-#   createdAt: DateTime @rename(attribute: "created_at")
-#   updatedAt: DateTime @rename(attribute: "updated_at")
-#   _deleted: Boolean
-# }
+####### Input Types #########
+input ListItemInput {
+  id: String
+  name: String!
+  description: String
+  reminder: DateTime
+  due: DateTime
+  createdBy: UserInput @belongsTo
+  lists: Lists! @belongsTo
+  done: Boolean!
+  createdAt: DateTime @rename(attribute: "created_at")
+  updatedAt: DateTime @rename(attribute: "updated_at")
+  _deleted: Boolean
+}
 
-# input ListsInputHeaders {
-#   id: string
-# }
+input ItemsInputHeaders {
+  id: string
+}
 
-# input ListsInputPushRow {
-#   newDocumentState: ListsInput!
-#   assumedMasterState: ListsInput!
-# }
+input ListItemInputPushRow {
+  newDocumentState: ListItemInput!
+  assumedMasterState: ListItemInput
+}
 
-# input ListsInputCheckpoint {
-#   id: String
-#   updatedAt: DateTime
-# }
+input ItemsInputCheckpoint {
+  id: String
+  updatedAt: DateTime
+}
 
 
-# ####### Response Types #######
+####### Response Types #######
 
-# type ListsPullBulk {
-#   documents: [Lists]! @can(ability: "view")
-#   checkpoint: CheckpointType
-# }
+type ListItemPullBulk {
+  documents: [ListItem]!
+  checkpoint: CheckpointType
+}

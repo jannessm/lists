@@ -31,11 +31,13 @@ final class StreamLists extends GraphQLSubscription
             $root = [$root];
         }
 
+        $checkpointID = end($root)['id'];
         $checkpointUpdatedAt = end($root)['updated_at'];
 
         return [
             "documents" => $root,
             "checkpoint" => [
+                "id" => $checkpointID,
                 "updatedAt" => $checkpointUpdatedAt
             ]
         ];

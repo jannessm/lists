@@ -92,7 +92,7 @@ class Lists extends Model
         if (count($upserts) > 0) {
             Lists::upsert($upserts, ['id']);
             $ids = array_column($upserts, 'id');
-            $updatedLists = User::whereIn('id', $ids)->orderBy('updated_at')->get()->all();
+            $updatedLists = Lists::whereIn('id', $ids)->orderBy('updated_at')->get()->all();
             Subscription::broadcast('streamLists', $updatedLists);
         }
 

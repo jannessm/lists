@@ -24,6 +24,7 @@ import { ReplicationService } from '../replication/replication.service';
 import { AuthService } from '../auth/auth.service';
 import { listsSchema } from '../../../models/rxdb/lists';
 import { DATA_TYPE, Replications } from '../../../models/rxdb/graphql-types';
+import { listItemSchema } from '../../../models/rxdb/list-item';
 
 @Injectable({
   providedIn: 'root'
@@ -60,10 +61,14 @@ export class DataService {
       },
       lists: {
         schema: listsSchema
+      },
+      items: {
+        schema: listItemSchema
       }
     });
 
     Object.values(DATA_TYPE).forEach(async (dataType) => {
+      console.log(dataType);
       if (this.db) {
         const repl = await this.replicationService.setupReplication(dataType, this.db[dataType]);
         repl.error$.subscribe(err => {console.error(err)});

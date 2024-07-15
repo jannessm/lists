@@ -1,10 +1,12 @@
+import { ForeignId } from "./common";
+
 export interface Lists {
     id: string;
     name: string;
     isShoppingList: boolean;
-    createdBy: string;
-    sharedWith: string[];
-    items: string[];
+    createdBy: ForeignId;
+    sharedWith: ForeignId[];
+    items: ForeignId[];
     createdAt: string;
     updatedAt: string;
     _deleted: boolean;
@@ -30,6 +32,9 @@ export const listsSchema = {
             properties: {
                 id: {
                     type: 'string'
+                },
+                name: {
+                    type: 'string'
                 }
             }
         },
@@ -39,6 +44,9 @@ export const listsSchema = {
                 type: 'object',
                 properties: {
                     id: {
+                        type: 'string'
+                    },
+                    name: {
                         type: 'string'
                     }
                 }

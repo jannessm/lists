@@ -1,6 +1,7 @@
 import { RxReplicationState } from "rxdb/dist/types/plugins/replication";
 import { listsSchema } from "./lists";
 import { meSchema } from "./me";
+import { listItemSchema } from "./list-item";
 
 export const graphQLGenerationInput = {
     me: {
@@ -18,12 +19,16 @@ export const graphQLGenerationInput = {
         ],
         deletedField: '_deleted',
         headerFields: ['X-XSRF-TOKEN']
+    },
+    items: {
+        schema: listItemSchema,
+        checkpointFields: [
+            'id', 'updatedAt'
+        ],
+        deletedField: '_deleted',
+        headerFields: ['X-XSRF-TOKEN']
     }
 };
-
-export interface DataType {
-    id: string;
-}
 
 export interface Replications {
     [key: string]: RxReplicationState<unknown, unknown>
@@ -32,5 +37,6 @@ export interface Replications {
 export enum DATA_TYPE {
     ME = "me",
     // USER = "user",
-    LISTS = "lists"
+    LISTS = "lists",
+    LIST_ITEM = "items"
 }

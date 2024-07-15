@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('list_items', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->string('name')->nullable(false);
+            $table->string('name', 50)->nullable(false);
             $table->text('description')->nullable(true);
             $table->timestamp('reminder')->nullable(true);
             $table->timestamp('due')->nullable(true);

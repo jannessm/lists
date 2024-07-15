@@ -3,7 +3,8 @@ import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { MaterialModule } from '../../../material.module';
-import { List, ListItem } from '../../../../models/rxdb/lists';
+import { Lists } from '../../../../models/rxdb/lists';
+import { ListItem } from '../../../../models/rxdb/list-item';
 
 @Component({
   selector: 'app-update-item-sheet',
@@ -19,19 +20,21 @@ import { List, ListItem } from '../../../../models/rxdb/lists';
 })
 export class UpdateItemSheetComponent {
   form: FormGroup;
-  list: List;
+  list: Lists;
   timezone: string | undefined;
 
   constructor(
     public bottomSheetRef: MatBottomSheetRef<UpdateItemSheetComponent>,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: {list: List, item: ListItem},
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: {list: Lists, item: ListItem},
     private fb: FormBuilder
   ) {
     this.list = data.list;
     this.form = fb.group({
       'name': [data.item.name, Validators.required],
-      'remind': [!!data.item.remind],
-      'time': [{value: data.item.time?.toISOString().slice(0,16), disabled: !data.item.remind}]
+      'reminder-toggle': [!!data.item.reminder],
+      'reminder': [data.item.due?.toISOString().slice(0,16)],
+      'due-toggle': [!!data.item.due],
+      'due': [data.item.due?.toISOString().slice(0,16)]
     });
 
     this.form.get('remind')?.valueChanges.subscribe(val => {
@@ -57,8 +60,8 @@ export class UpdateItemSheetComponent {
       }
     })
 
-    if (data.item.time) {
-      this.timezone = data.item.time.toISOString().slice(16);
+    if (data.item.due) {
+      this.timezone = data.item.due.toISOString().slice(16);
     }
   }
 

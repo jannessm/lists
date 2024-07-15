@@ -14,6 +14,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\HasApiTokens;
 
+use Illuminate\Support\Facades\DB;
 use Nuwave\Lighthouse\Execution\Utils\Subscription;
 
 class User extends Authenticatable implements MustVerifyEmail, CanResetPassword {
@@ -39,7 +40,8 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
      */
     protected $attributes = [
         '_deleted' => false,
-        'theme' => 'auto'
+        'theme' => 'auto',
+        'default_list' => null
     ];
 
     /**
@@ -73,6 +75,12 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
 
     public function lists() {
         return $this->createdLists->merge($this->sharedLists);
+    }
+
+    public function listItems() {
+        $lists = $this->lists()->select('id')->all();
+        $listsIds = array_column($lists, 'id');
+        return ListItem::whereIn('lists_id', $listsIds);
     }
 
     public function pushMeResolver($_, $args) {

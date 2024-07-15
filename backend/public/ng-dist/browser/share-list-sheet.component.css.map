@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/bottom-sheets/share-list-sheet/share-list-sheet.component.scss"],
+  "sourcesContent": ["button {\n    width: 100%;\n    margin: 6px 0;\n    \n    &:last-child {\n        margin-bottom: 38pt;\n    }\n}"],
+  "mappings": ";AAAA;AACI,SAAA;AACA,UAAA,IAAA;;AAEA,MAAA;AACI,iBAAA;;",
+  "names": []
+}
