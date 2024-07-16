@@ -32,7 +32,9 @@ export class ListsOverviewComponent {
   ) {
     this.dataService.dbInitialized.subscribe(initialized => {
       if (initialized && this.dataService.db && this.dataService.db[DATA_TYPE.LISTS]) {
-        this.dataService.db[DATA_TYPE.LISTS].find().$.subscribe(lists => {
+        this.dataService.db[DATA_TYPE.LISTS].find({
+          sort: [{name: 'asc'}]
+        }).$.subscribe(lists => {
           this.lists = lists;
         })
       }

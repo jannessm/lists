@@ -12,7 +12,7 @@
 
 <h1 *ngIf="list">{{list.name}}</h1>
 <div class="users" *ngIf="list && list.sharedWith.length > 0">
-    <button mat-mini-fab *ngFor="let user of list.sharedWith; let i = index" [class]="'user-fab-' + i % 12" disabled >{{user.name.substr(0, 2).toUpperCase()}}</button>
+    <button mat-mini-fab *ngFor="let user of list.sharedWith; let i = index" [class]="'user-fab-' + i % 12" disabled >{{user.name | nameBadge}}</button>
 </div>
 
 <div id="items-container" #itemsContainer>

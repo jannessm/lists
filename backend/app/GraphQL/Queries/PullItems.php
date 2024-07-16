@@ -32,16 +32,17 @@ final class PullItems
             $id = $args['id'];
         }
 
-        $items = $user->listItems()->orderBy('updated_at')->orderBy('id')
+        $newItems = $user->listItems()
             ->where("updated_at", ">", $updatedAt)
-            ->orWhere(function (Builder $query) use ($id, $updatedAt) {
-                $query->where([
-                    ["updated_at", "=", $updatedAt],
-                    ["id", ">", $id]
-                ]);
-            })
-            ->limit($args["limit"])
-            ->get()->all();
+            ->limit($args["limit"])->get();
+        $sameItems = $user->listItems()
+            ->where("updated_at", $updatedAt)
+            ->where("id", ">", $id)
+            ->limit($args["limit"])->get();
+        $items = $newItems->merge($sameItems)
+            ->sortBy('updated_at')
+            ->sortBy('id')
+            ->slice(0, $args["limit"])->all();
         
         $last_item = end($items);
         $result = [

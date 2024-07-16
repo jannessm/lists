@@ -37,4 +37,9 @@ $app-dark-theme: mat.m2-define-dark-theme((
     background-color: #262626;
     color: white;
     @include mat.all-component-colors($app-dark-theme);
+
+    
+    .item, .add-input{
+        background: #464646 !important;
+    }
 }

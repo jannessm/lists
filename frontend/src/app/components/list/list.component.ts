@@ -13,12 +13,14 @@ import { ConfirmSheetComponent } from '../bottom-sheets/confirm-sheet/confirm-sh
 import { DataService } from '../../services/data/data.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { Lists } from '../../../models/rxdb/lists';
-import { Slot } from '../../../models/categories';
+import { Slot, groupItems } from '../../../models/categories';
 import { ListItem } from '../../../models/rxdb/list-item';
 import { is_today } from '../../../models/categories_timeslots';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../material.module';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
+import { DATA_TYPE } from '../../../models/rxdb/graphql-types';
+import { RxDocument } from 'rxdb';
 
 @Component({
   selector: 'app-list',
@@ -37,7 +39,7 @@ import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 export class ListComponent implements AfterViewInit {
   @ViewChild('toolbar-time') toolbar!: Element;
 
-  list: Lists | undefined;
+  list: RxDocument<Lists> | undefined;
 
   userEmail: string | undefined;
 
@@ -55,7 +57,7 @@ export class ListComponent implements AfterViewInit {
   pickerOpen = false;
 
   slots: Slot[] = [];
-  items: ListItem[] = [];
+  items: RxDocument<ListItem>[] = [];
 
   pointerDown: boolean = false;
   pointerPosY: number | undefined; 
@@ -82,22 +84,26 @@ export class ListComponent implements AfterViewInit {
     private snackbar: MatSnackBar,
     private dataService: DataService
   ) {
-    // this.listService.lists.subscribe(() => {
-    //   this.activatedRoute.paramMap.subscribe(params => {
-    //     const list = this.listService.getList(params.get('id'));
+    this.activatedRoute.paramMap.subscribe(params => {
+      const id = params.get('id');
 
-    //     if (!!list) {
-    //       this.list = list;
-    //       this.listItemService.loadItemsForList(list.uuid);
-    //       this.listItemService.items.get(list.uuid)?.subscribe(items => {
-    //         this.items = items;
-    //         this.groupItems(items);
-    //       });
-    //     }
-    //   });
-    // });
+      this.dataService.dbInitialized.subscribe(initialized => {
+        if (initialized && this.dataService.db && this.dataService.db[DATA_TYPE.LISTS] && this.dataService.db[DATA_TYPE.LIST_ITEM]) {
+          this.dataService.db[DATA_TYPE.LISTS].findOne({
+            selector: { id }
+          }).$.subscribe(lists => {
+            this.list = lists;
+          });
 
-    // this.listService.updateData().subscribe();
+          this.dataService.db[DATA_TYPE.LIST_ITEM].find({
+            selector: {lists: { id }}
+          }).$.subscribe(items => {
+            this.items = items;
+            this.groupItems(items);
+          })
+        }
+      });
+    });
     // this.userEmail = this.authService.loggedUser?.email;
 
     this.newItemTime.valueChanges.subscribe(this.toggleNewTimeSelected.bind(this));
@@ -111,7 +117,7 @@ export class ListComponent implements AfterViewInit {
   listSettings() {
     if (this.list) {
       const dialogRef = this.bottomSheet.open(AddSheetComponent, {
-        data: this.list
+        data: this.list.getLatest()
       });
   
       dialogRef.afterDismissed().subscribe(new_values => {
@@ -159,18 +165,18 @@ export class ListComponent implements AfterViewInit {
 
   groupItems(items: ListItem[]) {
     if (this.list) {
-      // const slots = groupItems(items, this.list.groceries, this.listService.groceryCategories);
+      const slots = groupItems(items, this.list.isShoppingList, this.dataService.groceryCategories);
 
       if (this.slots) {
-        // slots.forEach(s => {
-        //   const this_s = this.slots.find(sl => sl.name === s.name);
+        slots.forEach(s => {
+          const this_s = this.slots.find(sl => sl.name === s.name);
 
-        //   if (this_s) {
-        //     s.collapsed = this_s.collapsed;
-        //   }
-        // });
+          if (this_s) {
+            s.collapsed = this_s.collapsed;
+          }
+        });
 
-        // this.slots = slots;
+        this.slots = slots;
       }
     }
   }

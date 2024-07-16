@@ -54,3 +54,35 @@ Route::middleware(["web"])->post('user/change-email', function(Request $request)
 
     return ['status' => 'ok'];
 });
+
+Route::get('grocery-categories', function(Request $request) {
+    $handle = fopen(resource_path() . '/grocery_categories.tsv', 'rb');
+    $f = [];
+    while (!feof($handle)) {
+        $f[] = fgets($handle);
+    }
+    
+    // read categories
+    $header = str_getcsv($f[0], "\t");
+    foreach($header as $h) {
+        $data[$h] = [];
+    }
+
+    array_splice($f, 0, 1);
+
+    foreach ($f as $row) {
+        $row = str_getcsv($row, "\t");
+        foreach($row as $col => $val) {
+            if ($val) {
+                //remove diacritics, trim, lowercase
+                $val = strtolower(trim($val));
+                $regexp = '/&([a-z]{1,2})(acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml|caron);/i';
+                $val = html_entity_decode(preg_replace($regexp, '$1', htmlentities($val)));
+                
+                array_push($data[$header[$col]], $val);
+            }
+        }
+    }
+
+    return $data;
+});

@@ -25,6 +25,9 @@ import { AuthService } from '../auth/auth.service';
 import { listsSchema } from '../../../models/rxdb/lists';
 import { DATA_TYPE, Replications } from '../../../models/rxdb/graphql-types';
 import { listItemSchema } from '../../../models/rxdb/list-item';
+import { GroceryCategories } from '../../../models/categories_groceries';
+import { HttpClient } from '@angular/common/http';
+import { BASE_API } from '../../globals';
 
 @Injectable({
   providedIn: 'root'
@@ -34,9 +37,12 @@ export class DataService {
   replications: Replications = {};
   dbInitialized = new BehaviorSubject<boolean>(false);
 
+  groceryCategories: GroceryCategories | undefined;
+
   constructor(
     private authService: AuthService,
-    private replicationService: ReplicationService
+    private replicationService: ReplicationService,
+    private http: HttpClient,
   ) {
     this.authService.isLoggedIn.subscribe(isLoggedIn => {
       if (isLoggedIn && !this.dbInitialized.getValue()) {
@@ -44,6 +50,11 @@ export class DataService {
       } else if (!isLoggedIn) {
         this.db?.destroy();
       }
+    });
+
+    this.http.get<GroceryCategories>(BASE_API + 'grocery-categories').subscribe(cats => {
+      this.groceryCategories = cats;
+      console.log(cats);
     });
   }
 
