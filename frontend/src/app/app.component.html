@@ -1,6 +1,5 @@
 <div id="app-container">
-    <!-- <div id="offline-indicator" *ngIf="!(pusher.online.asObservable() | async) && (authService.isLoggedIn | async)">Offline</div> -->
-    <div id="offline-indicator">Offline</div>
+    <div id="offline-indicator" *ngIf="!(pusher.online.asObservable() | async) && (authService.isLoggedIn | async)">Offline</div>
     <div class="content" [style.top]="marginTopContent + 'px'">
         <router-outlet></router-outlet>
     </div>
