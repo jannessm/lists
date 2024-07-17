@@ -3,16 +3,23 @@
 #app-container {
     display: grid;
     grid-template-rows: [offlineIndicator] 5px [content] calc(100% - 5px - $nav-bar-height) [footer] $nav-bar-height;
-    height: 100vh;
-    width: min(100%, 769px);
+    grid-template-columns: 1fr min(100%, 769px) 1fr;
+    height: 100%;
+    width: 100%;
+    grid-template-areas: ". offlineIndicator ."
+        ". content ."
+        ". footer .";
 }
 
 #offline-indicator {
-    height: 24px;
+    height: calc(17px + 12px);
     width: 100%;
     background-color: darkred;
     padding: 6px 12px;
     grid-area: offlineIndicator;
+    animation: offline 300ms ease-out 3s forwards;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
 mat-toolbar {
@@ -38,8 +45,19 @@ mat-toolbar {
 
 .content {
     grid-area: content;
-    padding: 12px;
-    width: 100vw;
+    padding: 12px 12px 0;
+    width: 100%;
     box-sizing: border-box;
     padding-top: 24px;
+}
+
+@keyframes offline {
+    0% {
+        height: 24px;
+        color: white;
+    }
+    100% {
+        height: 5px;
+        color: darkred;
+    }
 }

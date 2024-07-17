@@ -1,19 +1,22 @@
-<h2>Lists</h2>
-
-<button
-    mat-icon-button
-    class="add-button"
-    (click)="addList()">
-    <mat-icon>add</mat-icon>
-</button>
-
-<div class="container">
-    <button
-        class="list-card"
-        *ngFor="let l of lists"
-        mat-raised-button
-        [routerLink]="'/user/list/' + l.id">
-        <span>{{ l.name }}</span>
-        <mat-icon *ngIf="l.isShoppingList" [style.color]="'#999'">shopping_basket</mat-icon>
-    </button>
+<div class="content-grid">
+    <div class="content-header">
+        <h1>Lists</h1>
+        
+        <button
+            mat-icon-button
+            class="add-button"
+            (click)="addList()">
+            <mat-icon>add</mat-icon>
+        </button>
+    </div>
+    <div class="container">
+        <button
+            class="list-card"
+            *ngFor="let l of lists"
+            mat-raised-button
+            [routerLink]="'/user/list/' + l.id">
+            <span>{{ l.name }}</span>
+            <mat-icon *ngIf="l.isShoppingList" [style.color]="'#999'">shopping_basket</mat-icon>
+        </button>
+    </div>
 </div>
