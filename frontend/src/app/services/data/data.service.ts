@@ -54,7 +54,6 @@ export class DataService {
 
     this.http.get<GroceryCategories>(BASE_API + 'grocery-categories').subscribe(cats => {
       this.groceryCategories = cats;
-      console.log(cats);
     });
   }
 

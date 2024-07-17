@@ -1,13 +1,12 @@
 import { ForeignId } from "./common";
-import { Time } from "../categories_timeslots";
 
 export interface ListItem {
     id: string;
     name: string;
     description: string;
     createdBy: ForeignId;
-    reminder: Time;
-    due: Time;
+    reminder: string;
+    due: string;
     lists: ForeignId;
     done: boolean;
     createdAt: string;

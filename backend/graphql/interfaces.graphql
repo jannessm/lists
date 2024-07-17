@@ -1,12 +1,13 @@
-"A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
-scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+"A datetime string in ISO 8601 format in UTC with nanoseconds `YYYY-MM-DDTHH:mm:ss.SSSSSSZ`, e.g. `2020-04-20T16:20:04.000000Z`."
+scalar DateTimeUtc
+  @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTimeUtc")
 
 type Item {
     "When item was created."
-    createdAt: DateTime! @rename(attribute: "created_at")
+    createdAt: DateTimeUtc! @rename(attribute: "created_at")
 
     "When item was last updated."
-    updatedAt: DateTime! @rename(attribute: "updated_at")
+    updatedAt: DateTimeUtc! @rename(attribute: "updated_at")
 
     "Delete flag for rxDB"
     _deleted: Boolean!
@@ -14,5 +15,5 @@ type Item {
 
 type CheckpointType {
     id: String
-    updatedAt: DateTime!
+    updatedAt: DateTimeUtc!
 }

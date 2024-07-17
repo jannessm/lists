@@ -29,12 +29,13 @@ export class UpdateItemSheetComponent {
     private fb: FormBuilder
   ) {
     this.list = data.list;
+    const due = data.item.due !== null ? new Date(data.item.due) : null;
     this.form = fb.group({
       'name': [data.item.name, Validators.required],
       'reminder-toggle': [!!data.item.reminder],
-      'reminder': [data.item.due?.toISOString().slice(0,16)],
+      'reminder': [due?.toISOString().slice(0,16)],
       'due-toggle': [!!data.item.due],
-      'due': [data.item.due?.toISOString().slice(0,16)]
+      'due': [due?.toISOString().slice(0,16)]
     });
 
     this.form.get('remind')?.valueChanges.subscribe(val => {
@@ -60,8 +61,8 @@ export class UpdateItemSheetComponent {
       }
     })
 
-    if (data.item.due) {
-      this.timezone = data.item.due.toISOString().slice(16);
+    if (due) {
+      this.timezone = due.toISOString().slice(16);
     }
   }
 

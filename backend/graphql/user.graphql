@@ -12,7 +12,7 @@ type User implements Item {
   email: String!
 
   "When the email was verified."
-  emailVerifiedAt: DateTime @canRoot(ability: "viewDetails") @rename(attribute: "email_verified_at")
+  emailVerifiedAt: DateTimeUtc @canRoot(ability: "viewDetails") @rename(attribute: "email_verified_at")
 
   "Theme setting: One of ['auto', 'dark', 'light']"
   theme: String @canRoot(ability: "viewDetails")
@@ -21,10 +21,10 @@ type User implements Item {
   defaultList: Lists @canRoot(ability: "viewDetails")
   
   "When item was created."
-  createdAt: DateTime! @rename(attribute: "created_at")
+  createdAt: DateTimeUtc! @rename(attribute: "created_at")
 
   "When item was last updated."
-  updatedAt: DateTime! @rename(attribute: "updated_at")
+  updatedAt: DateTimeUtc! @rename(attribute: "updated_at")
 
   "Delete flag for rxDB"
   _deleted: Boolean!
@@ -38,10 +38,10 @@ input UserInput {
   id: String!
   name: String
   email: String
-  emailVerifiedAt: DateTime @canRoot(ability: "viewDetails") @rename(attribute: "email_verified_at")
+  emailVerifiedAt: DateTimeUtc @canRoot(ability: "viewDetails") @rename(attribute: "email_verified_at")
   theme: String @canRoot(ability: "viewDetails")
-  createdAt: DateTime @rename(attribute: "created_at")
-  updatedAt: DateTime @rename(attribute: "updated_at")
+  createdAt: DateTimeUtc @rename(attribute: "created_at")
+  updatedAt: DateTimeUtc @rename(attribute: "updated_at")
   _deleted: Boolean
 }
 
@@ -55,7 +55,7 @@ input MeInputPushRow {
 }
 
 input MeInputCheckpoint {
-  updatedAt: DateTime
+  updatedAt: DateTimeUtc
 }
 
 input UsersInputHeaders {
@@ -69,7 +69,7 @@ input UsersInputPushRow {
 
 input UsersInputCheckpoint {
   id: String @where(operator: ">=")
-  updatedAt: DateTime @where(key: "updated_at", operator: ">=")
+  updatedAt: DateTimeUtc @where(key: "updated_at", operator: ">=")
 }
 
 

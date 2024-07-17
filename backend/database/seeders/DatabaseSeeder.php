@@ -141,7 +141,7 @@ class DatabaseSeeder extends Seeder
                 $item['name'] = substr($item['name'], 0, 50);
             }
 
-            \App\Models\ListItem::create($item);
+            $newItem = \App\Models\ListItem::create($item);
         }
     }
 }

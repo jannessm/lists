@@ -8,10 +8,10 @@ type Lists {
   items: [ListItem]! @hasMany
   
   "When item was created."
-  createdAt: DateTime! @rename(attribute: "created_at")
+  createdAt: DateTimeUtc! @rename(attribute: "created_at")
 
   "When item was last updated."
-  updatedAt: DateTime! @rename(attribute: "updated_at")
+  updatedAt: DateTimeUtc! @rename(attribute: "updated_at")
 
   "Delete flag for rxDB"
   _deleted: Boolean!
@@ -23,8 +23,8 @@ input ListsInput {
   name: String!
   isShoppingList: Boolean! @rename(attribute: "is_shopping_list")
   createdBy: UserInput! @belongsTo
-  createdAt: DateTime @rename(attribute: "created_at")
-  updatedAt: DateTime @rename(attribute: "updated_at")
+  createdAt: DateTimeUtc @rename(attribute: "created_at")
+  updatedAt: DateTimeUtc @rename(attribute: "updated_at")
   _deleted: Boolean
 }
 
@@ -39,7 +39,7 @@ input ListsInputPushRow {
 
 input ListsInputCheckpoint {
   id: String
-  updatedAt: DateTime
+  updatedAt: DateTimeUtc
 }
 
 

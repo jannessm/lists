@@ -1,3 +1,4 @@
+import { RxDocument } from "rxdb";
 import { GroceryCategories, GROCERY_OTHERS } from "./categories_groceries";
 import { is_past, is_sometime, is_soon, is_today, is_tomorrow, TIMESLOTS } from "./categories_timeslots";
 import { ListItem } from "./rxdb/list-item";
@@ -10,12 +11,12 @@ export interface Category {
 
 export interface Slot {
   name: string | TIMESLOTS;
-  items: ListItem[];
+  items: RxDocument<ListItem>[];
   collapsed: boolean;
   nDone: number;
 }
 
-export function sortItems(items: ListItem[]) {
+export function sortItems(items: RxDocument<ListItem>[]) {
   items.sort((a, b) => {
     const c = a.done ? 1 : 0;
     const d = b.done ? 1 : 0;
@@ -25,7 +26,7 @@ export function sortItems(items: ListItem[]) {
     }
 
     if (a.due && b.due) {
-      return a.due.valueOf() - b.due.valueOf();
+      return new Date(a.due).valueOf() - new Date(b.due).valueOf();
     }
 
     if (c - d == 0) {
@@ -37,7 +38,7 @@ export function sortItems(items: ListItem[]) {
 }
   
 function voteForGroceryCategory(categoryItems: string[]) {
-  return (item: ListItem) => {
+  return (item: RxDocument<ListItem>) => {
     let votes = 0;
 
     categoryItems.forEach(catItem => {
@@ -68,7 +69,7 @@ function compareSlots(categoryNames: string[]) {
   };
 }
   
-export function groupItems(items: ListItem[], isGroceries: boolean, groceryCategories: GroceryCategories | undefined = undefined) {
+export function groupItems(items: RxDocument<ListItem>[], isGroceries: boolean, groceryCategories: GroceryCategories | undefined = undefined) {
   const slots: Slot[] = [];
   let categories: Category[] = [];
   

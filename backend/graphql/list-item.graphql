@@ -3,17 +3,17 @@ type ListItem {
   id: String!
   name: String!
   description: String
-  reminder: DateTime
-  due: DateTime
+  reminder: DateTimeUtc
+  due: DateTimeUtc
   createdBy: User! @belongsTo
   lists: Lists! @belongsTo
   done: Boolean!
   
   "When item was created."
-  createdAt: DateTime! @rename(attribute: "created_at")
+  createdAt: DateTimeUtc! @rename(attribute: "created_at")
 
   "When item was last updated."
-  updatedAt: DateTime! @rename(attribute: "updated_at")
+  updatedAt: DateTimeUtc! @rename(attribute: "updated_at")
 
   "Delete flag for rxDB"
   _deleted: Boolean!
@@ -24,13 +24,13 @@ input ListItemInput {
   id: String
   name: String!
   description: String
-  reminder: DateTime
-  due: DateTime
+  reminder: DateTimeUtc
+  due: DateTimeUtc
   createdBy: UserInput @belongsTo
   lists: Lists! @belongsTo
   done: Boolean!
-  createdAt: DateTime @rename(attribute: "created_at")
-  updatedAt: DateTime @rename(attribute: "updated_at")
+  createdAt: DateTimeUtc @rename(attribute: "created_at")
+  updatedAt: DateTimeUtc @rename(attribute: "updated_at")
   _deleted: Boolean
 }
 
@@ -45,7 +45,7 @@ input ListItemInputPushRow {
 
 input ItemsInputCheckpoint {
   id: String
-  updatedAt: DateTime
+  updatedAt: DateTimeUtc
 }
 
 

@@ -21,30 +21,19 @@
             {{ slot.name }}
             <mat-chip-listbox *ngIf="slot.nDone > 0" class="slot-done-toggle">
                 <mat-chip-option (click)="slot.collapsed = !slot.collapsed" [selected]="!slot.collapsed">
-                    {{ slot.nDone }}<!--mat-icon>done</mat-icon-->
+                    {{ slot.nDone }}
                 </mat-chip-option>
             </mat-chip-listbox>
         </h2>
     
-        <div class="item"
-             *ngFor="let item of slot.items"
-             [class.item-done]="item.done"
-             (pointerdown)="openUpdateSheet($event, item)"
-             (pointerup)="cancelUpdateSheet()"
-             [id]="'id-' + item.id">
-            <div *ngIf="!slot.collapsed || !item.done">
-                <mat-checkbox (change)="toggleDone(item, slot.items)" [(ngModel)]="item.done" color="primary">
-                    <div class="item-content">{{ item.name }}
-                        <mat-chip-set *ngIf="list && !list.isShoppingList" disabled>
-                            <mat-chip *ngIf="item.due && is_today(item)" [highlighted]="!!item.reminder">{{item.due | date:'h:mm'}}</mat-chip>
-                            <mat-chip *ngIf="item.due && !is_today(item)" [highlighted]="!!item.reminder">{{item.due | date:'short'}}</mat-chip>
-                        </mat-chip-set>
-                        <!-- <button mat-mini-fab disabled *ngIf="list && list.shared && userEmail !== item.created_by" [class]="'mini-user-fab user-fab-' + list.users.indexOf(item.sharedWith.id) % 12">{{item.createdBy.id | nameBadge}}</button> -->
-                    </div>
-                    <button mat-icon-button (click)="deleteItem(item)" *ngIf="item.done"><mat-icon>close</mat-icon></button>
-                </mat-checkbox>
-            </div>
-        </div>
+        <ng-container *ngFor="let item of slot.items">
+            <app-list-item
+                [userId]="userId"
+                [list]="list"
+                [item]="item"
+                *ngIf="!item.done || !slot.collapsed"
+                ></app-list-item>
+        </ng-container>
     </div>
 </div>
 

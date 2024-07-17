@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, LOCALE_ID, ViewChild } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.component';
@@ -21,6 +21,8 @@ import { MaterialModule } from '../../material.module';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { DATA_TYPE } from '../../../models/rxdb/graphql-types';
 import { RxDocument } from 'rxdb';
+import { environment } from '../../../environments/environment';
+import { ListItemComponent } from '../list-item/list-item.component';
 
 @Component({
   selector: 'app-list',
@@ -32,7 +34,12 @@ import { RxDocument } from 'rxdb';
     ReactiveFormsModule,
     FormsModule,
     NameBadgePipe,
+    ListItemComponent
   ],
+  providers: [{
+    provide: LOCALE_ID,
+    useValue: environment.locale // 'de' for Germany, 'fr' for France ...
+  }],
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss']
 })
@@ -41,7 +48,7 @@ export class ListComponent implements AfterViewInit {
 
   list: RxDocument<Lists> | undefined;
 
-  userEmail: string | undefined;
+  userId: string | undefined;
 
   newItem: string = '';
   focusInput: boolean = false;
@@ -57,24 +64,11 @@ export class ListComponent implements AfterViewInit {
   pickerOpen = false;
 
   slots: Slot[] = [];
-  items: RxDocument<ListItem>[] = [];
-
-  pointerDown: boolean = false;
-  pointerPosY: number | undefined; 
-  updateSheetRef: MatBottomSheetRef<UpdateItemSheetComponent, any> | undefined;
+  items: (RxDocument<ListItem>)[] = [];
 
   @ViewChild('itemsContainer') itemsContainer!: ElementRef;
   @ViewChild('picker') picker!: ElementRef;
   @ViewChild('chipDate') chipDiff!: ElementRef;
-
-  @HostListener('mousemove', ['$event'])
-  onMousemove(event: MouseEvent): void  {
-    this.pointerPosY = event.clientY;
-  }
-  @HostListener('touchmove', ['$event'])
-  onTouchMove(event: TouchEvent): void {
-    this.pointerPosY = event.changedTouches[0].clientY;
-  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -97,14 +91,17 @@ export class ListComponent implements AfterViewInit {
 
           this.dataService.db[DATA_TYPE.LIST_ITEM].find({
             selector: {lists: { id }}
-          }).$.subscribe(items => {
+          }).$.subscribe((items: (RxDocument<ListItem>)[]) => {
             this.items = items;
             this.groupItems(items);
-          })
+          });
+
+          this.dataService.db[DATA_TYPE.ME].findOne().exec().then(u => {
+            this.userId = u.id;
+          });
         }
       });
     });
-    // this.userEmail = this.authService.loggedUser?.email;
 
     this.newItemTime.valueChanges.subscribe(this.toggleNewTimeSelected.bind(this));
   }
@@ -163,7 +160,7 @@ export class ListComponent implements AfterViewInit {
     }
   }
 
-  groupItems(items: ListItem[]) {
+  groupItems(items: RxDocument<ListItem>[]) {
     if (this.list) {
       const slots = groupItems(items, this.list.isShoppingList, this.dataService.groceryCategories);
 
@@ -213,17 +210,7 @@ export class ListComponent implements AfterViewInit {
       // });
     }
   }
-  
-  deleteItem(item: ListItem) {
-    const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche ' + item.name});
-    
-    confirm.afterDismissed().subscribe(del => {
-      if (this.list && del) {
-        
-        // this.listItemService.deleteItems(this.list.uuid, [item.uuid]);
-      }
-    });
-  }
+
 
   deleteAll() {
     const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche alle Einträge'});
@@ -251,64 +238,6 @@ export class ListComponent implements AfterViewInit {
         //TODO: count unmarked items
       // });
     }
-  }
-
-  toggleDone(item: ListItem, itemList: ListItem[], done: boolean | null = null) {
-    if (this.list) {
-      const new_done = done !== null ? done : item.done;
-      // this.listItemService.updateDone(this.list.uuid, [item.uuid], new_done).subscribe(success => {
-        //TODO: count unmarked items
-      // });
-    }
-  }
-
-  openUpdateSheet(event: MouseEvent, item: ListItem) {
-    if (!this.pointerDown) {
-      this.pointerDown = true;
-      const currScrollPos = event.clientY;
-      this.pointerPosY = currScrollPos;
-      
-      setTimeout(() => {
-        
-        if (this.pointerPosY != undefined && this.pointerDown && !this.updateSheetRef && Math.abs(currScrollPos - this.pointerPosY) < 50) {  
-          this.updateSheetRef = this.bottomSheet.open(UpdateItemSheetComponent, {
-            data: {
-              list: this.list,
-              item
-            }
-          });
-  
-          this.updateSheetRef.afterDismissed().subscribe(newItem => {            
-            if (this.list && newItem) {
-              try {
-                newItem.time = (new Date(newItem.time)).toISOString();
-              } catch {
-                newItem.time = null;
-              }
-
-              newItem.uuid = item.id;
-
-              // this.listItemService.updateItem(this.list.uuid, newItem);
-            }
-
-            setTimeout(() => {
-              this.cancelUpdateSheet();
-            }, 500);
-          });
-        } else {
-          this.cancelUpdateSheet();
-        }
-      }, 500);
-    }
-  }
-
-  cancelUpdateSheet() {
-    this.pointerDown = false;
-    this.updateSheetRef = undefined;
-  }
-
-  is_today(item: ListItem): boolean {
-    return !!is_today(item);
   }
 
   toggleNewTimeSelected(value: string | null) {
