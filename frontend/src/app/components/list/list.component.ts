@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, HostListener, LOCALE_ID, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, ViewChild } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.component';
@@ -40,7 +40,6 @@ import { ListItemComponent } from '../list-item/list-item.component';
   styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements AfterViewInit {
-  @ViewChild('toolbar-time') toolbar!: Element;
 
   list: RxDocument<Lists> | undefined;
 
@@ -62,6 +61,7 @@ export class ListComponent implements AfterViewInit {
   slots: Slot[] = [];
   items: (RxDocument<ListItem>)[] = [];
 
+  @ViewChild('toolbar-time') toolbar!: Element;
   @ViewChild('itemsContainer') itemsContainer!: ElementRef;
   @ViewChild('picker') picker!: ElementRef;
   @ViewChild('chipDate') chipDiff!: ElementRef;
@@ -258,11 +258,19 @@ export class ListComponent implements AfterViewInit {
     }
   }
 
-  closeFocusInput() {
-    if (!this.pickerOpen) {
+  openFocusInput(event: Event) {
+    event.stopPropagation();
+    this.focusInput = true;
+  }
+
+  closeFocusInput(event: Event) {
+    if (!this.pickerOpen && this.focusInput) {
       this.focusInput = false;
+      event.stopPropagation();
+    } else if (this.pickerOpen) {
+      event.stopPropagation();
+      this.pickerOpen = this.timePicker.isOpen;
     }
-    this.pickerOpen = this.timePicker.isOpen;
   }
 
   listToText() {

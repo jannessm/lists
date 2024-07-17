@@ -1,5 +1,3 @@
-@import '../../../variables.scss';
-
 .content-grid {
     display: grid;
     grid-template-rows: [contentHeader] max-content [contentArea] 1fr;

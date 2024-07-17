@@ -1,55 +1,62 @@
-<div id="toggle-overlay" (click)="closeFocusInput()" [class.focusInput]="focusInput" [class.isShoppingList]="list?.isShoppingList"></div>
-<button class="menu" mat-icon-button [matMenuTriggerFor]="menu"><mat-icon>more_vert</mat-icon></button>
-<mat-menu #menu="matMenu">
-    <button mat-menu-item (click)="listSettings()">Einstellungen</button>
-    <button mat-menu-item (click)="shareList()">Teilen</button>
-    <button mat-menu-item (click)="listToText()">Verschicken</button>
-    <button mat-menu-item (click)="markAllNotDone()">Alle Einträge abwählen</button>
-    <button mat-menu-item (click)="deleteAll()">Alle Einträge löschen</button>
-    <button mat-menu-item (click)="deleteAllDone()">Alle erledigten Einträge löschen</button>
-    <button mat-menu-item (click)="deleteList()">Löschen</button>
-</mat-menu>
+<div class="content-grid" (click)="closeFocusInput($event)">
+    <div class="content-header">
+        <button class="menu" mat-icon-button [matMenuTriggerFor]="menu"><mat-icon>more_vert</mat-icon></button>
+        <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="listSettings()">Einstellungen</button>
+            <button mat-menu-item (click)="shareList()">Teilen</button>
+            <button mat-menu-item (click)="listToText()">Verschicken</button>
+            <button mat-menu-item (click)="markAllNotDone()">Alle Einträge abwählen</button>
+            <button mat-menu-item (click)="deleteAll()">Alle Einträge löschen</button>
+            <button mat-menu-item (click)="deleteAllDone()">Alle erledigten Einträge löschen</button>
+            <button mat-menu-item (click)="deleteList()">Löschen</button>
+        </mat-menu>
+        
+        <h1 *ngIf="list">{{list.name}}</h1>
+        <div class="users" *ngIf="list && list.sharedWith.length > 0">
+            <button mat-mini-fab *ngFor="let user of list.sharedWith; let i = index" [class]="'user-fab-' + i % 12" disabled >{{user.name | nameBadge}}</button>
+        </div>
+    </div>
 
-<h1 *ngIf="list">{{list.name}}</h1>
-<div class="users" *ngIf="list && list.sharedWith.length > 0">
-    <button mat-mini-fab *ngFor="let user of list.sharedWith; let i = index" [class]="'user-fab-' + i % 12" disabled >{{user.name | nameBadge}}</button>
-</div>
+    <div id="items-container" #itemsContainer>
+        <div id="overlay" *ngIf="focusInput" (click)="closeFocusInput($event)"></div>
+        <div class="slots" *ngFor="let slot of slots">
+            <h2>
+                {{ slot.name }}
+                <mat-chip-listbox *ngIf="slot.nDone > 0" class="slot-done-toggle">
+                    <mat-chip-option (click)="slot.collapsed = !slot.collapsed" [selected]="!slot.collapsed">
+                        {{ slot.nDone }}
+                    </mat-chip-option>
+                </mat-chip-listbox>
+            </h2>
+        
+            <ng-container *ngFor="let item of slot.items">
+                <app-list-item
+                    *ngIf="!item.done || !slot.collapsed"
+                    [userId]="userId"
+                    [list]="list"
+                    [item]="item"
+                    ></app-list-item>
+            </ng-container>
+        </div>
+    </div>
 
-<div id="items-container" #itemsContainer>
-    <div class="slots" *ngFor="let slot of slots">
-        <h2>
-            {{ slot.name }}
-            <mat-chip-listbox *ngIf="slot.nDone > 0" class="slot-done-toggle">
-                <mat-chip-option (click)="slot.collapsed = !slot.collapsed" [selected]="!slot.collapsed">
-                    {{ slot.nDone }}
-                </mat-chip-option>
+    <div class="input-bar" (click)="openFocusInput($event)">
+        <mat-toolbar class="toolbar-time" [style.display]="focusInput ? 'block' : 'none'" *ngIf="list && !list.isShoppingList">
+            <mat-chip-listbox [formControl]="newItemTime">
+                <mat-chip-option value="today">Heute</mat-chip-option>
+                <mat-chip-option value="tomorrow">Morgen</mat-chip-option>
+                <mat-chip-option value="different">{{(timePickerDate | date:'short') || 'Andere'}}</mat-chip-option>
+                <mat-chip-option value="sometime">Irgendwann</mat-chip-option>
             </mat-chip-listbox>
-        </h2>
+        </mat-toolbar>
+
+        <mat-toolbar class="toolbar-input" [class.focusInput]="focusInput" [class.isShoppingList]="list?.isShoppingList">
+                <input matInput placeholder="Hinzufügen" class="add-input" [(ngModel)]="newItem" autocomplete="off">
+                <button mat-icon-button (click)="addItem()"><mat-icon>add</mat-icon></button>
+        </mat-toolbar>
     
-        <ng-container *ngFor="let item of slot.items">
-            <app-list-item
-                *ngIf="!item.done || !slot.collapsed"
-                [userId]="userId"
-                [list]="list"
-                [item]="item"
-                ></app-list-item>
-        </ng-container>
+        <input id="picker" type="text" #picker (change)="setTimePickerDate($event)">
     </div>
 </div>
 
-<div (click)="focusInput=true">
-    <mat-toolbar class="toolbar-input" [class.focusInput]="focusInput" [class.isShoppingList]="list?.isShoppingList">
-            <input matInput placeholder="Hinzufügen" class="add-input" [(ngModel)]="newItem" autocomplete="off">
-            <button mat-icon-button (click)="addItem()"><mat-icon>add</mat-icon></button>
-    </mat-toolbar>
 
-    <mat-toolbar class="toolbar-time" [style.display]="focusInput ? 'block' : 'none'" *ngIf="list && !list.isShoppingList">
-        <mat-chip-listbox [formControl]="newItemTime">
-            <mat-chip-option value="today">Heute</mat-chip-option>
-            <mat-chip-option value="tomorrow">Morgen</mat-chip-option>
-            <mat-chip-option value="different">{{(timePickerDate | date:'short') || 'Andere'}}</mat-chip-option>
-            <mat-chip-option value="sometime">Irgendwann</mat-chip-option>
-        </mat-chip-listbox>
-    </mat-toolbar>
-    <input id="picker" type="text" #picker (change)="setTimePickerDate($event)">
-</div>
