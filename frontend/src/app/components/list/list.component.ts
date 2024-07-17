@@ -83,6 +83,7 @@ export class ListComponent implements AfterViewInit {
             selector: { id }
           }).$.subscribe(lists => {
             this.list = lists;
+            console.log(this.list);
           });
 
           this.dataService.db[DATA_TYPE.LIST_ITEM].find({

@@ -7,6 +7,12 @@
     height: 100%;
     position: relative;
     z-index: 11;
+    justify-content: start;
+    grid-template-columns: 100%;
+    grid-template-areas:
+        "contentHeader"
+        "contentArea"
+        "inputBar";
     
     &:has(.focusInput) {
         height: calc(100% + $nav-bar-height);
@@ -56,6 +62,13 @@
 
     .slot:last-child {
         margin-bottom: $nav-bar-height;
+    }
+
+    .no-lists {
+        width: 100%;
+        color: grey;
+        text-align: center;
+        padding-top: 25%;
     }
 }
 

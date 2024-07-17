@@ -68,6 +68,15 @@ export class ReplicationService {
           const result = await firstValueFrom(that.api.graphQL<MutationResponse<PushResult>>(query));
 
           return (result.data as PushResult)['push' + collectionName[0].toUpperCase() + collectionName.substring(1)];
+        },
+        modifier: doc => {
+          if ("sharedWith" in doc) {
+            delete doc['sharedWith'];
+          }
+          if ("items" in doc) {
+            delete doc['items'];
+          }
+          return doc;
         }
       }
     });

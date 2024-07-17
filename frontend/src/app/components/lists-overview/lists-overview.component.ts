@@ -56,7 +56,12 @@ export class ListsOverviewComponent {
           id: ulid().toLowerCase(),
           name: res.name,
           isShoppingList: res.isShoppingList,
-          createdBy: {id: me.id}
+          createdBy: {id: me.id},
+          sharedWith: [],
+          items: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          _deleted: false
         });
       }
     });

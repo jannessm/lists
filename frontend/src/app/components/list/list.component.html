@@ -38,6 +38,7 @@
                     ></app-list-item>
             </ng-container>
         </div>
+        <div *ngIf="slots && slots.length === 0" class="no-lists">Keine Einträge vorhanden</div>
     </div>
 
     <div class="input-bar" (click)="openFocusInput($event)">
