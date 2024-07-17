@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         if (file_exists(__DIR__ . '/data.db')) {
-            echo 'seed from sqlite database\n';
+            echo "seed from sqlite database\n\n";
             $this->seedFromSqlite();
         } else {
             $this->seedRandomly();
@@ -79,24 +79,31 @@ class DatabaseSeeder extends Seeder
                             $user['theme'] = 'light';
                     }
                     $user['name'] = str_replace(['.', '-', '_'], ' ', explode('@', $user['email'])[0]);
+                    echo "create user " . $user['name'] . "\n";
                     $new_user = \App\Models\User::create($user);
                     $new_users[$relation['user_id']] = $new_user;
                 } else {
-                    echo $relation['user_id'] . " not found\n";
+                    echo "\n" . $relation['user_id'] . " not found\n";
+                    continue;
                 }
             }
 
 
             // create list if not done yet
-            if (!array_key_exists($relation['list_id'], $new_lists)) {
+            if (!array_key_exists($relation['list_id'], $new_lists) && 
+                 array_key_exists($relation['user_id'], $new_users)) {
                 $stmt = $pdo->prepare('SELECT name, groceries AS is_shopping_list FROM lists WHERE uuid = :uuid;');
                 $stmt->execute([
                     ':uuid' => $relation['list_id']
                 ]);
+
+                $user = $new_users[$relation['user_id']];
     
                 $list = $stmt->fetch(\PDO::FETCH_ASSOC);
-                $list['created_by'] = $new_user->id;
+                $list['created_by'] = $user->id;
                 $list['is_shopping_list'] = $list['is_shopping_list'] === 1 || $list['is_shopping_list'] === '1';
+                
+                echo "create list " . $list['name'] . " for " . $user->name ."\n";
                 $new_list = \App\Models\Lists::create($list);
                 
                 $new_lists[$relation['list_id']] = $new_list;
@@ -108,6 +115,7 @@ class DatabaseSeeder extends Seeder
             if (!$created_list) {
                 $new_user = $new_users[$relation['user_id']];
                 $new_list = $new_lists[$relation['list_id']];
+                echo "shared " . $new_list->name . " with " . $new_user->name . "\n";
                 $new_list->sharedWith()->attach($new_user);
             }
         }
@@ -117,14 +125,20 @@ class DatabaseSeeder extends Seeder
         $stmt->execute();
 
         while ($item = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+
+            if (!array_key_exists($item['list_id'], $new_lists) ||
+                !array_key_exists($item['created_by'], $new_users)) {
+                echo "\ncould not create item for " . $item['list_id'] . " for user " . $item['created_by'] . "\n";
+                continue;
+            }
             $item['lists_id'] = $new_lists[$item['list_id']]->id;
             $item['created_by'] = $new_users[$item['created_by']]->id;
             $item['done'] = $item['done'] === 1 || $item['done'] === '1';
             unset($item['list_id']);
 
-            if (strlen($item['name']) > 100) {
+            if (strlen($item['name']) > 50) {
                 $item['description'] = $item['name'];
-                $item['name'] = substr($item['name'], 0, 100);
+                $item['name'] = substr($item['name'], 0, 50);
             }
 
             \App\Models\ListItem::create($item);
