@@ -9,8 +9,6 @@ type Query @guard {
     pullLists(checkpoint: ListsInputCheckpoint @spread, limit: Int!): ListsPullBulk!
     
     pullItems(checkpoint: ItemsInputCheckpoint @spread, limit: Int!): ListItemPullBulk!
-
-    # pullUsers(checkpoint: UsersInputCheckpoint @spread, limit: Int!): UserPullBulk!
 }
 
 type Mutation @guard {
@@ -18,14 +16,11 @@ type Mutation @guard {
 
   pushLists(listsPushRow: [ListsInputPushRow!]): [Lists!]! @field(resolver: "App\\Models\\Lists@pushResolver")
 
-  pushItems(itemsPushRow: [ListItemInputPushRow!]): [ListItem!]! @field(resolver: "App\\Models\\ListItem@pushResolver")
-
-  # upsertTask(task: TaskInput! @spread): Task @upsert @inject(context: "user.id", name: "user_id") @broadcast(subscription: "streamTasks")
+  pushItems(itemsPushRow: [ItemsInputPushRow!]): [ListItem!]! @field(resolver: "App\\Models\\ListItem@pushResolver")
 }
 
 type Subscription @guard {
   streamMe(headers: MeInputHeaders): MePullBulk
   streamLists(headers: ListsInputHeaders): ListsPullBulk
   streamItems(headers: ItemsInputHeaders): ListItemPullBulk
-  # streamUsers(headers: UsersInputHeaders): UserPullBulk
 }

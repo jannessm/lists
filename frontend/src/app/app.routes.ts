@@ -13,22 +13,15 @@ import { ResetPasswordComponent } from './components/reset-password/reset-passwo
 import { ListComponent } from './components/list/list.component';
 
 export const routes: Routes = [
-    {path: 'user', canActivate: [authGuard], children: [
-      {path: 'lists', component: ListsOverviewComponent},
-      {path: 'list/:id', component: ListComponent},
-      {path: 'settings', component: SettingsComponent},
+    {path: 'user', children: [
+      {path: 'lists', component: ListsOverviewComponent, canActivate: [authGuard]},
+      {path: 'list/:id', component: ListComponent, canActivate: [authGuard]},
+      {path: 'settings', component: SettingsComponent, canActivate: [authGuard]},
     ]},
     {path: 'login', component: LoginComponent, canActivate:[isLoggedGuard]},
     {path: 'register', component: RegisterComponent, canActivate:[isLoggedGuard]},
     {path: 'forgot-password', component: ForgotPasswordComponent, canActivate:[isLoggedGuard]},
     {path: 'reset-password', component: ResetPasswordComponent, canActivate:[isLoggedGuard]},
     {path: 'cookies', component: CookieComponent},
-    {path: 'graphql', component: DashboardComponent},
     {path: '**', redirectTo: '/login'},
   ];
-
-@NgModule({
-    imports: [RouterModule.forRoot(routes)],
-    exports: [RouterModule]
-  })
-export class AppRoutingModule { }

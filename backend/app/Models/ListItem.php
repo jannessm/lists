@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Support\Facades\Auth;
+use Nuwave\Lighthouse\Execution\Utils\Subscription;
+
 class ListItem extends Model
 {
     use HasFactory, HasUlids;
@@ -54,18 +57,31 @@ class ListItem extends Model
         $upserts = [];
         $conflicts = [];
 
-        foreach($args['listItemPushRow'] as $item) {
+        foreach($args['itemsPushRow'] as $item) {
             $conflict = FALSE;
             $newState = $item['newDocumentState'];
 
             if (array_key_exists('assumedMasterState', $item)) {
                 $assumedMaster = $item['assumedMasterState'];
-                $masterItem = Lists::find($assumedMaster[$this->primaryKey]);
+                $masterItem = ListItem::find($assumedMaster[$this->primaryKey]);
 
                 foreach ($assumedMaster as $param => $val) {
-                    if ($masterItem[$param] != $val) {
-                        array_push($conflicts, $masterItem);
+                    // if param = createdBy|lists => compare ids
+                    if (($param == "createdBy" && $masterItem[$param]->id != $val['id']) ||
+                        ($param == "lists" && $masterItem[$param]->id != $val['id'])
+                    ) {
+                        // var_dump($param);
                         $conflict = TRUE;
+                    } else if (
+                        !in_array($param, ["createdBy", "lists"]) && 
+                        $masterItem[$param] != $val
+                        ) {
+                        // var_dump($param, $masterItem[$param], $val);
+                        $conflict = TRUE;
+                    }
+
+                    if ($conflict) {
+                        array_push($conflicts, $masterItem);
                         break;
                     }
                 }
@@ -85,8 +101,8 @@ class ListItem extends Model
         if (count($upserts) > 0) {
             ListItem::upsert($upserts, ['id']);
             $ids = array_column($upserts, 'id');
-            $updatedItems = ListItems::whereIn('id', $ids)->orderBy('updated_at')->get()->all();
-            Subscription::broadcast('streamLists', $updatedItems);
+            $updatedItems = ListItem::whereIn('id', $ids)->orderBy('updated_at')->get()->all();
+            Subscription::broadcast('streamItems', $updatedItems);
         }
 
         return $conflicts;

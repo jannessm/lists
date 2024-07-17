@@ -24,7 +24,7 @@ final class PullLists
         } else {
             $updatedAt = $args['updatedAt'];
         }
-        $updatedAt = $updatedAt->toDateTimeString();
+        $updatedAt = $updatedAt->toISOString();
 
         if (!array_key_exists('id', $args)) {
             $id = '';

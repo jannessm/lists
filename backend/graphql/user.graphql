@@ -36,7 +36,7 @@ type User implements Item {
 
 input UserInput {
   id: String!
-  name: String
+  name: String!
   email: String
   emailVerifiedAt: DateTimeUtc @canRoot(ability: "viewDetails") @rename(attribute: "email_verified_at")
   theme: String @canRoot(ability: "viewDetails")

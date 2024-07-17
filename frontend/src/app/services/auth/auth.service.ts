@@ -41,8 +41,8 @@ export class AuthService {
         this.pusher.unsubscribe();
         this.cookies.delete(SESSION_COOKIE);
       }
-
-      this.router.navigateByUrl(location.path(), {skipLocationChange: true})
+      
+      this.router.navigateByUrl(location.path());
     });
     
     this.api.validateLogin().subscribe(loggedIn => {
@@ -50,7 +50,7 @@ export class AuthService {
     });
 
     this.pusher.online.subscribe(isOnline => {
-      if (isOnline) {
+      if (isOnline && this.isLoggedIn.value) {
         this.evaluateVerifiedMail();
         this.verificationInverval = setInterval(this.evaluateVerifiedMail, 5 * 60 * 1000);
       } else {

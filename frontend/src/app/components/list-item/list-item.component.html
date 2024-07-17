@@ -4,8 +4,9 @@
         (pointerup)="cancelUpdateSheet()"
         [id]="'id-' + item?.id">
     <div>
-        <mat-checkbox (change)="toggleDone(item)" color="primary">
-            <div class="item-content">{{ item?.name }}
+        <mat-checkbox (change)="toggleDone()" color="primary" [checked]="item?.done">
+            <div class="item-content">
+                <span>{{ item?.name }}</span>
                 <mat-chip-set *ngIf="list && !list.isShoppingList" disabled>
                     <mat-chip *ngIf="item && item.due && is_today(item)" [highlighted]="!!item.reminder">{{item.due | date:'h:mm'}}</mat-chip>
                     <mat-chip *ngIf="item && item.due && !is_today(item)" [highlighted]="!!item.reminder">{{item.due | date:'short'}}</mat-chip>

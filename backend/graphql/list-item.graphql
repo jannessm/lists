@@ -26,8 +26,8 @@ input ListItemInput {
   description: String
   reminder: DateTimeUtc
   due: DateTimeUtc
-  createdBy: UserInput @belongsTo
-  lists: Lists! @belongsTo
+  createdBy: RefInput @model(class: "App\\Models\\User") @belongsTo
+  lists: RefInput! @model(class: "App\\Models\\Lists") @belongsTo
   done: Boolean!
   createdAt: DateTimeUtc @rename(attribute: "created_at")
   updatedAt: DateTimeUtc @rename(attribute: "updated_at")
@@ -35,10 +35,10 @@ input ListItemInput {
 }
 
 input ItemsInputHeaders {
-  id: string
+  id: String
 }
 
-input ListItemInputPushRow {
+input ItemsInputPushRow {
   newDocumentState: ListItemInput!
   assumedMasterState: ListItemInput
 }

@@ -22,14 +22,18 @@ input ListsInput {
   id: String
   name: String!
   isShoppingList: Boolean! @rename(attribute: "is_shopping_list")
-  createdBy: UserInput! @belongsTo
+  createdBy: RefInput! @model(class: "App\\Models\\User") @belongsTo
   createdAt: DateTimeUtc @rename(attribute: "created_at")
   updatedAt: DateTimeUtc @rename(attribute: "updated_at")
   _deleted: Boolean
 }
 
 input ListsInputHeaders {
-  id: string
+  id: String
+}
+
+input ListsRefInput {
+  id: String!
 }
 
 input ListsInputPushRow {

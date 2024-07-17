@@ -1,4 +1,4 @@
-import { Component, HostListener, Input } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { MaterialModule } from '../../material.module';
 import { CommonModule } from '@angular/common';
 import { RxDocument } from 'rxdb';
@@ -46,12 +46,15 @@ export class ListItemComponent {
 
   constructor(private bottomSheet: MatBottomSheet) {}
 
-  toggleDone(item: RxDocument<ListItem> | undefined, done: boolean | null = null) {
-    if (this.list && item) {
-      // const new_done = done !== null ? done : item.done;
-      // this.listItemService.updateDone(this.list.uuid, [item.uuid], new_done).subscribe(success => {
-        //TODO: count unmarked items
-      // });
+  toggleDone(done: boolean | null = null) {
+    if (this.list && this.item) {
+      done = done !== null ? done : !this.item.done;
+
+      if (this.item.getLatest().done != done) {
+        this.item.patch({
+          done
+        });
+      }
     }
   }
 
@@ -59,9 +62,8 @@ export class ListItemComponent {
     const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche ' + item.name});
     
     confirm.afterDismissed().subscribe(del => {
-      if (this.list && del) {
-        
-        // this.listItemService.deleteItems(this.list.uuid, [item.uuid]);
+      if (this.list && this.item && del) {
+        this.item.remove();
       }
     });
   }

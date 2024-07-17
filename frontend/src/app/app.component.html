@@ -1,27 +1,28 @@
-<div id="refresh"><mat-icon [style.opacity]="refreshOpacity" [@rotate]="animationState" (@rotate.done)="onEnd()">refresh</mat-icon></div>
-
-<div id="offline-indicator" *ngIf="!(pusher.online.asObservable() | async) && (authService.isLoggedIn | async)">Offline</div>
-<div class="content" [style.top]="marginTopContent + 'px'">
-    <router-outlet></router-outlet>
+<div id="app-container">
+    <!-- <div id="offline-indicator" *ngIf="!(pusher.online.asObservable() | async) && (authService.isLoggedIn | async)">Offline</div> -->
+    <div id="offline-indicator">Offline</div>
+    <div class="content" [style.top]="marginTopContent + 'px'">
+        <router-outlet></router-outlet>
+    </div>
+    
+    <mat-toolbar *ngIf="authService.isLoggedIn | async">
+        <button
+            mat-button
+            routerLink="/user/lists"
+            [color]="router.isActive('/user/lists', true) ? 'primary' : undefined">
+            <div class="toolbar-button">
+                <mat-icon>list</mat-icon>
+                <span>Lists</span>
+            </div>
+        </button>
+        <button
+            mat-button
+            routerLink="/user/settings"
+            [color]="router.isActive('/user/settings', true) ? 'primary' : undefined">
+            <div class="toolbar-button">
+                <mat-icon>settings</mat-icon>
+                <span>Einstellungen</span>
+            </div>
+        </button>
+    </mat-toolbar>
 </div>
-
-<mat-toolbar *ngIf="authService.isLoggedIn | async">
-    <button
-        mat-button
-        routerLink="/user/lists"
-        [color]="router.isActive('/user/lists', true) ? 'primary' : undefined">
-        <div class="toolbar-button">
-            <mat-icon>list</mat-icon>
-            <span>Lists</span>
-        </div>
-    </button>
-    <button
-        mat-button
-        routerLink="/user/settings"
-        [color]="router.isActive('/user/settings', true) ? 'primary' : undefined">
-        <div class="toolbar-button">
-            <mat-icon>settings</mat-icon>
-            <span>Einstellungen</span>
-        </div>
-    </button>
-</mat-toolbar>

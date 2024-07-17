@@ -18,7 +18,7 @@ import 'zone.js/plugins/zone-patch-rxjs';
 
 import { meSchema } from '../../../models/rxdb/me';
 import { RxReplicationState } from 'rxdb/dist/types/plugins/replication';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, skip } from 'rxjs';
 
 import { ReplicationService } from '../replication/replication.service';
 import { AuthService } from '../auth/auth.service';
@@ -44,7 +44,7 @@ export class DataService {
     private replicationService: ReplicationService,
     private http: HttpClient,
   ) {
-    this.authService.isLoggedIn.subscribe(isLoggedIn => {
+    this.authService.isLoggedIn.pipe(skip(1)).subscribe(isLoggedIn => {
       if (isLoggedIn && !this.dbInitialized.getValue()) {
         this.initDB();
       } else if (!isLoggedIn) {

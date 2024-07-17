@@ -28,10 +28,10 @@
     
         <ng-container *ngFor="let item of slot.items">
             <app-list-item
+                *ngIf="!item.done || !slot.collapsed"
                 [userId]="userId"
                 [list]="list"
                 [item]="item"
-                *ngIf="!item.done || !slot.collapsed"
                 ></app-list-item>
         </ng-container>
     </div>

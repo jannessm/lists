@@ -36,10 +36,6 @@ import { ListItemComponent } from '../list-item/list-item.component';
     NameBadgePipe,
     ListItemComponent
   ],
-  providers: [{
-    provide: LOCALE_ID,
-    useValue: environment.locale // 'de' for Germany, 'fr' for France ...
-  }],
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss']
 })
@@ -92,6 +88,7 @@ export class ListComponent implements AfterViewInit {
           this.dataService.db[DATA_TYPE.LIST_ITEM].find({
             selector: {lists: { id }}
           }).$.subscribe((items: (RxDocument<ListItem>)[]) => {
+            console.log(items);
             this.items = items;
             this.groupItems(items);
           });
