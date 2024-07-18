@@ -10,6 +10,7 @@ import { ConfirmSheetComponent } from '../bottom-sheets/confirm-sheet/confirm-sh
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { is_today } from '../../../models/categories_timeslots';
 import { FormsModule } from '@angular/forms';
+import { User } from '../../../models/rxdb/me';
 
 @Component({
   selector: 'app-list-item',
@@ -25,7 +26,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class ListItemComponent {
   @Input()
-  userId: string | undefined;
+  me: RxDocument<User> | undefined;
   @Input()
   list: RxDocument<Lists> | undefined;
   @Input()

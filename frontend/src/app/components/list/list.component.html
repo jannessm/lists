@@ -32,7 +32,7 @@
             <ng-container *ngFor="let item of slot.items">
                 <app-list-item
                     *ngIf="!item.done || !slot.collapsed"
-                    [userId]="userId"
+                    [me]="me"
                     [list]="list"
                     [item]="item"
                     ></app-list-item>
@@ -52,8 +52,10 @@
         </mat-toolbar>
 
         <mat-toolbar class="toolbar-input" [class.focusInput]="focusInput" [class.isShoppingList]="list?.isShoppingList">
-                <input matInput placeholder="Hinzufügen" class="add-input" [(ngModel)]="newItem" autocomplete="off">
+            <form>
+                <input matInput placeholder="Hinzufügen" class="add-input" [formControl]="newItem" autocomplete="off">
                 <button mat-icon-button (click)="addItem()"><mat-icon>add</mat-icon></button>
+            </form>
         </mat-toolbar>
     
         <input id="picker" type="text" #picker (change)="setTimePickerDate($event)">

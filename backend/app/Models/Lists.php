@@ -72,17 +72,17 @@ class Lists extends Model
 
                 foreach ($assumedMaster as $param => $val) {
                     // if param = createdBy|lists => compare ids
-                    if (($param == "createdBy" && $masterItem[$param]->id != $val['id'])) {
+                    if (($param == "createdBy" && $masterList[$param]->id != $val['id'])) {
                         $conflict = TRUE;
                     } else if (
                         !in_array($param, ["createdBy"]) && 
-                        $masterItem[$param] != $val
+                        $masterList[$param] != $val
                     ) {
                         $conflict = TRUE;
                     }
 
                     if ($conflict) {
-                        array_push($conflicts, $masterItem);
+                        array_push($conflicts, $masterList);
                         break;
                     }
                 }

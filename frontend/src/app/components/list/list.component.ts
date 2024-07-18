@@ -14,25 +14,25 @@ import { DataService } from '../../services/data/data.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { Lists } from '../../../models/rxdb/lists';
 import { Slot, groupItems } from '../../../models/categories';
-import { ListItem } from '../../../models/rxdb/list-item';
+import { ListItem, newItem } from '../../../models/rxdb/list-item';
 import { is_today } from '../../../models/categories_timeslots';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../material.module';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { DATA_TYPE } from '../../../models/rxdb/graphql-types';
-import { RxDocument } from 'rxdb';
-import { environment } from '../../../environments/environment';
+import { RxCollection, RxCollectionBase, RxDatabase, RxDocument } from 'rxdb';
 import { ListItemComponent } from '../list-item/list-item.component';
+import { User } from '../../../models/rxdb/me';
 
 @Component({
   selector: 'app-list',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MaterialModule,
     RouterModule,
     ReactiveFormsModule,
-    FormsModule,
     NameBadgePipe,
     ListItemComponent
   ],
@@ -40,12 +40,12 @@ import { ListItemComponent } from '../list-item/list-item.component';
   styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements AfterViewInit {
-
+  me: RxDocument<User> | undefined;
   list: RxDocument<Lists> | undefined;
 
-  userId: string | undefined;
+  itemsDB: RxCollection | undefined;
 
-  newItem: string = '';
+  newItem = new FormControl('');
   focusInput: boolean = false;
   newItemTime = new FormControl('sometime');
   timePicker!: flatpickr.Instance;
@@ -78,24 +78,29 @@ export class ListComponent implements AfterViewInit {
       const id = params.get('id');
 
       this.dataService.dbInitialized.subscribe(initialized => {
-        if (initialized && this.dataService.db && this.dataService.db[DATA_TYPE.LISTS] && this.dataService.db[DATA_TYPE.LIST_ITEM]) {
+        if (initialized &&
+            this.dataService.db &&
+            this.dataService.db[DATA_TYPE.LISTS] &&
+            this.dataService.db[DATA_TYPE.LIST_ITEM] &&
+            this.dataService.db[DATA_TYPE.ME] &&
+            id) {
+          this.itemsDB = this.dataService.db[DATA_TYPE.LIST_ITEM];
+
           this.dataService.db[DATA_TYPE.LISTS].findOne({
             selector: { id }
           }).$.subscribe(lists => {
             this.list = lists;
-            console.log(this.list);
           });
 
-          this.dataService.db[DATA_TYPE.LIST_ITEM].find({
+          this.itemsDB.find({
             selector: {lists: { id }}
           }).$.subscribe((items: (RxDocument<ListItem>)[]) => {
-            console.log(items);
             this.items = items;
             this.groupItems(items);
           });
 
           this.dataService.db[DATA_TYPE.ME].findOne().exec().then(u => {
-            this.userId = u.id;
+            this.me = u;
           });
         }
       });
@@ -122,9 +127,20 @@ export class ListComponent implements AfterViewInit {
         }
         
         if (!!new_values && this.list) {
-          this.list.name = new_values.name;
-          this.list.isShoppingList = new_values.isShoppingList;
-          // this.listService.updateList(this.list);
+          const patch = {};
+          const list = this.list.getLatest();
+
+          if (list.name !== new_values.name) {
+            Object.assign(patch, {name: new_values.name});
+          }
+          
+          if (list.isShoppingList !== new_values.isShoppingList) {
+            Object.assign(patch, {isShoppingList: new_values.isShoppingList});
+          }
+
+          if (Object.keys(patch).length > 0) {
+            this.list.patch(patch);
+          }
         }
       });
     }
@@ -144,15 +160,13 @@ export class ListComponent implements AfterViewInit {
 
   deleteList() {
     if (this.list) {
-      const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche ' + this.list.name});
+      const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche Liste ' + this.list.name});
       
       confirm.afterDismissed().subscribe(del => {
         if (del && this.list) {
-          // this.listService.deleteList(this.list.uuid).subscribe(success => {
-          //   if (success) {
-          //     this.router.navigate(['/user/lists']);
-          //   }
-          // });
+          this.list.remove().then(() => {
+            this.router.navigate(['/user/lists']);
+          });
         }
       })
     }
@@ -177,7 +191,11 @@ export class ListComponent implements AfterViewInit {
   }
   
   addItem() {
-    if (this.list && this.newItem !== '') {
+    if (this.list &&
+        this.me &&
+        this.newItem.value !== '' &&
+        this.itemsDB
+      ) {
       let newTime = null;
 
       switch(this.newItemTime.value) {
@@ -196,16 +214,24 @@ export class ListComponent implements AfterViewInit {
           }
       }
 
-      setTimeout(() => {
-        this.timePickerDate = undefined;
-        this.timePicker.clear();
-        this.focusInput = false;
-        this.newItemTime.setValue('sometime');
-      }, 1);
+      const item = {
+        name: this.newItem.value,
+        due: newTime,
+        createdBy: {id: this.me.id, name: this.me.name},
+        lists: {id: this.list.id, name: this.list.name}
+      };
 
-      // this.listItemService.addItem(this.newItem, this.list.uuid, newTime).subscribe(success => {
-      //   this.newItem = '';
-      // });
+      this.itemsDB.insert(newItem(item))
+        .then(item => {
+          this.newItem.reset();
+          this.timePickerDate = undefined;
+          this.timePicker.clear();
+          this.focusInput = false;
+          this.newItemTime.setValue('sometime');
+
+          this.items.push(item);
+          this.groupItems(this.items);
+        });
     }
   }
 
@@ -214,8 +240,12 @@ export class ListComponent implements AfterViewInit {
     const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche alle Einträge'});
     
     confirm.afterDismissed().subscribe(del => {
-      if (this.list && del) {
-        // this.listItemService.deleteItems(this.list.uuid, this.items.map(i => i.uuid));
+      if (this.list && del && this.itemsDB) {
+        this.itemsDB.find({
+          selector: {
+            lists: {id: this.list.id}
+          }
+        }).remove();
       }
     });
   }
@@ -224,17 +254,26 @@ export class ListComponent implements AfterViewInit {
     const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche alle erledigten Einträge'});
     
     confirm.afterDismissed().subscribe(del => {
-      if (this.list && del) {
-        // this.listItemService.deleteItems(this.list.uuid, this.items.filter(i => i.done).map(i => i.uuid));
+      if (this.list && del && this.itemsDB) {
+        this.itemsDB.find({
+          selector: {
+            lists: {id: this.list.id},
+            done: true
+          }
+        }).remove();
       }
     });
   }
 
   markAllNotDone() {
-    if (this.list) {
-      // this.listItemService.updateDone(this.list.uuid, this.items.filter(i => i.done).map(i => i.uuid), false).subscribe(success => {
-        //TODO: count unmarked items
-      // });
+    if (this.list && this.itemsDB) {
+      this.itemsDB.find({
+        selector: {
+          lists: {id: this.list.id}
+        }
+      }).patch({
+        done: false
+      });
     }
   }
 

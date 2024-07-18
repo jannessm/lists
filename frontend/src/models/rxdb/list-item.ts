@@ -1,3 +1,4 @@
+import { ulid } from "ulid";
 import { ForeignId } from "./common";
 
 export interface ListItem {
@@ -5,13 +6,33 @@ export interface ListItem {
     name: string;
     description: string;
     createdBy: ForeignId;
-    reminder: string;
-    due: string;
+    reminder: string | null;
+    due: string | null;
     lists: ForeignId;
     done: boolean;
     createdAt: string;
     updatedAt: string;
     _deleted: boolean;
+}
+
+export function newItem(item: any) {
+    const newItem: ListItem = {
+        id: ulid().toLowerCase(),
+        name: '',
+        description: '',
+        createdBy: {id: '', name: ''},
+        reminder: null,
+        due: null,
+        lists: {id: '', name: ''},
+        done: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        _deleted: false
+    }
+
+    Object.assign(newItem, item);
+
+    return newItem;
 }
 
 export const listItemSchema = {

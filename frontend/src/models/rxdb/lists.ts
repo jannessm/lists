@@ -1,3 +1,4 @@
+import { ulid } from "ulid";
 import { ForeignId } from "./common";
 
 export interface Lists {
@@ -10,6 +11,24 @@ export interface Lists {
     createdAt: string;
     updatedAt: string;
     _deleted: boolean;
+}
+
+export function newLists(lists: any): Lists {
+    const newLists: Lists = {
+        id: ulid().toLowerCase(),
+        name: '',
+        isShoppingList: false,
+        createdBy: {id: '', name: ''},
+        sharedWith: [],
+        items: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        _deleted: false
+    };
+
+    Object.assign(newLists, lists);
+
+    return newLists;
 }
 
 export const listsSchema = {

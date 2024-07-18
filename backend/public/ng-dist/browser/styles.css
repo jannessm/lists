@@ -3783,6 +3783,7 @@ html {
 .dark-theme .item,
 .dark-theme .add-input {
   background: #464646 !important;
+  color: white;
 }
 
 /* node_modules/flatpickr/dist/flatpickr.css */

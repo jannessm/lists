@@ -4,7 +4,7 @@ import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.componen
 
 import { MaterialModule } from '../../material.module';
 import { CommonModule } from '@angular/common';
-import { Lists } from '../../../models/rxdb/lists';
+import { Lists, newLists } from '../../../models/rxdb/lists';
 import { DataService } from '../../services/data/data.service';
 import { DATA_TYPE } from '../../../models/rxdb/graphql-types';
 import { RxDocument } from 'rxdb';
@@ -52,17 +52,11 @@ export class ListsOverviewComponent {
       ) {
         const me = (await this.dataService.db[DATA_TYPE.ME].find().exec())[0];
 
-        this.dataService.db[DATA_TYPE.LISTS].insert({
-          id: ulid().toLowerCase(),
+        this.dataService.db[DATA_TYPE.LISTS].insert(newLists({
           name: res.name,
           isShoppingList: res.isShoppingList,
-          createdBy: {id: me.id},
-          sharedWith: [],
-          items: [],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          _deleted: false
-        });
+          createdBy: {id: me.id, name: me.name},
+        }));
       }
     });
   }

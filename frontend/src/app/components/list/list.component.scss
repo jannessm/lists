@@ -103,21 +103,27 @@
         &.toolbar-input {
             padding: 12px;
             height: 64px;
-            bottom: $nav-bar-height;
+
+            form {
+                display: flex;
+                width: 100%;
+
+                .add-input {
+                    border: none;
+                    border-radius: 8px;
+                    padding: 8px;
+                    width: 100%;
+                    background-color: white;
+                    line-height: 32px;
+                    font-size: 20px;
+                    flex-grow: 1;
+                }
+            }
     
             &.isShoppingList {
                 height: 78px;
             }
     
-            .add-input {
-                border: none;
-                border-radius: 8px;
-                padding: 8px;
-                width: 100%;
-                background-color: white;
-                line-height: 32px;
-                font-size: 20px;
-            }
         }
     }
 }
