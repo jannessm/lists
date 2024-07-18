@@ -102,6 +102,7 @@ export class ListItemComponent {
   
           this.updateSheetRef.afterDismissed().subscribe(patch => {   
             if (this.list && this.item && patch) {
+              console.log(patch);
               this.item.patch(patch);
             }
 

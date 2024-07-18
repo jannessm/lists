@@ -25,7 +25,7 @@ import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 export class UpdateItemSheetComponent {
   form: FormGroup;
   list: RxDocument<Lists>;
-  timezone: string | undefined;
+  timezone: string;
 
   dueFlatpickr!: flatpickr.Instance;
   reminderFlatpickr!: flatpickr.Instance;
@@ -63,9 +63,7 @@ export class UpdateItemSheetComponent {
       }
     });
 
-    if (due) {
-      this.timezone = due.toISOString().slice(16);
-    }
+    this.timezone = new Date('2020-01-01T10:00').toISOString().slice(16);
   }
 
   ngAfterViewInit() {
@@ -173,7 +171,6 @@ export class UpdateItemSheetComponent {
 
   parseDateTime(date: Date | null) {
     if (date) {
-      // return date.toLocaleString();
       return date.toISOString().slice(0, 16);
     }
     return '';
@@ -208,6 +205,8 @@ export class UpdateItemSheetComponent {
       Object.assign(patch, {
         due
       });
+    } else if (this.data.item.due != null && !dueToggle) {
+      Object.assign(patch, {due: null});
     }
 
     if (dueToggle && due && this.form.get('reminder-chips')?.value &&
@@ -234,6 +233,8 @@ export class UpdateItemSheetComponent {
           reminder: reminder.toISOString()
         });
       }
+    } else if (this.data.item.reminder != null) {
+      Object.assign(patch, {reminder: null});
     }
 
     this.bottomSheetRef.dismiss(patch);
