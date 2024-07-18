@@ -1,12 +1,11 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.component';
 import { ShareListSheetComponent } from '../bottom-sheets/share-list-sheet/share-list-sheet.component';
-import { UpdateItemSheetComponent } from '../bottom-sheets/update-item-sheet/update-item-sheet.component';
 
 import flatpickr from "flatpickr";
-import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Options } from 'flatpickr/dist/types/options';
 import { ConfirmSheetComponent } from '../bottom-sheets/confirm-sheet/confirm-sheet.component';
@@ -15,12 +14,11 @@ import { AuthService } from '../../services/auth/auth.service';
 import { Lists } from '../../../models/rxdb/lists';
 import { Slot, groupItems } from '../../../models/categories';
 import { ListItem, newItem } from '../../../models/rxdb/list-item';
-import { is_today } from '../../../models/categories_timeslots';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../material.module';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { DATA_TYPE } from '../../../models/rxdb/graphql-types';
-import { RxCollection, RxCollectionBase, RxDatabase, RxDocument } from 'rxdb';
+import { RxCollection, RxDocument } from 'rxdb';
 import { ListItemComponent } from '../list-item/list-item.component';
 import { User } from '../../../models/rxdb/me';
 
@@ -61,10 +59,7 @@ export class ListComponent implements AfterViewInit {
   slots: Slot[] = [];
   items: (RxDocument<ListItem>)[] = [];
 
-  @ViewChild('toolbar-time') toolbar!: Element;
-  @ViewChild('itemsContainer') itemsContainer!: ElementRef;
   @ViewChild('picker') picker!: ElementRef;
-  @ViewChild('chipDate') chipDiff!: ElementRef;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -310,6 +305,11 @@ export class ListComponent implements AfterViewInit {
     } else if (this.pickerOpen) {
       event.stopPropagation();
       this.pickerOpen = this.timePicker.isOpen;
+      this.timePicker.close();
+
+      if (!this.timePickerDate) {
+        this.newItemTime.setValue('sometime');
+      }
     }
   }
 

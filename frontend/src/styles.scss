@@ -56,6 +56,14 @@ body { margin: 0px; font-family: Roboto, "Helvetica Neue", sans-serif; position:
     }
 }
 
+.flatpickr-calendar {
+    top: 16px !important;
+    left: calc(50% - 336px / 2) !important;
+}
+.flatpickr-calendar::before, .flatpickr-calendar::after {
+    content: none;
+}
+
 @keyframes highlight-animation {
     0% {background-color: #eee;}
     50% {background-color: list.nth($bgcolors, 1);}

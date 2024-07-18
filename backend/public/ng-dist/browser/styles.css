@@ -4661,6 +4661,14 @@ button.mat-button {
 .highlight.dark-theme {
   animation-name: highlight-animation-dark;
 }
+.flatpickr-calendar {
+  top: 16px !important;
+  left: calc(50% - 168px) !important;
+}
+.flatpickr-calendar::before,
+.flatpickr-calendar::after {
+  content: none;
+}
 @keyframes highlight-animation {
   0% {
     background-color: #eee;
