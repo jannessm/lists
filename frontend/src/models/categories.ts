@@ -45,6 +45,7 @@ function voteForGroceryCategory(categoryItems: string[]) {
       item.name.split(' ').forEach(itemWord => {
         itemWord = itemWord.toLowerCase();
         itemWord = itemWord.normalize("NFD").replace(/\p{Diacritic}/gu, "")
+        itemWord = itemWord.replace(/\(.*\)/, "")
         const offset = itemWord.indexOf(catItem) + 1;
         const weight = offset > 0 ? catItem.length : 0;
         votes += weight + offset;
