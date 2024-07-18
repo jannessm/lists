@@ -60,6 +60,7 @@ export class ListComponent implements AfterViewInit {
   items: (RxDocument<ListItem>)[] = [];
 
   @ViewChild('picker') picker!: ElementRef;
+  @ViewChild('addInput') addInput!: ElementRef;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -101,7 +102,9 @@ export class ListComponent implements AfterViewInit {
       });
     });
 
-    this.newItemTime.valueChanges.subscribe(this.toggleNewTimeSelected.bind(this));
+    this.newItemTime.valueChanges.subscribe(val => {
+      this.toggleNewTimeSelected(val);
+    });
   }
 
   ngAfterViewInit(): void {
@@ -273,13 +276,14 @@ export class ListComponent implements AfterViewInit {
   }
 
   toggleNewTimeSelected(value: string | null) {
-    if (value === null) return;
-
-    // console.log(value, this.timePicker);
+    if (value === null) {
+      this.addInput.nativeElement.focus();
+    }
 
     if (value !== 'different') {
       this.timePicker.clear();
       this.timePickerDate = undefined;
+      this.addInput.nativeElement.focus();
     } else {
       this.timePicker.open();
     }
@@ -310,6 +314,7 @@ export class ListComponent implements AfterViewInit {
       if (!this.timePickerDate) {
         this.newItemTime.setValue('sometime');
       }
+      this.addInput.nativeElement.focus();
     }
   }
 
