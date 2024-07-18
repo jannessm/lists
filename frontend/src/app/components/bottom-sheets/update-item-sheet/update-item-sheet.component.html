@@ -1,17 +1,38 @@
+<h2>Element Bearbeiten</h2>
+
 <form [formGroup]="form" autocomplete="off">
     <mat-form-field appearance="outline">
+        <mat-label>Name</mat-label>
         <input matInput formControlName="name" placeholder="Name">
     </mat-form-field>
-
-    <mat-slide-toggle  *ngIf="!list.isShoppingList" color="primary" formControlName="remind">Erinnerung</mat-slide-toggle>
-
+    
+    
     <mat-form-field appearance="outline" *ngIf="!list.isShoppingList">
-        <input matInput type="datetime-local" formControlName="time">
-        
-        <button *ngIf="form.controls['time'].value" matSuffix mat-icon-button aria-label="Clear" (click)="form.controls['time'].setValue('')">
-            <mat-icon>close</mat-icon>
-        </button>
+        <mat-label>Beschreibung</mat-label>
+        <textarea matInput formControlName="description" placeholder="Beschreibung" cdkTextareaAutosize
+        #autosize="cdkTextareaAutosize"
+        cdkAutosizeMinRows="5"></textarea>
     </mat-form-field>
+    
+    <!-- Due -->
+    <mat-slide-toggle  *ngIf="!list.isShoppingList" color="primary" formControlName="due-toggle">Fällig am</mat-slide-toggle>
+    
+    <mat-form-field appearance="outline" *ngIf="!list.isShoppingList">
+        <input matInput type="text" (focus)="openPicker()" [value]="form.get('due')?.value | date:'short'" placeholder="Fällig am">
+    </mat-form-field>
+    <input type="datetime-local" id="due-picker">
+    
+    <!-- Reminder -->
+    <div *ngIf="form.get('due-toggle')?.value">
+        <mat-label>Erinnerung</mat-label>
+        <mat-chip-listbox formControlName="reminder-chips" (change)="openReminderPicker($event)">
+            <mat-chip-option value="1d">1 Tag vorher</mat-chip-option>
+            <mat-chip-option value="1h">1 Stunde vorher</mat-chip-option>
+            <mat-chip-option value="30min">30 Minuten vorher</mat-chip-option>
+            <mat-chip-option value="different">{{(form.get('reminder')?.value | date:'short') || 'Andere'}}</mat-chip-option>
+        </mat-chip-listbox>
+    </div>
+    <input type="datetime-local" id="reminder-picker" formControlName="reminder">
 
     <button mat-stroked-button [disabled]="!form.valid" (click)="returnFormContent()">{{'Speichern'}}</button>
     <button mat-flat-button color="primary" (click)="bottomSheetRef.dismiss()">Abbrechen</button>

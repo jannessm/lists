@@ -13,6 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { TextFieldModule } from '@angular/cdk/text-field';
 
 export const version = '1.0.0';
 
@@ -31,6 +32,7 @@ const imports = [
   MatSlideToggleModule,
   MatSnackBarModule,
   MatToolbarModule,
+  TextFieldModule
 ]
 
 @NgModule({

@@ -1,4 +1,4 @@
-import { Checkpoint } from "./rx.types";
+import { Checkpoint } from "./rxdb/common";
 
 export interface AuthResponse {
     message?: string;

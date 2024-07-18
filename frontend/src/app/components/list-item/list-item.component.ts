@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { Component, HostListener, Input } from '@angular/core';
 import { MaterialModule } from '../../material.module';
 import { CommonModule } from '@angular/common';
 import { RxDocument } from 'rxdb';
@@ -45,7 +45,10 @@ export class ListItemComponent {
     this.pointerPosY = event.changedTouches[0].clientY;
   }
 
-  constructor(private bottomSheet: MatBottomSheet) {}
+  constructor(
+    private bottomSheet: MatBottomSheet) {
+
+  }
 
   toggleDone(done: boolean | null = null) {
     if (this.list && this.item) {
@@ -97,17 +100,9 @@ export class ListItemComponent {
             }
           });
   
-          this.updateSheetRef.afterDismissed().subscribe(newItem => {            
-            if (this.list && newItem) {
-              try {
-                newItem.time = (new Date(newItem.time)).toISOString();
-              } catch {
-                newItem.time = null;
-              }
-
-              newItem.uuid = item.id;
-
-              // this.listItemService.updateItem(this.list.uuid, newItem);
+          this.updateSheetRef.afterDismissed().subscribe(patch => {   
+            if (this.list && this.item && patch) {
+              this.item.patch(patch);
             }
 
             setTimeout(() => {

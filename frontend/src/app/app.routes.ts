@@ -6,7 +6,6 @@ import { RegisterComponent } from './components/register/register.component';
 import { CookieComponent } from './components/cookie/cookie.component';
 import { isLoggedGuard } from './guards/is-logged/is-logged.guard';
 import { ListsOverviewComponent } from './components/lists-overview/lists-overview.component';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';

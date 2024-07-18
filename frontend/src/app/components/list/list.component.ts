@@ -21,6 +21,7 @@ import { DATA_TYPE } from '../../../models/rxdb/graphql-types';
 import { RxCollection, RxDocument } from 'rxdb';
 import { ListItemComponent } from '../list-item/list-item.component';
 import { User } from '../../../models/rxdb/me';
+import { timePickerConfig } from '../../../models/time-picker';
 
 @Component({
   selector: 'app-list',
@@ -48,12 +49,6 @@ export class ListComponent implements AfterViewInit {
   newItemTime = new FormControl('sometime');
   timePicker!: flatpickr.Instance;
   timePickerDate: Date | undefined;
-  timePickerConfig: Options = {
-    enableTime: true,
-    minuteIncrement: 5,
-    disableMobile: true,
-    time_24hr: true,
-  };
   pickerOpen = false;
 
   slots: Slot[] = [];
@@ -108,7 +103,7 @@ export class ListComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.timePicker = flatpickr('#picker', this.timePickerConfig) as flatpickr.Instance;
+    this.timePicker = flatpickr('#picker', timePickerConfig) as flatpickr.Instance;
     this.timePicker.config.onOpen.push(() => this.pickerOpen = true);
   }
 
@@ -200,15 +195,18 @@ export class ListComponent implements AfterViewInit {
         case 'today':
           newTime = new Date();
           newTime.setHours(9, 0);
+          newTime = newTime.toISOString();
           break;
         case 'tomorrow':
           newTime = new Date();
           newTime.setDate(newTime.getDate() + 1);
           newTime.setHours(9, 0);
+          newTime = newTime.toISOString();
           break;
         case 'different':
           if (this.timePickerDate) {
             newTime = this.timePickerDate;
+            newTime = newTime.toISOString();
           }
       }
 
