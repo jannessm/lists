@@ -146,9 +146,11 @@ export class ListComponent implements AfterViewInit {
       dialogRef.afterDismissed().subscribe(data => {
         if (!!data && this.list) {
           this.authService.shareLists(data.email, this.list.id).subscribe(success => {
-            
+            if (!success) {
+              this.snackbar.open('Einladung konnte nicht verschickt werden.', 'Ok');
+            }
+            this.snackbar.open('Einladung zum Beitreten der Liste wurde verschickt.', 'Ok');
           });
-          // this.listService.shareList(data.email, this.list.uuid);
         }
       })
     }

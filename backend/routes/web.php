@@ -43,17 +43,3 @@ Route::get('/{file}', function(string $file) {
     return response(File::get($filename))->header('Content-Type', $mime);
 
 })->where('file', '.+\.(css|js|png|ico|webmanifest)');
-
-
-// use Illuminate\Notifications\Messages\MailMessage;
-
-// Route::get('/notification', function () {
-//     $url = 'http://localhost:8000';
-
-//     return (new MailMessage)
-//         ->greeting('Hallo!')
-//         ->subject('Emailadresse Bestätigen')
-//         ->line('Klicke auf den Knopf um deine Emailadresse zu bestätigen.')
-//         ->action('Emailadresse bestätigen', $url)
-//         ->salutation("Mit freundlichen Grüßen");
-// });

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Laravel\Fortify\Contracts\EmailVerificationNotificationSentResponse;
 
 class ShareListsController extends Controller
 {
@@ -12,16 +14,33 @@ class ShareListsController extends Controller
      * @param  \Laravel\Fortify\Http\Requests\VerifyEmailRequest  $request
      * @return \Laravel\Fortify\Contracts\VerifyEmailResponse
      */
-    public function __invoke(VerifyEmailRequest $request)
+    public function confirm(Request $request, String $id)
+    {
+        if ($request->user()->hasAccessToLists($id) || 
+            $request->user()->confirmShareLists($id)
+        ) {
+            return redirect()->intended('');
+        }
+
+        return new JsonReponse('', 400);
+    }
+
+    /**
+     * Send a share lists verification notification.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request, String $id)
     {
         // if ($request->user()->hasVerifiedEmail()) {
-        //     return app(VerifyEmailResponse::class);
+        //     return new JsonResponse('', 204);
         // }
 
-        // if ($request->user()->markEmailAsVerified()) {
-        //     event(new Verified($request->user()));
-        // }
+        $recipient = json_decode($request->getContent())->email;
 
-        // return app(VerifyEmailResponse::class);
+        $request->user()->sendShareEmailNotification($id, $recipient);
+
+        return '';
     }
 }

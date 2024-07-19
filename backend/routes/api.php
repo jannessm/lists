@@ -10,8 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 use Nuwave\Lighthouse\Execution\Utils\Subscription;
 
-use App\Http\Controllers\ShareLists;
-use App\Http\Controllers\ShareListNotificationController;
+use App\Http\Controllers\ShareListsController;
 
 
 $verificationLimiter = config('fortify.limiters.verification', '6,1');
@@ -61,11 +60,11 @@ Route::middleware(["web"])->post('user/change-email', function(Request $request)
     return ['status' => 'ok'];
 });
 
-Route::get('share-lists/confirm/{id}/{hash}', [ShareLists::class, '__invoke'])
+Route::get('share-lists/confirm/{id}/{hash}', [ShareListsController::class, 'confirm'])
             ->middleware(['web', 'signed', 'throttle:'.$verificationLimiter])
             ->name('share-lists.confirm');
 
-Route::post('email/share-lists-notification/{id}', [ShareListNotificationController::class, 'store'])
+Route::post('email/share-lists-notification/{id}', [ShareListsController::class, 'store'])
     ->middleware(["web", 'throttle:'.$verificationLimiter])
     ->name('share-lists.send');
 

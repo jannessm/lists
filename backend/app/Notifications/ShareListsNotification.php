@@ -53,7 +53,7 @@ class ShareListsNotification extends Notification
     public function confirmationUrl() {
         return URL::signedRoute('share-lists.confirm', [
             'id' => $this->lists->id,
-            'hash' => sha1('test')
+            'hash' => sha1($this->lists->name)
         ]);
     }
 }
