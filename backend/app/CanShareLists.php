@@ -31,8 +31,15 @@ trait CanShareLists
 
         if ($lists) {
             $lists->sharedWith()->attach($this);
+
+            // set updated at to trigger resync
             $lists->updated_at = $this->freshTimestamp();
             $lists->save();
+
+            foreach($lists->items->all() as $item) {
+                $item->updated_at = $item->freshTimestamp();
+                $item->save();
+            }
 
             if (!$this->hasVerifiedEmail()) {
                 $this->markEmailAsVerified();
