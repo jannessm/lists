@@ -145,6 +145,9 @@ export class ListComponent implements AfterViewInit {
 
       dialogRef.afterDismissed().subscribe(data => {
         if (!!data && this.list) {
+          this.authService.shareLists(data.email, this.list.id).subscribe(success => {
+            
+          });
           // this.listService.shareList(data.email, this.list.uuid);
         }
       })

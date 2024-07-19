@@ -15,17 +15,19 @@ use Illuminate\Http\Response;
 |
 */
 
-$routes = ['', 'login', 'register', 'user', 'user/lists', 'user/list/{id}', 'user/settings', 'cookies', 'graphql', 'forgot-password'];
+$routes = ['', 'login', 'user', 'user/lists', 'user/list/{id}', 'user/settings', 'cookies', 'graphql', 'forgot-password'];
+
+$ngIndex = function () {
+    return response(File::get(public_path() . '/ng-dist/browser/index.html'))->header('Content-Type', 'text/html; charset=UTF-8');
+};
 
 foreach ($routes as $route) {
-    Route::get('/' . $route, function() {
-        return response(File::get(public_path() . '/ng-dist/browser/index.html'))->header('Content-Type', 'text/html; charset=UTF-8');
-    });
+    Route::get('/' . $route, $ngIndex);
 }
 
-Route::get('/reset-password', function() {
-    return response(File::get(public_path() . '/ng-dist/browser/index.html'))->header('Content-Type', 'text/html; charset=UTF-8');
-})->name('password.reset');
+Route::get('/reset-password', $ngIndex)->name('password.reset');
+
+Route::get('/register', $ngIndex)->name('register');
 
 Route::get('/{file}', function(string $file) {
     $filename = public_path() . '/ng-dist/browser/' . $file;

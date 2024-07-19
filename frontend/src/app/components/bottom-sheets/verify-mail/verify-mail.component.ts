@@ -9,7 +9,7 @@ import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
     MaterialModule
   ],
   templateUrl: './verify-mail.component.html',
-  styleUrl: './verify-mail.component.scss'
+  styleUrls: ['./verify-mail.component.scss', '../styles.scss']
 })
 export class VerifyMailComponent {
 

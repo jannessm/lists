@@ -147,4 +147,8 @@ export class AuthService {
   ) {
     return this.api.resetPwd(token, email, password, password_confirmation);
   }
+
+  shareLists(email: string, listsId: string) {
+    return this.api.shareLists(email, listsId);
+  }
 }

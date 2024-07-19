@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
     MaterialModule
   ],
   templateUrl: './confirm-sheet.component.html',
-  styleUrls: ['./confirm-sheet.component.scss']
+  styleUrls: ['./confirm-sheet.component.scss', '../styles.scss']
 })
 export class ConfirmSheetComponent {
 

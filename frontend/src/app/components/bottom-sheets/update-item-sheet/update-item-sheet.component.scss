@@ -1,22 +1,3 @@
-form {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 24px;
-
-    mat-slide-toggle {
-        margin: 24px 0;
-    }
-
-    button {
-        width: 100%;
-        margin: 6px 0;
-
-        &:last-child {
-            margin-bottom: 38pt;
-        }
-    }
-}
-
 #reminder-picker, #due-picker {
     opacity: 0;
     height: 0;

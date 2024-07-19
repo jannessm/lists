@@ -48,7 +48,7 @@ export class DataService {
       if (isLoggedIn && !this.dbInitialized.getValue()) {
         this.initDB();
       } else if (!isLoggedIn) {
-        this.db?.destroy();
+        this.db?.remove();
         this.dbInitialized.next(false);
       }
     });

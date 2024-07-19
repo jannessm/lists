@@ -2,7 +2,7 @@
         <mat-form-field appearance="outline">
             <input matInput formControlName="email" placeholder="Email">
         </mat-form-field>
-    </form>
 
-    <button mat-flat-button color="primary" (click)="bottomSheetRef.dismiss()">Abbrechen</button>
-    <button mat-stroked-button [disabled]="!form.valid" (click)="returnFormContent()">{{'Speichern'}}</button>
+        <button mat-stroked-button [disabled]="!form.valid" (click)="returnFormContent()">{{'Speichern'}}</button>
+        <button mat-flat-button color="primary" (click)="bottomSheetRef.dismiss()">Abbrechen</button>
+    </form>

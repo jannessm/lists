@@ -27,7 +27,7 @@ class EventServiceProvider extends ServiceProvider
     public function boot(): void
     {
         if ($this->app->environment('local')) {
-            // Mail::alwaysTo('j-magnusson@t-online.de');
+            Mail::alwaysTo('jannes@magnusso.nz');
         }
     }
 

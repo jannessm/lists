@@ -14,7 +14,7 @@ import { MaterialModule } from '../../../material.module';
     MaterialModule
   ],
   templateUrl: './share-list-sheet.component.html',
-  styleUrls: ['./share-list-sheet.component.scss']
+  styleUrls: ['./share-list-sheet.component.scss', '../styles.scss']
 })
 export class ShareListSheetComponent {
 

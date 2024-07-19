@@ -17,8 +17,10 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\DB;
 use Nuwave\Lighthouse\Execution\Utils\Subscription;
 
+use App\CanShareLists;
+
 class User extends Authenticatable implements MustVerifyEmail, CanResetPassword {
-    use HasApiTokens, HasFactory, Notifiable, HasUlids;
+    use HasApiTokens, HasFactory, Notifiable, HasUlids, CanShareLists;
 
     /**
      * The attributes that are mass assignable.
@@ -81,6 +83,15 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
         $lists = $this->lists()->select('id')->all();
         $listsIds = array_column($lists, 'id');
         return ListItem::whereIn('lists_id', $listsIds);
+    }
+
+    public function friends() {
+        $users = $this->lists()->map(function ($val) {
+            return $val->users();
+        })->flatten()->unique('id')->filter(function ($val, $key) {
+            return $val->id !== Auth::id();
+        })->values()->all();
+        return $users;
     }
 
     public function pushMeResolver($_, $args) {

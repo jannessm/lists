@@ -15,7 +15,7 @@ import { Lists } from '../../../../models/rxdb/lists';
     MaterialModule
   ],
   templateUrl: './add-sheet.component.html',
-  styleUrls: ['./add-sheet.component.scss']
+  styleUrls: ['./add-sheet.component.scss', '../styles.scss']
 })
 export class AddSheetComponent {
 

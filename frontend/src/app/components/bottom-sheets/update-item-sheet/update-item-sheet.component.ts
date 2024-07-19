@@ -20,7 +20,7 @@ import { CdkTextareaAutosize } from '@angular/cdk/text-field';
     MaterialModule
   ],
   templateUrl: './update-item-sheet.component.html',
-  styleUrls: ['./update-item-sheet.component.scss']
+  styleUrls: ['./update-item-sheet.component.scss', '../styles.scss']
 })
 export class UpdateItemSheetComponent {
   form: FormGroup;
