@@ -20,7 +20,10 @@ final class StreamLists extends GraphQLSubscription
     /** Filter which subscribers should receive the subscription. */
     public function filter(Subscriber $subscriber, mixed $root): bool
     {
-        return $subscriber->socket_id !== request()->header('X-Socket-ID');
+        
+        return $subscriber->socket_id !== request()->header('X-Socket-ID') && !!$root->users()->search(function ($val) {
+            return $val->id === $subscriber->context->user->id;
+        });
     }
 
     /** Restructure response */
@@ -31,11 +34,22 @@ final class StreamLists extends GraphQLSubscription
             $root = [$root];
         }
 
+        // filter items to only send "owend" items
+        $root = array_filter($root, function ($item) {
+            return !!$item->users()->search(function ($val) {
+                return $val->id === $context->user->id;
+            });
+        });
+
+        if (count($root) == 0) {
+            return [];
+        }
+
         $checkpointID = end($root)['id'];
         $checkpointUpdatedAt = end($root)['updated_at'];
 
         return [
-            "documents" => $root,
+            "documents" => [$root],
             "checkpoint" => [
                 "id" => $checkpointID,
                 "updatedAt" => $checkpointUpdatedAt

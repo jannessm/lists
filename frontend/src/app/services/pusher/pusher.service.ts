@@ -62,7 +62,6 @@ export class PusherService {
     }
 
     if (this.pusher) {
-      console.log('subscribed');
       this.channels.push(channel);
       this.pusher.subscribe(channel).bind('lighthouse-subscription', (payload: any) => {
         if (!payload.more) {
@@ -72,6 +71,7 @@ export class PusherService {
         const result = payload.result.data;
 
         if (result) {
+          console.log('recv', result);
           callback(result);
         }
       });
