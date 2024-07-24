@@ -62,8 +62,11 @@ export class RegisterComponent {
       md5(this.form.controls['pwd'].value),
       md5(this.form.controls['pwd_confirmation'].value),
     ).subscribe(res => {
-      if (res === REGISTER.FOUND) {
-        this.form.setErrors({emailOccupied: true});
+      console.log(res, REGISTER.FOUND, REGISTER.FOUND.valueOf());
+      if (res == REGISTER.FOUND) {
+        this.form.get('email')?.setErrors({emailOccupied: true});
+      } else if (res == REGISTER.ERROR) {
+        this.form.setErrors({'error': true});
       }
     });
   }

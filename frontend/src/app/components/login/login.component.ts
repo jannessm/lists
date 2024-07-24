@@ -46,8 +46,20 @@ export class LoginComponent {
     });
 
     Object.values(this.form.controls).forEach(control => 
-      control.valueChanges.subscribe(() => this.wrongCredentials = false)
+      control.valueChanges.subscribe(() => {
+        this.resetErrors();
+      })
     );
+  }
+
+  resetErrors() {
+    if (this.wrongCredentials) {
+      this.wrongCredentials = false;
+      Object.values(this.form.controls).forEach(control => {
+        control.setErrors(null);
+        control.updateValueAndValidity();
+      });
+    }
   }
 
   login() {
@@ -59,7 +71,7 @@ export class LoginComponent {
         this.wrongCredentials = true;
 
         Object.values(this.form.controls).forEach(control => {
-          control.setErrors({});
+          control.setErrors({'wrongCredentials': true});
         });
       }
     })

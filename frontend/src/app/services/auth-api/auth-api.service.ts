@@ -43,12 +43,12 @@ export class AuthApiService {
       name, email, password, password_confirmation
     }, { observe: 'response' }).pipe(
       catchError(res => {
-        return of(res.error);
+        return of(res);
       }),
       map(res => {
         if (res.status === 201) {
           return REGISTER.SUCCESS;
-        } else if (res.status === 304 ) {
+        } else if (res.status === 304 || res.status === 422 ) {
           return REGISTER.FOUND;
         }
         return REGISTER.ERROR;
