@@ -50,7 +50,9 @@ export class ListsOverviewComponent {
           this.dataService.db[DATA_TYPE.LISTS] &&
           this.dataService.db[DATA_TYPE.ME]
       ) {
-        const me = (await this.dataService.db[DATA_TYPE.ME].find().exec())[0];
+        const me = (await this.dataService.db[DATA_TYPE.ME].find({
+          sort: [{'name': 'asc'}]
+        }).exec())[0];
 
         this.dataService.db[DATA_TYPE.LISTS].insert(newLists({
           name: res.name,
