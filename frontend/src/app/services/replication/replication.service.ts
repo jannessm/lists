@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { RxCollection, RxGraphQLReplicationQueryBuilderResponseObject, hasProperty } from 'rxdb';
+import { RxCollection, RxGraphQLReplicationQueryBuilderResponseObject, addRxPlugin, hasProperty } from 'rxdb';
 import { replicateRxCollection } from 'rxdb/plugins/replication';
 import { DataApiService } from '../data-api/data-api.service';
 import { Subject, firstValueFrom } from 'rxjs';
@@ -57,7 +57,23 @@ export class ReplicationService {
 
           return (result.data as PullResult)['pull' + collectionName[0].toUpperCase() + collectionName.substring(1)];
         },
-        stream$: await this.initStream(collectionName)
+        stream$: await this.initStream(collectionName),
+        modifier: doc => {
+          if ('description' in doc && doc['description'] === null) {
+            doc['description'] = '';
+          }
+          if ('due' in doc && doc['due'] === null) {
+            doc['due'] = '';
+          }
+          if ('reminder' in doc && doc['reminder'] === null) {
+            doc['reminder'] = '';
+          }
+          if ('emailVerifiedAt' in doc) {
+            console.log(doc['emailVerifiedAt']);
+            doc['emailVerifiedAt'] = !!doc['emailVerifiedAt'];
+          }
+          return doc;
+        }
       },
       push: {
         async handler(changedRows) {
@@ -108,6 +124,7 @@ export class ReplicationService {
 
     this.pusher.subscribe(channel, (data: any) => {
       data = data[operationName];
+      console.log('recv',   data);
       pullStream.next(data);
     });
 

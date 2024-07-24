@@ -20,7 +20,16 @@ final class StreamItems extends GraphQLSubscription
     /** Filter which subscribers should receive the subscription. */
     public function filter(Subscriber $subscriber, mixed $root): bool
     {
-        return $subscriber->socket_id !== request()->header('X-Socket-ID');
+        // $anyItemIsPartOfUserList = array_reduce($root, function ($prevVal, $item) {
+        //     if ($prevVal) return true;
+            
+        //     return !!$item->list->users()->search(function ($user) {
+        //         return $user->id == $subscriber->context->user->id;
+        //     });
+        // }, false);
+        $anyItemIsPartOfUserList = true;
+
+        return $subscriber->socket_id !== request()->header('X-Socket-ID') && $anyItemIsPartOfUserList;
     }
 
     /** Restructure response */

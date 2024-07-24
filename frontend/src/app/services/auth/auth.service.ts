@@ -52,7 +52,7 @@ export class AuthService {
     this.pusher.online.subscribe(isOnline => {
       if (isOnline && this.isLoggedIn.value) {
         this.evaluateVerifiedMail();
-        this.verificationInverval = setInterval(this.evaluateVerifiedMail, 5 * 60 * 1000);
+        this.verificationInverval = setInterval(this.evaluateVerifiedMail.bind(this), 5 * 60 * 1000);
       } else {
         if (this.verificationInverval) {
           clearInterval(this.verificationInverval);

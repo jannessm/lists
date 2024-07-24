@@ -1,4 +1,4 @@
-import { Component, HostListener } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
@@ -6,9 +6,17 @@ import { v4 as uuid } from 'uuid';
 import { AuthService } from './services/auth/auth.service';
 import { MaterialModule } from './material.module';
 import { PusherService } from './services/pusher/pusher.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { ThemeService } from './services/theme/theme.service';
 import { DataService } from './services/data/data.service';
+
+/**
+ * IMPORTANT: RxDB creates rxjs observables outside of angulars zone
+ * So you have to import the rxjs patch to ensure changedetection works correctly.
+ * @link https://www.bennadel.com/blog/3448-binding-rxjs-observable-sources-outside-of-the-ngzone-in-angular-6-0-2.htm
+ */
+import 'zone.js/plugins/zone-patch-rxjs';
+import { HttpClient } from '@angular/common/http';
+import { BASE_API } from './globals';
 
 @Component({
   selector: 'app-root',
@@ -38,7 +46,8 @@ export class AppComponent {
     public dataService: DataService,
     public router: Router,
     private themeService: ThemeService,
-    private cookieService: CookieService) {
+    private cookieService: CookieService,
+    private http: HttpClient) {
       themeService.isDark.subscribe(this.setTheme);
 
       if (!this.cookieService.check('listsId')) {

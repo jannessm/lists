@@ -71,7 +71,6 @@ export class PusherService {
         const result = payload.result.data;
 
         if (result) {
-          console.log('recv', result);
           callback(result);
         }
       });

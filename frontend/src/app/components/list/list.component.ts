@@ -81,14 +81,12 @@ export class ListComponent implements AfterViewInit {
             selector: { id }
           }).$.subscribe(lists => {
             this.list = lists;
+            this.fetchItems();
           });
 
-          this.itemsDB.find({
-            selector: {lists: { id }}
-          }).$.subscribe((items: (RxDocument<ListItem>)[]) => {
-            this.items = items;
-            this.groupItems(items);
-          });
+          this.itemsDB.$.subscribe(() => {
+            this.fetchItems();
+          })
 
           this.dataService.db[DATA_TYPE.ME].findOne().exec().then(u => {
             this.me = u;
@@ -105,6 +103,18 @@ export class ListComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.timePicker = flatpickr('#picker', timePickerConfig) as flatpickr.Instance;
     this.timePicker.config.onOpen.push(() => this.pickerOpen = true);
+  }
+
+  fetchItems() {
+    if (this.itemsDB && this.list) {
+      this.itemsDB.find({
+        selector: {lists: { id: this.list.id }}
+      }).exec().then((items: (RxDocument<ListItem>)[]) => {
+        console.log('items changed');
+        this.items = items;
+        this.groupItems(items);
+      });
+    }
   }
 
   listSettings() {
@@ -194,7 +204,7 @@ export class ListComponent implements AfterViewInit {
         this.newItem.value !== '' &&
         this.itemsDB
       ) {
-      let newTime = null;
+      let newTime: string | Date = '';
 
       switch(this.newItemTime.value) {
         case 'today':
@@ -230,8 +240,8 @@ export class ListComponent implements AfterViewInit {
           this.focusInput = false;
           this.newItemTime.setValue('sometime');
 
-          this.items.push(item);
-          this.groupItems(this.items);
+          // this.items.push(item);
+          // this.groupItems(this.items);
         });
     }
   }

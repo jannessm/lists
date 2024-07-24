@@ -34,22 +34,28 @@ final class StreamLists extends GraphQLSubscription
             $root = [$root];
         }
 
-        // filter items to only send "owend" items
-        $root = array_filter($root, function ($item) {
-            return !!$item->users()->search(function ($val) {
-                return $val->id === $context->user->id;
-            });
-        });
-
-        if (count($root) == 0) {
-            return [];
-        }
-
         $checkpointID = end($root)['id'];
         $checkpointUpdatedAt = end($root)['updated_at'];
 
+        // filter items to only send "owend" items
+        // $filteredRoot = array_filter($root, function ($item) {
+        //     return false && !!($item->users()->search(function ($val) {
+        //         return $val->id === $context->user->id;
+        //     }));
+        // });
+
+        if (count($filteredRoot) == 0 || true) {
+            return [
+                "documents" => [],
+                "checkpoint" => [
+                    "id" => $checkpointID,
+                    "updatedAt" => $checkpointUpdatedAt
+                ]
+            ];
+        }
+
         return [
-            "documents" => [$root],
+            "documents" => $filteredRoot,
             "checkpoint" => [
                 "id" => $checkpointID,
                 "updatedAt" => $checkpointUpdatedAt

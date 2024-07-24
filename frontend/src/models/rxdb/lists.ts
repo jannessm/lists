@@ -69,8 +69,7 @@ export const listsSchema = {
                         type: 'string'
                     }
                 }
-            },
-            minItems: 1
+            }
         },
         items: {
             type: 'array',
