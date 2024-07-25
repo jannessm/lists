@@ -77,17 +77,6 @@ export class ListComponent implements AfterViewInit {
       this.listItems = this.dataService.db.items.find({
         selector: {lists: id }
       }).$$ as Signal<RxItemsDocument[]>;
-
-      this.dataService.db.items.$.subscribe(() => {
-        console.log('db changed', this.listItems().length);
-      });
-
-      this.dataService.db.items.find({
-        selector: {lists: id }
-      }).$.subscribe(items => {
-        console.log(items.length);
-      });
-      
     }
 
     this.newItemTime.valueChanges.subscribe(val => {
@@ -213,7 +202,7 @@ export class ListComponent implements AfterViewInit {
         name: this.newItem.value,
         due: newTime,
         createdBy: {id: this.me().id, name: this.me.name},
-        lists: {id: this.list().id, name: this.list().name}
+        lists: this.list().id
       };
 
       this.dataService.db.items.insert(newItem(item))

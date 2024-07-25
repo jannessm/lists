@@ -144,7 +144,9 @@ function fixArraysInSchema(query: string, schema: any): string {
     }
   });
 
-  query = query.replace('lists', 'lists { id }');
+  if (query.indexOf('pushItems') > -1 || query.indexOf('streamItems') > -1 || query.indexOf('pullItems') > -1) {
+    query = query.replace('lists', 'lists { id }');
+  }
 
   return query;
 }

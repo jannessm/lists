@@ -19,7 +19,6 @@ import { DataService } from '../data/data.service';
   providedIn: 'root'
 })
 export class AuthService {
-  guardChecked = true;
   isLoggedIn: WritableSignal<boolean>;
 
   me: Signal<RxMeDocument>;
@@ -44,7 +43,7 @@ export class AuthService {
         this.dataService.initDB();
       } else {
         this.pusher.unsubscribe();
-        this.cookies.delete(SESSION_COOKIE);
+        this.deleteSessionCookie();
         this.dataService.removeData();
       }
     });
@@ -114,6 +113,12 @@ export class AuthService {
 
   setSessionCookie() {
     const expiration = dayjs().add(3, 'y').toDate();
+
+    this.cookies.set(SESSION_COOKIE, md5('coolToken'), expiration);
+  }
+
+  deleteSessionCookie() {
+    const expiration = dayjs().subtract(3, 'y').toDate();
 
     this.cookies.set(SESSION_COOKIE, md5('coolToken'), expiration);
   }
