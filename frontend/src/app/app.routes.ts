@@ -1,6 +1,5 @@
-import { RouterModule, Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 import { LoginComponent } from './components/login/login.component';
-import { NgModule } from '@angular/core';
 import { authGuard } from './guards/auth/auth.guard';
 import { RegisterComponent } from './components/register/register.component';
 import { CookieComponent } from './components/cookie/cookie.component';
@@ -12,10 +11,10 @@ import { ResetPasswordComponent } from './components/reset-password/reset-passwo
 import { ListComponent } from './components/list/list.component';
 
 export const routes: Routes = [
-    {path: 'user', children: [
-      {path: 'lists', component: ListsOverviewComponent, canActivate: [authGuard]},
-      {path: 'list/:id', component: ListComponent, canActivate: [authGuard]},
-      {path: 'settings', component: SettingsComponent, canActivate: [authGuard]},
+    {path: 'user', canActivate: [authGuard], children: [
+      {path: 'lists', component: ListsOverviewComponent},
+      {path: 'lists/:id', component: ListComponent},
+      {path: 'settings', component: SettingsComponent},
     ]},
     {path: 'login', component: LoginComponent, canActivate:[isLoggedGuard]},
     {path: 'register', component: RegisterComponent, canActivate:[isLoggedGuard]},

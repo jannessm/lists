@@ -1,63 +1,65 @@
-import { Injectable } from '@angular/core';
-import { RxDatabase, createRxDatabase } from 'rxdb';
-
-import { getRxStorageDexie } from 'rxdb/plugins/storage-dexie';
-
-import { meSchema } from '../../../models/rxdb/me';
-import { BehaviorSubject, skip } from 'rxjs';
+import { Injectable, WritableSignal, signal } from '@angular/core';
 
 import { ReplicationService } from '../replication/replication.service';
-import { AuthService } from '../auth/auth.service';
-import { listsSchema } from '../../../models/rxdb/lists';
 import { DATA_TYPE, Replications } from '../../../models/rxdb/graphql-types';
-import { listItemSchema } from '../../../models/rxdb/list-item';
 import { GroceryCategories } from '../../../models/categories_groceries';
 import { HttpClient } from '@angular/common/http';
 import { BASE_API } from '../../globals';
-import { DB_INSTANCE } from './init-database';
+import { DB_INSTANCE, RxListsDatabase } from './init-database';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
   replications: Replications = {};
-  dbInitialized = new BehaviorSubject<boolean>(false);
+  dbInitialized = false;
 
   groceryCategories: GroceryCategories | undefined;
 
   constructor(
-    private authService: AuthService,
     private replicationService: ReplicationService,
     private http: HttpClient
   ) {
-    this.authService.isLoggedIn.pipe(skip(1)).subscribe(isLoggedIn => {
-      if (isLoggedIn && !this.dbInitialized.getValue()) {
-        this.initDB();
-      } else if (!isLoggedIn) {
-        this.db?.remove();
-        this.dbInitialized.next(false);
-      }
-    });
-
     this.http.get<GroceryCategories>(BASE_API + 'grocery-categories').subscribe(cats => {
       this.groceryCategories = cats;
     });
   }
 
-  get db(): RxDatabase {
+  get db(): RxListsDatabase {
     return DB_INSTANCE;
   }
 
   async initDB() {
-    Object.values(DATA_TYPE).forEach(async (dataType) => {
-      if (this.db) {
-        const repl = await this.replicationService.setupReplication(dataType, this.db[dataType]);
-        repl.error$.subscribe(err => {console.error(err)});
+    if (this.db && !this.dbInitialized) {
+      let repl = await this.replicationService.setupReplication(DATA_TYPE.ME, this.db.me);
+      repl.error$.subscribe(err => {console.error(err)});
 
-        this.replications[dataType] = repl;
-      }
-    });
+      this.replications[DATA_TYPE.ME] = repl;
 
-    this.dbInitialized.next(true);
+      repl = await this.replicationService.setupReplication(DATA_TYPE.LISTS, this.db.lists);
+      repl.error$.subscribe(err => {console.error(err)});
+
+      this.replications[DATA_TYPE.LISTS] = repl;
+
+      repl = await this.replicationService.setupReplication(DATA_TYPE.LIST_ITEM, this.db.items);
+      repl.error$.subscribe(err => {console.error(err)});
+
+      this.replications[DATA_TYPE.LIST_ITEM] = repl;
+    }
+
+    this.dbInitialized = true;
+  }
+
+  removeData() {
+    if (this.dbInitialized) {
+      console.log('remove data');
+      this.db.me.remove();
+      this.db.lists.remove();
+      this.db.items.remove();
+      this.dbInitialized = false;
+      Object.values(this.replications).forEach(repl => {
+        repl.remove();
+      });
+    }
   }
 }

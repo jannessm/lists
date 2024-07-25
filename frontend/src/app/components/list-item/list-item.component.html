@@ -7,11 +7,11 @@
         <mat-checkbox (change)="toggleDone()" color="primary" [checked]="item?.done">
             <div class="item-content">
                 <span>{{ item?.name }}</span>
-                <mat-chip-set *ngIf="list && !list.isShoppingList" disabled>
+                <mat-chip-set *ngIf="list && !list().isShoppingList" disabled>
                     <mat-chip *ngIf="item && item.due && is_today(item)" [highlighted]="!!item.reminder">{{item.due | date:'h:mm'}}</mat-chip>
                     <mat-chip *ngIf="item && item.due && !is_today(item)" [highlighted]="!!item.reminder">{{item.due | date:'short'}}</mat-chip>
                 </mat-chip-set>
-                <button mat-mini-fab disabled *ngIf="list && item && me && me.id !== item.createdBy.id" [class]="'mini-user-fab user-fab-' + userFab(item) % 12">{{item.createdBy.name | nameBadge}}</button>
+                <button mat-mini-fab disabled *ngIf="list && item && me && me().id !== item.createdBy.id" [class]="'mini-user-fab user-fab-' + userFab(item) % 12">{{item.createdBy.name | nameBadge}}</button>
             </div>
             <button mat-icon-button (click)="deleteItem(item)" *ngIf="item && item.done"><mat-icon>close</mat-icon></button>
         </mat-checkbox>

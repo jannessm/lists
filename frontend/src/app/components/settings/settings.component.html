@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container" *ngIf="user()">
     <button mat-icon-button
         *ngIf="!editMode"
         class="edit-buttons"
@@ -10,8 +10,8 @@
         disabled
         mat-fab
         class="user-fab-0"
-        *ngIf="!editMode && user && !!(user.get$('name') | async)">
-            {{(user.get$('name') | async) | nameBadge}}
+        *ngIf="!editMode && user() && !!user().name">
+            {{user().name | nameBadge}}
     </button>
     <button
         disabled
@@ -23,8 +23,8 @@
 
     <div class="inner-container">
 
-        <div *ngIf="!editMode">{{user?.get$('name') | async}}</div>
-        <div *ngIf="!editMode">{{user?.get$('email') | async}}</div>
+        <div *ngIf="user() && !editMode">{{user().name}}</div>
+        <div *ngIf="user() && !editMode">{{user().email}}</div>
     
         <form [formGroup]="editForm" *ngIf="editMode">
             <mat-form-field appearance="outline">

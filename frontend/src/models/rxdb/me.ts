@@ -1,4 +1,6 @@
+import { ExtractDocumentTypeFromTypedRxJsonSchema, RxCollection, RxDocument, toTypedRxJsonSchema } from "rxdb";
 import { ForeignId } from "./common";
+import { Signal } from "@angular/core";
 
 export enum THEME {
     AUTO = "auto",
@@ -6,11 +8,11 @@ export enum THEME {
     LIGHT = "light"
 }
 
-export interface User {
+export type User = {
     id: string;
     name: string;
     email: string;
-    emailVerfiedAt: boolean | null;
+    emailVerfiedAt: string | null;
     theme?: THEME;
     defaultList: ForeignId | null;
     createdAt: string;
@@ -34,7 +36,7 @@ export const meSchema = {
             type: 'string'
         },
         emailVerifiedAt: {
-            type: 'boolean'
+            type: ['string', 'null']
         },
 
         // settings
@@ -55,3 +57,6 @@ export const meSchema = {
     },
     required: ['id', 'name', 'email', 'emailVerifiedAt', 'theme']
 };
+
+export type RxMeDocument = RxDocument<User, {}>
+export type RxMeCollection = RxCollection<User, {}, unknown, unknown, Signal<RxMeDocument>>;

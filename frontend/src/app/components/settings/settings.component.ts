@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Signal, effect } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SwPush } from '@angular/service-worker';
@@ -7,8 +7,7 @@ import { MaterialModule } from '../../material.module';
 import { AuthService } from '../../services/auth/auth.service';
 import { environment } from '../../../environments/environment';
 import { DataService } from '../../services/data/data.service';
-import { User } from '../../../models/rxdb/me';
-import { RxDocument } from 'rxdb';
+import { RxMeDocument } from '../../../models/rxdb/me';
 import { ThemeService } from '../../services/theme/theme.service';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -16,7 +15,6 @@ import { ChangeEmailStatus } from '../../../models/responses';
 import { PusherService } from '../../services/pusher/pusher.service';
 import { MatchValidator, NoMatchValidator } from '../../../models/match.validators';
 import md5 from 'md5-ts';
-import { DATA_TYPE } from '../../../models/rxdb/graphql-types';
 
 @Component({
   selector: 'app-settings',
@@ -32,7 +30,7 @@ import { DATA_TYPE } from '../../../models/rxdb/graphql-types';
   styleUrls: ['./settings.component.scss']
 })
 export class SettingsComponent {
-  user?: RxDocument<User>;
+  user: Signal<RxMeDocument>;
   version = environment.version;
 
   theme: FormControl;
@@ -50,27 +48,14 @@ export class SettingsComponent {
     private snackBar: MatSnackBar,
     public pusher: PusherService,
   ) {
-    this.dataService.dbInitialized.subscribe(initialized => {
-      if (initialized && this.dataService.db && this.dataService.db[DATA_TYPE.ME]) {
-        // subscribe to RxDocument to get updates and immediately apply them
-        this.dataService.db[DATA_TYPE.ME].find().exec()
-          .then((docs: RxDocument<User>[]) => {
-            docs[0].$.subscribe(user => {
-              this.user = user;
-
-              // update FormControls on changes
-              this.theme.setValue(this.user?.get('theme'), {emitEvent: false});
-            });
-          });
-      }
-    });
+    this.user = this.authService.me;
     this.theme = new FormControl<string>('auto');
     this.defaultList = new FormControl<string>('null');
 
     this.theme.valueChanges.subscribe(theme => {
       // push changes
-      if (this.user) {
-        this.user.patch({
+      if (this.user()) {
+        this.user().patch({
           theme
         });
 
@@ -84,8 +69,8 @@ export class SettingsComponent {
         listId = null;
       }
       
-      if (listId !== this.user?.defaultList) {
-        this.user?.patch({
+      if (this.user && listId !== this.user().defaultList) {
+        this.user().patch({
           defaultList: listId
         });
       }
@@ -126,11 +111,13 @@ export class SettingsComponent {
   }
 
   enterEditMode() {
-    this.editForm.get('name')?.setValue(this.user?.get('name'));
-    this.editForm.get('email')?.setValue(this.user?.get('email'));
-    this.editForm.get('oldPwd')?.setValue('');
-    this.editForm.get('pwd')?.setValue('');
-    this.editForm.get('pwdConfirmation')?.setValue('');
+    if (this.user) {
+      this.editForm.get('name')?.setValue(this.user().name);
+      this.editForm.get('email')?.setValue(this.user().email);
+      this.editForm.get('oldPwd')?.setValue('');
+      this.editForm.get('pwd')?.setValue('');
+      this.editForm.get('pwdConfirmation')?.setValue('');
+    }
 
     this.editMode = true;
   }
@@ -162,18 +149,20 @@ export class SettingsComponent {
 
 
       // email
-      if (this.user.email !== email) {
+      if (this.user && this.user().email !== email) {
         this.authService.changeEmail(email).subscribe(res => {
-          if (res === ChangeEmailStatus.EMAIL_ALREADY_USED) {
-            this.snackBar.open('Emailadresse wird bereits verwendet. Bitte wähle eine andere!', 'Ok');
-          } else if (res === ChangeEmailStatus.ERROR) {
-            this.snackBar.open('Email konnte nicht geändert werden.', 'Ok');
-          } else {
-            this.snackBar.open('Bestätige deine neue Emailadresse per Link in der Bestätigungsmail.', 'Ok');
-            this.user?.patch({
-              email,
-              emailVerfiedAt: null
-            });
+          if (this.user) {
+            if (res === ChangeEmailStatus.EMAIL_ALREADY_USED) {
+              this.snackBar.open('Emailadresse wird bereits verwendet. Bitte wähle eine andere!', 'Ok');
+            } else if (res === ChangeEmailStatus.ERROR) {
+              this.snackBar.open('Email konnte nicht geändert werden.', 'Ok');
+            } else {
+              this.snackBar.open('Bestätige deine neue Emailadresse per Link in der Bestätigungsmail.', 'Ok');
+              this.user().patch({
+                email,
+                emailVerfiedAt: null
+              });
+            }
           }
         });
       }
@@ -191,7 +180,7 @@ export class SettingsComponent {
       }
 
       if (Object.keys(patch).length > 0) {
-        this.user.patch(patch);
+        this.user().patch(patch);
       }
 
       this.editMode = false;

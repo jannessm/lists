@@ -1,22 +1,25 @@
 import { ulid } from "ulid";
 import { ForeignId } from "./common";
+import { ExtractDocumentTypeFromTypedRxJsonSchema, RxCollection, RxDocument, toTypedRxJsonSchema } from "rxdb";
+import { Signal } from "@angular/core";
 
 export interface ListItem {
     id: string;
     name: string;
-    description: string;
+    description: string | null;
     createdBy: ForeignId;
     reminder: string | null;
     due: string | null;
-    lists: ForeignId;
+    // lists: ForeignId;
+    lists: string;
     done: boolean;
     createdAt: string;
     updatedAt: string;
     _deleted: boolean;
 }
 
-export function newItem(item: any) {
-    const newItem: ListItem = {
+export function newItem(item: any): any {
+    const newItem = {
         id: ulid().toLowerCase(),
         name: '',
         description: '',
@@ -48,7 +51,7 @@ export const listItemSchema = {
             type: 'string'
         },
         description: {
-            type: 'string'
+            type: ['string', 'null']
         },
         createdBy: {
             type: 'object',
@@ -62,18 +65,21 @@ export const listItemSchema = {
             }
         },
         reminder: {
-            type: 'string'
+            type: ['string', 'null']
         },
         due: {
-            type: 'string'
+            type: ['string', 'null']
         },
+        // lists: {
+        //     type: 'object',
+        //     properties: {
+        //         id: {
+        //             type: 'string'
+        //         }
+        //     }
+        // },
         lists: {
-            type: 'object',
-            properties: {
-                id: {
-                    type: 'string'
-                }
-            }
+            type: 'string'
         },
         done: {
             type: 'boolean'
@@ -92,3 +98,8 @@ export const listItemSchema = {
     },
     required: ['id', 'name', 'createdBy', 'done', 'lists']
 };
+
+const schemaTyped = toTypedRxJsonSchema(listItemSchema);
+export type RxItemsDocumentType = ExtractDocumentTypeFromTypedRxJsonSchema<typeof schemaTyped>;
+export type RxItemsDocument = RxDocument<ListItem, {}>
+export type RxItemsCollection = RxCollection<ListItem, {}, unknown, unknown, Signal<unknown>>;

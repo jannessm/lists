@@ -15,7 +15,7 @@ use Illuminate\Http\Response;
 |
 */
 
-$routes = ['', 'login', 'user', 'user/lists', 'user/list/{id}', 'user/settings', 'cookies', 'graphql', 'forgot-password'];
+$routes = ['', 'login', 'user', 'user/lists', 'user/lists/{id}', 'user/settings', 'cookies', 'graphql', 'forgot-password'];
 
 $ngIndex = function () {
     return response(File::get(public_path() . '/ng-dist/browser/index.html'))->header('Content-Type', 'text/html; charset=UTF-8');

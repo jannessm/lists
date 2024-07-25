@@ -1,16 +1,16 @@
-import { Component, HostListener, Input } from '@angular/core';
+import { Component, HostListener, Input, Signal } from '@angular/core';
 import { MaterialModule } from '../../material.module';
 import { CommonModule } from '@angular/common';
 import { RxDocument } from 'rxdb';
 import { ListItem } from '../../../models/rxdb/list-item';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { UpdateItemSheetComponent } from '../bottom-sheets/update-item-sheet/update-item-sheet.component';
-import { Lists } from '../../../models/rxdb/lists';
+import { Lists, RxListsDocument } from '../../../models/rxdb/lists';
 import { ConfirmSheetComponent } from '../bottom-sheets/confirm-sheet/confirm-sheet.component';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { is_today } from '../../../models/categories_timeslots';
 import { FormsModule } from '@angular/forms';
-import { User } from '../../../models/rxdb/me';
+import { RxMeDocument, User } from '../../../models/rxdb/me';
 
 @Component({
   selector: 'app-list-item',
@@ -26,11 +26,11 @@ import { User } from '../../../models/rxdb/me';
 })
 export class ListItemComponent {
   @Input()
-  me: RxDocument<User> | undefined;
+  me?: Signal<RxMeDocument>;
   @Input()
-  list: RxDocument<Lists> | undefined;
+  list?: Signal<RxListsDocument>;
   @Input()
-  item: RxDocument<ListItem> | undefined;
+  item?: RxDocument<ListItem> | undefined;
 
   pointerDown: boolean = false;
   pointerPosY: number | undefined; 
@@ -73,9 +73,11 @@ export class ListItemComponent {
   }
 
   userFab(item: ListItem) {
-    const index = this.list?.sharedWith.findIndex(val => val.id === item.createdBy.id);
-    if (index) {
-      return index;
+    if (this.list) {
+      const index = this.list().sharedWith.findIndex(val => val.id === item.createdBy.id);
+      if (index) {
+        return index;
+      }
     }
     return 0;
   }

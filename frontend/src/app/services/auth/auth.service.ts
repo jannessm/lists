@@ -1,56 +1,60 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Signal, WritableSignal, effect, signal } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthApiService } from '../auth-api/auth-api.service';
 import { REGISTER, SESSION_COOKIE } from '../../globals';
 import dayjs from 'dayjs';
 import md5 from 'md5-ts';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, map } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { AuthResponse, ChangeEmailStatus } from '../../../models/responses';
 import { PusherService } from '../pusher/pusher.service';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { VerifyMailComponent } from '../../components/bottom-sheets/verify-mail/verify-mail.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Location } from '@angular/common';
+import { RxMeDocument } from '../../../models/rxdb/me';
+import { DataService } from '../data/data.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  isLoggedIn: BehaviorSubject<boolean>;
-  verifiedMail = new BehaviorSubject<boolean>(false);
-  verificationInverval: undefined | any;
+  guardChecked = true;
+  isLoggedIn: WritableSignal<boolean>;
 
-  // store the URL so we can redirect after logging in
-  redirectUrl: string | null = null;
+  me: Signal<RxMeDocument>;
+
+  verificationInverval: undefined | any;
 
   constructor(private cookies: CookieService,
               private api: AuthApiService,
               private router: Router,
               private pusher: PusherService,
+              private dataService: DataService,
               private bottomsheet: MatBottomSheet,
               private snackBar: MatSnackBar,
               private location: Location) {
-    this.isLoggedIn = new BehaviorSubject<boolean>(this.cookies.check(SESSION_COOKIE));
+    this.me = this.dataService.db.me.findOne().$$;
+    this.isLoggedIn = signal(this.cookies.check(SESSION_COOKIE));
     
-    this.isLoggedIn.subscribe(loggedIn => {
-      if (loggedIn) {
+    effect(() => {
+      if (this.isLoggedIn()) {
         this.pusher.init();
         this.setSessionCookie();
+        this.dataService.initDB();
       } else {
         this.pusher.unsubscribe();
         this.cookies.delete(SESSION_COOKIE);
+        this.dataService.removeData();
       }
-      
-      this.router.navigateByUrl(location.path());
     });
     
     this.api.validateLogin().subscribe(loggedIn => {
-      this.isLoggedIn.next(loggedIn);
+      this.isLoggedIn.set(loggedIn);
     });
 
     this.pusher.online.subscribe(isOnline => {
-      if (isOnline && this.isLoggedIn.value) {
+      if (isOnline && this.isLoggedIn()) {
         this.evaluateVerifiedMail();
         this.verificationInverval = setInterval(this.evaluateVerifiedMail.bind(this), 5 * 60 * 1000);
       } else {
@@ -69,13 +73,13 @@ export class AuthService {
     return this.api.login(email, password).pipe(
       map(success => {
       if (success) {
-        this.isLoggedIn.next(true);
+        this.isLoggedIn.set(true);
 
         this.router.navigateByUrl('/user/lists');
 
         return true;
       } else {
-        this.isLoggedIn.next(false);
+        this.isLoggedIn.set(false);
 
         return false;
       }
@@ -91,7 +95,7 @@ export class AuthService {
     return this.api.register(name, email, password, password_confirmation).pipe(
       map(res => {
         if (res === REGISTER.SUCCESS) {
-          this.isLoggedIn.next(true);
+          this.isLoggedIn.set(true);
         }
 
         return res;
@@ -102,7 +106,7 @@ export class AuthService {
   logout() {
     this.api.logout().subscribe(success => {
       if (success) {
-        this.isLoggedIn.next(false);
+        this.isLoggedIn.set(false);
         this.router.navigateByUrl('/login');
       }
     });

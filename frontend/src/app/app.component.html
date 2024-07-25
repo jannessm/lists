@@ -1,10 +1,10 @@
 <div id="app-container">
-    <div id="offline-indicator" *ngIf="!(pusher.online.asObservable() | async) && (authService.isLoggedIn | async)">Offline</div>
+    <div id="offline-indicator" *ngIf="!(pusher.online.asObservable() | async) && authService.isLoggedIn()">Offline</div>
     <div class="content" [style.top]="marginTopContent + 'px'">
         <router-outlet></router-outlet>
     </div>
     
-    <mat-toolbar *ngIf="authService.isLoggedIn | async">
+    <mat-toolbar *ngIf="authService.isLoggedIn()">
         <button
             mat-button
             routerLink="/user/lists"

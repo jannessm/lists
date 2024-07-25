@@ -11,15 +11,15 @@
             <button mat-menu-item (click)="deleteList()">Löschen</button>
         </mat-menu>
         
-        <h1 *ngIf="list">{{list.name}}</h1>
-        <div class="users" *ngIf="list && list.sharedWith.length > 0">
-            <button mat-mini-fab *ngFor="let user of list.sharedWith; let i = index" [class]="'user-fab-' + i % 12" disabled >{{user.name | nameBadge}}</button>
+        <h1 *ngIf="list()">{{list().name}}</h1>
+        <div class="users" *ngIf="list() && list().sharedWith.length > 0">
+            <button mat-mini-fab *ngFor="let user of list().sharedWith; let i = index" [class]="'user-fab-' + i % 12" disabled >{{user?.name | nameBadge}}</button>
         </div>
     </div>
 
     <div id="items-container" #itemsContainer>
         <div id="overlay" *ngIf="focusInput" (click)="closeFocusInput($event)"></div>
-        <div class="slots" *ngFor="let slot of slots">
+        <div class="slots" *ngFor="let slot of slots()">
             <h2>
                 {{ slot.name }}
                 <mat-chip-listbox *ngIf="slot.nDone > 0" class="slot-done-toggle">
@@ -31,18 +31,18 @@
         
             <ng-container *ngFor="let item of slot.items">
                 <app-list-item
-                    *ngIf="!item.done || !slot.collapsed"
+                    *ngIf="(!item.done || !slot.collapsed) && list() && me()"
                     [me]="me"
                     [list]="list"
                     [item]="item"
                     ></app-list-item>
             </ng-container>
         </div>
-        <div *ngIf="slots && slots.length === 0" class="no-lists">Keine Einträge vorhanden</div>
+        <div *ngIf="slots().length === 0" class="no-lists">Keine Einträge vorhanden</div>
     </div>
 
     <div class="input-bar" (click)="openFocusInput($event)">
-        <mat-toolbar class="toolbar-time" [style.display]="focusInput ? 'block' : 'none'" *ngIf="list && !list.isShoppingList">
+        <mat-toolbar class="toolbar-time" [style.display]="focusInput ? 'block' : 'none'" *ngIf="list() && !list().isShoppingList">
             <mat-chip-listbox [formControl]="newItemTime">
                 <mat-chip-option value="today">Heute</mat-chip-option>
                 <mat-chip-option value="tomorrow">Morgen</mat-chip-option>
@@ -51,7 +51,7 @@
             </mat-chip-listbox>
         </mat-toolbar>
 
-        <mat-toolbar class="toolbar-input" [class.focusInput]="focusInput" [class.isShoppingList]="list?.isShoppingList">
+        <mat-toolbar class="toolbar-input" [class.focusInput]="focusInput" [class.isShoppingList]="list() ? list().isShoppingList : false">
             <form>
                 <input #addInput matInput placeholder="Hinzufügen" class="add-input" [formControl]="newItem" autocomplete="off">
                 <button mat-icon-button (click)="addItem()"><mat-icon>add</mat-icon></button>

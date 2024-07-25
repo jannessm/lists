@@ -28,7 +28,7 @@ export function is_past(item: ListItem, _due: Date | undefined = undefined) {
 }
 
 export function is_today(item: ListItem, _due: Date | undefined = undefined) {
-    if (item.due !== null) {
+    if (!!item.due) {
         const now = new Date();
         const due = !_due ? new Date(item.due) : _due;
 
@@ -38,7 +38,7 @@ export function is_today(item: ListItem, _due: Date | undefined = undefined) {
 }
 
 export function is_tomorrow(item: ListItem, _due: Date | undefined = undefined) {
-    if (item.due !== null) {
+    if (!!item.due) {
         const now = new Date();
         const due = !_due ? new Date(item.due) : _due;
 
@@ -48,7 +48,7 @@ export function is_tomorrow(item: ListItem, _due: Date | undefined = undefined) 
 }
 
 export function is_soon(item: ListItem, _due: Date | undefined = undefined) {
-    if (item.due !== null) {
+    if (!!item.due) {
         const now = new Date();
         const due = !_due ? new Date(item.due) : _due;
 
@@ -58,5 +58,5 @@ export function is_soon(item: ListItem, _due: Date | undefined = undefined) {
 }
 
 export function is_sometime(item: ListItem) {
-    return item.due === null ? 1 : 0;
+    return !item.due ? 1 : 0;
 }

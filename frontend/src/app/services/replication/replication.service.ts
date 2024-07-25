@@ -7,6 +7,9 @@ import { pullQueryBuilderFromRxSchema, pullStreamBuilderFromRxSchema, pushQueryB
 import { graphQLGenerationInput } from '../../../models/rxdb/graphql-types';
 import { MutationResponse, PullResult, PushResult, QueryResponse, SubscriptionResponse } from '../../../models/responses';
 import { PusherService } from '../pusher/pusher.service';
+import { RxMeCollection } from '../../../models/rxdb/me';
+import { RxListsCollection } from '../../../models/rxdb/lists';
+import { RxItemsCollection } from '../../../models/rxdb/list-item';
 
 type GenerationInputKey = keyof typeof graphQLGenerationInput;
 
@@ -30,7 +33,7 @@ export class ReplicationService {
     })
   }
 
-  async setupReplication(collectionName: string, collection: RxCollection) {
+  async setupReplication(collectionName: string, collection: RxMeCollection | RxListsCollection | RxItemsCollection) {
     const that = this;
     const schema = graphQLGenerationInput[collectionName as GenerationInputKey];
     const pullQuery = pullQueryBuilderFromRxSchema(
@@ -59,18 +62,8 @@ export class ReplicationService {
         },
         stream$: await this.initStream(collectionName),
         modifier: doc => {
-          if ('description' in doc && doc['description'] === null) {
-            doc['description'] = '';
-          }
-          if ('due' in doc && doc['due'] === null) {
-            doc['due'] = '';
-          }
-          if ('reminder' in doc && doc['reminder'] === null) {
-            doc['reminder'] = '';
-          }
-          if ('emailVerifiedAt' in doc) {
-            console.log(doc['emailVerifiedAt']);
-            doc['emailVerifiedAt'] = !!doc['emailVerifiedAt'];
+          if ('lists' in doc) {
+            doc['lists'] = doc['lists']['id'];
           }
           return doc;
         }
@@ -91,6 +84,9 @@ export class ReplicationService {
           }
           if ("items" in doc) {
             delete doc['items'];
+          }
+          if ("lists" in doc) {
+            doc['lists'] = {id: doc['lists']};
           }
           return doc;
         }
@@ -124,7 +120,7 @@ export class ReplicationService {
 
     this.pusher.subscribe(channel, (data: any) => {
       data = data[operationName];
-      console.log('recv',   data);
+      console.log('recv', data);
       pullStream.next(data);
     });
 
@@ -147,6 +143,8 @@ function fixArraysInSchema(query: string, schema: any): string {
       }
     }
   });
+
+  query = query.replace('lists', 'lists { id }');
 
   return query;
 }

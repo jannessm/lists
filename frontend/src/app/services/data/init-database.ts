@@ -1,11 +1,18 @@
 import { Injector, Signal, untracked } from "@angular/core";
-import { RxDatabase, RxReactivityFactory, createRxDatabase } from "rxdb";
+import { QueryCache, RxCollection, RxDatabase, RxDocument, RxReactivityFactory, createRxDatabase, uncacheRxQuery } from "rxdb";
 import { environment } from "../../../environments/environment";
 import { toSignal } from '@angular/core/rxjs-interop';
-import { meSchema } from "../../../models/rxdb/me";
-import { listsSchema } from "../../../models/rxdb/lists";
-import { listItemSchema } from "../../../models/rxdb/list-item";
+import { RxMeCollection, meSchema } from "../../../models/rxdb/me";
+import { RxListsCollection, listsSchema } from "../../../models/rxdb/lists";
+import { RxItemsCollection, listItemSchema } from "../../../models/rxdb/list-item";
 import { DATA_TYPE } from "../../../models/rxdb/graphql-types";
+
+export type RxListsCollections = {
+    me: RxMeCollection,
+    lists: RxListsCollection,
+    items: RxItemsCollection
+};
+export type RxListsDatabase = RxDatabase<RxListsCollections, unknown, unknown, Signal<unknown>>;
 
 export let DB_INSTANCE: any;
 
@@ -47,7 +54,7 @@ async function _create(injector: Injector): Promise<RxDatabase> {
     const db = await createRxDatabase({
         name: 'lists-db',
         storage: environment.getRxStorage(),
-        multiInstance: true,
+        // multiInstance: true,
         reactivity: reactivityFactory
         // password: 'myLongAndStupidPassword' // no password needed
     });
@@ -70,4 +77,10 @@ async function _create(injector: Injector): Promise<RxDatabase> {
     console.log('DatabaseService: created');
 
     return db as any;
+}
+
+function cacheReplacement(_collection: RxCollection, queryCache: QueryCache) {
+    for (const rxQuery of Array.from(queryCache._map.values())) {
+        uncacheRxQuery(queryCache, rxQuery);
+    }
 }

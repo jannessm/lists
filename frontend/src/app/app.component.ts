@@ -16,7 +16,6 @@ import { DataService } from './services/data/data.service';
  */
 import 'zone.js/plugins/zone-patch-rxjs';
 import { HttpClient } from '@angular/common/http';
-import { BASE_API } from './globals';
 
 @Component({
   selector: 'app-root',

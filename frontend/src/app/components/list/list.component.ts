@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Signal, ViewChild, computed, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.component';
@@ -7,20 +7,17 @@ import { ShareListSheetComponent } from '../bottom-sheets/share-list-sheet/share
 import flatpickr from "flatpickr";
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Options } from 'flatpickr/dist/types/options';
 import { ConfirmSheetComponent } from '../bottom-sheets/confirm-sheet/confirm-sheet.component';
 import { DataService } from '../../services/data/data.service';
 import { AuthService } from '../../services/auth/auth.service';
-import { Lists } from '../../../models/rxdb/lists';
+import { Lists, RxListsDocument } from '../../../models/rxdb/lists';
 import { Slot, groupItems } from '../../../models/categories';
-import { ListItem, newItem } from '../../../models/rxdb/list-item';
-import { CommonModule } from '@angular/common';
+import { ListItem, RxItemsCollection, RxItemsDocument, newItem } from '../../../models/rxdb/list-item';
+import { CommonModule, Location } from '@angular/common';
 import { MaterialModule } from '../../material.module';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
-import { DATA_TYPE } from '../../../models/rxdb/graphql-types';
-import { RxCollection, RxDocument } from 'rxdb';
 import { ListItemComponent } from '../list-item/list-item.component';
-import { User } from '../../../models/rxdb/me';
+import { RxMeDocument, User } from '../../../models/rxdb/me';
 import { timePickerConfig } from '../../../models/time-picker';
 
 @Component({
@@ -39,10 +36,12 @@ import { timePickerConfig } from '../../../models/time-picker';
   styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements AfterViewInit {
-  me: RxDocument<User> | undefined;
-  list: RxDocument<Lists> | undefined;
-
-  itemsDB: RxCollection | undefined;
+  @ViewChild('picker') picker!: ElementRef;
+  @ViewChild('addInput') addInput!: ElementRef;
+  
+  me: Signal<RxMeDocument>;
+  list!: Signal<RxListsDocument>;
+  listItems!: Signal<RxItemsDocument[]>;
 
   newItem = new FormControl('');
   focusInput: boolean = false;
@@ -51,49 +50,45 @@ export class ListComponent implements AfterViewInit {
   timePickerDate: Date | undefined;
   pickerOpen = false;
 
-  slots: Slot[] = [];
-  items: (RxDocument<ListItem>)[] = [];
-
-  @ViewChild('picker') picker!: ElementRef;
-  @ViewChild('addInput') addInput!: ElementRef;
+  slots: Signal<Slot[]> = computed(() => {
+    if (this.listItems() && this.list()) {
+      return this.groupItems(this.list(), this.listItems());
+    }
+    return [];
+  });
+  slotCollapseStates: {[key: string]: boolean} = {};
 
   constructor(
-    private activatedRoute: ActivatedRoute,
+    private location: Location,
     private bottomSheet: MatBottomSheet,
     private router: Router,
     private authService: AuthService,
     private snackbar: MatSnackBar,
     private dataService: DataService
   ) {
-    this.activatedRoute.paramMap.subscribe(params => {
-      const id = params.get('id');
+    this.me = this.authService.me;
+    const id = this.location.path(false).split('/').pop();
 
-      this.dataService.dbInitialized.subscribe(initialized => {
-        if (initialized &&
-            this.dataService.db &&
-            this.dataService.db[DATA_TYPE.LISTS] &&
-            this.dataService.db[DATA_TYPE.LIST_ITEM] &&
-            this.dataService.db[DATA_TYPE.ME] &&
-            id) {
-          this.itemsDB = this.dataService.db[DATA_TYPE.LIST_ITEM];
+    if (id) {
+      this.list = this.dataService.db.lists.findOne({
+        selector: { id }
+      }).$$ as Signal<RxListsDocument>;
 
-          this.dataService.db[DATA_TYPE.LISTS].findOne({
-            selector: { id }
-          }).$.subscribe(lists => {
-            this.list = lists;
-            this.fetchItems();
-          });
+      this.listItems = this.dataService.db.items.find({
+        selector: {lists: id }
+      }).$$ as Signal<RxItemsDocument[]>;
 
-          this.itemsDB.$.subscribe(() => {
-            this.fetchItems();
-          })
-
-          this.dataService.db[DATA_TYPE.ME].findOne().exec().then(u => {
-            this.me = u;
-          });
-        }
+      this.dataService.db.items.$.subscribe(() => {
+        console.log('db changed', this.listItems().length);
       });
-    });
+
+      this.dataService.db.items.find({
+        selector: {lists: id }
+      }).$.subscribe(items => {
+        console.log(items.length);
+      });
+      
+    }
 
     this.newItemTime.valueChanges.subscribe(val => {
       this.toggleNewTimeSelected(val);
@@ -105,22 +100,10 @@ export class ListComponent implements AfterViewInit {
     this.timePicker.config.onOpen.push(() => this.pickerOpen = true);
   }
 
-  fetchItems() {
-    if (this.itemsDB && this.list) {
-      this.itemsDB.find({
-        selector: {lists: { id: this.list.id }}
-      }).exec().then((items: (RxDocument<ListItem>)[]) => {
-        console.log('items changed');
-        this.items = items;
-        this.groupItems(items);
-      });
-    }
-  }
-
   listSettings() {
-    if (this.list) {
+    if (this.list && this.list()) {
       const dialogRef = this.bottomSheet.open(AddSheetComponent, {
-        data: this.list.getLatest()
+        data: this.list().getLatest()
       });
   
       dialogRef.afterDismissed().subscribe(new_values => {
@@ -131,7 +114,7 @@ export class ListComponent implements AfterViewInit {
         
         if (!!new_values && this.list) {
           const patch = {};
-          const list = this.list.getLatest();
+          const list = this.list().getLatest();
 
           if (list.name !== new_values.name) {
             Object.assign(patch, {name: new_values.name});
@@ -142,7 +125,7 @@ export class ListComponent implements AfterViewInit {
           }
 
           if (Object.keys(patch).length > 0) {
-            this.list.patch(patch);
+            this.list().patch(patch);
           }
         }
       });
@@ -150,12 +133,12 @@ export class ListComponent implements AfterViewInit {
   }
 
   shareList() {
-    if (this.list) {
+    if (this.list && this.list()) {
       const dialogRef = this.bottomSheet.open(ShareListSheetComponent);
 
       dialogRef.afterDismissed().subscribe(data => {
-        if (!!data && this.list) {
-          this.authService.shareLists(data.email, this.list.id).subscribe(success => {
+        if (!!data && this.list && this.list()) {
+          this.authService.shareLists(data.email, this.list().id).subscribe(success => {
             if (!success) {
               this.snackbar.open('Einladung konnte nicht verschickt werden.', 'Ok');
             }
@@ -167,12 +150,14 @@ export class ListComponent implements AfterViewInit {
   }
 
   deleteList() {
-    if (this.list) {
-      const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche Liste ' + this.list.name});
+    if (this.list && this.list()) {
+      const confirm = this.bottomSheet.open(ConfirmSheetComponent, {
+        data: 'Lösche Liste ' + this.list().name
+      });
       
       confirm.afterDismissed().subscribe(del => {
-        if (del && this.list) {
-          this.list.remove().then(() => {
+        if (del && this.list && this.list()) {
+          this.list().remove().then(() => {
             this.router.navigate(['/user/lists']);
           });
         }
@@ -180,29 +165,28 @@ export class ListComponent implements AfterViewInit {
     }
   }
 
-  groupItems(items: RxDocument<ListItem>[]) {
-    if (this.list) {
-      const slots = groupItems(items, this.list.isShoppingList, this.dataService.groceryCategories);
+  groupItems(list: RxListsDocument, items: RxItemsDocument[]): Slot[] {
+    if (items && list) {
+      const slots = groupItems(items, list.isShoppingList, this.dataService.groceryCategories);
 
-      if (this.slots) {
-        slots.forEach(s => {
-          const this_s = this.slots.find(sl => sl.name === s.name);
+      slots.forEach(s => {
+        if (s.name in this.slotCollapseStates) {
+          s.collapsed = this.slotCollapseStates[s.name];
+        } else {
+          this.slotCollapseStates[s.name] = true;
+        }
+      });
 
-          if (this_s) {
-            s.collapsed = this_s.collapsed;
-          }
-        });
-
-        this.slots = slots;
-      }
+      return slots;
     }
+
+    return [];
   }
   
   addItem() {
-    if (this.list &&
-        this.me &&
-        this.newItem.value !== '' &&
-        this.itemsDB
+    if (this.list && this.list() &&
+        this.me && this.me() &&
+        this.newItem.value !== ''
       ) {
       let newTime: string | Date = '';
 
@@ -228,20 +212,17 @@ export class ListComponent implements AfterViewInit {
       const item = {
         name: this.newItem.value,
         due: newTime,
-        createdBy: {id: this.me.id, name: this.me.name},
-        lists: {id: this.list.id, name: this.list.name}
+        createdBy: {id: this.me().id, name: this.me.name},
+        lists: {id: this.list().id, name: this.list().name}
       };
 
-      this.itemsDB.insert(newItem(item))
-        .then(item => {
+      this.dataService.db.items.insert(newItem(item))
+        .then(() => {
           this.newItem.reset();
           this.timePickerDate = undefined;
           this.timePicker.clear();
           this.focusInput = false;
           this.newItemTime.setValue('sometime');
-
-          // this.items.push(item);
-          // this.groupItems(this.items);
         });
     }
   }
@@ -251,10 +232,10 @@ export class ListComponent implements AfterViewInit {
     const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche alle Einträge'});
     
     confirm.afterDismissed().subscribe(del => {
-      if (this.list && del && this.itemsDB) {
-        this.itemsDB.find({
+      if (this.list && this.list() && del) {
+        this.dataService.db.items.find({
           selector: {
-            lists: {id: this.list.id}
+            lists: this.list().id
           }
         }).remove();
       }
@@ -265,10 +246,10 @@ export class ListComponent implements AfterViewInit {
     const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche alle erledigten Einträge'});
     
     confirm.afterDismissed().subscribe(del => {
-      if (this.list && del && this.itemsDB) {
-        this.itemsDB.find({
+      if (this.list && this.list() && del) {
+        this.dataService.db.items.find({
           selector: {
-            lists: {id: this.list.id},
+            lists: this.list().id,
             done: true
           }
         }).remove();
@@ -277,10 +258,10 @@ export class ListComponent implements AfterViewInit {
   }
 
   markAllNotDone() {
-    if (this.list && this.itemsDB) {
-      this.itemsDB.find({
+    if (this.list && this.list()) {
+      this.dataService.db.items.find({
         selector: {
-          lists: {id: this.list.id}
+          lists: this.list().id
         }
       }).patch({
         done: false
@@ -336,9 +317,9 @@ export class ListComponent implements AfterViewInit {
     const open = '☐';
     const indent = '  ';
 
-    if (this.list) {
-      let listStr = this.list.name + '\n\n';
-      this.slots.forEach(slot => {
+    if (this.list()) {
+      let listStr = this.list().name + '\n\n';
+      this.slots().forEach(slot => {
         if (slot.items.length > 0) {
           
           listStr += indent + slot.name + '\n\n';
@@ -355,9 +336,9 @@ export class ListComponent implements AfterViewInit {
 
       // check if mobile
       if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && !!navigator.share) {
-        navigator.share({text: listStr, title: this.list.name});
+        navigator.share({text: listStr, title: this.list().name});
       } else {
-        navigator.clipboard.writeText(this.list.name + '\n\n' + listStr);
+        navigator.clipboard.writeText(this.list().name + '\n\n' + listStr);
         this.snackbar.open('Liste in die Zwischenablage kopiert!', 'Ok');
       }
     }

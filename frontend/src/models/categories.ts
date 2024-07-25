@@ -70,7 +70,11 @@ function compareSlots(categoryNames: string[]) {
   };
 }
   
-export function groupItems(items: RxDocument<ListItem>[], isGroceries: boolean, groceryCategories: GroceryCategories | undefined = undefined) {
+export function groupItems(
+  items: RxDocument<ListItem>[],
+  isGroceries: boolean,
+  groceryCategories: GroceryCategories | undefined = undefined
+) {
   const slots: Slot[] = [];
   let categories: Category[] = [];
   
@@ -108,7 +112,13 @@ export function groupItems(items: RxDocument<ListItem>[], isGroceries: boolean, 
         }
       });
 
-    return votes.reduce((vote, cat) => cat.votes > vote.votes ? cat : vote, {votes: 0, name: GROCERY_OTHERS, item: i})
+    return votes.reduce((vote, cat) => {
+      if (cat.votes > vote.votes) {
+        return cat;
+      } else {
+        return vote;
+      }
+    }, {votes: 0, name: GROCERY_OTHERS, item: i})
   });
 
   catItemAssignment.forEach(highestVotes => {

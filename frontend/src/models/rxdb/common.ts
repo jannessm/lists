@@ -1,6 +1,6 @@
 export interface ForeignId {
     id: string;
-    name: string;
+    name?: string;
 }
 
 export interface Checkpoint {

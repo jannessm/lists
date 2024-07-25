@@ -1,15 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, Signal } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.component';
 
 import { MaterialModule } from '../../material.module';
 import { CommonModule } from '@angular/common';
-import { Lists, newLists } from '../../../models/rxdb/lists';
+import { RxListsDocument, newLists } from '../../../models/rxdb/lists';
 import { DataService } from '../../services/data/data.service';
-import { DATA_TYPE } from '../../../models/rxdb/graphql-types';
-import { RxDocument } from 'rxdb';
 import { RouterModule } from '@angular/router';
-import { ulid } from 'ulid';
+import { AuthService } from '../../services/auth/auth.service';
 
 @Component({
   selector: 'app-lists-overview',
@@ -24,21 +22,16 @@ import { ulid } from 'ulid';
 })
 export class ListsOverviewComponent {
 
-  lists: RxDocument<Lists>[] | undefined;
+  lists: Signal<RxListsDocument[]>;
 
   constructor(
     public bottomSheet: MatBottomSheet,
     private dataService: DataService,
+    private authService: AuthService
   ) {
-    this.dataService.dbInitialized.subscribe(initialized => {
-      if (initialized && this.dataService.db && this.dataService.db[DATA_TYPE.LISTS]) {
-        this.dataService.db[DATA_TYPE.LISTS].find({
-          sort: [{name: 'asc'}]
-        }).$.subscribe(lists => {
-          this.lists = lists;
-        })
-      }
-    });
+    this.lists = this.dataService.db.lists.find({
+      sort: [{name: 'asc'}]
+    }).$$ as Signal<RxListsDocument[]>;
   }
 
   addList() {
@@ -46,18 +39,13 @@ export class ListsOverviewComponent {
 
     dialogRef.afterDismissed().subscribe(async (res) => {
       if (!!res &&
-          this.dataService.db &&
-          this.dataService.db[DATA_TYPE.LISTS] &&
-          this.dataService.db[DATA_TYPE.ME]
+          this.authService.me && 
+          this.authService.me()
       ) {
-        const me = (await this.dataService.db[DATA_TYPE.ME].find({
-          sort: [{'name': 'asc'}]
-        }).exec())[0];
-
-        this.dataService.db[DATA_TYPE.LISTS].insert(newLists({
+        this.dataService.db.lists.insert(newLists({
           name: res.name,
           isShoppingList: res.isShoppingList,
-          createdBy: {id: me.id, name: me.name},
+          createdBy: {id: this.authService.me().id, name: this.authService.me().name},
         }));
       }
     });

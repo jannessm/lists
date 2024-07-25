@@ -1,5 +1,7 @@
 import { ulid } from "ulid";
 import { ForeignId } from "./common";
+import { ExtractDocumentTypeFromTypedRxJsonSchema, RxCollection, RxDocument, toTypedRxJsonSchema } from "rxdb";
+import { Signal } from "@angular/core";
 
 export interface Lists {
     id: string;
@@ -7,20 +9,18 @@ export interface Lists {
     isShoppingList: boolean;
     createdBy: ForeignId;
     sharedWith: ForeignId[];
-    items: ForeignId[];
     createdAt: string;
     updatedAt: string;
     _deleted: boolean;
 }
 
-export function newLists(lists: any): Lists {
-    const newLists: Lists = {
+export function newLists(lists: any): any {
+    const newLists = {
         id: ulid().toLowerCase(),
         name: '',
         isShoppingList: false,
         createdBy: {id: '', name: ''},
         sharedWith: [],
-        items: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         _deleted: false
@@ -71,17 +71,6 @@ export const listsSchema = {
                 }
             }
         },
-        items: {
-            type: 'array',
-            items: {
-                type: 'object',
-                properties: {
-                    id: {
-                        type: 'string'
-                    }
-                }
-            }
-        },
 
         // required for rxdb
         createdAt: {
@@ -94,5 +83,9 @@ export const listsSchema = {
             type: 'boolean'
         }
     },
-    required: ['id', 'name', 'isShoppingList', 'createdBy', 'sharedWith', 'items']
+    required: ['id', 'name', 'isShoppingList', 'createdBy', 'sharedWith']
 };
+
+
+export type RxListsDocument = RxDocument<Lists, {}>
+export type RxListsCollection = RxCollection<Lists, {}, unknown, unknown, Signal<unknown>>;
