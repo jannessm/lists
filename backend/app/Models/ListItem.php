@@ -67,17 +67,16 @@ class ListItem extends Model
 
                 foreach ($assumedMaster as $param => $val) {
                     // if param = createdBy|lists => compare ids
-                    if (($param == "createdBy" && $masterItem[$param]->id != $val['id']) ||
-                        ($param == "lists" && $masterItem[$param]->id != $val['id'])
-                    ) {
-                        // var_dump($param);
-                        $conflict = TRUE;
-                    } else if (
-                        !in_array($param, ["createdBy", "lists"]) && 
-                        $masterItem[$param] != $val
-                        ) {
-                        // var_dump($param, $masterItem[$param], $val);
-                        $conflict = TRUE;
+                    if (in_array($param, ["createdBy", "lists"])) {
+                        $conflict = $masterList[$param]->id !== $val['id'];
+                    
+                    // compare timestamps
+                    } else if (in_array($param, ["created_at", "updated_at"])) {
+                        $conflict = $masterList[$param]->ne($val);
+                    
+                    // compare anything else
+                    } else {
+                        $conflict = $masterList[$param] !== $val;
                     }
 
                     if ($conflict) {

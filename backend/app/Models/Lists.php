@@ -76,13 +76,24 @@ class Lists extends Model
 
                 foreach ($assumedMaster as $param => $val) {
                     // if param = createdBy|lists => compare ids
-                    if (($param == "createdBy" && $masterList[$param]->id != $val['id'])) {
-                        $conflict = TRUE;
-                    } else if (
-                        !in_array($param, ["createdBy"]) && 
-                        $masterList[$param] != $val
-                    ) {
-                        $conflict = TRUE;
+                    if ($param === "createdBy") {
+                        $conflict = $masterList[$param]->id !== $val['id'];
+                    
+                    // compare sharedWith array
+                    } else if ($param === "sharedWith") {
+                        $ids = array_column($val, 'id');
+                        $conflict = array_reduce($masterList[$param],
+                            function ($carry, $item) use ($ids) {
+                                return in_array($item['id'], $ids) && $carry;
+                            }, true);
+                    
+                    // compare timestamps
+                    } else if (in_array($param, ["created_at", "updated_at"])) {
+                        $conflict = $masterList[$param]->ne($val);
+                    
+                    // compare anything else
+                    } else {
+                        $conflict = $masterList[$param] !== $val;
                     }
 
                     if ($conflict) {

@@ -38,18 +38,17 @@ export class AuthService {
     
     effect(() => {
       if (this.isLoggedIn()) {
-        this.pusher.init();
         this.setSessionCookie();
-        this.dataService.initDB();
+        this.dataService.initDB(null);
       } else {
-        this.pusher.unsubscribe();
         this.deleteSessionCookie();
+        this.pusher.unsubscribe();
         this.dataService.removeData();
       }
     });
     
     this.api.validateLogin().subscribe(loggedIn => {
-      this.isLoggedIn.set(loggedIn);
+      this.isLoggedIn.set(!!loggedIn);
     });
 
     this.pusher.online.subscribe(isOnline => {

@@ -6,6 +6,7 @@ import { RxMeCollection, meSchema } from "../../../models/rxdb/me";
 import { RxListsCollection, listsSchema } from "../../../models/rxdb/lists";
 import { RxItemsCollection, listItemSchema } from "../../../models/rxdb/list-item";
 import { DATA_TYPE } from "../../../models/rxdb/graphql-types";
+import { PusherService } from "../pusher/pusher.service";
 
 export type RxListsCollections = {
     me: RxMeCollection,

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { RxCollection, RxGraphQLReplicationQueryBuilderResponseObject, addRxPlugin, hasProperty } from 'rxdb';
 import { replicateRxCollection } from 'rxdb/plugins/replication';
 import { DataApiService } from '../data-api/data-api.service';
-import { Subject, firstValueFrom } from 'rxjs';
+import { Subject, firstValueFrom, lastValueFrom } from 'rxjs';
 import { pullQueryBuilderFromRxSchema, pullStreamBuilderFromRxSchema, pushQueryBuilderFromRxSchema } from 'rxdb/plugins/replication-graphql';
 import { graphQLGenerationInput } from '../../../models/rxdb/graphql-types';
 import { MutationResponse, PullResult, PushResult, QueryResponse, SubscriptionResponse } from '../../../models/responses';
@@ -22,7 +22,10 @@ export class ReplicationService {
   streamSubjects: {[key: string]: Subject<any>} = {};
   lastPusherState = false;
 
-  constructor(private api: DataApiService, private pusher: PusherService) {
+  constructor(
+    private api: DataApiService,
+    private pusher: PusherService
+  ) {
     this.pusher.online.subscribe(isOnline => {
       if (isOnline && isOnline != this.lastPusherState) {
         Object.values(this.streamSubjects).forEach(subj => {
@@ -33,7 +36,24 @@ export class ReplicationService {
     })
   }
 
-  async setupReplication(collectionName: string, collection: RxMeCollection | RxListsCollection | RxItemsCollection) {
+  async setupReplication(
+    collectionName: string,
+    collection: RxMeCollection | RxListsCollection | RxItemsCollection,
+    meId: string | null
+  ) {
+    if (!(await firstValueFrom(this.pusher.online))) {
+      await new Promise(resolve => {
+        const waitInterval = setInterval(async () => {
+          const online = await firstValueFrom(this.pusher.online);
+          if (online) {
+            clearInterval(waitInterval);
+            console.log('init_done');
+            resolve(null);
+          }
+        }, 10);
+      });
+    }
+
     const that = this;
     const schema = graphQLGenerationInput[collectionName as GenerationInputKey];
     const pullQuery = pullQueryBuilderFromRxSchema(
@@ -60,7 +80,7 @@ export class ReplicationService {
 
           return (result.data as PullResult)['pull' + collectionName[0].toUpperCase() + collectionName.substring(1)];
         },
-        stream$: await this.initStream(collectionName),
+        stream$: await this.initStream(collectionName, meId),
         modifier: doc => {
           if ('lists' in doc) {
             doc['lists'] = doc['lists']['id'];
@@ -98,7 +118,7 @@ export class ReplicationService {
     return replication;
   }
 
-  async initStream(collectionName: string) {
+  async initStream(collectionName: string, meId: string | null) {
     const schema = graphQLGenerationInput[collectionName as GenerationInputKey];
 
     const pullStreamQuery = pullStreamBuilderFromRxSchema(
@@ -106,12 +126,16 @@ export class ReplicationService {
       schema
     );
 
-    const query = pullStreamQuery({}) as RxGraphQLReplicationQueryBuilderResponseObject;
+    let headers = {};
+    if (!!meId) {
+      headers = {id: meId}
+    }
+    const query = pullStreamQuery(headers) as RxGraphQLReplicationQueryBuilderResponseObject;
     
     // fix array items
     query.query = fixArraysInSchema(query.query, schema);
 
-    const subscriptionResponse = await firstValueFrom(this.api.graphQL<SubscriptionResponse<any>>(query.query));
+    const subscriptionResponse = await firstValueFrom(this.api.graphQL<SubscriptionResponse<any>>(query.query, query.variables));
     const channel = subscriptionResponse.extensions.lighthouse_subscriptions.channel;
 
     const operationName = 'stream' + collectionName[0].toUpperCase() + collectionName.substring(1);

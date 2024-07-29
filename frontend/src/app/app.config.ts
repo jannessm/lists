@@ -1,6 +1,6 @@
-import { APP_INITIALIZER, ApplicationConfig, Injector, LOCALE_ID, importProvidersFrom, isDevMode } from '@angular/core';
+import { APP_INITIALIZER, ApplicationConfig, Injector, LOCALE_ID, isDevMode } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptors, HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
 import { routes } from './app.routes';
@@ -9,7 +9,6 @@ import { laravelInterceptor } from './interceptors/laravel-tokens';
 import { noConnectionInterceptor } from './interceptors/no-connection';
 import { provideServiceWorker } from '@angular/service-worker';
 import { environment } from '../environments/environment';
-import { DataService } from './services/data/data.service';
 import { initDatabase } from './services/data/init-database';
 
 export const appConfig: ApplicationConfig = {
@@ -20,10 +19,8 @@ export const appConfig: ApplicationConfig = {
       multi: true,
       deps: [Injector]
     },
-    DataService,
     provideRouter(routes),
     provideAnimations(),
-    CookieService,
     provideHttpClient(withInterceptors([laravelInterceptor, noConnectionInterceptor])),
     provideServiceWorker('ngsw-worker.js', {
         enabled: !isDevMode(),

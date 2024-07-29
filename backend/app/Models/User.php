@@ -111,7 +111,10 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
             
             $conflict = FALSE;
             foreach ($assumedMaster as $param => $val) {
-                if ($masterUser[$param] != $val) {
+                // compare timestamps
+                if (in_array($param, ["created_at", "updated_at"])) {
+                    $conflict = $masterList[$param]->ne($val);
+                } else if ($masterUser[$param] != $val) {
                     array_push($conflicts, $masterUser);
                     $conflict = TRUE;
                     break;

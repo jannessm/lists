@@ -7,7 +7,7 @@ export interface AuthResponse {
     }
 }
 export interface ValidateResponse {
-    loggedIn: boolean;
+    loggedIn: string | null;
 }
 export interface VerifyMailResponse {
     verified: boolean;

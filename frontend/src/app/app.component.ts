@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, WritableSignal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
@@ -37,7 +37,6 @@ export class AppComponent {
   refreshOpacity = 0;
   animationState = 'start';
   loading = false;
-  online = false;
 
   constructor(
     public pusher: PusherService,
@@ -54,10 +53,6 @@ export class AppComponent {
       }
 
       (screen.orientation as any).lock("portrait");
-
-      this.pusher.online.subscribe(isOnline => {
-        this.online = isOnline;
-      })
   }
 
   ngAfterViewChecked(): void {

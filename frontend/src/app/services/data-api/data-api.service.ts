@@ -61,7 +61,7 @@ export class DataApiService {
   ): Observable<T> {
     if (typeof(query) != 'string') {
       variables = query.variables;
-      query = query.query
+      query = query.query;
     }
 
     return this.http.post(BASE_API + 'graphql', {

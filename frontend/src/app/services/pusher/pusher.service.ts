@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import Pusher from 'pusher-js';
 import { BehaviorSubject } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -9,16 +10,23 @@ export class PusherService {
   pusher: Pusher | undefined;
   channels: string[] = [];
   socketID: string = '';
+  subscrQueue: any[] = [];
 
   online = new BehaviorSubject<boolean>(false);
 
-  constructor() { }
+  constructor() {
+    this.init();
+  }
 
-  init() {
+  ngOnDestroy() {
+    this.pusher?.disconnect();
+  }
+
+  async init() {
     if (!this.pusher) {
       this.pusher = new Pusher('app-key', {
-        cluster: '127.0.0.1',
-        wsHost: '127.0.0.1',
+        cluster: environment.pusherUrl,
+        wsHost: environment.pusherUrl,
         wsPort: 6001,
         forceTLS: false,
         disableStats: true,
@@ -51,17 +59,31 @@ export class PusherService {
 
       this.online.subscribe(isOnline => {
         this.socketID = isOnline ? connection.socket_id : '';
-        this.channels
+        console.log(isOnline, this.socketID);
+        this.subscrQueue.forEach(args => {
+          this._subscribe(args[0], args[1]);
+        });
+        this.subscrQueue = [];
       });
     }
   }
 
-  subscribe(channel: string, callback: Function) {
+  async subscribe(channel: string, callback: Function) {
     if (!this.pusher) {
-      this.init();
+      await this.init();
+    } 
+    
+    if (!this.online.getValue()) {
+      this.subscrQueue.push([channel, callback]);
+    } else {
+      this._subscribe(channel, callback);
     }
 
+  }
+
+  _subscribe(channel: string, callback: Function) {
     if (this.pusher) {
+      console.log('subscr');
       this.channels.push(channel);
       this.pusher.subscribe(channel).bind('lighthouse-subscription', (payload: any) => {
         if (!payload.more) {

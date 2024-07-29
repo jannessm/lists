@@ -12,6 +12,7 @@ import { getRxStorageDexie } from 'rxdb/plugins/storage-dexie';
 export const environment = {
   production: false,
   api: 'http://127.0.0.1:8080/',
+  pusherUrl: '127.0.0.1',
   locale: 'de',
   version: version,
   vapid: 'BEQ7Z6AYftjPVg8a554wmJUFeCeR5UAs4eBqWQOUFbbwlbK6qjlbo3TR7GwgpfhJ4TAT2-sGZZQMwkVXRQEdxOI',

@@ -29,19 +29,19 @@ export class DataService {
     return DB_INSTANCE;
   }
 
-  async initDB() {
+  async initDB(meId: string | null) {
     if (this.db && !this.dbInitialized) {
-      let repl = await this.replicationService.setupReplication(DATA_TYPE.ME, this.db.me);
+      let repl = await this.replicationService.setupReplication(DATA_TYPE.ME, this.db.me, meId);
       repl.error$.subscribe(err => {console.error(err)});
 
       this.replications[DATA_TYPE.ME] = repl;
 
-      repl = await this.replicationService.setupReplication(DATA_TYPE.LISTS, this.db.lists);
+      repl = await this.replicationService.setupReplication(DATA_TYPE.LISTS, this.db.lists, meId);
       repl.error$.subscribe(err => {console.error(err)});
 
       this.replications[DATA_TYPE.LISTS] = repl;
 
-      repl = await this.replicationService.setupReplication(DATA_TYPE.LIST_ITEM, this.db.items);
+      repl = await this.replicationService.setupReplication(DATA_TYPE.LIST_ITEM, this.db.items, meId);
       repl.error$.subscribe(err => {console.error(err)});
 
       this.replications[DATA_TYPE.LIST_ITEM] = repl;

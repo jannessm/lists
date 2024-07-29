@@ -8,47 +8,20 @@ use Nuwave\Lighthouse\Subscriptions\Subscriber;
 use Nuwave\Lighthouse\Schema\Types\GraphQLSubscription;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
-final class StreamItems extends GraphQLSubscription
+final class StreamItems extends StreamAuthorize
 {
-    /** Check if subscriber is allowed to listen to the subscription. */
-    public function authorize(Subscriber $subscriber, Request $request): bool
-    {
-        $user = $subscriber->context->user;
-        return !!$user;
+    
+    public function hasAccess(mixed $rootItem, string $userId) {
+        return $rootItem->lists()->users()->search(function ($user) {
+            return $user->id == $userId;
+        });
     }
 
-    /** Filter which subscribers should receive the subscription. */
-    public function filter(Subscriber $subscriber, mixed $root): bool
-    {
-        $anyItemIsPartOfUserList = array_reduce($root, function ($prevVal, $item) {
-            if ($prevVal) return true;
-            
-            return !!$item->list->users()->search(function ($user) {
-                return $user->id == $subscriber->context->user->id;
-            });
-        }, false);
-        // $anyItemIsPartOfUserList = true;
-
-        return $subscriber->socket_id !== request()->header('X-Socket-ID') && $anyItemIsPartOfUserList;
-    }
-
-    /** Restructure response */
-    public function resolve(mixed $root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo): mixed {
-        // Optionally manipulate the `$root` item before it gets broadcasted to
-        // subscribed client(s).
-        if (!is_array($root)) {
-            $root = [$root];
-        }
-
-        $checkpointID = end($root)['id'];
-        $checkpointUpdatedAt = end($root)['updated_at'];
-
-        return [
-            "documents" => $root,
-            "checkpoint" => [
-                "id" => $checkpointID,
-                "updatedAt" => $checkpointUpdatedAt
-            ]
-        ];
+    public function filterRoot(mixed $root, string $userId) {
+        return array_filter($root, function ($item) use ($userId) {
+            return !!($item->lists()->users()->search(function ($val) use ($userId) {
+                return $val->id == $userId;
+            }));
+        });
     }
 }

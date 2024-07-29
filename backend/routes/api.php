@@ -28,7 +28,10 @@ $verificationLimiter = config('fortify.limiters.verification', '6,1');
 
 Route::middleware("web")->get('auth', function(Request $request) {
     $user = Auth::user();
-    return ["loggedIn" => $user !== null];
+    if ($user === null) {
+        return ["loggedIn" => null];
+    }
+    return ["loggedIn" => $user->id];
 });
 
 Route::middleware(["web"])->get('email/verified', function(Request $request) {
