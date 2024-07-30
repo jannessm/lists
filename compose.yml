@@ -11,12 +11,12 @@ services:
   soketi-dev:
     profiles: [dev]
     image: 'quay.io/soketi/soketi:1.6-16-alpine'
-    entrypoint: /app/bin/server.js start --config=/app/configs/socketi-config.json
+    entrypoint: /app/bin/server.js start --config=/configs/socketi-config.json
     volumes:
-      - ./configs/dev:/app/configs
+      - ./configs/dev:/configs
     ports:
-      - '${SOKETI_PORT:-6001}:6001'
-      - '${SOKETI_METRICS_SERVER_PORT:-9601}:9601'
+      - '6001:6001'
+      - '9601:9601'
   
   laravel-dev:
     profiles: [dev]
@@ -28,6 +28,5 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
-      - ./configs/dev/.env:/app/.env
       - ./dev-entrypoint.sh:/dev-entrypoint.sh
     entrypoint: /dev-entrypoint.sh

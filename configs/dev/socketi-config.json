@@ -8,8 +8,8 @@
             "secret": "app-secret",
             "webhooks": [
                 {
-                    "url": "http://127.0.0.1:8000/api/graphql/subscriptions/webhook",
-                    "event_types": ["channel_vacated"]
+                    "url": "http://laravel-dev:8000/graphql/subscriptions/webhook",
+                    "event_types": ["channel_vacated", "channel_occupied"]
                 }
             ]
         }

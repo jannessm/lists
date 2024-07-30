@@ -75,25 +75,24 @@ class Lists extends Model
                 $masterList = Lists::find($assumedMaster[$this->primaryKey]);
 
                 foreach ($assumedMaster as $param => $val) {
-                    // if param = createdBy|lists => compare ids
-                    if ($param === "createdBy") {
-                        $conflict = $masterList[$param]->id !== $val['id'];
-                    
-                    // compare sharedWith array
-                    } else if ($param === "sharedWith") {
-                        $ids = array_column($val, 'id');
-                        $conflict = array_reduce($masterList[$param],
-                            function ($carry, $item) use ($ids) {
-                                return in_array($item['id'], $ids) && $carry;
-                            }, true);
-                    
-                    // compare timestamps
-                    } else if (in_array($param, ["created_at", "updated_at"])) {
-                        $conflict = $masterList[$param]->ne($val);
-                    
-                    // compare anything else
-                    } else {
-                        $conflict = $masterList[$param] !== $val;
+
+                    switch($param) {
+                        case "createdBy":
+                            $conflict = $masterList[$param]->id !== $val['id'];
+                            break;
+                        case "sharedWith":
+                            $ids = array_column($val, 'id');
+                            $conflict = array_reduce($masterList[$param],
+                                function ($carry, $item) use ($ids) {
+                                    return in_array($item['id'], $ids) && $carry;
+                                }, true);
+                            break;
+                        case "created_at":
+                        case "updated_at":
+                            $conflict = $masterList[$param]->ne($val);
+                            break;
+                        default:
+                            $conflict = $masterList[$param] !== $val;
                     }
 
                     if ($conflict) {

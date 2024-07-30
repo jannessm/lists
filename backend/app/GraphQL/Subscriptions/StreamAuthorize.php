@@ -23,9 +23,9 @@ abstract class StreamAuthorize extends GraphQLSubscription {
     /** Filter which subscribers should receive the subscription. */
     public function filter(Subscriber $subscriber, mixed $root): bool
     {
-        // if (!$subscriber->socket_id) {
-        //     return false;
-        // }
+        if (!$subscriber->socket_id) {
+            return false;
+        }
         
         if (!is_array($root)) {
             $root = [$root];
@@ -39,9 +39,7 @@ abstract class StreamAuthorize extends GraphQLSubscription {
             }
         }
         
-        // return $subscriber->socket_id !== request()->header('X-Socket-ID');// && $hasAccess;
-        var_dump($subscriber->socket_id, $subscriber->context->user->email, request()->header('X-Socket-ID'));
-        return TRUE;
+        return $subscriber->socket_id !== request()->header('X-Socket-ID') && $hasAccess;
     }
 
     /** Restructure response */
