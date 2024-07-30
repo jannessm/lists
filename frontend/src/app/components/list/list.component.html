@@ -12,8 +12,8 @@
         </mat-menu>
         
         <h1 *ngIf="list()">{{list().name}}</h1>
-        <div class="users" *ngIf="list() && list().sharedWith.length > 0">
-            <button mat-mini-fab *ngFor="let user of list().sharedWith; let i = index" [class]="'user-fab-' + i % 12" disabled >{{user?.name | nameBadge}}</button>
+        <div class="users" *ngIf="list() && list().users().length > 1">
+            <button mat-mini-fab *ngFor="let user of list().users(); let i = index" [class]="'user-fab-' + i % 12" disabled >{{user?.name | nameBadge}}</button>
         </div>
     </div>
 
@@ -23,7 +23,7 @@
             <h2>
                 {{ slot.name }}
                 <mat-chip-listbox *ngIf="slot.nDone > 0" class="slot-done-toggle">
-                    <mat-chip-option (click)="slot.collapsed = !slot.collapsed" [selected]="!slot.collapsed">
+                    <mat-chip-option (click)="slotCollapseStates[slot.name] = !slotCollapseStates[slot.name]" [selected]="!slotCollapseStates[slot.name]">
                         {{ slot.nDone }}
                     </mat-chip-option>
                 </mat-chip-listbox>
@@ -31,7 +31,7 @@
         
             <ng-container *ngFor="let item of slot.items">
                 <app-list-item
-                    *ngIf="(!item.done || !slot.collapsed) && list() && me()"
+                    *ngIf="(!item().done || !slotCollapseStates[slot.name]) && list() && me()"
                     [me]="me"
                     [list]="list"
                     [item]="item"

@@ -89,7 +89,7 @@ class Lists extends Model
                             break;
                         case "created_at":
                         case "updated_at":
-                            $conflict = $masterList[$param]->ne($val);
+                            $conflict = False; // ignore timestamps since they are only set by backend
                             break;
                         default:
                             $conflict = $masterList[$param] !== $val;
@@ -108,6 +108,8 @@ class Lists extends Model
                 $newState['created_by'] = $newState['createdBy']['id'];
                 unset($newState['createdBy']);
                 unset($newState['sharedWith']);
+                unset($newState['created_at']);
+                unset($newState['updated_at']);
                 array_push($upserts, $newState);
             }
         }

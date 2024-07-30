@@ -1,12 +1,11 @@
 import { Injector, Signal, untracked } from "@angular/core";
-import { QueryCache, RxCollection, RxDatabase, RxDocument, RxReactivityFactory, createRxDatabase, uncacheRxQuery } from "rxdb";
+import { RxDatabase, RxReactivityFactory, createRxDatabase } from "rxdb";
 import { environment } from "../../../environments/environment";
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RxMeCollection, meSchema } from "../../../models/rxdb/me";
-import { RxListsCollection, listsSchema } from "../../../models/rxdb/lists";
+import { RxListsCollection, defaultConflictHandler, listsSchema } from "../../../models/rxdb/lists";
 import { RxItemsCollection, listItemSchema } from "../../../models/rxdb/list-item";
 import { DATA_TYPE } from "../../../models/rxdb/graphql-types";
-import { PusherService } from "../pusher/pusher.service";
 
 export type RxListsCollections = {
     me: RxMeCollection,
@@ -65,23 +64,24 @@ async function _create(injector: Injector): Promise<RxDatabase> {
     console.log('DatabaseService: create collections');
     await db.addCollections({
         [DATA_TYPE.ME]: {
-            schema: meSchema
+            schema: meSchema,
         },
         [DATA_TYPE.LISTS]: {
-            schema: listsSchema
+            schema: listsSchema,
+            methods: {
+                users: function() {
+                    return [(this as any).createdBy, ...(this as any).sharedWith];
+                }
+            },
+            conflictHandler: defaultConflictHandler
         },
         [DATA_TYPE.LIST_ITEM]: {
-            schema: listItemSchema
+            schema: listItemSchema,
+            conflictHandler: defaultConflictHandler
         }
     });
 
     console.log('DatabaseService: created');
 
     return db as any;
-}
-
-function cacheReplacement(_collection: RxCollection, queryCache: QueryCache) {
-    for (const rxQuery of Array.from(queryCache._map.values())) {
-        uncacheRxQuery(queryCache, rxQuery);
-    }
 }

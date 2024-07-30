@@ -66,20 +66,21 @@ class ListItem extends Model
                 $masterItem = ListItem::find($assumedMaster[$this->primaryKey]);
 
                 foreach ($assumedMaster as $param => $val) {
-                    // if param = createdBy|lists => compare ids
-                    if (in_array($param, ["createdBy", "lists"])) {
-                        $conflict = $masterList[$param]->id !== $val['id'];
-                    
-                    // compare timestamps
-                    } else if (in_array($param, ["created_at", "updated_at"])) {
-                        $conflict = $masterList[$param]->ne($val);
-                    
-                    // compare anything else
-                    } else {
-                        $conflict = $masterList[$param] !== $val;
+                    switch($param) {
+                        case "createdBy":
+                        case "lists":
+                            $conflict = $masterItem[$param]->id !== $val['id'];
+                            break;
+                        case "created_at":
+                        case "updated_at":
+                            $conflict = False; // ignore timestamps since they are only set by backend
+                            break;
+                        default:
+                            $conflict = $masterItem[$param] !== $val;
                     }
 
                     if ($conflict) {
+                        // var_dump($param, $masterItem[$param], $val);
                         array_push($conflicts, $masterItem);
                         break;
                     }
@@ -93,6 +94,8 @@ class ListItem extends Model
                 $newState['lists_id'] = $newState['lists']['id'];
                 unset($newState['createdBy']);
                 unset($newState['lists']);
+                unset($newState['created_at']);
+                unset($newState['updated_at']);
                 array_push($upserts, $newState);
             }
         }

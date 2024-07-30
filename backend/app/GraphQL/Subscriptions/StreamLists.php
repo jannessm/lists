@@ -8,7 +8,7 @@ final class StreamLists extends StreamAuthorize
     public function hasAccess(mixed $rootItem, string $userId) {
         return $rootItem->users()->search(function ($val) use ($userId) {
             return $val->id === $userId;
-        });
+        }) !== false;
     }
 
     public function filterRoot(mixed $root, string $userId) {

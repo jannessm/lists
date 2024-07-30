@@ -1,7 +1,9 @@
 import { RxDocument } from "rxdb";
 import { GroceryCategories, GROCERY_OTHERS } from "./categories_groceries";
 import { is_past, is_sometime, is_soon, is_today, is_tomorrow, TIMESLOTS } from "./categories_timeslots";
-import { ListItem } from "./rxdb/list-item";
+import { ListItem, RxItemsDocument } from "./rxdb/list-item";
+import { RxListsDocument } from "./rxdb/lists";
+import { Signal } from "@angular/core";
 
 
 export interface Category {
@@ -11,22 +13,24 @@ export interface Category {
 
 export interface Slot {
   name: string | TIMESLOTS;
-  items: RxDocument<ListItem>[];
-  collapsed: boolean;
+  items: Signal<RxItemsDocument>[];
   nDone: number;
 }
 
-export function sortItems(items: RxDocument<ListItem>[]) {
+export function sortItems(items: Signal<RxItemsDocument>[]) {
   items.sort((a, b) => {
-    const c = a.done ? 1 : 0;
-    const d = b.done ? 1 : 0;
+    const c = a().done ? 1 : 0;
+    const d = b().done ? 1 : 0;
 
     if ((c === 1 && d !== 1) || (d === 1 && c !== 1)) {
       return c - d;
     }
 
-    if (a.due && b.due) {
-      return new Date(a.due).valueOf() - new Date(b.due).valueOf();
+    const a_due = a().due;
+    const b_due = b().due;
+
+    if (a_due && b_due) {
+      return new Date(a_due).valueOf() - new Date(b_due).valueOf();
     }
 
     if (c - d == 0) {
@@ -71,7 +75,7 @@ function compareSlots(categoryNames: string[]) {
 }
   
 export function groupItems(
-  items: RxDocument<ListItem>[],
+  items: RxItemsDocument[],
   isGroceries: boolean,
   groceryCategories: GroceryCategories | undefined = undefined
 ) {
@@ -124,11 +128,11 @@ export function groupItems(
   catItemAssignment.forEach(highestVotes => {
     let slot = slots.find((val) => highestVotes.name === val.name);
     if (!slot) {
-      slot = {name: highestVotes.name, items: [], collapsed: true, nDone: 0}
+      slot = {name: highestVotes.name, items: [], nDone: 0}
       slots.push(slot);
     }
 
-    slot.items.push(highestVotes.item);
+    slot.items.push(highestVotes.item.$$ as Signal<RxItemsDocument>);
     slot.nDone += highestVotes.item.done ? 1 : 0;
   });
   

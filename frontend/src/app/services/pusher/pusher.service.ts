@@ -59,7 +59,6 @@ export class PusherService {
 
       this.online.subscribe(isOnline => {
         this.socketID = isOnline ? connection.socket_id : '';
-        console.log(isOnline, this.socketID);
         this.subscrQueue.forEach(args => {
           this._subscribe(args[0], args[1]);
         });

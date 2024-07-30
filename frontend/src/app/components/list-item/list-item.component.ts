@@ -1,8 +1,7 @@
 import { Component, HostListener, Input, Signal } from '@angular/core';
 import { MaterialModule } from '../../material.module';
 import { CommonModule } from '@angular/common';
-import { RxDocument } from 'rxdb';
-import { ListItem } from '../../../models/rxdb/list-item';
+import { RxItemsDocument } from '../../../models/rxdb/list-item';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { UpdateItemSheetComponent } from '../bottom-sheets/update-item-sheet/update-item-sheet.component';
 import { Lists, RxListsDocument } from '../../../models/rxdb/lists';
@@ -10,7 +9,7 @@ import { ConfirmSheetComponent } from '../bottom-sheets/confirm-sheet/confirm-sh
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { is_today } from '../../../models/categories_timeslots';
 import { FormsModule } from '@angular/forms';
-import { RxMeDocument, User } from '../../../models/rxdb/me';
+import { RxMeDocument } from '../../../models/rxdb/me';
 
 @Component({
   selector: 'app-list-item',
@@ -30,7 +29,7 @@ export class ListItemComponent {
   @Input()
   list?: Signal<RxListsDocument>;
   @Input()
-  item?: RxDocument<ListItem> | undefined;
+  item?: Signal<RxItemsDocument> | undefined;
 
   pointerDown: boolean = false;
   pointerPosY: number | undefined; 
@@ -52,29 +51,29 @@ export class ListItemComponent {
 
   toggleDone(done: boolean | null = null) {
     if (this.list && this.item) {
-      done = done !== null ? done : !this.item.done;
+      done = done !== null ? done : !this.item().done;
 
-      if (this.item.getLatest().done != done) {
-        this.item.patch({
+      if (this.item().done != done) {
+        this.item().patch({
           done
         });
       }
     }
   }
 
-  deleteItem(item: ListItem) {
+  deleteItem(item: RxItemsDocument) {
     const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche ' + item.name});
     
     confirm.afterDismissed().subscribe(del => {
       if (this.list && this.item && del) {
-        this.item.remove();
+        this.item().remove();
       }
     });
   }
 
-  userFab(item: ListItem) {
+  userFab(item: RxItemsDocument) {
     if (this.list) {
-      const index = this.list().sharedWith.findIndex(val => val.id === item.createdBy.id);
+      const index = this.list().users().findIndex(val => val.id === item.createdBy.id);
       if (index) {
         return index;
       }
@@ -82,11 +81,11 @@ export class ListItemComponent {
     return 0;
   }
 
-  is_today(item: ListItem): boolean {
+  is_today(item: RxItemsDocument): boolean {
     return !!is_today(item);
   }
 
-  openUpdateSheet(event: MouseEvent, item?: ListItem) {
+  openUpdateSheet(event: MouseEvent, item?: RxItemsDocument) {
     if (!this.pointerDown && item) {
       this.pointerDown = true;
       const currScrollPos = event.clientY;
@@ -104,8 +103,7 @@ export class ListItemComponent {
   
           this.updateSheetRef.afterDismissed().subscribe(patch => {   
             if (this.list && this.item && patch) {
-              console.log(patch);
-              this.item.patch(patch);
+              this.item().patch(patch);
             }
 
             setTimeout(() => {

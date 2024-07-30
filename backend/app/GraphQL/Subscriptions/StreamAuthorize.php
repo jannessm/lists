@@ -38,8 +38,8 @@ abstract class StreamAuthorize extends GraphQLSubscription {
                 break;
             }
         }
-        
-        return $subscriber->socket_id !== request()->header('X-Socket-ID') && $hasAccess;
+
+        return $hasAccess;
     }
 
     /** Restructure response */
@@ -65,6 +65,9 @@ abstract class StreamAuthorize extends GraphQLSubscription {
                 ]
             ];
         }
+        
+        $checkpointID = end($filteredRoot)['id'];
+        $checkpointUpdatedAt = end($filteredRoot)['updated_at'];
 
         return [
             "documents" => $filteredRoot,

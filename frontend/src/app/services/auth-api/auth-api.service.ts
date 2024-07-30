@@ -46,7 +46,7 @@ export class AuthApiService {
         return of(res);
       }),
       map(res => {
-        if (res.status === 201) {
+        if (res.status === 201 || res.status === 200) {
           return REGISTER.SUCCESS;
         } else if (res.status === 304 || res.status === 422 ) {
           return REGISTER.FOUND;

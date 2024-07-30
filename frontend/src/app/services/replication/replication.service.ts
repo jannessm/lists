@@ -47,7 +47,6 @@ export class ReplicationService {
           const online = await firstValueFrom(this.pusher.online);
           if (online) {
             clearInterval(waitInterval);
-            console.log('init_done');
             resolve(null);
           }
         }, 10);
@@ -115,6 +114,8 @@ export class ReplicationService {
 
     this.replications[collectionName] = replication;
 
+    replication.remoteEvents$.subscribe(ev => console.log('remoteev', ev));
+
     return replication;
   }
 
@@ -144,7 +145,6 @@ export class ReplicationService {
 
     this.pusher.subscribe(channel, (data: any) => {
       data = data[operationName];
-      console.log('recv', data);
       pullStream.next(data);
     });
 

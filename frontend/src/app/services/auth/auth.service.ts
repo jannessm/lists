@@ -44,6 +44,9 @@ export class AuthService {
         this.deleteSessionCookie();
         this.pusher.unsubscribe();
         this.dataService.removeData();
+        setTimeout(() => {
+          this.router.navigateByUrl('/login');
+        }, 100)
       }
     });
     

@@ -1,6 +1,6 @@
-import { AfterViewInit, Component, ElementRef, Signal, ViewChild, computed, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Signal, ViewChild, computed } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.component';
 import { ShareListSheetComponent } from '../bottom-sheets/share-list-sheet/share-list-sheet.component';
 
@@ -10,9 +10,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmSheetComponent } from '../bottom-sheets/confirm-sheet/confirm-sheet.component';
 import { DataService } from '../../services/data/data.service';
 import { AuthService } from '../../services/auth/auth.service';
-import { Lists, RxListsDocument } from '../../../models/rxdb/lists';
+import { RxListsDocument } from '../../../models/rxdb/lists';
 import { Slot, groupItems } from '../../../models/categories';
-import { ListItem, RxItemsCollection, RxItemsDocument, newItem } from '../../../models/rxdb/list-item';
+import { RxItemsDocument, newItem } from '../../../models/rxdb/list-item';
 import { CommonModule, Location } from '@angular/common';
 import { MaterialModule } from '../../material.module';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
@@ -69,7 +69,7 @@ export class ListComponent implements AfterViewInit {
     this.me = this.authService.me;
     const id = this.location.path(false).split('/').pop();
 
-    if (id) {
+    if (!!id) {
       this.list = this.dataService.db.lists.findOne({
         selector: { id }
       }).$$ as Signal<RxListsDocument>;
@@ -77,6 +77,10 @@ export class ListComponent implements AfterViewInit {
       this.listItems = this.dataService.db.items.find({
         selector: {lists: id }
       }).$$ as Signal<RxItemsDocument[]>;
+
+      this.dataService.db.lists.$.subscribe((ev) => console.log('db changed'));
+    } else {
+      this.router.navigateByUrl('/user/lists');
     }
 
     this.newItemTime.valueChanges.subscribe(val => {
@@ -159,9 +163,8 @@ export class ListComponent implements AfterViewInit {
       const slots = groupItems(items, list.isShoppingList, this.dataService.groceryCategories);
 
       slots.forEach(s => {
-        if (s.name in this.slotCollapseStates) {
-          s.collapsed = this.slotCollapseStates[s.name];
-        } else {
+        console.log(s.name, s.name in this.slotCollapseStates);
+        if (!(s.name in this.slotCollapseStates)) {
           this.slotCollapseStates[s.name] = true;
         }
       });
@@ -314,7 +317,7 @@ export class ListComponent implements AfterViewInit {
           listStr += indent + slot.name + '\n\n';
           
           slot.items.forEach(item => {
-            const mark = item.done ? done : open;
+            const mark = item().done ? done : open;
             listStr += indent + indent + mark + ' ' + item.name + '\n';
           });
           
