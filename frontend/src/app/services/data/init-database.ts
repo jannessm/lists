@@ -1,16 +1,16 @@
 import { Injector, Signal, untracked } from "@angular/core";
-import { RxDatabase, RxReactivityFactory, createRxDatabase } from "rxdb";
+import { RxDatabase, RxReactivityFactory, createRxDatabase, defaultConflictHandler } from "rxdb";
 import { environment } from "../../../environments/environment";
 import { toSignal } from '@angular/core/rxjs-interop';
-import { RxMeCollection, meSchema } from "../../../models/rxdb/me";
-import { RxListsCollection, defaultConflictHandler, listsSchema } from "../../../models/rxdb/lists";
-import { RxItemsCollection, listItemSchema } from "../../../models/rxdb/list-item";
+import { RxMeCollection, ME_SCHEMA } from "../../../models/rxdb/me";
+import { RxListsCollection, LISTS_SCHEMA } from "../../../models/rxdb/lists";
+import { RxItemCollection, itemsConflictHandler, ITEM_SCHEMA } from "../../../models/rxdb/list-item";
 import { DATA_TYPE } from "../../../models/rxdb/graphql-types";
 
 export type RxListsCollections = {
     me: RxMeCollection,
     lists: RxListsCollection,
-    items: RxItemsCollection
+    items: RxItemCollection
 };
 export type RxListsDatabase = RxDatabase<RxListsCollections, unknown, unknown, Signal<unknown>>;
 
@@ -54,20 +54,24 @@ async function _create(injector: Injector): Promise<RxDatabase> {
     const db = await createRxDatabase({
         name: 'lists-db',
         storage: environment.getRxStorage(),
-        // multiInstance: true,
+        multiInstance: true,
         reactivity: reactivityFactory
-        // password: 'myLongAndStupidPassword' // no password needed
     });
     console.log('DatabaseService: created database');
+
+    return await addCollections(db);
+}
+
+export async function addCollections(db: any): Promise<RxDatabase> {
 
     // create collections
     console.log('DatabaseService: create collections');
     await db.addCollections({
         [DATA_TYPE.ME]: {
-            schema: meSchema,
+            schema: ME_SCHEMA,
         },
         [DATA_TYPE.LISTS]: {
-            schema: listsSchema,
+            schema: LISTS_SCHEMA,
             methods: {
                 users: function() {
                     return [(this as any).createdBy, ...(this as any).sharedWith];
@@ -76,8 +80,9 @@ async function _create(injector: Injector): Promise<RxDatabase> {
             conflictHandler: defaultConflictHandler
         },
         [DATA_TYPE.LIST_ITEM]: {
-            schema: listItemSchema,
-            conflictHandler: defaultConflictHandler
+            schema: ITEM_SCHEMA,
+            // conflictHandler: defaultConflictHandler
+            conflictHandler: itemsConflictHandler
         }
     });
 

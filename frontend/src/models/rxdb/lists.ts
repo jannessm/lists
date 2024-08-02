@@ -1,19 +1,7 @@
 import { ulid } from "ulid";
-import { ForeignId } from "./common";
-import { RxCollection, RxConflictHandler, RxConflictHandlerInput, RxConflictHandlerOutput, RxDocument, deepEqual } from "rxdb";
+import { ForeignId, COMMON_SCHEMA } from "./common";
+import { ExtractDocumentTypeFromTypedRxJsonSchema, RxCollection, RxConflictHandler, RxConflictHandlerInput, RxConflictHandlerOutput, RxDocument, RxJsonSchema, deepEqual, toTypedRxJsonSchema } from "rxdb";
 import { Signal } from "@angular/core";
-
-export interface Lists {
-    id: string;
-    name: string;
-    isShoppingList: boolean;
-    createdBy: ForeignId;
-    sharedWith: ForeignId[];
-    users: () => ForeignId[];
-    createdAt: string;
-    updatedAt: string;
-    _deleted: boolean;
-}
 
 export function newLists(lists: any): any {
     const newLists = {
@@ -32,7 +20,7 @@ export function newLists(lists: any): any {
     return newLists;
 }
 
-export const listsSchema = {
+const LISTS_SCHEMA_LITERAL = {
     version: 0,
     primaryKey: 'id',
     type: 'object',
@@ -72,24 +60,22 @@ export const listsSchema = {
                 }
             }
         },
-
-        // required for rxdb
-        createdAt: {
-            type: 'string'
-        },
-        updatedAt: {
-            type: 'string'
-        },
-        _deleted: {
-            type: 'boolean'
-        }
+        ...COMMON_SCHEMA
     },
     required: ['id', 'name', 'isShoppingList', 'createdBy', 'sharedWith']
-};
+} as const;
 
+const schemaTyped = toTypedRxJsonSchema(LISTS_SCHEMA_LITERAL);
+type RxListsDocumentType = ExtractDocumentTypeFromTypedRxJsonSchema<typeof schemaTyped>;
 
-export type RxListsDocument = RxDocument<Lists, {}>
-export type RxListsCollection = RxCollection<Lists, {}, unknown, unknown, Signal<unknown>>;
+export const LISTS_SCHEMA: RxJsonSchema<RxListsDocumentType> = LISTS_SCHEMA_LITERAL;
+
+type RxListsMethods = {
+    users(): ForeignId[];
+}
+
+export type RxListsDocument = RxDocument<RxListsDocumentType, RxListsMethods>
+export type RxListsCollection = RxCollection<RxListsDocumentType, RxListsMethods, unknown, unknown, Signal<unknown>>;
 
 export const defaultConflictHandler: RxConflictHandler<any> = function (
     /**
@@ -100,7 +86,6 @@ export const defaultConflictHandler: RxConflictHandler<any> = function (
      */
     i: RxConflictHandlerInput<any>
 ): Promise<RxConflictHandlerOutput<any>> {
-    console.log('conflict', i.newDocumentState);
     /**
      * Here we detect if a conflict exists in the first place.
      * If there is no conflict, we return isEqual=true.
@@ -113,12 +98,14 @@ export const defaultConflictHandler: RxConflictHandler<any> = function (
     if (deepEqual(
         i.newDocumentState,
         i.realMasterState
-    )) {
+        )) {
+        console.log('conflictHandler equal');
         return Promise.resolve({
             isEqual: true
         });
     }
 
+    console.log('conflictHandler: <new>', i.newDocumentState.updatedAt, '<ass>', i.assumedMasterState?.updatedAt, '<real>', i.realMasterState.updatedAt);
     /**
      * If a conflict exists, we have to resolve it.
      * The default conflict handler will always

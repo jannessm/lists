@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Signal, WritableSignal, signal } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
 import { THEME } from '../../../models/rxdb/me';
 
@@ -6,7 +6,7 @@ import { THEME } from '../../../models/rxdb/me';
   providedIn: 'root'
 })
 export class ThemeService {
-  isDark = new ReplaySubject<boolean>(1);
+  isDark: WritableSignal<boolean>;
   userPreference: THEME = THEME.AUTO;
 
   constructor() {
@@ -14,6 +14,7 @@ export class ThemeService {
       this.updateTheme();
     });
 
+    this.isDark = signal(window.matchMedia('(prefers-color-scheme: dark)').matches);
     this.updateTheme();
   }
 
@@ -29,7 +30,7 @@ export class ThemeService {
       isDark = this.userPreference === THEME.DARK;
     }
 
-    this.isDark.next(isDark);
+    this.isDark.set(isDark);
 
     const metaTag = document.querySelector('meta[name=theme-color]');
     if (metaTag) {

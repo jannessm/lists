@@ -1,7 +1,7 @@
 import { RxDocument } from "rxdb";
 import { GroceryCategories, GROCERY_OTHERS } from "./categories_groceries";
 import { is_past, is_sometime, is_soon, is_today, is_tomorrow, TIMESLOTS } from "./categories_timeslots";
-import { ListItem, RxItemsDocument } from "./rxdb/list-item";
+import { RxItemDocument } from "./rxdb/list-item";
 import { RxListsDocument } from "./rxdb/lists";
 import { Signal } from "@angular/core";
 
@@ -13,24 +13,21 @@ export interface Category {
 
 export interface Slot {
   name: string | TIMESLOTS;
-  items: Signal<RxItemsDocument>[];
+  items: RxItemDocument[];
   nDone: number;
 }
 
-export function sortItems(items: Signal<RxItemsDocument>[]) {
+export function sortItems(items: RxItemDocument[]) {
   items.sort((a, b) => {
-    const c = a().done ? 1 : 0;
-    const d = b().done ? 1 : 0;
+    const c = a.done ? 1 : 0;
+    const d = b.done ? 1 : 0;
 
     if ((c === 1 && d !== 1) || (d === 1 && c !== 1)) {
       return c - d;
     }
 
-    const a_due = a().due;
-    const b_due = b().due;
-
-    if (a_due && b_due) {
-      return new Date(a_due).valueOf() - new Date(b_due).valueOf();
+    if (a.due && b.due) {
+      return new Date(a.due).valueOf() - new Date(b.due).valueOf();
     }
 
     if (c - d == 0) {
@@ -42,7 +39,7 @@ export function sortItems(items: Signal<RxItemsDocument>[]) {
 }
   
 function voteForGroceryCategory(categoryItems: string[]) {
-  return (item: RxDocument<ListItem>) => {
+  return (item: RxItemDocument) => {
     let votes = 0;
 
     categoryItems.forEach(catItem => {
@@ -75,7 +72,7 @@ function compareSlots(categoryNames: string[]) {
 }
   
 export function groupItems(
-  items: RxItemsDocument[],
+  items: RxItemDocument[],
   isGroceries: boolean,
   groceryCategories: GroceryCategories | undefined = undefined
 ) {
@@ -132,7 +129,7 @@ export function groupItems(
       slots.push(slot);
     }
 
-    slot.items.push(highestVotes.item.$$ as Signal<RxItemsDocument>);
+    slot.items.push(highestVotes.item);
     slot.nDone += highestVotes.item.done ? 1 : 0;
   });
   

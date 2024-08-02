@@ -1,4 +1,4 @@
-import { Component, WritableSignal, signal } from '@angular/core';
+import { Component, WritableSignal, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
@@ -46,7 +46,9 @@ export class AppComponent {
     private themeService: ThemeService,
     private cookieService: CookieService,
     private http: HttpClient) {
-      themeService.isDark.subscribe(this.setTheme);
+      effect(() => {
+        this.setTheme(this.themeService.isDark());
+      });
 
       if (!this.cookieService.check('listsId')) {
         this.cookieService.set('listsId', uuid(), 365);

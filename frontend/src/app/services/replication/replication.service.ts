@@ -9,7 +9,7 @@ import { MutationResponse, PullResult, PushResult, QueryResponse, SubscriptionRe
 import { PusherService } from '../pusher/pusher.service';
 import { RxMeCollection } from '../../../models/rxdb/me';
 import { RxListsCollection } from '../../../models/rxdb/lists';
-import { RxItemsCollection } from '../../../models/rxdb/list-item';
+import { RxItemCollection } from '../../../models/rxdb/list-item';
 
 type GenerationInputKey = keyof typeof graphQLGenerationInput;
 
@@ -38,7 +38,7 @@ export class ReplicationService {
 
   async setupReplication(
     collectionName: string,
-    collection: RxMeCollection | RxListsCollection | RxItemsCollection,
+    collection: RxMeCollection | RxListsCollection | RxItemCollection,
     meId: string | null
   ) {
     if (!(await firstValueFrom(this.pusher.online))) {
@@ -65,7 +65,7 @@ export class ReplicationService {
       schema
     );
 
-
+    const operationName = collectionName[0].toUpperCase() + collectionName.substring(1);
     const replication = await replicateRxCollection({
       replicationIdentifier: collectionName,
       collection,
@@ -77,13 +77,15 @@ export class ReplicationService {
 
           const result = await firstValueFrom(that.api.graphQL<QueryResponse<PullResult>>(query));
 
-          return (result.data as PullResult)['pull' + collectionName[0].toUpperCase() + collectionName.substring(1)];
+          return (result.data as PullResult)['pull' + operationName];
         },
         stream$: await this.initStream(collectionName, meId),
         modifier: doc => {
           if ('lists' in doc) {
             doc['lists'] = doc['lists']['id'];
           }
+          doc['clientUpdatedAt'] = (new Date()).toISOString();
+
           return doc;
         }
       },
@@ -95,7 +97,7 @@ export class ReplicationService {
     
           const result = await firstValueFrom(that.api.graphQL<MutationResponse<PushResult>>(query));
 
-          return (result.data as PushResult)['push' + collectionName[0].toUpperCase() + collectionName.substring(1)];
+          return (result.data as PushResult)['push' + operationName];
         },
         modifier: doc => {
           if ("sharedWith" in doc) {
@@ -107,6 +109,9 @@ export class ReplicationService {
           if ("lists" in doc) {
             doc['lists'] = {id: doc['lists']};
           }
+
+          delete doc['clientUpdatedAt'];
+
           return doc;
         }
       }
@@ -114,7 +119,7 @@ export class ReplicationService {
 
     this.replications[collectionName] = replication;
 
-    replication.remoteEvents$.subscribe(ev => console.log('remoteev', ev));
+    replication.remoteEvents$.subscribe((ev: any) => console.log('remoteEvent', ev.documents[0]));
 
     return replication;
   }
@@ -145,7 +150,10 @@ export class ReplicationService {
 
     this.pusher.subscribe(channel, (data: any) => {
       data = data[operationName];
-      pullStream.next(data);
+      pullStream.next({
+        documents: data.documents,
+        checkpoint: data.checkpoint
+      });
     });
 
     this.streamSubjects[collectionName] = pullStream;
@@ -172,9 +180,5 @@ function fixArraysInSchema(query: string, schema: any): string {
     query = query.replace('lists', 'lists { id }');
   }
 
-  return query;
-}
-
-function parseDates(row: any) {
-  return row;
+  return query.replace('clientUpdatedAt', '');
 }

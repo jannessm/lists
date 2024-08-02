@@ -21,6 +21,7 @@
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
+              "src/polyfills.js",
               "zone.js"
             ],
             "tsConfig": "tsconfig.app.json",
@@ -85,6 +86,7 @@
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
             "polyfills": [
+              "src/polyfills.js",
               "zone.js",
               "zone.js/testing"
             ],

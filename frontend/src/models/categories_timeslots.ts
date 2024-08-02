@@ -1,4 +1,4 @@
-import { ListItem } from "./rxdb/list-item";
+import { RxItemDocument } from "./rxdb/list-item";
 
 export enum TIMESLOTS {
     TODAY = 'Heute',
@@ -17,8 +17,8 @@ export enum TIMESLOT_KEYS {
 
 export type Time = Date | null;
 
-export function is_past(item: ListItem, _due: Date | undefined = undefined) {
-    if (item.due !== null) {
+export function is_past(item: RxItemDocument, _due: Date | undefined = undefined) {
+    if (!!item.due) {
         const now = new Date();
         const due = !_due ? new Date(item.due) : _due;
         return due.getTime() - now.getTime() < 0 ? 1 : 0;
@@ -27,7 +27,7 @@ export function is_past(item: ListItem, _due: Date | undefined = undefined) {
     return 0;
 }
 
-export function is_today(item: ListItem, _due: Date | undefined = undefined) {
+export function is_today(item: RxItemDocument, _due: Date | undefined = undefined) {
     if (!!item.due) {
         const now = new Date();
         const due = !_due ? new Date(item.due) : _due;
@@ -37,7 +37,7 @@ export function is_today(item: ListItem, _due: Date | undefined = undefined) {
     return 0;
 }
 
-export function is_tomorrow(item: ListItem, _due: Date | undefined = undefined) {
+export function is_tomorrow(item: RxItemDocument, _due: Date | undefined = undefined) {
     if (!!item.due) {
         const now = new Date();
         const due = !_due ? new Date(item.due) : _due;
@@ -47,7 +47,7 @@ export function is_tomorrow(item: ListItem, _due: Date | undefined = undefined) 
     return 0;
 }
 
-export function is_soon(item: ListItem, _due: Date | undefined = undefined) {
+export function is_soon(item: RxItemDocument, _due: Date | undefined = undefined) {
     if (!!item.due) {
         const now = new Date();
         const due = !_due ? new Date(item.due) : _due;
@@ -57,6 +57,6 @@ export function is_soon(item: ListItem, _due: Date | undefined = undefined) {
     return 0;
 }
 
-export function is_sometime(item: ListItem) {
+export function is_sometime(item: RxItemDocument) {
     return !item.due ? 1 : 0;
 }

@@ -12,13 +12,14 @@ import { DataService } from '../../services/data/data.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { RxListsDocument } from '../../../models/rxdb/lists';
 import { Slot, groupItems } from '../../../models/categories';
-import { RxItemsDocument, newItem } from '../../../models/rxdb/list-item';
+import { RxItemDocument, newItem } from '../../../models/rxdb/list-item';
 import { CommonModule, Location } from '@angular/common';
 import { MaterialModule } from '../../material.module';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { ListItemComponent } from '../list-item/list-item.component';
-import { RxMeDocument, User } from '../../../models/rxdb/me';
+import { RxMeDocument } from '../../../models/rxdb/me';
 import { timePickerConfig } from '../../../models/time-picker';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-list',
@@ -41,17 +42,19 @@ export class ListComponent implements AfterViewInit {
   
   me: Signal<RxMeDocument>;
   list!: Signal<RxListsDocument>;
-  listItems!: Signal<RxItemsDocument[]>;
+  listItems!: Signal<RxItemDocument[]>;
 
   newItem = new FormControl('');
   focusInput: boolean = false;
   newItemTime = new FormControl('sometime');
+  newItemSub: Subscription;
   timePicker!: flatpickr.Instance;
   timePickerDate: Date | undefined;
   pickerOpen = false;
 
   slots: Signal<Slot[]> = computed(() => {
     if (this.listItems() && this.list()) {
+      console.log('group items');
       return this.groupItems(this.list(), this.listItems());
     }
     return [];
@@ -76,14 +79,14 @@ export class ListComponent implements AfterViewInit {
 
       this.listItems = this.dataService.db.items.find({
         selector: {lists: id }
-      }).$$ as Signal<RxItemsDocument[]>;
+      }).$$ as Signal<RxItemDocument[]>;
 
-      this.dataService.db.lists.$.subscribe((ev) => console.log('db changed'));
+      this.dataService.db.items.$.subscribe((ev) => console.log('db changed'));
     } else {
       this.router.navigateByUrl('/user/lists');
     }
 
-    this.newItemTime.valueChanges.subscribe(val => {
+    this.newItemSub = this.newItemTime.valueChanges.subscribe(val => {
       this.toggleNewTimeSelected(val);
     });
   }
@@ -91,6 +94,10 @@ export class ListComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.timePicker = flatpickr('#picker', timePickerConfig) as flatpickr.Instance;
     this.timePicker.config.onOpen.push(() => this.pickerOpen = true);
+  }
+
+  ngOnDestroy() {
+    this.newItemSub.unsubscribe();
   }
 
   listSettings() {
@@ -106,7 +113,7 @@ export class ListComponent implements AfterViewInit {
         }
         
         if (!!new_values && this.list) {
-          const patch = {};
+          const patch = {clientUpdatedAt: (new Date()).toISOString()};
           const list = this.list().getLatest();
 
           if (list.name !== new_values.name) {
@@ -158,12 +165,11 @@ export class ListComponent implements AfterViewInit {
     }
   }
 
-  groupItems(list: RxListsDocument, items: RxItemsDocument[]): Slot[] {
+  groupItems(list: RxListsDocument, items: RxItemDocument[]): Slot[] {
     if (items && list) {
       const slots = groupItems(items, list.isShoppingList, this.dataService.groceryCategories);
 
       slots.forEach(s => {
-        console.log(s.name, s.name in this.slotCollapseStates);
         if (!(s.name in this.slotCollapseStates)) {
           this.slotCollapseStates[s.name] = true;
         }
@@ -317,7 +323,7 @@ export class ListComponent implements AfterViewInit {
           listStr += indent + slot.name + '\n\n';
           
           slot.items.forEach(item => {
-            const mark = item().done ? done : open;
+            const mark = item.done ? done : open;
             listStr += indent + indent + mark + ' ' + item.name + '\n';
           });
           

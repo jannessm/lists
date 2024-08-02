@@ -1,11 +1,11 @@
-import { Injectable, WritableSignal, signal } from '@angular/core';
+import { Injectable } from '@angular/core';
 
 import { ReplicationService } from '../replication/replication.service';
 import { DATA_TYPE, Replications } from '../../../models/rxdb/graphql-types';
 import { GroceryCategories } from '../../../models/categories_groceries';
 import { HttpClient } from '@angular/common/http';
 import { BASE_API } from '../../globals';
-import { DB_INSTANCE, RxListsDatabase } from './init-database';
+import { DB_INSTANCE, RxListsDatabase, addCollections } from './init-database';
 
 @Injectable({
   providedIn: 'root'
@@ -50,16 +50,17 @@ export class DataService {
     this.dbInitialized = true;
   }
 
-  removeData() {
+  async removeData() {
     if (this.dbInitialized) {
       console.log('remove data');
-      this.db.me.remove();
-      this.db.lists.remove();
-      this.db.items.remove();
-      this.dbInitialized = false;
       Object.values(this.replications).forEach(repl => {
         repl.remove();
       });
+      await this.db.me.remove();
+      await this.db.lists.remove();
+      await this.db.items.remove();
+      this.dbInitialized = false;
+      await addCollections(this.db);
     }
   }
 }

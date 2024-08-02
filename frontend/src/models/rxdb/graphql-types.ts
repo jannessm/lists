@@ -1,11 +1,11 @@
 import { RxReplicationState } from "rxdb/dist/types/plugins/replication";
-import { listsSchema } from "./lists";
-import { meSchema } from "./me";
-import { listItemSchema } from "./list-item";
+import { LISTS_SCHEMA } from "./lists";
+import { ME_SCHEMA } from "./me";
+import { ITEM_SCHEMA } from "./list-item";
 
 export const graphQLGenerationInput = {
     me: {
-        schema: meSchema,
+        schema: ME_SCHEMA,
         checkpointFields: [
             'updatedAt'
         ],
@@ -13,7 +13,7 @@ export const graphQLGenerationInput = {
         headerFields: ['X-XSRF-TOKEN']
     },
     lists: {
-        schema: listsSchema,
+        schema: LISTS_SCHEMA,
         checkpointFields: [
             'id', 'updatedAt'
         ],
@@ -21,7 +21,7 @@ export const graphQLGenerationInput = {
         headerFields: ['X-XSRF-TOKEN']
     },
     items: {
-        schema: listItemSchema,
+        schema: ITEM_SCHEMA,
         checkpointFields: [
             'id', 'updatedAt'
         ],

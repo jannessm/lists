@@ -1,5 +1,5 @@
-import { ExtractDocumentTypeFromTypedRxJsonSchema, RxCollection, RxDocument, toTypedRxJsonSchema } from "rxdb";
-import { ForeignId } from "./common";
+import { ExtractDocumentTypeFromTypedRxJsonSchema, RxCollection, RxDocument, RxJsonSchema, toTypedRxJsonSchema } from "rxdb";
+import { ForeignId, COMMON_SCHEMA } from "./common";
 import { Signal } from "@angular/core";
 
 export enum THEME {
@@ -8,19 +8,7 @@ export enum THEME {
     LIGHT = "light"
 }
 
-export type User = {
-    id: string;
-    name: string;
-    email: string;
-    emailVerfiedAt: string | null;
-    theme?: THEME;
-    defaultList: ForeignId | null;
-    createdAt: string;
-    updatedAt: string;
-    _deleted: boolean;
-}
-
-export const meSchema = {
+const ME_SCHEMA_LITERAL = {
     version: 0,
     primaryKey: 'id',
     type: 'object',
@@ -43,20 +31,16 @@ export const meSchema = {
         theme: {
             type: 'string'
         },
-
-        // required for rxdb
-        createdAt: {
-            type: 'string'
-        },
-        updatedAt: {
-            type: 'string'
-        },
-        _deleted: {
-            type: 'boolean'
-        }
+        
+        ...COMMON_SCHEMA
     },
     required: ['id', 'name', 'email', 'emailVerifiedAt', 'theme']
-};
+} as const;
 
-export type RxMeDocument = RxDocument<User, {}>
-export type RxMeCollection = RxCollection<User, {}, unknown, unknown, Signal<RxMeDocument>>;
+const schemaTyped = toTypedRxJsonSchema(ME_SCHEMA_LITERAL);
+type RxMeDocumentType = ExtractDocumentTypeFromTypedRxJsonSchema<typeof schemaTyped>;
+
+export const ME_SCHEMA: RxJsonSchema<RxMeDocumentType> = ME_SCHEMA_LITERAL;
+
+export type RxMeDocument = RxDocument<RxMeDocumentType, {}>
+export type RxMeCollection = RxCollection<RxMeDocumentType, {}, unknown, unknown, Signal<RxMeDocument>>;

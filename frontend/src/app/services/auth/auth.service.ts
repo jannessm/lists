@@ -46,7 +46,7 @@ export class AuthService {
         this.dataService.removeData();
         setTimeout(() => {
           this.router.navigateByUrl('/login');
-        }, 100)
+        }, 100);
       }
     });
     

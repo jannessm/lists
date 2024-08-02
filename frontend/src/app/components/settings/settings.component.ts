@@ -64,17 +64,17 @@ export class SettingsComponent {
       }
     });
 
-    this.defaultList.valueChanges.subscribe(listId => {
-      if (listId === 'null') {
-        listId = null;
-      }
+    // this.defaultList.valueChanges.subscribe(listId => {
+    //   if (listId === 'null') {
+    //     listId = null;
+    //   }
       
-      if (this.user && listId !== this.user().defaultList) {
-        this.user().patch({
-          defaultList: listId
-        });
-      }
-    })
+    //   if (this.user && listId !== this.user().defaultList) {
+    //     this.user().patch({
+    //       defaultList: listId
+    //     });
+    //   }
+    // })
 
     this.editForm = fb.group({
       name: ['', Validators.required],
@@ -160,7 +160,7 @@ export class SettingsComponent {
               this.snackBar.open('Bestätige deine neue Emailadresse per Link in der Bestätigungsmail.', 'Ok');
               this.user().patch({
                 email,
-                emailVerfiedAt: null
+                emailVerifiedAt: null
               });
             }
           }

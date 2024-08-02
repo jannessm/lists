@@ -9,6 +9,8 @@ export function laravelInterceptor(req: HttpRequest<unknown>, next: HttpHandlerF
     if (pusher.socketID) {
         headers = headers.append('X-Socket-ID', pusher.socketID);
     }
+
+    console.log('req', req.body);
     
     const newReq = req.clone({headers: headers});
     return next(newReq);

@@ -3,12 +3,13 @@ import { Component, ElementRef, Inject, ViewChild, ViewChildren } from '@angular
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { MaterialModule } from '../../../material.module';
-import { Lists } from '../../../../models/rxdb/lists';
-import { ListItem } from '../../../../models/rxdb/list-item';
 import { RxDocument } from 'rxdb';
 import flatpickr from 'flatpickr';
 import { timePickerConfig } from '../../../../models/time-picker';
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
+import { Subscription } from 'rxjs';
+import { RxListsDocument } from '../../../../models/rxdb/lists';
+import { RxItemDocument } from '../../../../models/rxdb/list-item';
 
 @Component({
   selector: 'app-update-item-sheet',
@@ -24,7 +25,7 @@ import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 })
 export class UpdateItemSheetComponent {
   form: FormGroup;
-  list: RxDocument<Lists>;
+  list: RxListsDocument;
   timezone: string;
 
   dueFlatpickr!: flatpickr.Instance;
@@ -36,14 +37,16 @@ export class UpdateItemSheetComponent {
 
   @ViewChild('autosize') autosize!: CdkTextareaAutosize;
 
+  subscriptions: Subscription[] = [];
+
   constructor(
     public bottomSheetRef: MatBottomSheetRef<UpdateItemSheetComponent>,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: {list: RxDocument<Lists>, item: RxDocument<ListItem>},
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: {list: RxListsDocument, item: RxItemDocument},
     private fb: FormBuilder
   ) {
     this.list = data.list;
-    const due = data.item.due !== null ? new Date(data.item.due) : null;
-    const reminder = data.item.reminder !== null ? new Date(data.item.reminder) : null;
+    const due = !!data.item.due ? new Date(data.item.due) : null;
+    const reminder = !!data.item.reminder ? new Date(data.item.reminder) : null;
 
     this.form = fb.group({
       'name': [data.item.name, Validators.required],
@@ -54,7 +57,7 @@ export class UpdateItemSheetComponent {
       'reminder': [this.parseDateTime(reminder)],
     });
 
-    this.form.get('due-toggle')?.valueChanges.subscribe(dueEnabled => {
+    const formSub = this.form.get('due-toggle')?.valueChanges.subscribe(dueEnabled => {
       if (dueEnabled) {
         this.form.get('due')?.enable();
 
@@ -62,6 +65,9 @@ export class UpdateItemSheetComponent {
         this.form.get('due')?.disable();
       }
     });
+    if (formSub) {
+      this.subscriptions.push(formSub);
+    }
 
     this.timezone = new Date('2020-01-01T10:00').toISOString().slice(16);
   }
@@ -95,6 +101,10 @@ export class UpdateItemSheetComponent {
     if (this.form.get('due')?.value && this.data.item.due) {
       this.dueFlatpickr.setDate(new Date(this.data.item.due));
     }
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   openPicker() {

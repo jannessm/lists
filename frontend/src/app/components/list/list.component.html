@@ -31,7 +31,7 @@
         
             <ng-container *ngFor="let item of slot.items">
                 <app-list-item
-                    *ngIf="(!item().done || !slotCollapseStates[slot.name]) && list() && me()"
+                    *ngIf="(!item.done || !slotCollapseStates[slot.name] || true) && list() && me()"
                     [me]="me"
                     [list]="list"
                     [item]="item"

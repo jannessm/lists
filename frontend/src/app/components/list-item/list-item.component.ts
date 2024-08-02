@@ -1,15 +1,16 @@
 import { Component, HostListener, Input, Signal } from '@angular/core';
 import { MaterialModule } from '../../material.module';
 import { CommonModule } from '@angular/common';
-import { RxItemsDocument } from '../../../models/rxdb/list-item';
+import { RxItemDocument } from '../../../models/rxdb/list-item';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { UpdateItemSheetComponent } from '../bottom-sheets/update-item-sheet/update-item-sheet.component';
-import { Lists, RxListsDocument } from '../../../models/rxdb/lists';
+import { RxListsDocument } from '../../../models/rxdb/lists';
 import { ConfirmSheetComponent } from '../bottom-sheets/confirm-sheet/confirm-sheet.component';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { is_today } from '../../../models/categories_timeslots';
 import { FormsModule } from '@angular/forms';
 import { RxMeDocument } from '../../../models/rxdb/me';
+import { DataService } from '../../services/data/data.service';
 
 @Component({
   selector: 'app-list-item',
@@ -29,7 +30,7 @@ export class ListItemComponent {
   @Input()
   list?: Signal<RxListsDocument>;
   @Input()
-  item?: Signal<RxItemsDocument> | undefined;
+  item?: RxItemDocument;
 
   pointerDown: boolean = false;
   pointerPosY: number | undefined; 
@@ -44,34 +45,27 @@ export class ListItemComponent {
     this.pointerPosY = event.changedTouches[0].clientY;
   }
 
-  constructor(
-    private bottomSheet: MatBottomSheet) {
+  constructor(private bottomSheet: MatBottomSheet) { }
 
-  }
-
-  toggleDone(done: boolean | null = null) {
-    if (this.list && this.item) {
-      done = done !== null ? done : !this.item().done;
-
-      if (this.item().done != done) {
-        this.item().patch({
-          done
-        });
-      }
+  toggleDone() {
+    if (this.item) {
+      this.item.patch({
+        done: !this.item.done
+      });
     }
   }
 
-  deleteItem(item: RxItemsDocument) {
+  deleteItem(item: RxItemDocument) {
     const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche ' + item.name});
     
     confirm.afterDismissed().subscribe(del => {
-      if (this.list && this.item && del) {
-        this.item().remove();
+      if (this.item && del) {
+        this.item.getLatest().remove();
       }
     });
   }
 
-  userFab(item: RxItemsDocument) {
+  userFab(item: RxItemDocument) {
     if (this.list) {
       const index = this.list().users().findIndex(val => val.id === item.createdBy.id);
       if (index) {
@@ -81,11 +75,11 @@ export class ListItemComponent {
     return 0;
   }
 
-  is_today(item: RxItemsDocument): boolean {
+  is_today(item: RxItemDocument): boolean {
     return !!is_today(item);
   }
 
-  openUpdateSheet(event: MouseEvent, item?: RxItemsDocument) {
+  openUpdateSheet(event: MouseEvent, item?: RxItemDocument) {
     if (!this.pointerDown && item) {
       this.pointerDown = true;
       const currScrollPos = event.clientY;
@@ -93,7 +87,11 @@ export class ListItemComponent {
       
       setTimeout(() => {
         
-        if (this.pointerPosY != undefined && this.pointerDown && !this.updateSheetRef && Math.abs(currScrollPos - this.pointerPosY) < 50) {  
+        if (this.pointerPosY != undefined &&
+            this.pointerDown &&
+            !this.updateSheetRef &&
+            Math.abs(currScrollPos - this.pointerPosY) < 50
+        ) {  
           this.updateSheetRef = this.bottomSheet.open(UpdateItemSheetComponent, {
             data: {
               list: this.list,
@@ -101,9 +99,9 @@ export class ListItemComponent {
             }
           });
   
-          this.updateSheetRef.afterDismissed().subscribe(patch => {   
-            if (this.list && this.item && patch) {
-              this.item().patch(patch);
+          this.updateSheetRef.afterDismissed().subscribe(patch => {
+            if (this.item && patch) {
+              this.item.getLatest().patch(patch);
             }
 
             setTimeout(() => {

@@ -40,7 +40,7 @@ export class ResetPasswordComponent {
           if (!!this.form) {
             this.form.disable();
             this.form.setErrors({invalidLink: true});
-            console.log(this.form.hasError('invalidLink'))
+            console.log(this.form.hasError('invalidLink'));
             clearInterval(interval);
           }
         }, 100);

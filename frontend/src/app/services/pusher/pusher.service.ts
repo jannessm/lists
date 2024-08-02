@@ -82,7 +82,6 @@ export class PusherService {
 
   _subscribe(channel: string, callback: Function) {
     if (this.pusher) {
-      console.log('subscr');
       this.channels.push(channel);
       this.pusher.subscribe(channel).bind('lighthouse-subscription', (payload: any) => {
         if (!payload.more) {

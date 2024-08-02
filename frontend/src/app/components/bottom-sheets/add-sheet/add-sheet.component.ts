@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { MaterialModule } from '../../../material.module';
 import { CommonModule } from '@angular/common';
-import { Lists } from '../../../../models/rxdb/lists';
+import { RxListsDocument } from '../../../../models/rxdb/lists';
 
 @Component({
   selector: 'app-add-sheet',
@@ -24,7 +24,7 @@ export class AddSheetComponent {
 
   constructor(
     public bottomSheetRef: MatBottomSheetRef<AddSheetComponent>,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: Lists,
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: RxListsDocument,
     private fb: FormBuilder
   ) {
     if (data) {
