@@ -12,7 +12,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { VerifyMailComponent } from '../../components/bottom-sheets/verify-mail/verify-mail.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Location } from '@angular/common';
-import { RxMeDocument } from '../../../models/rxdb/me';
+import { RxMeDocument } from '../../mydb/types/me';
 import { DataService } from '../data/data.service';
 
 @Injectable({

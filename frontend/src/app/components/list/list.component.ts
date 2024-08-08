@@ -10,14 +10,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmSheetComponent } from '../bottom-sheets/confirm-sheet/confirm-sheet.component';
 import { DataService } from '../../services/data/data.service';
 import { AuthService } from '../../services/auth/auth.service';
-import { RxListsDocument } from '../../../models/rxdb/lists';
+import { RxListsDocument } from '../../mydb/types/lists';
 import { Slot, groupItems } from '../../../models/categories';
-import { RxItemDocument, newItem } from '../../../models/rxdb/list-item';
+import { RxItemDocument, newItem } from '../../mydb/types/list-item';
 import { CommonModule, Location } from '@angular/common';
 import { MaterialModule } from '../../material.module';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { ListItemComponent } from '../list-item/list-item.component';
-import { RxMeDocument } from '../../../models/rxdb/me';
+import { RxMeDocument } from '../../mydb/types/me';
 import { timePickerConfig } from '../../../models/time-picker';
 import { Subscription } from 'rxjs';
 

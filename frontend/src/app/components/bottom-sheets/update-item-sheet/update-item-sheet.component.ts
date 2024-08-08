@@ -8,8 +8,8 @@ import flatpickr from 'flatpickr';
 import { timePickerConfig } from '../../../../models/time-picker';
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { Subscription } from 'rxjs';
-import { RxListsDocument } from '../../../../models/rxdb/lists';
-import { RxItemDocument } from '../../../../models/rxdb/list-item';
+import { RxListsDocument } from '../../../mydb/types/lists';
+import { RxItemDocument } from '../../../mydb/types/list-item';
 
 @Component({
   selector: 'app-update-item-sheet',

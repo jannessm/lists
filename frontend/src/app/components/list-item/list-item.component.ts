@@ -1,15 +1,15 @@
 import { Component, HostListener, Input, Signal } from '@angular/core';
 import { MaterialModule } from '../../material.module';
 import { CommonModule } from '@angular/common';
-import { RxItemDocument } from '../../../models/rxdb/list-item';
+import { RxItemDocument } from '../../mydb/types/list-item';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { UpdateItemSheetComponent } from '../bottom-sheets/update-item-sheet/update-item-sheet.component';
-import { RxListsDocument } from '../../../models/rxdb/lists';
+import { RxListsDocument } from '../../mydb/types/lists';
 import { ConfirmSheetComponent } from '../bottom-sheets/confirm-sheet/confirm-sheet.component';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { is_today } from '../../../models/categories_timeslots';
 import { FormsModule } from '@angular/forms';
-import { RxMeDocument } from '../../../models/rxdb/me';
+import { RxMeDocument } from '../../mydb/types/me';
 import { DataService } from '../../services/data/data.service';
 
 @Component({

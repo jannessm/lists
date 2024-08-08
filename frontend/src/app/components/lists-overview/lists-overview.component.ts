@@ -4,7 +4,7 @@ import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.componen
 
 import { MaterialModule } from '../../material.module';
 import { CommonModule } from '@angular/common';
-import { RxListsDocument, newLists } from '../../../models/rxdb/lists';
+import { RxListsDocument, newLists } from '../../mydb/types/lists';
 import { DataService } from '../../services/data/data.service';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';

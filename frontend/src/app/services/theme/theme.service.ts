@@ -1,6 +1,6 @@
 import { Injectable, Signal, WritableSignal, signal } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
-import { THEME } from '../../../models/rxdb/me';
+import { THEME } from '../../mydb/types/me';
 
 @Injectable({
   providedIn: 'root'

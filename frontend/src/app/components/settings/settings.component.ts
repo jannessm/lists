@@ -7,7 +7,7 @@ import { MaterialModule } from '../../material.module';
 import { AuthService } from '../../services/auth/auth.service';
 import { environment } from '../../../environments/environment';
 import { DataService } from '../../services/data/data.service';
-import { RxMeDocument } from '../../../models/rxdb/me';
+import { RxMeDocument } from '../../mydb/types/me';
 import { ThemeService } from '../../services/theme/theme.service';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { MatSnackBar } from '@angular/material/snack-bar';

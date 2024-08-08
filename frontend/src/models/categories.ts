@@ -1,8 +1,8 @@
 import { RxDocument } from "rxdb";
 import { GroceryCategories, GROCERY_OTHERS } from "./categories_groceries";
 import { is_past, is_sometime, is_soon, is_today, is_tomorrow, TIMESLOTS } from "./categories_timeslots";
-import { RxItemDocument } from "./rxdb/list-item";
-import { RxListsDocument } from "./rxdb/lists";
+import { RxItemDocument } from "../app/mydb/types/list-item";
+import { RxListsDocument } from "../app/mydb/types/lists";
 import { Signal } from "@angular/core";
 
 

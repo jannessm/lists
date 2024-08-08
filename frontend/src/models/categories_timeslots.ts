@@ -1,4 +1,4 @@
-import { RxItemDocument } from "./rxdb/list-item";
+import { RxItemDocument } from "../app/mydb/types/list-item";
 
 export enum TIMESLOTS {
     TODAY = 'Heute',

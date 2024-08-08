@@ -1,15 +1,13 @@
 import { Injectable } from '@angular/core';
-import { RxCollection, RxGraphQLReplicationQueryBuilderResponseObject, addRxPlugin, hasProperty } from 'rxdb';
-import { replicateRxCollection } from 'rxdb/plugins/replication';
 import { DataApiService } from '../data-api/data-api.service';
 import { Subject, firstValueFrom, lastValueFrom } from 'rxjs';
-import { pullQueryBuilderFromRxSchema, pullStreamBuilderFromRxSchema, pushQueryBuilderFromRxSchema } from 'rxdb/plugins/replication-graphql';
-import { graphQLGenerationInput } from '../../../models/rxdb/graphql-types';
+import { graphQLGenerationInput } from '../../mydb/types/graphql-types';
 import { MutationResponse, PullResult, PushResult, QueryResponse, SubscriptionResponse } from '../../../models/responses';
 import { PusherService } from '../pusher/pusher.service';
-import { RxMeCollection } from '../../../models/rxdb/me';
-import { RxListsCollection } from '../../../models/rxdb/lists';
-import { RxItemCollection } from '../../../models/rxdb/list-item';
+import { MyMeCollection } from '../../mydb/types/me';
+import { MyListsCollection } from '../../mydb/types/lists';
+import { MyItemCollection } from '../../mydb/types/list-item';
+import { pullQueryBuilderFromSchema, pushQueryBuilderFromSchema } from '../../mydb/helpers';
 
 type GenerationInputKey = keyof typeof graphQLGenerationInput;
 
@@ -38,7 +36,7 @@ export class ReplicationService {
 
   async setupReplication(
     collectionName: string,
-    collection: RxMeCollection | RxListsCollection | RxItemCollection,
+    collection: MyMeCollection | MyListsCollection | MyItemCollection,
     meId: string | null
   ) {
     if (!(await firstValueFrom(this.pusher.online))) {
@@ -55,12 +53,12 @@ export class ReplicationService {
 
     const that = this;
     const schema = graphQLGenerationInput[collectionName as GenerationInputKey];
-    const pullQuery = pullQueryBuilderFromRxSchema(
+    const pullQuery = pullQueryBuilderFromSchema(
       collectionName,
       schema
     );
 
-    const pushQuery = pushQueryBuilderFromRxSchema(
+    const pushQuery = pushQueryBuilderFromSchema(
       collectionName,
       schema
     );
@@ -71,7 +69,7 @@ export class ReplicationService {
       collection,
       pull: {
         async handler(checkpoint: unknown, batchSize: number) {
-          const query = pullQuery(checkpoint, batchSize) as RxGraphQLReplicationQueryBuilderResponseObject;
+          const query = pullQuery(checkpoint, batchSize);
 
           query.query = fixArraysInSchema(query.query, schema);
 
@@ -91,7 +89,7 @@ export class ReplicationService {
       },
       push: {
         async handler(changedRows) {
-          const query = pushQuery(changedRows) as RxGraphQLReplicationQueryBuilderResponseObject;
+          const query = pushQuery(changedRows);
 
           query.query = fixArraysInSchema(query.query, schema);
     

@@ -1,18 +1,20 @@
 import { Injector, Signal, untracked } from "@angular/core";
-import { RxDatabase, RxReactivityFactory, createRxDatabase, defaultConflictHandler } from "rxdb";
 import { environment } from "../../../environments/environment";
 import { toSignal } from '@angular/core/rxjs-interop';
-import { RxMeCollection, ME_SCHEMA } from "../../../models/rxdb/me";
-import { RxListsCollection, LISTS_SCHEMA } from "../../../models/rxdb/lists";
-import { RxItemCollection, itemsConflictHandler, ITEM_SCHEMA } from "../../../models/rxdb/list-item";
-import { DATA_TYPE } from "../../../models/rxdb/graphql-types";
+import { ITEM_SCHEMA, MyItemCollection } from "../../mydb/types/list-item";
+import { DATA_TYPE } from "../../mydb/types/graphql-types";
+import { MyReactivityFactory } from "../../mydb/types/interfaces";
+import { MyDatabase as MyDatabaseType } from "../../mydb/types/database";
+import { MyDatabase, createMyDatabase } from "../../mydb/database";
+import { ME_SCHEMA, MyMeCollection } from "../../mydb/types/me";
+import { LISTS_SCHEMA, MyListsCollection } from "../../mydb/types/lists";
 
-export type RxListsCollections = {
-    me: RxMeCollection,
-    lists: RxListsCollection,
-    items: RxItemCollection
+export type MyListsCollections = {
+    me: MyMeCollection,
+    lists: MyListsCollection,
+    items: MyItemCollection
 };
-export type RxListsDatabase = RxDatabase<RxListsCollections, unknown, unknown, Signal<unknown>>;
+export type MyListsDatabase = MyDatabaseType<MyListsCollections, Signal<unknown>>;
 
 export let DB_INSTANCE: any;
 
@@ -28,7 +30,7 @@ export async function initDatabase(injector: Injector) {
     await _create(injector).then(db => DB_INSTANCE = db);
 }
 
-async function _create(injector: Injector): Promise<RxDatabase> {
+async function _create(injector: Injector): Promise<MyDatabase> {
     environment.addRxDBPlugins();
 
     console.log('DatabaseService: creating database..');
@@ -38,7 +40,7 @@ async function _create(injector: Injector): Promise<RxDatabase> {
      * instead of observables.
      * @link https://rxdb.info/reactivity.html
      */
-    const reactivityFactory: RxReactivityFactory<Signal<any>> = {
+    const reactivityFactory: MyReactivityFactory = {
         fromObservable(obs, initialValue: any) {
             return untracked(() =>
                 toSignal(obs, {
@@ -51,10 +53,8 @@ async function _create(injector: Injector): Promise<RxDatabase> {
     }
 
 
-    const db = await createRxDatabase({
+    const db = await createMyDatabase({
         name: 'lists-db',
-        storage: environment.getRxStorage(),
-        multiInstance: true,
         reactivity: reactivityFactory
     });
     console.log('DatabaseService: created database');
@@ -62,7 +62,7 @@ async function _create(injector: Injector): Promise<RxDatabase> {
     return await addCollections(db);
 }
 
-export async function addCollections(db: any): Promise<RxDatabase> {
+export async function addCollections(db: MyDatabase): Promise<MyDatabase> {
 
     // create collections
     console.log('DatabaseService: create collections');
@@ -76,13 +76,10 @@ export async function addCollections(db: any): Promise<RxDatabase> {
                 users: function() {
                     return [(this as any).createdBy, ...(this as any).sharedWith];
                 }
-            },
-            conflictHandler: defaultConflictHandler
+            }
         },
         [DATA_TYPE.LIST_ITEM]: {
             schema: ITEM_SCHEMA,
-            // conflictHandler: defaultConflictHandler
-            conflictHandler: itemsConflictHandler
         }
     });
 
