@@ -67,14 +67,14 @@ export const LISTS_SCHEMA = {
     required: ['id', 'name', 'isShoppingList', 'createdBy', 'sharedWith']
 } as const;
 
-type RxListsDocumentType = AsTyped<typeof LISTS_SCHEMA>;
+type MyListsDocumentType = AsTyped<typeof LISTS_SCHEMA>;
 
-type RxListsMethods = {
+type MyListsMethods = {
     users(): ForeignId[];
 }
 
-export type MyListsDocument = MyDocument<RxListsDocumentType, RxListsMethods>
-export type MyListsCollection = MyCollection<RxListsDocumentType, RxListsMethods, Signal<unknown>>;
+export type MyListsDocument = MyDocument<MyListsDocumentType, MyListsMethods>
+export type MyListsCollection = MyCollection<MyListsDocumentType, MyListsMethods, Signal<unknown>>;
 
 // export const defaultConflictHandler: RxConflictHandler<any> = function (
 //     /**

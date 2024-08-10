@@ -1,11 +1,11 @@
-import { GraphQLSchema } from "./types/graphql-types";
+import { GraphQLSchema, MyPushBuilder, MyQueryBuilder, MyStreamBuilder } from "./types/graphql-types";
 import { JsonItem, JsonSchema } from "./types/schema";
 import { MyPushRow } from "./types/common";
 
 export function pullQueryBuilderFromSchema(
     collectionName: string,
     schema: GraphQLSchema
-) {
+): MyQueryBuilder {
     const ucCollectionName = collectionName[0].toUpperCase() + collectionName.slice(1);
     const checkpointInput = ucCollectionName + 'InputCheckpoint';
     const outputFields = generateGQLOutputFields(schema.schema);
@@ -38,14 +38,36 @@ export function pullQueryBuilderFromSchema(
 export function pullStreamBuilderFromSchema(
     collectionName: string,
     schema: GraphQLSchema
-) {
+): MyStreamBuilder {
+    const ucCollectionName = collectionName[0].toUpperCase() + collectionName.slice(1);
+    const outputFields = generateGQLOutputFields(schema.schema);
+    const checkpointFields = schema.checkpointFields.join(' ');
 
+    const query = `subscription onStream($headers: ${ucCollectionName}InputHeaders) {
+        stream${ucCollectionName}(headers: $headers) {
+            documents {
+                ${outputFields}
+            }
+            checkpoint {
+                ${checkpointFields}
+            }
+        }
+    }`;
+
+    return (headers: any) => {
+        return {
+            query,
+            variables: {
+                headers
+            }
+        };
+    };
 }
 
 export function pushQueryBuilderFromSchema(
     collectionName: string,
     schema: GraphQLSchema
-) {
+): MyPushBuilder {
     const ucCollectionName = collectionName[0].toUpperCase() + collectionName.slice(1);
     const returnFields = generateGQLOutputFields(schema.schema);
 
@@ -59,14 +81,14 @@ export function pushQueryBuilderFromSchema(
         const sendRows: MyPushRow[] = rows.map(row => {
             return {
                 newDocumentState: filterObjectBySchemaFields(row.newDocumentState, schema.schema),
-                assumedMasterState: filterObjectBySchemaFields(row.assumedMasterState, schema.schema)
+                assumedMasterState: row.assumedMasterState ? filterObjectBySchemaFields(row.assumedMasterState, schema.schema) : undefined
             };
         });
         
         return {
             query,
             variables: {
-                '$rows': sendRows
+                $rows: sendRows
             }
         };
     };

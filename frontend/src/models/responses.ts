@@ -41,7 +41,7 @@ export interface SubscriptionResponse<T> {
 
 export interface PullResult {
     [key: string]: {
-        documents: any[];
+        documents: unknown[];
         checkpoint: Checkpoint;
     }
 }

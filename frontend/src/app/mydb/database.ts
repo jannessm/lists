@@ -27,6 +27,7 @@ export class MyDatabase {
                 Object.defineProperty(this, tableName, {
                     get: () => new MyCollection(this.db,
                                                 tableName,
+                                                options[tableName].schema.primaryKey,
                                                 this.reactivity,
                                                 options[tableName].methods)
                 });
@@ -36,9 +37,20 @@ export class MyDatabase {
     }
 
     static getPrimaryKeysFromCollections(options: AddCollectionsOptions): DexieSchema {
-        const schema: DexieSchema = {};
-        Object.entries((key: string, definition: CollectionOptions) => {
-            schema[key] = [definition.schema.primaryKey, ...definition.schema.required].join(',');
+        const schema: DexieSchema = { };
+        
+        Object.entries(options).forEach(val => {
+            const key = val[0];
+            const definition = val[1];
+
+            schema[key] = [
+                definition.schema.primaryKey,
+                ...definition.schema.required,
+                '_deleted', 'updatedAt'
+            ].join(',');
+
+            schema[key + '_master_states'] = definition.schema.primaryKey;
+            schema[key + '_replication'] = 'updatedAt';
         });
         return schema;
     }

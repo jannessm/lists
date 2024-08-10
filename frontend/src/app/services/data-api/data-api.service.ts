@@ -3,8 +3,8 @@ import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { BASE_API } from '../../globals';
 import { MutationResponse, SubscriptionResponse } from '../../../models/responses';
-import { RxGraphQLReplicationQueryBuilderResponseObject } from 'rxdb';
 import { CookieService } from 'ngx-cookie-service';
+import { MyGraphQLQuery } from '../../mydb/types/graphql-types';
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +26,7 @@ export class DataApiService {
   }
 
   mutation<T>(
-    query: string | RxGraphQLReplicationQueryBuilderResponseObject,
+    query: string | MyGraphQLQuery,
     variables: any = {}
   ): Observable<MutationResponse<T>> {
     if (typeof(query) != 'string') {
@@ -41,7 +41,7 @@ export class DataApiService {
   }
 
   subscription<T>(
-    query: string | RxGraphQLReplicationQueryBuilderResponseObject,
+    query: string | MyGraphQLQuery,
     variables: any = {}
   ): Observable<SubscriptionResponse<T>> {
     if (typeof(query) != 'string') {
@@ -56,7 +56,7 @@ export class DataApiService {
   }
 
   graphQL<T>(
-    query: string | RxGraphQLReplicationQueryBuilderResponseObject,
+    query: string | MyGraphQLQuery,
     variables: any = {}
   ): Observable<T> {
     if (typeof(query) != 'string') {

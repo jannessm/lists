@@ -38,8 +38,7 @@ export const ME_SCHEMA = {
     required: ['id', 'name', 'email', 'emailVerifiedAt', 'theme']
 } as const;
 
-const schemaTyped = ME_SCHEMA as any;
-type RxMeDocumentType = AsTyped<typeof schemaTyped>;
+type MyMeDocumentType = AsTyped<typeof ME_SCHEMA>;
 
-export type MyMeDocument = MyDocument<RxMeDocumentType, {}>
-export type MyMeCollection = MyCollection<RxMeDocumentType, {}, Signal<MyMeDocument>>;
+export type MyMeDocument = MyDocument<MyMeDocumentType, {}>
+export type MyMeCollection = MyCollection<MyMeDocumentType, {}, Signal<MyMeDocument>>;

@@ -7,7 +7,7 @@ import { MaterialModule } from '../../material.module';
 import { AuthService } from '../../services/auth/auth.service';
 import { environment } from '../../../environments/environment';
 import { DataService } from '../../services/data/data.service';
-import { RxMeDocument } from '../../mydb/types/me';
+import { MyMeDocument } from '../../mydb/types/me';
 import { ThemeService } from '../../services/theme/theme.service';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -30,7 +30,7 @@ import md5 from 'md5-ts';
   styleUrls: ['./settings.component.scss']
 })
 export class SettingsComponent {
-  user: Signal<RxMeDocument>;
+  user: Signal<MyMeDocument>;
   version = environment.version;
 
   theme: FormControl;

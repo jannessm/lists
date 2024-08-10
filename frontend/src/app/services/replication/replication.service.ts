@@ -7,7 +7,9 @@ import { PusherService } from '../pusher/pusher.service';
 import { MyMeCollection } from '../../mydb/types/me';
 import { MyListsCollection } from '../../mydb/types/lists';
 import { MyItemCollection } from '../../mydb/types/list-item';
-import { pullQueryBuilderFromSchema, pushQueryBuilderFromSchema } from '../../mydb/helpers';
+import { MyPushRow } from '../../mydb/types/common';
+import { pullQueryBuilderFromSchema, pullStreamBuilderFromSchema, pushQueryBuilderFromSchema } from '../../mydb/helpers';
+import { replicateCollection } from '../../mydb/replication';
 
 type GenerationInputKey = keyof typeof graphQLGenerationInput;
 
@@ -64,7 +66,7 @@ export class ReplicationService {
     );
 
     const operationName = collectionName[0].toUpperCase() + collectionName.substring(1);
-    const replication = await replicateRxCollection({
+    const replication = await replicateCollection({
       replicationIdentifier: collectionName,
       collection,
       pull: {
@@ -78,7 +80,7 @@ export class ReplicationService {
           return (result.data as PullResult)['pull' + operationName];
         },
         stream$: await this.initStream(collectionName, meId),
-        modifier: doc => {
+        modifier: (doc: any) => {
           if ('lists' in doc) {
             doc['lists'] = doc['lists']['id'];
           }
@@ -88,7 +90,7 @@ export class ReplicationService {
         }
       },
       push: {
-        async handler(changedRows) {
+        async handler(changedRows: MyPushRow[]) {
           const query = pushQuery(changedRows);
 
           query.query = fixArraysInSchema(query.query, schema);
@@ -97,7 +99,7 @@ export class ReplicationService {
 
           return (result.data as PushResult)['push' + operationName];
         },
-        modifier: doc => {
+        modifier: (doc: any) => {
           if ("sharedWith" in doc) {
             delete doc['sharedWith'];
           }
@@ -125,7 +127,7 @@ export class ReplicationService {
   async initStream(collectionName: string, meId: string | null) {
     const schema = graphQLGenerationInput[collectionName as GenerationInputKey];
 
-    const pullStreamQuery = pullStreamBuilderFromRxSchema(
+    const pullStreamQuery = pullStreamBuilderFromSchema(
       collectionName,
       schema
     );
@@ -134,7 +136,7 @@ export class ReplicationService {
     if (!!meId) {
       headers = {id: meId}
     }
-    const query = pullStreamQuery(headers) as RxGraphQLReplicationQueryBuilderResponseObject;
+    const query = pullStreamQuery(headers);
     
     // fix array items
     query.query = fixArraysInSchema(query.query, schema);
@@ -163,16 +165,16 @@ export class ReplicationService {
 
 function fixArraysInSchema(query: string, schema: any): string {
   
-  Object.keys(schema.schema.properties).forEach(key => {
-    const value = Object(schema.schema.properties)[key];
+  // Object.keys(schema.schema.properties).forEach(key => {
+  //   const value = Object(schema.schema.properties)[key];
     
-    if (value.type === 'array') {
-      if (value.items.type === 'object') {
-        const props = Object.keys(value.items.properties);
-        query = query.replace(key, `${key} {${props.join(' ')}}`);
-      }
-    }
-  });
+  //   if (value.type === 'array') {
+  //     if (value.items.type === 'object') {
+  //       const props = Object.keys(value.items.properties);
+  //       query = query.replace(key, `${key} {${props.join(' ')}}`);
+  //     }
+  //   }
+  // });
 
   if (query.indexOf('pushItems') > -1 || query.indexOf('streamItems') > -1 || query.indexOf('pullItems') > -1) {
     query = query.replace('lists', 'lists { id }');

@@ -1,4 +1,4 @@
-import { RxItemDocument } from "../app/mydb/types/list-item";
+import { MyItemDocument } from "../app/mydb/types/list-item";
 
 export enum TIMESLOTS {
     TODAY = 'Heute',
@@ -17,7 +17,7 @@ export enum TIMESLOT_KEYS {
 
 export type Time = Date | null;
 
-export function is_past(item: RxItemDocument, _due: Date | undefined = undefined) {
+export function is_past(item: MyItemDocument, _due: Date | undefined = undefined) {
     if (!!item.due) {
         const now = new Date();
         const due = !_due ? new Date(item.due) : _due;
@@ -27,7 +27,7 @@ export function is_past(item: RxItemDocument, _due: Date | undefined = undefined
     return 0;
 }
 
-export function is_today(item: RxItemDocument, _due: Date | undefined = undefined) {
+export function is_today(item: MyItemDocument, _due: Date | undefined = undefined) {
     if (!!item.due) {
         const now = new Date();
         const due = !_due ? new Date(item.due) : _due;
@@ -37,7 +37,7 @@ export function is_today(item: RxItemDocument, _due: Date | undefined = undefine
     return 0;
 }
 
-export function is_tomorrow(item: RxItemDocument, _due: Date | undefined = undefined) {
+export function is_tomorrow(item: MyItemDocument, _due: Date | undefined = undefined) {
     if (!!item.due) {
         const now = new Date();
         const due = !_due ? new Date(item.due) : _due;
@@ -47,7 +47,7 @@ export function is_tomorrow(item: RxItemDocument, _due: Date | undefined = undef
     return 0;
 }
 
-export function is_soon(item: RxItemDocument, _due: Date | undefined = undefined) {
+export function is_soon(item: MyItemDocument, _due: Date | undefined = undefined) {
     if (!!item.due) {
         const now = new Date();
         const due = !_due ? new Date(item.due) : _due;
@@ -57,6 +57,6 @@ export function is_soon(item: RxItemDocument, _due: Date | undefined = undefined
     return 0;
 }
 
-export function is_sometime(item: RxItemDocument) {
+export function is_sometime(item: MyItemDocument) {
     return !item.due ? 1 : 0;
 }

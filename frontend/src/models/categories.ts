@@ -1,9 +1,6 @@
-import { RxDocument } from "rxdb";
 import { GroceryCategories, GROCERY_OTHERS } from "./categories_groceries";
 import { is_past, is_sometime, is_soon, is_today, is_tomorrow, TIMESLOTS } from "./categories_timeslots";
-import { RxItemDocument } from "../app/mydb/types/list-item";
-import { RxListsDocument } from "../app/mydb/types/lists";
-import { Signal } from "@angular/core";
+import { MyItemDocument } from "../app/mydb/types/list-item";
 
 
 export interface Category {
@@ -13,11 +10,11 @@ export interface Category {
 
 export interface Slot {
   name: string | TIMESLOTS;
-  items: RxItemDocument[];
+  items: MyItemDocument[];
   nDone: number;
 }
 
-export function sortItems(items: RxItemDocument[]) {
+export function sortItems(items: MyItemDocument[]) {
   items.sort((a, b) => {
     const c = a.done ? 1 : 0;
     const d = b.done ? 1 : 0;
@@ -39,7 +36,7 @@ export function sortItems(items: RxItemDocument[]) {
 }
   
 function voteForGroceryCategory(categoryItems: string[]) {
-  return (item: RxItemDocument) => {
+  return (item: MyItemDocument) => {
     let votes = 0;
 
     categoryItems.forEach(catItem => {
@@ -72,7 +69,7 @@ function compareSlots(categoryNames: string[]) {
 }
   
 export function groupItems(
-  items: RxItemDocument[],
+  items: MyItemDocument[],
   isGroceries: boolean,
   groceryCategories: GroceryCategories | undefined = undefined
 ) {

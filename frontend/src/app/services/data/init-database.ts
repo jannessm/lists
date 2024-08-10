@@ -31,8 +31,6 @@ export async function initDatabase(injector: Injector) {
 }
 
 async function _create(injector: Injector): Promise<MyDatabase> {
-    environment.addRxDBPlugins();
-
     console.log('DatabaseService: creating database..');
 
     /**
