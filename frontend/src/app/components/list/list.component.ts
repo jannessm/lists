@@ -10,14 +10,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmSheetComponent } from '../bottom-sheets/confirm-sheet/confirm-sheet.component';
 import { DataService } from '../../services/data/data.service';
 import { AuthService } from '../../services/auth/auth.service';
-import { RxListsDocument } from '../../mydb/types/lists';
+import { MyListsDocument } from '../../mydb/types/lists';
 import { Slot, groupItems } from '../../../models/categories';
-import { RxItemDocument, newItem } from '../../mydb/types/list-item';
+import { MyItemDocument, newItem } from '../../mydb/types/list-item';
 import { CommonModule, Location } from '@angular/common';
 import { MaterialModule } from '../../material.module';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { ListItemComponent } from '../list-item/list-item.component';
-import { RxMeDocument } from '../../mydb/types/me';
+import { MyMeDocument } from '../../mydb/types/me';
 import { timePickerConfig } from '../../../models/time-picker';
 import { Subscription } from 'rxjs';
 
@@ -40,9 +40,9 @@ export class ListComponent implements AfterViewInit {
   @ViewChild('picker') picker!: ElementRef;
   @ViewChild('addInput') addInput!: ElementRef;
   
-  me: Signal<RxMeDocument>;
-  list!: Signal<RxListsDocument>;
-  listItems!: Signal<RxItemDocument[]>;
+  me: Signal<MyMeDocument>;
+  list!: Signal<MyListsDocument>;
+  listItems!: Signal<MyItemDocument[]>;
 
   newItem = new FormControl('');
   focusInput: boolean = false;
@@ -75,11 +75,11 @@ export class ListComponent implements AfterViewInit {
     if (!!id) {
       this.list = this.dataService.db.lists.findOne({
         selector: { id }
-      }).$$ as Signal<RxListsDocument>;
+      }).$$ as Signal<MyListsDocument>;
 
       this.listItems = this.dataService.db.items.find({
         selector: {lists: id }
-      }).$$ as Signal<RxItemDocument[]>;
+      }).$$ as Signal<MyItemDocument[]>;
 
       this.dataService.db.items.$.subscribe((ev) => console.log('db changed'));
     } else {
@@ -103,7 +103,7 @@ export class ListComponent implements AfterViewInit {
   listSettings() {
     if (this.list && this.list()) {
       const dialogRef = this.bottomSheet.open(AddSheetComponent, {
-        data: this.list().getLatest()
+        data: this.list()
       });
   
       dialogRef.afterDismissed().subscribe(new_values => {
@@ -114,7 +114,7 @@ export class ListComponent implements AfterViewInit {
         
         if (!!new_values && this.list) {
           const patch = {clientUpdatedAt: (new Date()).toISOString()};
-          const list = this.list().getLatest();
+          const list = this.list();
 
           if (list.name !== new_values.name) {
             Object.assign(patch, {name: new_values.name});
@@ -165,7 +165,7 @@ export class ListComponent implements AfterViewInit {
     }
   }
 
-  groupItems(list: RxListsDocument, items: RxItemDocument[]): Slot[] {
+  groupItems(list: MyListsDocument, items: MyItemDocument[]): Slot[] {
     if (items && list) {
       const slots = groupItems(items, list.isShoppingList, this.dataService.groceryCategories);
 

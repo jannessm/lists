@@ -2,8 +2,8 @@ import { AsTyped } from 'as-typed';
 import { ulid } from "ulid";
 import { ForeignId, COMMON_SCHEMA } from "./common";
 import { Signal } from "@angular/core";
-import { MyDocument } from "./document";
-import { MyCollection } from "./collection";
+import { MyDocument } from './classes';
+import { MyCollection } from '../collection';
 
 export function newLists(lists: any): any {
     const newLists = {

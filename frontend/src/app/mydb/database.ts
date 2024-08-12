@@ -46,7 +46,7 @@ export class MyDatabase {
             schema[key] = [
                 definition.schema.primaryKey,
                 ...definition.schema.required,
-                '_deleted', 'updatedAt'
+                '_deleted', 'updatedAt', 'touched'
             ].join(',');
 
             schema[key + '_master_states'] = definition.schema.primaryKey;

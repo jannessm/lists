@@ -28,3 +28,12 @@ export interface CollectionOptions {
 export type CollectionMethods = {
     [key: string]: () => any;
 }
+
+export type QueryOptions = {
+    selector?: {
+        [key: string]: any;
+    };
+    sort?: SortCriterias;
+}
+
+export type SortCriterias = { [key: string]: 'asc' | 'desc' }[];

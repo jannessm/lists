@@ -2,8 +2,8 @@ import { AsTyped } from 'as-typed';
 import { ulid } from "ulid";
 import { ForeignId, COMMON_SCHEMA } from "./common";
 import { Signal } from "@angular/core";
-import { MyDocument } from "./document";
-import { MyCollection } from "./collection";
+import { MyDocument } from './classes';
+import { MyCollection } from '../collection';
 
 
 export function newItem(item: any): any {
@@ -71,13 +71,13 @@ export const ITEM_SCHEMA = {
     required: ['id', 'name', 'createdBy', 'done', 'lists']
 } as const;
 
-type RxItemDocumentType = AsTyped<typeof ITEM_SCHEMA>;
+type MyItemDocumentType = AsTyped<typeof ITEM_SCHEMA>;
 
 // ORM methods
-type RxItemDocumentMethods = { };
+type MyItemDocumentMethods = { };
 
-export type MyItemDocument = MyDocument<RxItemDocumentType, RxItemDocumentMethods>
-export type MyItemCollection = MyCollection<RxItemDocumentType, RxItemDocumentMethods, Signal<unknown>>;
+export type MyItemDocument = MyDocument<MyItemDocumentType, MyItemDocumentMethods>
+export type MyItemCollection = MyCollection<MyItemDocumentType, MyItemDocumentMethods, Signal<unknown>>;
 
 // export const itemsConflictHandler: RxConflictHandler<RxItemDocument> = function (
 //     /**

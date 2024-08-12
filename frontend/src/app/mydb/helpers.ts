@@ -96,12 +96,12 @@ export function pushQueryBuilderFromSchema(
     return builder;
 }
 
-function generateGQLOutputFields(schema: JsonItem, intend = 1): string {
+function generateGQLOutputFields(schema: JsonItem): string {
     const outputFields = getOutputFields(schema);
 
-    return outputFields.map((val: string | []) => {
+    return outputFields.map((val: string | []) => 
         outputFieldToString(val)
-    }).join('');
+    ).join('');
 }
 
 function getOutputFields(schema: JsonItem): any {

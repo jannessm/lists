@@ -1,8 +1,8 @@
 import { AsTyped } from 'as-typed';
 import { ForeignId, COMMON_SCHEMA } from "./common";
 import { Signal } from "@angular/core";
-import { MyDocument } from "./document";
-import { MyCollection } from "./collection";
+import { MyDocument } from "./classes";
+import { MyCollection } from '../collection';
 
 export enum THEME {
     AUTO = "auto",

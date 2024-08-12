@@ -1,6 +1,6 @@
 import { Observable, Subject, Subscription } from "rxjs";
-import { MyCollection } from "./types/collection";
 import { MyPullHandler, MyPullOptions, MyPushHandler, MyPushOptions, MyReplicationOptions } from "./types/replication";
+import { MyCollection } from "./collection";
 
 export async function replicateCollection(options: MyReplicationOptions): Promise<Replicator> {
     const replicator = new Replicator(
@@ -36,14 +36,19 @@ export class Replicator {
             let docs = newDocs.documents;
             if (docs.length > 0) {
                 if (this.pullOptions.modifier) {
-                    docs = newDocs.documents.map(this.pullOptions.modifier)
+                    docs = docs.map(this.pullOptions.modifier)
                 }
-                await this.collection.masterBulkAdd(docs);
+                await this.collection.remoteBulkAdd(docs);
                 await this.collection.setCheckpoint(newDocs.checkpoint);
             } else {
                 break;
             }
         }
+
+        console.log(await this.collection.table.toCollection()
+            .filter(doc => doc.touched)
+            .toArray()
+        );
     }
 
     public startStream() {
@@ -57,7 +62,7 @@ export class Replicator {
                 docs = docs.map(this.pullOptions.modifier);
             }
             this.remoteEvents$.next(docs);
-            this.collection.masterBulkAdd(docs);
+            this.collection.remoteBulkAdd(docs);
         });
     }
 

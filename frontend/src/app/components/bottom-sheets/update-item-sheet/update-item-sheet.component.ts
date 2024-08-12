@@ -1,15 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, Inject, ViewChild, ViewChildren } from '@angular/core';
+import { Component, Inject, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { MaterialModule } from '../../../material.module';
-import { RxDocument } from 'rxdb';
 import flatpickr from 'flatpickr';
 import { timePickerConfig } from '../../../../models/time-picker';
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { Subscription } from 'rxjs';
-import { RxListsDocument } from '../../../mydb/types/lists';
-import { RxItemDocument } from '../../../mydb/types/list-item';
+import { MyListsDocument } from '../../../mydb/types/lists';
+import { MyItemDocument } from '../../../mydb/types/list-item';
 
 @Component({
   selector: 'app-update-item-sheet',
@@ -25,7 +24,7 @@ import { RxItemDocument } from '../../../mydb/types/list-item';
 })
 export class UpdateItemSheetComponent {
   form: FormGroup;
-  list: RxListsDocument;
+  list: MyListsDocument;
   timezone: string;
 
   dueFlatpickr!: flatpickr.Instance;
@@ -41,7 +40,7 @@ export class UpdateItemSheetComponent {
 
   constructor(
     public bottomSheetRef: MatBottomSheetRef<UpdateItemSheetComponent>,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: {list: RxListsDocument, item: RxItemDocument},
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: {list: MyListsDocument, item: MyItemDocument},
     private fb: FormBuilder
   ) {
     this.list = data.list;

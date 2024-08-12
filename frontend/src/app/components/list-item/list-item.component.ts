@@ -1,15 +1,15 @@
 import { Component, HostListener, Input, Signal } from '@angular/core';
 import { MaterialModule } from '../../material.module';
 import { CommonModule } from '@angular/common';
-import { RxItemDocument } from '../../mydb/types/list-item';
+import { MyItemDocument } from '../../mydb/types/list-item';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { UpdateItemSheetComponent } from '../bottom-sheets/update-item-sheet/update-item-sheet.component';
-import { RxListsDocument } from '../../mydb/types/lists';
+import { MyListsDocument } from '../../mydb/types/lists';
 import { ConfirmSheetComponent } from '../bottom-sheets/confirm-sheet/confirm-sheet.component';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { is_today } from '../../../models/categories_timeslots';
 import { FormsModule } from '@angular/forms';
-import { RxMeDocument } from '../../mydb/types/me';
+import { MyMeDocument } from '../../mydb/types/me';
 import { DataService } from '../../services/data/data.service';
 
 @Component({
@@ -26,11 +26,11 @@ import { DataService } from '../../services/data/data.service';
 })
 export class ListItemComponent {
   @Input()
-  me?: Signal<RxMeDocument>;
+  me?: Signal<MyMeDocument>;
   @Input()
-  list?: Signal<RxListsDocument>;
+  list?: Signal<MyListsDocument>;
   @Input()
-  item?: RxItemDocument;
+  item?: MyItemDocument;
 
   pointerDown: boolean = false;
   pointerPosY: number | undefined; 
@@ -55,17 +55,17 @@ export class ListItemComponent {
     }
   }
 
-  deleteItem(item: RxItemDocument) {
+  deleteItem(item: MyItemDocument) {
     const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche ' + item.name});
     
     confirm.afterDismissed().subscribe(del => {
       if (this.item && del) {
-        this.item.getLatest().remove();
+        this.item.remove();
       }
     });
   }
 
-  userFab(item: RxItemDocument) {
+  userFab(item: MyItemDocument) {
     if (this.list) {
       const index = this.list().users().findIndex(val => val.id === item.createdBy.id);
       if (index) {
@@ -75,11 +75,11 @@ export class ListItemComponent {
     return 0;
   }
 
-  is_today(item: RxItemDocument): boolean {
+  is_today(item: MyItemDocument): boolean {
     return !!is_today(item);
   }
 
-  openUpdateSheet(event: MouseEvent, item?: RxItemDocument) {
+  openUpdateSheet(event: MouseEvent, item?: MyItemDocument) {
     if (!this.pointerDown && item) {
       this.pointerDown = true;
       const currScrollPos = event.clientY;
@@ -101,7 +101,7 @@ export class ListItemComponent {
   
           this.updateSheetRef.afterDismissed().subscribe(patch => {
             if (this.item && patch) {
-              this.item.getLatest().patch(patch);
+              this.item.patch(patch);
             }
 
             setTimeout(() => {

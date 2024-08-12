@@ -4,7 +4,7 @@ import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.componen
 
 import { MaterialModule } from '../../material.module';
 import { CommonModule } from '@angular/common';
-import { RxListsDocument, newLists } from '../../mydb/types/lists';
+import { MyListsDocument, newLists } from '../../mydb/types/lists';
 import { DataService } from '../../services/data/data.service';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
@@ -22,7 +22,7 @@ import { AuthService } from '../../services/auth/auth.service';
 })
 export class ListsOverviewComponent {
 
-  lists: Signal<RxListsDocument[]>;
+  lists: Signal<MyListsDocument[]>;
 
   constructor(
     public bottomSheet: MatBottomSheet,
@@ -31,7 +31,7 @@ export class ListsOverviewComponent {
   ) {
     this.lists = this.dataService.db.lists.find({
       sort: [{name: 'asc'}]
-    }).$$ as Signal<RxListsDocument[]>;
+    }).$$ as Signal<MyListsDocument[]>;
   }
 
   addList() {

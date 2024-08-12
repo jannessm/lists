@@ -1,33 +1,41 @@
 import { Signal } from "@angular/core";
 import { MyCollection } from "./collection";
-import { Observable, Subject } from "rxjs";
-import { CollectionMethods } from "./types/database";
+import { Observable, Subject, filter } from "rxjs";
 
-export class MyDocument {
+export class MyDocument<DocType, DocMethods> {
     private subject: Subject<unknown> = new Subject();
-    private lastDoc!: unknown;
     $: Observable<unknown>;
     $$!: Signal<unknown>;
 
     constructor(
-        methods: CollectionMethods | undefined,
-        private collection: MyCollection,
-        private request: Promise<object>
+        private collection: MyCollection<DocType, DocMethods, unknown>,
+        private data: any
     ) {
         this.$ = this.subject.asObservable();
-        request.then(doc => {
-            this.subject.next(doc);
-            this.$$ = this.collection.reactivity.fromObservable(this.$, doc);
-            this.lastDoc = doc;
+        this.$$ = this.collection.reactivity.fromObservable(this.$, data);
+        this.subject.next(data);
+
+        Object.keys(data).forEach(key => {
+            Object.defineProperty(this, key, {
+                get: () => this.data[key]
+            });
         });
 
-        if (methods) {
-            Object.assign(this, methods);
+        if (this.collection.methods) {
+            Object.assign(this, this.collection.methods);
         }
+
+        this.collection.$.pipe(filter(event => {
+            return true;
+            //TODO:
+        })).subscribe();
     }
 
     async patch(newDoc: any) {
+        //TODO:
+    }
+
+    async remove() {
         //TODO: 
-        this.collection.primaryKey
     }
 }
