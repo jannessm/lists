@@ -41,9 +41,8 @@ export class MyQuerySingle<DocType, DocMethods> {
 
     private update() {
         this.query.query().then(doc => {
-            const newDoc = new MyDocument<DocType, DocMethods>(this.collection, doc);
-            this.lastResult = newDoc;
-            this.subject.next(newDoc);
+            this.lastResult = doc;
+            this.subject.next(doc);
         });
     }
     

@@ -88427,15 +88427,14 @@ var MyDocument = class {
     this.subject.next(this);
     this.lastData = data;
     this.key = data[this.collection.primaryKey];
-    Object.keys(this.lastData).forEach((key2) => {
-      Object.defineProperty(this, key2, {
-        get: () => this.lastData[key2]
+    Object.keys(this.lastData).forEach((key) => {
+      Object.defineProperty(this, key, {
+        get: () => this.lastData[key]
       });
     });
     if (this.collection.methods) {
       Object.assign(this, this.collection.methods);
     }
-    const key = this.collection.primaryKey;
     this.collection.$.pipe(map((docs) => docs.find((doc) => doc.key === this.key)), filter((doc) => !!doc)).subscribe((doc) => {
       if (doc) {
         this.lastData = doc?.lastData;
@@ -88475,9 +88474,8 @@ var MyQuerySingle = class {
   }
   update() {
     this.query.query().then((doc) => {
-      const newDoc = new MyDocument(this.collection, doc);
-      this.lastResult = newDoc;
-      this.subject.next(newDoc);
+      this.lastResult = doc;
+      this.subject.next(doc);
     });
   }
   patch(doc) {

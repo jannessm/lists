@@ -29,7 +29,6 @@ export class MyDocument<DocType, DocMethods> {
             Object.assign(this, this.collection.methods);
         }
 
-        const key = this.collection.primaryKey;
         this.collection.$.pipe(
                 map(docs => docs.find(doc =>
                     doc.key === this.key
