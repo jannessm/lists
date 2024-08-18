@@ -1,4 +1,4 @@
-import { Component, Signal } from '@angular/core';
+import { Component, NgZone, Signal, effect } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.component';
 
@@ -27,11 +27,16 @@ export class ListsOverviewComponent {
   constructor(
     public bottomSheet: MatBottomSheet,
     private dataService: DataService,
-    private authService: AuthService
+    private authService: AuthService,
+    private zone: NgZone
   ) {
     this.lists = this.dataService.db.lists.find({
       sort: [{name: 'asc'}]
     }).$$ as Signal<MyListsDocument[]>;
+
+    this.dataService.db.lists.$.subscribe(docs => console.log('$', docs))
+
+    effect(() => console.log('new lists', this.lists()));
   }
 
   addList() {

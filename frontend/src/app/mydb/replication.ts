@@ -1,5 +1,5 @@
-import { Observable, Subject, Subscription } from "rxjs";
-import { MyPullHandler, MyPullOptions, MyPushHandler, MyPushOptions, MyReplicationOptions } from "./types/replication";
+import { Subject, Subscription } from "rxjs";
+import { MyPullOptions, MyPushOptions, MyReplicationOptions } from "./types/replication";
 import { MyCollection } from "./collection";
 
 export async function replicateCollection(options: MyReplicationOptions): Promise<Replicator> {
@@ -45,10 +45,10 @@ export class Replicator {
             }
         }
 
-        console.log(await this.collection.table.toCollection()
-            .filter(doc => doc.touched)
-            .toArray()
-        );
+        // console.log(await this.collection.table.toCollection()
+        //     .filter(doc => doc.touched)
+        //     .toArray()
+        // );
     }
 
     public startStream() {

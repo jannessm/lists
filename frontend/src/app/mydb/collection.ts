@@ -1,51 +1,77 @@
-import Dexie from "dexie";
 import { CollectionMethods, QueryOptions, SortCriterias } from "./types/database";
 import { MyReactivityFactory } from "./types/interfaces";
-import { Observable, Subject } from "rxjs";
+import { Observable,  filter, map } from "rxjs";
 import { MyDocument } from "./document";
 import { MyQuery, MyQuerySingle } from "./query";
+import { defaultConflictHandler } from "./conflict-handler";
+import { ConflictHandler } from "./types/replication";
+import { QueryObject } from "./types/classes";
+import { MyDatabase } from "./database";
 
 export class MyCollection<DocType, DocMethods, Reactivity> {
-    changes: Subject<MyDocument<DocType, DocMethods>[]> = new Subject();
-    $: Observable<MyDocument<DocType, DocMethods>[]>;
-    $$!: Reactivity;
     private lastCheckpoint?: unknown;
+    $: Observable<MyDocument<DocType, DocMethods>[]>;
 
-    constructor(public db: Dexie,
+    private conflictHandler!: ConflictHandler;
+
+    constructor(private db: MyDatabase,
                 private tableName: string,
                 public primaryKey: string,
                 public reactivity: MyReactivityFactory,
-                public methods?: CollectionMethods
+                public methods?: CollectionMethods,
+                conflictHandler?: ConflictHandler
     ) {
-        this.$ = this.changes.asObservable();
-        this.table.toArray().then(arr => this.$$ = reactivity.fromObservable(this.$, arr));
+        this.$ = this.db.$.pipe(
+            filter(changes => changes.collection == this.tableName),
+            map(changes => changes.changes)
+        );
+        
+        if (!conflictHandler) {
+            this.conflictHandler = defaultConflictHandler;
+        }
+    }
+
+    get $$(): Reactivity {
+        return this.reactivity.fromObservable(
+            this.$,
+            []
+        );
     }
 
     get table() {
-        return this.db.table(this.tableName);
+        return this.db.dexie.table(this.tableName);
     }
     get replicationTable() {
-        return this.db.table(this.tableName + '_replication');
+        return this.db.dexie.table(this.tableName + '_replication');
     }
     get masterTable() {
-        return this.db.table(this.tableName + '_master_states');
+        return this.db.dexie.table(this.tableName + '_master_states');
     }
 
     find(query?: QueryOptions): MyQuery<DocType, DocMethods> {
-        let req: () => any = () => this.table.toArray();
+        let req: QueryObject;
         if (query) {
             req = this.buildQuery(query);
         } else {
-            this.table.toArray();
+            req = {
+                filter: (doc: any) => true,
+                query: () => this.table.toArray()
+            }
         }
         return new MyQuery<DocType, DocMethods>(this, req);
     }
 
     findOne(query?: QueryOptions): MyQuerySingle<DocType, DocMethods> {
-        let req: () => any = () => this.table.toCollection().first();
+        let req: QueryObject;
         if (query) {
             req = this.buildQuery(query, true);
+        } else {
+            req = {
+                filter: (doc: any) => true,
+                query: () => this.table.toCollection().first()
+            }
         }
+        
         return new MyQuerySingle<DocType, DocMethods>(this, req);
     }
 
@@ -54,16 +80,38 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
         this.table.add(doc);
     }
 
-    async remoteBulkAdd(docs: unknown[]) {
+    async remoteBulkAdd(docs: any[]) {
         // add new docs to mastertable and "forks"
         //   if doc exists in forks -> resolve err and add again
-        await this.table.bulkAdd(docs).catch((errs) => {
+        await this.table.bulkAdd(docs).catch(async (err) => {
+            const bulk = [];
+            for (const [pos, error] of Object.entries(err.failuresByPos)) {
+                if (!(error as any).message.includes('Key already exists')) {
+                    // console.error(error);
+                }
+                const trueMaster = docs[parseInt(pos)];
+                const assumedMaster = await this.masterTable.get(
+                    {[this.primaryKey]: trueMaster[this.primaryKey]}
+                );
+                const forkState = await this.table.get(
+                    {[this.primaryKey]: trueMaster[this.primaryKey]}
+                );
 
-            console.log(errs);
-            //TODO: resovle errors
+                bulk.push(this.conflictHandler(forkState, assumedMaster, trueMaster));
+            }
+
+            if (bulk.length > 0) {
+                await this.table.bulkPut(bulk);
+            }
         });
+        
         // update masterstates
-        return this.masterTable.bulkPut(docs);
+        await this.masterTable.bulkPut(docs);
+        
+        // emit changes
+        const updatedIds = docs.map(doc => doc[this.primaryKey]);
+        const newDocs = await this.table.bulkGet(updatedIds);
+        this.db.next(this.tableName, newDocs.map(doc => new MyDocument<DocType, DocMethods>(this, doc)));
     }
 
     async getAssumedMaster(key: string) {
@@ -93,31 +141,37 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
         this.lastCheckpoint = checkpoint;
     }
 
-    buildQuery(query: QueryOptions, single = false) {
-        return async () => {
-            let collection = this.table.toCollection();
-
-            // only supports selector with key => val
-            if (query.selector) {
-                Object.entries(query.selector).forEach(val => {
-                    const key = val[0];
-                    const value = val[1];
-
-                    collection = collection.filter(doc => doc[key] === value)
-                });
-            }
-
-            const arr = await collection.toArray();
-            if (query.sort) {
-                arr.sort(recursiveSort(query.sort));
-            }
-
-            if (single) {
-                return arr[0];
-            }
+    buildQuery(query: QueryOptions, single = false): QueryObject {
+        const _this = this;
+        return {
+            filter: function(doc: any) {
+                if (query.selector) {
+                    return Object.entries(query.selector).reduce((carry, val) => {
+                        const key = val[0];
+                        const value = val[1];
     
-            return arr;
-        }
+                        return carry || doc[key] === value;
+                    }, false);
+                }
+                return true;
+            },
+            query: async function () {
+                let collection = _this.table.toCollection();
+
+                collection = collection.filter(this.filter);
+
+                const arr = await collection.toArray();
+
+                if (single) {
+                    return new MyDocument<DocType, DocMethods>(_this, arr[0]);
+                }
+
+                if (query.sort) {
+                    arr.sort(recursiveSort(query.sort));
+                }
+                return arr.map(data => new MyDocument<DocType, DocMethods>(_this, data));
+            },
+        };
     }
 }
 

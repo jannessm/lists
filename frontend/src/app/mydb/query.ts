@@ -1,8 +1,8 @@
-import { Observable, Subject, filter } from "rxjs";
+import { BehaviorSubject, Observable, Subject, filter, map } from "rxjs";
 import { MyCollection } from "./collection";
 import { Signal } from "@angular/core";
 import { MyDocument } from "./document";
-import { MyDocument as MyDocumentType } from "./types/classes";
+import { MyDocument as MyDocumentType, QueryObject } from "./types/classes";
 
 export class MyQuerySingle<DocType, DocMethods> {
     private subject = new Subject<MyDocument<DocType, DocMethods>>();
@@ -10,11 +10,22 @@ export class MyQuerySingle<DocType, DocMethods> {
 
     constructor(
         private collection: MyCollection<DocType, DocMethods, unknown>,
-        private query: () => Promise<any>
+        private query: QueryObject
     ) {
         this.update();
 
-        this.collection.$.subscribe(() => this.update());
+        this.collection.$.pipe(
+                filter(docs => docs.reduce((carry, doc) =>
+                    carry || this.query.filter(doc), false
+                )),
+                map(docs => docs.find(this.query.filter))
+            )
+            .subscribe(doc => {
+                if (doc) {
+                    this.lastResult = doc;
+                    this.subject.next(doc);
+                }
+            });
     }
 
     get $(): Observable<MyDocument<DocType, DocMethods>> {
@@ -29,7 +40,7 @@ export class MyQuerySingle<DocType, DocMethods> {
     }
 
     private update() {
-        this.query().then(doc => {
+        this.query.query().then(doc => {
             const newDoc = new MyDocument<DocType, DocMethods>(this.collection, doc);
             this.lastResult = newDoc;
             this.subject.next(newDoc);
@@ -43,18 +54,25 @@ export class MyQuerySingle<DocType, DocMethods> {
 }
 
 export class MyQuery<DocType, DocMethods> {
-    private subject = new Subject<MyDocument<DocType, DocMethods>[]>();
-    lastResult!: MyDocument<DocType, DocMethods>[];
+    private subject = new BehaviorSubject<MyDocument<DocType, DocMethods>[]>([]);
 
     constructor(
         private collection: MyCollection<DocType, DocMethods, unknown>,
-        private query: () => Promise<any[]>
+        private query: QueryObject
     ) {
-        this.query().then(docs => {
-            const newDocs = docs.map(doc => new MyDocument<DocType, DocMethods>(this.collection, doc));
-            this.lastResult = newDocs;
-            this.subject.next(newDocs);
-        })
+        this.collection.$.pipe(
+                filter(docs => docs.reduce((carry, doc) =>
+                    carry || this.query.filter(doc), false
+                ))
+            )
+            .subscribe(docs => {
+                console.log('query $', docs.length);
+                // console.log('update query');
+                this.update();
+            });
+        
+        this.update();
+
     }
 
     get $(): Observable<MyDocument<DocType, DocMethods>[]> {
@@ -64,15 +82,21 @@ export class MyQuery<DocType, DocMethods> {
     get $$(): Signal<MyDocumentType<DocType, DocMethods>[]> {
         return this.collection.reactivity.fromObservable(
             this.$,
-            this.lastResult
+            this.subject.value
         );
     }
 
+    private update() {
+        this.query.query().then(docs => {
+            this.subject.next(docs);
+        });
+    }
+
     patch(patch: any) {
-        this.lastResult.forEach(doc => doc.patch(patch));
+        this.subject.value.forEach(doc => doc.patch(patch));
     }
 
     remove() {
-        this.lastResult.forEach(doc => doc.remove());
+        this.subject.value.forEach(doc => doc.remove());
     }
 }

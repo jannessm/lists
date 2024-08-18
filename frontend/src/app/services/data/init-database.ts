@@ -1,20 +1,11 @@
-import { Injector, Signal, untracked } from "@angular/core";
-import { environment } from "../../../environments/environment";
+import { Injector, untracked } from "@angular/core";
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ITEM_SCHEMA, MyItemCollection } from "../../mydb/types/list-item";
+import { ITEM_SCHEMA } from "../../mydb/types/list-item";
 import { DATA_TYPE } from "../../mydb/types/graphql-types";
 import { MyReactivityFactory } from "../../mydb/types/interfaces";
-import { MyDatabase as MyDatabaseType } from "../../mydb/types/database";
 import { MyDatabase, createMyDatabase } from "../../mydb/database";
-import { ME_SCHEMA, MyMeCollection } from "../../mydb/types/me";
-import { LISTS_SCHEMA, MyListsCollection } from "../../mydb/types/lists";
-
-export type MyListsCollections = {
-    me: MyMeCollection,
-    lists: MyListsCollection,
-    items: MyItemCollection
-};
-export type MyListsDatabase = MyDatabaseType<MyListsCollections, Signal<unknown>>;
+import { ME_SCHEMA } from "../../mydb/types/me";
+import { LISTS_SCHEMA } from "../../mydb/types/lists";
 
 export let DB_INSTANCE: any;
 
@@ -83,5 +74,5 @@ export async function addCollections(db: MyDatabase): Promise<MyDatabase> {
 
     console.log('DatabaseService: created');
 
-    return db as any;
+    return db;
 }

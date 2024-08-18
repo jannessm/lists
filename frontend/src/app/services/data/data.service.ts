@@ -5,7 +5,8 @@ import { DATA_TYPE } from '../../mydb/types/graphql-types';
 import { GroceryCategories } from '../../../models/categories_groceries';
 import { HttpClient } from '@angular/common/http';
 import { BASE_API } from '../../globals';
-import { DB_INSTANCE, MyListsDatabase } from './init-database';
+import { DB_INSTANCE } from './init-database';
+import { MyListsDatabase } from '../../mydb/types/database';
 
 @Injectable({
   providedIn: 'root'

@@ -8,7 +8,7 @@ import { MyMeCollection } from '../../mydb/types/me';
 import { MyListsCollection } from '../../mydb/types/lists';
 import { MyItemCollection } from '../../mydb/types/list-item';
 import { MyPushRow } from '../../mydb/types/common';
-import { pullQueryBuilderFromSchema, pullStreamBuilderFromSchema, pushQueryBuilderFromSchema } from '../../mydb/helpers';
+import { pullQueryBuilderFromSchema, pullStreamBuilderFromSchema, pushQueryBuilderFromSchema } from '../../mydb/graphql-helpers';
 import { replicateCollection } from '../../mydb/replication';
 
 type GenerationInputKey = keyof typeof graphQLGenerationInput;

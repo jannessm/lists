@@ -28,3 +28,5 @@ export type MyPushOptions = {
 export type MyPushHandler = (rows: MyPushRow[]) => Promise<any[]>;
 
 export type MyDocumentModifier = (doc: unknown) => unknown;
+
+export type ConflictHandler = (fork: any, assumedMaster: any, trueMaster: any) => any;

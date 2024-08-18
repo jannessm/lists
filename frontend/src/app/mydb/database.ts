@@ -3,6 +3,9 @@ import { AddCollectionsOptions, CollectionOptions, CreateDatabaseOptions } from 
 import { MyReactivityFactory } from "./types/interfaces";
 import { DexieSchema } from "./types/schema";
 import { MyCollection } from "./collection";
+import { Observable, Subject } from "rxjs";
+import { MyDocument } from "./types/classes";
+import { DatabaseChanges } from "./types/common";
 
 export function createMyDatabase(options: CreateDatabaseOptions): MyDatabase {
     return new MyDatabase(options.name, options.reactivity);
@@ -10,26 +13,32 @@ export function createMyDatabase(options: CreateDatabaseOptions): MyDatabase {
 
 export class MyDatabase {
 
-    private db: Dexie;
+    public dexie: Dexie;
     private schema?: AddCollectionsOptions;
     private initialied = false;
 
+    private changes = new Subject<DatabaseChanges>();
+    $: Observable<DatabaseChanges>;
+
     constructor(name: string,
                 public reactivity: MyReactivityFactory) {
-        this.db = new Dexie(name);
+        this.dexie = new Dexie(name);
+        this.$ = this.changes.asObservable();
     }
 
     async addCollections(options: AddCollectionsOptions) {
         if (!this.initialied) {
-            this.db.version(1).stores(MyDatabase.getPrimaryKeysFromCollections(options));
+            this.dexie.version(1).stores(MyDatabase.getPrimaryKeysFromCollections(options));
     
             Object.keys(options).forEach(tableName => {
+                const tableOptions = options[tableName];
                 Object.defineProperty(this, tableName, {
-                    get: () => new MyCollection(this.db,
+                    get: () => new MyCollection(this,
                                                 tableName,
-                                                options[tableName].schema.primaryKey,
+                                                tableOptions.schema.primaryKey,
                                                 this.reactivity,
-                                                options[tableName].methods)
+                                                tableOptions.methods,
+                                                tableOptions.conflictHandler)
                 });
             });
             this.initialied = true;
@@ -53,5 +62,12 @@ export class MyDatabase {
             schema[key + '_replication'] = 'updatedAt';
         });
         return schema;
+    }
+
+    next(collection: string, changes: MyDocument<any, any>[]) {
+        this.changes.next({
+            collection,
+            changes
+        })
     }
 }

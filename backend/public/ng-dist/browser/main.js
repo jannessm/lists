@@ -88142,9 +88142,6 @@ var COMMON_SCHEMA = {
   createdAt: {
     type: "string"
   },
-  clientUpdatedAt: {
-    type: "string"
-  },
   updatedAt: {
     type: "string"
   },
@@ -88424,22 +88421,27 @@ var import_wrapper_default = Dexie;
 var MyDocument = class {
   constructor(collection, data) {
     this.collection = collection;
-    this.data = data;
     this.subject = new Subject();
     this.$ = this.subject.asObservable();
     this.$$ = this.collection.reactivity.fromObservable(this.$, data);
-    this.subject.next(data);
-    Object.keys(data).forEach((key) => {
-      Object.defineProperty(this, key, {
-        get: () => this.data[key]
+    this.subject.next(this);
+    this.lastData = data;
+    this.key = data[this.collection.primaryKey];
+    Object.keys(this.lastData).forEach((key2) => {
+      Object.defineProperty(this, key2, {
+        get: () => this.lastData[key2]
       });
     });
     if (this.collection.methods) {
       Object.assign(this, this.collection.methods);
     }
-    this.collection.$.pipe(filter((event) => {
-      return true;
-    })).subscribe();
+    const key = this.collection.primaryKey;
+    this.collection.$.pipe(map((docs) => docs.find((doc) => doc.key === this.key)), filter((doc) => !!doc)).subscribe((doc) => {
+      if (doc) {
+        this.lastData = doc?.lastData;
+        this.subject.next(this);
+      }
+    });
   }
   patch(newDoc) {
     return __async(this, null, function* () {
@@ -88458,7 +88460,12 @@ var MyQuerySingle = class {
     this.query = query2;
     this.subject = new Subject();
     this.update();
-    this.collection.$.subscribe(() => this.update());
+    this.collection.$.pipe(filter((docs) => docs.reduce((carry, doc) => carry || this.query.filter(doc), false)), map((docs) => docs.find(this.query.filter))).subscribe((doc) => {
+      if (doc) {
+        this.lastResult = doc;
+        this.subject.next(doc);
+      }
+    });
   }
   get $() {
     return this.subject.asObservable();
@@ -88467,7 +88474,7 @@ var MyQuerySingle = class {
     return this.collection.reactivity.fromObservable(this.$, this.lastResult);
   }
   update() {
-    this.query().then((doc) => {
+    this.query.query().then((doc) => {
       const newDoc = new MyDocument(this.collection, doc);
       this.lastResult = newDoc;
       this.subject.next(newDoc);
@@ -88481,61 +88488,87 @@ var MyQuery = class {
   constructor(collection, query2) {
     this.collection = collection;
     this.query = query2;
-    this.subject = new Subject();
-    this.query().then((docs) => {
-      const newDocs = docs.map((doc) => new MyDocument(this.collection, doc));
-      this.lastResult = newDocs;
-      this.subject.next(newDocs);
+    this.subject = new BehaviorSubject([]);
+    this.collection.$.pipe(filter((docs) => docs.reduce((carry, doc) => carry || this.query.filter(doc), false))).subscribe((docs) => {
+      console.log("query $", docs.length);
+      this.update();
     });
+    this.update();
   }
   get $() {
     return this.subject.asObservable();
   }
   get $$() {
-    return this.collection.reactivity.fromObservable(this.$, this.lastResult);
+    return this.collection.reactivity.fromObservable(this.$, this.subject.value);
+  }
+  update() {
+    this.query.query().then((docs) => {
+      this.subject.next(docs);
+    });
   }
   patch(patch) {
-    this.lastResult.forEach((doc) => doc.patch(patch));
+    this.subject.value.forEach((doc) => doc.patch(patch));
   }
   remove() {
-    this.lastResult.forEach((doc) => doc.remove());
+    this.subject.value.forEach((doc) => doc.remove());
   }
 };
 
+// src/app/mydb/conflict-handler.ts
+function defaultConflictHandler(forkState, assumendMasterState, trueMasterState) {
+  if (assumendMasterState.updatedAt === trueMasterState.updatedAt) {
+    return forkState;
+  } else {
+    return trueMasterState;
+  }
+}
+
 // src/app/mydb/collection.ts
 var MyCollection = class {
-  constructor(db, tableName, primaryKey, reactivity, methods) {
+  constructor(db, tableName, primaryKey, reactivity, methods, conflictHandler) {
     this.db = db;
     this.tableName = tableName;
     this.primaryKey = primaryKey;
     this.reactivity = reactivity;
     this.methods = methods;
-    this.changes = new Subject();
-    this.$ = this.changes.asObservable();
-    this.table.toArray().then((arr) => this.$$ = reactivity.fromObservable(this.$, arr));
+    this.$ = this.db.$.pipe(filter((changes) => changes.collection == this.tableName), map((changes) => changes.changes));
+    if (!conflictHandler) {
+      this.conflictHandler = defaultConflictHandler;
+    }
+  }
+  get $$() {
+    return this.reactivity.fromObservable(this.$, []);
   }
   get table() {
-    return this.db.table(this.tableName);
+    return this.db.dexie.table(this.tableName);
   }
   get replicationTable() {
-    return this.db.table(this.tableName + "_replication");
+    return this.db.dexie.table(this.tableName + "_replication");
   }
   get masterTable() {
-    return this.db.table(this.tableName + "_master_states");
+    return this.db.dexie.table(this.tableName + "_master_states");
   }
   find(query2) {
-    let req = () => this.table.toArray();
+    let req;
     if (query2) {
       req = this.buildQuery(query2);
     } else {
-      this.table.toArray();
+      req = {
+        filter: (doc) => true,
+        query: () => this.table.toArray()
+      };
     }
     return new MyQuery(this, req);
   }
   findOne(query2) {
-    let req = () => this.table.toCollection().first();
+    let req;
     if (query2) {
       req = this.buildQuery(query2, true);
+    } else {
+      req = {
+        filter: (doc) => true,
+        query: () => this.table.toCollection().first()
+      };
     }
     return new MyQuerySingle(this, req);
   }
@@ -88547,10 +88580,24 @@ var MyCollection = class {
   }
   remoteBulkAdd(docs) {
     return __async(this, null, function* () {
-      yield this.table.bulkAdd(docs).catch((errs) => {
-        console.log(errs);
-      });
-      return this.masterTable.bulkPut(docs);
+      yield this.table.bulkAdd(docs).catch((err) => __async(this, null, function* () {
+        const bulk = [];
+        for (const [pos, error] of Object.entries(err.failuresByPos)) {
+          if (!error.message.includes("Key already exists")) {
+          }
+          const trueMaster = docs[parseInt(pos)];
+          const assumedMaster = yield this.masterTable.get({ [this.primaryKey]: trueMaster[this.primaryKey] });
+          const forkState = yield this.table.get({ [this.primaryKey]: trueMaster[this.primaryKey] });
+          bulk.push(this.conflictHandler(forkState, assumedMaster, trueMaster));
+        }
+        if (bulk.length > 0) {
+          yield this.table.bulkPut(bulk);
+        }
+      }));
+      yield this.masterTable.bulkPut(docs);
+      const updatedIds = docs.map((doc) => doc[this.primaryKey]);
+      const newDocs = yield this.table.bulkGet(updatedIds);
+      this.db.next(this.tableName, newDocs.map((doc) => new MyDocument(this, doc)));
     });
   }
   getAssumedMaster(key) {
@@ -88584,24 +88631,33 @@ var MyCollection = class {
     });
   }
   buildQuery(query2, single = false) {
-    return () => __async(this, null, function* () {
-      let collection = this.table.toCollection();
-      if (query2.selector) {
-        Object.entries(query2.selector).forEach((val) => {
-          const key = val[0];
-          const value = val[1];
-          collection = collection.filter((doc) => doc[key] === value);
+    const _this = this;
+    return {
+      filter: function(doc) {
+        if (query2.selector) {
+          return Object.entries(query2.selector).reduce((carry, val) => {
+            const key = val[0];
+            const value = val[1];
+            return carry || doc[key] === value;
+          }, false);
+        }
+        return true;
+      },
+      query: function() {
+        return __async(this, null, function* () {
+          let collection = _this.table.toCollection();
+          collection = collection.filter(this.filter);
+          const arr = yield collection.toArray();
+          if (single) {
+            return new MyDocument(_this, arr[0]);
+          }
+          if (query2.sort) {
+            arr.sort(recursiveSort(query2.sort));
+          }
+          return arr.map((data) => new MyDocument(_this, data));
         });
       }
-      const arr = yield collection.toArray();
-      if (query2.sort) {
-        arr.sort(recursiveSort(query2.sort));
-      }
-      if (single) {
-        return arr[0];
-      }
-      return arr;
-    });
+    };
   }
 };
 function recursiveSort(criterias) {
@@ -88630,15 +88686,18 @@ var MyDatabase = class _MyDatabase {
   constructor(name, reactivity) {
     this.reactivity = reactivity;
     this.initialied = false;
-    this.db = new import_wrapper_default(name);
+    this.changes = new Subject();
+    this.dexie = new import_wrapper_default(name);
+    this.$ = this.changes.asObservable();
   }
   addCollections(options) {
     return __async(this, null, function* () {
       if (!this.initialied) {
-        this.db.version(1).stores(_MyDatabase.getPrimaryKeysFromCollections(options));
+        this.dexie.version(1).stores(_MyDatabase.getPrimaryKeysFromCollections(options));
         Object.keys(options).forEach((tableName) => {
+          const tableOptions = options[tableName];
           Object.defineProperty(this, tableName, {
-            get: () => new MyCollection(this.db, tableName, options[tableName].schema.primaryKey, this.reactivity, options[tableName].methods)
+            get: () => new MyCollection(this, tableName, tableOptions.schema.primaryKey, this.reactivity, tableOptions.methods, tableOptions.conflictHandler)
           });
         });
         this.initialied = true;
@@ -88661,6 +88720,12 @@ var MyDatabase = class _MyDatabase {
       schema[key + "_replication"] = "updatedAt";
     });
     return schema;
+  }
+  next(collection, changes) {
+    this.changes.next({
+      collection,
+      changes
+    });
   }
 };
 
@@ -88718,7 +88783,7 @@ function addCollections(db) {
   });
 }
 
-// src/app/mydb/helpers.ts
+// src/app/mydb/graphql-helpers.ts
 function pullQueryBuilderFromSchema(collectionName, schema) {
   const ucCollectionName = collectionName[0].toUpperCase() + collectionName.slice(1);
   const checkpointInput = ucCollectionName + "InputCheckpoint";
@@ -88728,7 +88793,7 @@ function pullQueryBuilderFromSchema(collectionName, schema) {
     const query2 = `query Pull${ucCollectionName}($checkpoint: ${checkpointInput}, $limit: Int!) {
             pull${ucCollectionName}(checkpoint: $checkpoint, limit: $limit) {
                 documents {
-                    ${outputFields}
+${outputFields}
                 }
                 checkpoint {
                     ${checkpointFields}
@@ -88752,7 +88817,7 @@ function pullStreamBuilderFromSchema(collectionName, schema) {
   const query2 = `subscription onStream($headers: ${ucCollectionName}InputHeaders) {
         stream${ucCollectionName}(headers: $headers) {
             documents {
-                ${outputFields}
+${outputFields}
             }
             checkpoint {
                 ${checkpointFields}
@@ -88774,7 +88839,7 @@ function pushQueryBuilderFromSchema(collectionName, schema) {
   const builder = (rows) => {
     const query2 = `mutation Push${ucCollectionName}($rows: [${ucCollectionName}InputPushRow!]) {
             push${ucCollectionName}(${collectionName}PushRow: $rows) {
-                ${returnFields}
+${returnFields}
             }
         }`;
     const sendRows = rows.map((row) => {
@@ -88792,33 +88857,25 @@ function pushQueryBuilderFromSchema(collectionName, schema) {
   };
   return builder;
 }
-function generateGQLOutputFields(schema) {
-  const outputFields = getOutputFields(schema);
-  return outputFields.map((val) => outputFieldToString(val)).join("");
-}
-function getOutputFields(schema) {
+function generateGQLOutputFields(schema, intent = 4) {
+  const SPACING = " ".repeat(4 * intent);
   if (schema.type === "object" && schema.properties) {
     return Object.entries(schema.properties).map((val) => {
       const key = val[0];
       const item = val[1];
       if (item.type === "object" || item.type === "array") {
-        return getOutputFields(item);
+        const outputFields = generateGQLOutputFields(item, intent + 1);
+        return `${SPACING}${key} {
+${outputFields}${SPACING}}
+`;
       } else {
-        return key;
+        return SPACING + key + "\n";
       }
-    });
+    }).join("");
   } else if (schema.type === "array" && schema.items) {
-    return getOutputFields(schema.items);
+    return generateGQLOutputFields(schema.items, intent);
   }
-  return [];
-}
-function outputFieldToString(field, intent = 1) {
-  const SPACING = 4 * intent;
-  if (typeof field === "string") {
-    return " ".repeat(SPACING) + field + "\n";
-  } else {
-    return field.map((f) => outputFieldToString(f, intent + 1)).join("");
-  }
+  return "";
 }
 function filterObjectBySchemaFields(object, schema) {
   const newObject = {};
@@ -88860,7 +88917,6 @@ var Replicator = class {
           break;
         }
       }
-      console.log(yield this.collection.table.toCollection().filter((doc) => doc.touched).toArray());
     });
   }
   startStream() {
@@ -89692,13 +89748,16 @@ function ListsOverviewComponent_div_9_Template(rf, ctx) {
   }
 }
 var _ListsOverviewComponent = class _ListsOverviewComponent {
-  constructor(bottomSheet, dataService, authService) {
+  constructor(bottomSheet, dataService, authService, zone) {
     this.bottomSheet = bottomSheet;
     this.dataService = dataService;
     this.authService = authService;
+    this.zone = zone;
     this.lists = this.dataService.db.lists.find({
       sort: [{ name: "asc" }]
     }).$$;
+    this.dataService.db.lists.$.subscribe((docs) => console.log("$", docs));
+    effect(() => console.log("new lists", this.lists()));
   }
   addList() {
     const dialogRef = this.bottomSheet.open(AddSheetComponent);
@@ -89714,7 +89773,7 @@ var _ListsOverviewComponent = class _ListsOverviewComponent {
   }
 };
 _ListsOverviewComponent.\u0275fac = function ListsOverviewComponent_Factory(\u0275t) {
-  return new (\u0275t || _ListsOverviewComponent)(\u0275\u0275directiveInject(MatBottomSheet), \u0275\u0275directiveInject(DataService), \u0275\u0275directiveInject(AuthService));
+  return new (\u0275t || _ListsOverviewComponent)(\u0275\u0275directiveInject(MatBottomSheet), \u0275\u0275directiveInject(DataService), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(NgZone));
 };
 _ListsOverviewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ListsOverviewComponent, selectors: [["app-lists-overview"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 10, vars: 2, consts: [[1, "content-grid"], [1, "content-header"], ["mat-icon-button", "", 1, "add-button", 3, "click"], [1, "container"], ["class", "list-card", "mat-raised-button", "", 3, "routerLink", 4, "ngFor", "ngForOf"], ["class", "no-lists", 4, "ngIf"], ["mat-raised-button", "", 1, "list-card", 3, "routerLink"], [3, "color", 4, "ngIf"], [1, "no-lists"]], template: function ListsOverviewComponent_Template(rf, ctx) {
   if (rf & 1) {
@@ -93929,7 +93988,6 @@ function laravelInterceptor(req, next) {
   if (pusher.socketID) {
     headers = headers.append("X-Socket-ID", pusher.socketID);
   }
-  console.log("req", req.body);
   const newReq = req.clone({ headers });
   return next(newReq);
 }

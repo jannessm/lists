@@ -8,6 +8,7 @@ import { MaterialModule } from './material.module';
 import { PusherService } from './services/pusher/pusher.service';
 import { ThemeService } from './services/theme/theme.service';
 import { DataService } from './services/data/data.service';
+import { HttpClient } from '@angular/common/http';
 
 /**
  * IMPORTANT: RxDB creates rxjs observables outside of angulars zone
@@ -15,7 +16,6 @@ import { DataService } from './services/data/data.service';
  * @link https://www.bennadel.com/blog/3448-binding-rxjs-observable-sources-outside-of-the-ngzone-in-angular-6-0-2.htm
  */
 import 'zone.js/plugins/zone-patch-rxjs';
-import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
