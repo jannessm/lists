@@ -134,13 +134,15 @@ export class Replicator {
         const docId = doc[primaryKey];
         let assumedMaster = await this.collection.masterTable.get(docId);
 
-        doc = this.applyPushMod(doc);
-        assumedMaster = this.applyPushMod(assumedMaster);
-        
-        return {
-            newDocumentState: doc,
-            assumedMasterState: assumedMaster
+        const pushRow: MyPushRow = {
+            newDocumentState: this.applyPushMod(doc)
         };
+
+        if (!!assumedMaster) {
+            pushRow.assumedMasterState = this.applyPushMod(assumedMaster);
+        }
+        
+        return pushRow;
     }
 
     private applyPushMod(doc: any): any {

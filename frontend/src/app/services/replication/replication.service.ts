@@ -110,8 +110,6 @@ export class ReplicationService {
             doc['lists'] = {id: doc['lists']};
           }
 
-          delete doc['clientUpdatedAt'];
-
           return doc;
         }
       }

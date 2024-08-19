@@ -46,7 +46,10 @@ export class ListsOverviewComponent {
         this.dataService.db.lists.insert(newLists({
           name: res.name,
           isShoppingList: res.isShoppingList,
-          createdBy: {id: this.authService.me().id, name: this.authService.me().name},
+          createdBy: {
+            id: this.authService.me().id,
+            name: this.authService.me().name
+          },
         }));
       }
     });

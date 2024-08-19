@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Signal, ViewChild, computed } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Signal, ViewChild, computed, effect } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.component';
@@ -51,6 +51,7 @@ export class ListComponent implements AfterViewInit {
   timePicker!: flatpickr.Instance;
   timePickerDate: Date | undefined;
   pickerOpen = false;
+  initialized = false;
 
   slots: Signal<Slot[]> = computed(() => {
     if (this.listItems() && this.list()) {
@@ -80,14 +81,26 @@ export class ListComponent implements AfterViewInit {
       this.listItems = this.dataService.db.items.find({
         selector: {lists: id }
       }).$$ as Signal<MyItemDocument[]>;
-
-      this.dataService.db.items.$.subscribe((ev) => console.log('db changed'));
     } else {
       this.router.navigateByUrl('/user/lists');
     }
 
     this.newItemSub = this.newItemTime.valueChanges.subscribe(val => {
       this.toggleNewTimeSelected(val);
+    });
+
+    // handle if a list gets deleted while the list is opened
+    effect(() => {
+      if(this.initialized && (!this.list() || this.list()._deleted)) {
+        const snackbar = this.snackbar.open('Liste wurde gelöscht', 'Ok');
+        snackbar.afterDismissed().subscribe(() => {
+          this.router.navigateByUrl('/user/lists');
+        });
+      
+      // make sure a list was loaded before
+      } else if (!this.initialized && !!this.list()) {
+        this.initialized = true;
+      }
     });
   }
 
@@ -340,5 +353,9 @@ export class ListComponent implements AfterViewInit {
         this.snackbar.open('Liste in die Zwischenablage kopiert!', 'Ok');
       }
     }
+  }
+
+  userIsAdmin() {
+    return !!this.me()?.id && this.me()?.id === this.list()?.createdBy.id;
   }
 }

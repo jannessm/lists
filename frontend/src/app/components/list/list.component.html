@@ -2,13 +2,13 @@
     <div class="content-header">
         <button class="menu" mat-icon-button [matMenuTriggerFor]="menu"><mat-icon>more_vert</mat-icon></button>
         <mat-menu #menu="matMenu">
-            <button mat-menu-item (click)="listSettings()">Einstellungen</button>
+            <button mat-menu-item (click)="listSettings()" *ngIf="userIsAdmin()">Einstellungen</button>
             <button mat-menu-item (click)="shareList()">Teilen</button>
             <button mat-menu-item (click)="listToText()">Verschicken</button>
             <button mat-menu-item (click)="markAllNotDone()">Alle Einträge abwählen</button>
             <button mat-menu-item (click)="deleteAll()">Alle Einträge löschen</button>
             <button mat-menu-item (click)="deleteAllDone()">Alle erledigten Einträge löschen</button>
-            <button mat-menu-item (click)="deleteList()">Löschen</button>
+            <button mat-menu-item (click)="deleteList()" *ngIf="userIsAdmin()">Löschen</button>
         </mat-menu>
         
         <h1 *ngIf="list()">{{list().name}}</h1>

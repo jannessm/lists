@@ -64,7 +64,7 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
             req = this.buildQuery(query);
         } else {
             req = {
-                filter: (doc: any) => true,
+                filter: (doc: any) => !doc._deleted,
                 query: () => this.table.toArray()
             }
         }
@@ -87,6 +87,7 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
 
     async insert(doc: any) {
         // operate on copy only
+        console.log(doc);
         const newDoc = JSON.parse(JSON.stringify(doc));
         Object.assign(newDoc, {touched: true});
         this.table.add(newDoc);
@@ -189,7 +190,7 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
         const _this = this;
         return {
             filter: function(doc: any) {
-                if (query.selector) {
+                if (query.selector && !doc._deleted) {
                     return Object.entries(query.selector).reduce((carry, val) => {
                         const key = val[0];
                         const value = val[1];
@@ -197,7 +198,7 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
                         return carry || doc[key] === value;
                     }, false);
                 }
-                return true;
+                return !doc._deleted;
             },
             query: async function () {
                 let collection = _this.table.toCollection();
@@ -206,8 +207,10 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
 
                 const arr = await collection.toArray();
 
-                if (single) {
+                if (single && !!arr[0]) {
                     return new MyDocument<DocType, DocMethods>(_this, arr[0]);
+                } else if (!arr[0]) {
+                    return undefined;
                 }
 
                 if (query.sort) {

@@ -9,10 +9,10 @@
  */
 export function defaultConflictHandler(
     forkState: any,
-    assumendMasterState: any,
-    trueMasterState: any,
+    assumendMasterState: any | undefined,
+    trueMasterState: any | undefined,
 ): any {
-    if (assumendMasterState.updatedAt === trueMasterState.updatedAt) {
+    if (!assumendMasterState || assumendMasterState.updatedAt === trueMasterState.updatedAt) {
         return forkState;
     } else {
         return trueMasterState;
