@@ -29,5 +29,6 @@ export const COMMON_SCHEMA = {
 
 export type DatabaseChanges = {
     collection: string;
+    replicate: boolean;
     changes: MyDocument<any, any>[]
 };

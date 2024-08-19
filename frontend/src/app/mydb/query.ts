@@ -65,8 +65,6 @@ export class MyQuery<DocType, DocMethods> {
                 ))
             )
             .subscribe(docs => {
-                console.log('query $', docs.length);
-                // console.log('update query');
                 this.update();
             });
         

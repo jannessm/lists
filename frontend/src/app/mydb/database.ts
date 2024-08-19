@@ -6,15 +6,17 @@ import { MyCollection } from "./collection";
 import { Observable, Subject } from "rxjs";
 import { MyDocument } from "./types/classes";
 import { DatabaseChanges } from "./types/common";
+import { environment } from "../../environments/environment";
 
 export function createMyDatabase(options: CreateDatabaseOptions): MyDatabase {
+    Dexie.debug = environment.dexieDebugMode;
     return new MyDatabase(options.name, options.reactivity);
 }
 
 export class MyDatabase {
 
     public dexie: Dexie;
-    private schema?: AddCollectionsOptions;
+    public schema?: AddCollectionsOptions;
     private initialied = false;
 
     private changes = new Subject<DatabaseChanges>();
@@ -28,6 +30,7 @@ export class MyDatabase {
 
     async addCollections(options: AddCollectionsOptions) {
         if (!this.initialied) {
+            this.schema = options;
             this.dexie.version(1).stores(MyDatabase.getPrimaryKeysFromCollections(options));
     
             Object.keys(options).forEach(tableName => {
@@ -64,9 +67,10 @@ export class MyDatabase {
         return schema;
     }
 
-    next(collection: string, changes: MyDocument<any, any>[]) {
+    next(collection: string, changes: MyDocument<any, any>[], replicate = true) {
         this.changes.next({
             collection,
+            replicate,
             changes
         })
     }

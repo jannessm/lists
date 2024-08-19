@@ -33,10 +33,6 @@ export class ListsOverviewComponent {
     this.lists = this.dataService.db.lists.find({
       sort: [{name: 'asc'}]
     }).$$ as Signal<MyListsDocument[]>;
-
-    this.dataService.db.lists.$.subscribe(docs => console.log('$', docs))
-
-    effect(() => console.log('new lists', this.lists()));
   }
 
   addList() {

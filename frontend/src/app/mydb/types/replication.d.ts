@@ -11,14 +11,15 @@ export type MyReplicationOptions = {
 
 export type MyPullOptions = {
     handler: MyPullHandler;
-    stream$: Observable<any[] | 'RESYNC'>;
+    stream$: Observable<MyPullData | 'RESYNC'>;
     modifier?: MyDocumentModifier;
 };
 
-export type MyPullHandler = (checkpoint: unknwon, batchSize: number) => Promise<{
+export type MyPullHandler = (checkpoint: unknwon, batchSize: number) => Promise<MyPullData>;
+export type MyPullData = {
     documents: any[];
     checkpoint: Checkpoint;
-}>;
+};
 
 export type MyPushOptions = {
     handler: MyPushHandler;

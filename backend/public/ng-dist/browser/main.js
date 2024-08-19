@@ -87946,6 +87946,7 @@ var environment = {
   production: false,
   api: "http://127.0.0.1:8080/",
   pusherUrl: "127.0.0.1",
+  dexieDebugMode: false,
   locale: "de",
   version,
   vapid: "BEQ7Z6AYftjPVg8a554wmJUFeCeR5UAs4eBqWQOUFbbwlbK6qjlbo3TR7GwgpfhJ4TAT2-sGZZQMwkVXRQEdxOI"
@@ -88419,14 +88420,15 @@ var import_wrapper_default = Dexie;
 
 // src/app/mydb/document.ts
 var MyDocument = class {
-  constructor(collection, data) {
+  constructor(collection, lastData) {
     this.collection = collection;
+    this.lastData = lastData;
     this.subject = new Subject();
+    this.isClassObject = true;
     this.$ = this.subject.asObservable();
-    this.$$ = this.collection.reactivity.fromObservable(this.$, data);
     this.subject.next(this);
-    this.lastData = data;
-    this.key = data[this.collection.primaryKey];
+    this.$$ = this.collection.reactivity.fromObservable(this.$, this);
+    this.key = this.lastData[this.collection.primaryKey];
     Object.keys(this.lastData).forEach((key) => {
       Object.defineProperty(this, key, {
         get: () => this.lastData[key]
@@ -88442,12 +88444,16 @@ var MyDocument = class {
       }
     });
   }
-  patch(newDoc) {
+  patch(patch) {
     return __async(this, null, function* () {
+      const newDoc = JSON.parse(JSON.stringify(this.lastData));
+      Object.assign(newDoc, patch);
+      return this.collection.update(newDoc);
     });
   }
   remove() {
     return __async(this, null, function* () {
+      return this.patch({ "_deleted": true });
     });
   }
 };
@@ -88488,7 +88494,6 @@ var MyQuery = class {
     this.query = query2;
     this.subject = new BehaviorSubject([]);
     this.collection.$.pipe(filter((docs) => docs.reduce((carry, doc) => carry || this.query.filter(doc), false))).subscribe((docs) => {
-      console.log("query $", docs.length);
       this.update();
     });
     this.update();
@@ -88530,6 +88535,7 @@ var MyCollection = class {
     this.reactivity = reactivity;
     this.methods = methods;
     this.$ = this.db.$.pipe(filter((changes) => changes.collection == this.tableName), map((changes) => changes.changes));
+    this.replication$ = this.db.$.pipe(filter((changes) => changes.replicate && changes.collection == this.tableName), map((changes) => changes.changes));
     if (!conflictHandler) {
       this.conflictHandler = defaultConflictHandler;
     }
@@ -88545,6 +88551,9 @@ var MyCollection = class {
   }
   get masterTable() {
     return this.db.dexie.table(this.tableName + "_master_states");
+  }
+  get schema() {
+    return this.db.schema ? this.db.schema[this.tableName].schema : void 0;
   }
   find(query2) {
     let req;
@@ -88572,16 +88581,41 @@ var MyCollection = class {
   }
   insert(doc) {
     return __async(this, null, function* () {
-      Object.assign(doc, { "touched": true });
-      this.table.add(doc);
+      const newDoc = JSON.parse(JSON.stringify(doc));
+      Object.assign(newDoc, { touched: true });
+      this.table.add(newDoc);
+      this.db.next(this.tableName, [new MyDocument(this, newDoc)]);
+    });
+  }
+  markUntouched(docs) {
+    return __async(this, null, function* () {
+      const changes = docs.map((doc) => {
+        return {
+          key: doc[this.primaryKey],
+          changes: { touched: false }
+        };
+      });
+      this.table.bulkUpdate(changes);
+    });
+  }
+  update(newDoc) {
+    return __async(this, null, function* () {
+      newDoc = JSON.parse(JSON.stringify(newDoc));
+      Object.assign(newDoc, { touched: true });
+      const key = yield this.table.put(newDoc);
+      const updatedDoc = yield this.table.get(key);
+      this.db.next(this.tableName, [new MyDocument(this, updatedDoc)]);
     });
   }
   remoteBulkAdd(docs) {
     return __async(this, null, function* () {
-      yield this.table.bulkAdd(docs).catch((err) => __async(this, null, function* () {
+      try {
+        yield this.table.bulkAdd(docs);
+      } catch (err) {
         const bulk = [];
         for (const [pos, error] of Object.entries(err.failuresByPos)) {
           if (!error.message.includes("Key already exists")) {
+            console.error(error);
           }
           const trueMaster = docs[parseInt(pos)];
           const assumedMaster = yield this.masterTable.get({ [this.primaryKey]: trueMaster[this.primaryKey] });
@@ -88591,11 +88625,11 @@ var MyCollection = class {
         if (bulk.length > 0) {
           yield this.table.bulkPut(bulk);
         }
-      }));
+      }
       yield this.masterTable.bulkPut(docs);
       const updatedIds = docs.map((doc) => doc[this.primaryKey]);
       const newDocs = yield this.table.bulkGet(updatedIds);
-      this.db.next(this.tableName, newDocs.map((doc) => new MyDocument(this, doc)));
+      this.db.next(this.tableName, newDocs.map((doc) => new MyDocument(this, doc)), false);
     });
   }
   getAssumedMaster(key) {
@@ -88678,6 +88712,7 @@ function recursiveSort(criterias) {
 
 // src/app/mydb/database.ts
 function createMyDatabase(options) {
+  import_wrapper_default.debug = environment.dexieDebugMode;
   return new MyDatabase(options.name, options.reactivity);
 }
 var MyDatabase = class _MyDatabase {
@@ -88691,6 +88726,7 @@ var MyDatabase = class _MyDatabase {
   addCollections(options) {
     return __async(this, null, function* () {
       if (!this.initialied) {
+        this.schema = options;
         this.dexie.version(1).stores(_MyDatabase.getPrimaryKeysFromCollections(options));
         Object.keys(options).forEach((tableName) => {
           const tableOptions = options[tableName];
@@ -88719,9 +88755,10 @@ var MyDatabase = class _MyDatabase {
     });
     return schema;
   }
-  next(collection, changes) {
+  next(collection, changes, replicate = true) {
     this.changes.next({
       collection,
+      replicate,
       changes
     });
   }
@@ -88836,7 +88873,7 @@ function pushQueryBuilderFromSchema(collectionName, schema) {
   const returnFields = generateGQLOutputFields(schema.schema);
   const builder = (rows) => {
     const query2 = `mutation Push${ucCollectionName}($rows: [${ucCollectionName}InputPushRow!]) {
-            push${ucCollectionName}(${collectionName}PushRow: $rows) {
+            push${ucCollectionName}(rows: $rows) {
 ${returnFields}
             }
         }`;
@@ -88849,7 +88886,7 @@ ${returnFields}
     return {
       query: query2,
       variables: {
-        $rows: sendRows
+        rows: sendRows
       }
     };
   };
@@ -88897,7 +88934,14 @@ var Replicator = class {
     this.pullOptions = pullOptions;
     this.pushOptions = pushOptions;
     this.remoteEvents$ = new Subject();
+    this.localEvents$ = this.collection.replication$.subscribe((docs) => {
+      this.push(docs);
+    });
     this.pull().then(() => this.startStream());
+  }
+  destroy() {
+    this.stream$?.unsubscribe();
+    this.remoteEvents$.complete();
   }
   pull() {
     return __async(this, null, function* () {
@@ -88915,24 +88959,83 @@ var Replicator = class {
           break;
         }
       }
+      const touchedDocs = yield this.collection.table.toCollection().filter((doc) => doc.touched).toArray();
+      yield this.push(touchedDocs);
     });
   }
   startStream() {
-    this.stream$ = this.pullOptions.stream$.subscribe((docs) => {
-      if (docs === "RESYNC") {
+    this.stream$ = this.pullOptions.stream$.subscribe((data) => __async(this, null, function* () {
+      if (data === "RESYNC") {
         this.pull();
         return;
       }
+      let docs = data.documents;
       if (this.pullOptions.modifier) {
         docs = docs.map(this.pullOptions.modifier);
       }
+      yield this.collection.remoteBulkAdd(docs);
+      yield this.collection.setCheckpoint(data.checkpoint);
       this.remoteEvents$.next(docs);
-      this.collection.remoteBulkAdd(docs);
+    }));
+  }
+  push(docs) {
+    if (docs.length === 0)
+      return;
+    docs = docs.map((doc) => doc.isClassObject ? doc.lastData : doc).map((doc) => JSON.parse(JSON.stringify(doc)));
+    this.pushInterval(docs).catch((err) => {
+      console.log(err);
+      const pushInterval = setInterval(() => __async(this, null, function* () {
+        try {
+          yield this.pushInterval(docs);
+          clearInterval(pushInterval);
+        } catch {
+        }
+      }), 60 * 1e3);
     });
   }
-  destroy() {
-    this.stream$?.unsubscribe();
-    this.remoteEvents$.complete();
+  pushInterval(docs, secondTry = false) {
+    return __async(this, null, function* () {
+      let pushRows = yield Promise.all(docs.map((doc) => this.getPushRow(doc)));
+      let conflicts = yield this.pushOptions.handler(pushRows);
+      if (conflicts.length > 0 && !secondTry) {
+        if (this.pullOptions.modifier) {
+          conflicts = conflicts.map((doc) => {
+            if (this.pullOptions.modifier)
+              return this.pullOptions.modifier(doc);
+            return doc;
+          });
+        }
+        yield this.collection.remoteBulkAdd(conflicts);
+        yield this.pushInterval(docs, true);
+      } else if (conflicts.length === 0) {
+        yield this.collection.markUntouched(docs);
+      }
+    });
+  }
+  getPushRow(doc) {
+    return __async(this, null, function* () {
+      const primaryKey = this.collection.primaryKey;
+      const docId = doc[primaryKey];
+      let assumedMaster = yield this.collection.masterTable.get(docId);
+      doc = this.applyPushMod(doc);
+      assumedMaster = this.applyPushMod(assumedMaster);
+      return {
+        newDocumentState: doc,
+        assumedMasterState: assumedMaster
+      };
+    });
+  }
+  applyPushMod(doc) {
+    let mod = JSON.parse(JSON.stringify(doc));
+    Object.keys(mod).forEach((key) => {
+      if (this.collection.schema && !(key in this.collection.schema.properties)) {
+        delete mod[key];
+      }
+    });
+    if (this.pushOptions.modifier) {
+      mod = this.pushOptions.modifier(mod);
+    }
+    return mod;
   }
 };
 
@@ -89069,7 +89172,6 @@ var _ReplicationService = class _ReplicationService {
         }
       });
       this.replications[collectionName] = replication;
-      replication.remoteEvents$.subscribe((ev) => console.log("remoteEvent", ev.documents[0]));
       return replication;
     });
   }
@@ -89754,8 +89856,6 @@ var _ListsOverviewComponent = class _ListsOverviewComponent {
     this.lists = this.dataService.db.lists.find({
       sort: [{ name: "asc" }]
     }).$$;
-    this.dataService.db.lists.$.subscribe((docs) => console.log("$", docs));
-    effect(() => console.log("new lists", this.lists()));
   }
   addList() {
     const dialogRef = this.bottomSheet.open(AddSheetComponent);

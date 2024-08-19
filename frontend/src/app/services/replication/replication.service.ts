@@ -119,7 +119,7 @@ export class ReplicationService {
 
     this.replications[collectionName] = replication;
 
-    replication.remoteEvents$.subscribe((ev: any) => console.log('remoteEvent', ev.documents[0]));
+    // replication.remoteEvents$.subscribe((ev: any) => console.log('remoteEvent', ev.documents[0]));
 
     return replication;
   }

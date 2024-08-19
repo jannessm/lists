@@ -98,7 +98,7 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
         $upserts = [];
         $conflicts = [];
 
-        foreach($args['mePushRow'] as $user) {
+        foreach($args['rows'] as $user) {
             $newState = $user['newDocumentState'];
             $assumedMaster = $user['assumedMasterState'];
             $masterUser = NULL;

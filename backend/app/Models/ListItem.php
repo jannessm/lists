@@ -57,7 +57,7 @@ class ListItem extends Model
         $upserts = [];
         $conflicts = [];
 
-        foreach($args['itemsPushRow'] as $item) {
+        foreach($args['rows'] as $item) {
             $conflict = FALSE;
             $newState = $item['newDocumentState'];
 
@@ -75,6 +75,12 @@ class ListItem extends Model
                         case "updated_at":
                             $conflict = False; // ignore timestamps since they are only set by backend
                             break;
+                        case "due":
+                        case "reminder":
+                            if (!!$val && !!$masterItem[$param]) {
+                                $conflict = !$val->eq($masterItem[$param]);
+                                break;
+                            }
                         default:
                             $conflict = $masterItem[$param] !== $val;
                     }

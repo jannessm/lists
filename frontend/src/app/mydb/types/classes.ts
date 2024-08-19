@@ -3,6 +3,7 @@ import { Collection } from "dexie";
 export type MyDocument<DocumentType, DocumentMethods> = MyDocumentBase & DocumentType & DocumentMethods;
 
 interface MyDocumentBase {
+    lastData: any;
     patch: (doc: any) => Promise<undefined>;
     remove: () => Promise<undefined>;
 }

@@ -12,11 +12,11 @@ type Query @guard {
 }
 
 type Mutation @guard {
-  pushMe(mePushRow: [MeInputPushRow!]): [User!]! @field(resolver: "App\\Models\\User@pushMeResolver")
+  pushMe(rows: [MeInputPushRow!]): [User!]! @field(resolver: "App\\Models\\User@pushMeResolver")
 
-  pushLists(listsPushRow: [ListsInputPushRow!]): [Lists!]! @field(resolver: "App\\Models\\Lists@pushResolver")
+  pushLists(rows: [ListsInputPushRow!]): [Lists!]! @field(resolver: "App\\Models\\Lists@pushResolver")
 
-  pushItems(itemsPushRow: [ItemsInputPushRow!]): [ListItem!]! @field(resolver: "App\\Models\\ListItem@pushResolver")
+  pushItems(rows: [ItemsInputPushRow!]): [ListItem!]! @field(resolver: "App\\Models\\ListItem@pushResolver")
 }
 
 type Subscription @guard {

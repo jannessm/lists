@@ -6,18 +6,17 @@ export class MyDocument<DocType, DocMethods> {
     private subject: Subject<MyDocument<DocType, DocMethods>> = new Subject();
     $: Observable<MyDocument<DocType, DocMethods>>;
     $$: Signal<MyDocument<DocType, DocMethods>>;
-    lastData: DocType;
     key: string | number;
+    isClassObject = true;
 
     constructor(
         private collection: MyCollection<DocType, DocMethods, unknown>,
-        data: DocType
+        private lastData: DocType
     ) {
         this.$ = this.subject.asObservable();
-        this.$$ = this.collection.reactivity.fromObservable(this.$, data);
         this.subject.next(this);
-        this.lastData = data;
-        this.key = (data as any)[this.collection.primaryKey];
+        this.$$ = this.collection.reactivity.fromObservable(this.$, this);
+        this.key = (this.lastData as any)[this.collection.primaryKey];
 
         Object.keys(this.lastData as any).forEach(key => {
             Object.defineProperty(this, key, {
@@ -42,11 +41,14 @@ export class MyDocument<DocType, DocMethods> {
             });
     }
 
-    async patch(newDoc: any) {
-        //TODO:
+    async patch(patch: any) {
+        // create a deep copy to not modify doc instance
+        const newDoc = JSON.parse(JSON.stringify(this.lastData));
+        Object.assign(newDoc, patch);
+        return this.collection.update(newDoc);
     }
 
     async remove() {
-        //TODO: 
+        return this.patch({'_deleted': true});
     }
 }

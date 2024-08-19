@@ -66,7 +66,7 @@ class Lists extends Model
         $upserts = [];
         $conflicts = [];
 
-        foreach($args['listsPushRow'] as $list) {
+        foreach($args['rows'] as $list) {
             $conflict = FALSE;
             $newState = $list['newDocumentState'];
 

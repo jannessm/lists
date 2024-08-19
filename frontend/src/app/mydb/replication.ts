@@ -1,6 +1,8 @@
-import { Subject, Subscription } from "rxjs";
+import { Subject, Subscription, filter } from "rxjs";
 import { MyPullOptions, MyPushOptions, MyReplicationOptions } from "./types/replication";
 import { MyCollection } from "./collection";
+import { MyDocument } from "./types/classes";
+import { MyPushRow } from "./types/common";
 
 export async function replicateCollection(options: MyReplicationOptions): Promise<Replicator> {
     const replicator = new Replicator(
@@ -15,6 +17,7 @@ export async function replicateCollection(options: MyReplicationOptions): Promis
 
 export class Replicator {
     private stream$: Subscription | undefined;
+    private localEvents$: Subscription;
     public remoteEvents$ = new Subject<unknown>();
 
     constructor (
@@ -23,7 +26,16 @@ export class Replicator {
         private pullOptions: MyPullOptions,
         private pushOptions: MyPushOptions,
     ) {
+        this.localEvents$ = this.collection.replication$.subscribe(docs => {
+            this.push(docs);
+        });
+        
         this.pull().then(() => this.startStream());
+    }
+
+    public destroy() {
+        this.stream$?.unsubscribe();
+        this.remoteEvents$.complete();
     }
 
     public async pull() {
@@ -45,29 +57,108 @@ export class Replicator {
             }
         }
 
-        // console.log(await this.collection.table.toCollection()
-        //     .filter(doc => doc.touched)
-        //     .toArray()
-        // );
+        const touchedDocs = await this.collection.table.toCollection()
+            .filter(doc => doc.touched)
+            .toArray();
+
+        await this.push(touchedDocs);
     }
 
     public startStream() {
-        this.stream$ = this.pullOptions.stream$.subscribe(docs => {
-            if (docs === 'RESYNC') {
+        this.stream$ = this.pullOptions.stream$.subscribe(async (data) => {
+            if (data === 'RESYNC') {
                 this.pull();
                 return;
             }
-            
+
+            let docs = data.documents;
             if (this.pullOptions.modifier) {
                 docs = docs.map(this.pullOptions.modifier);
             }
+            await this.collection.remoteBulkAdd(docs);
+            await this.collection.setCheckpoint(data.checkpoint);
+
             this.remoteEvents$.next(docs);
-            this.collection.remoteBulkAdd(docs);
         });
     }
 
-    public destroy() {
-        this.stream$?.unsubscribe();
-        this.remoteEvents$.complete();
+    public push(docs: MyDocument<any, unknown>[]) {
+        if (docs.length === 0) return;
+
+        // create deep copies to avoid modifying MyDocument instances.
+        docs = docs.map(doc => doc.isClassObject ? doc.lastData : doc)
+            .map(doc => JSON.parse(JSON.stringify(doc)));
+
+        this.pushInterval(docs).catch(err => {
+            console.log(err);
+            // try push each min until succession
+            const pushInterval = setInterval(async () => {
+                try {
+                    await this.pushInterval(docs);
+    
+                    clearInterval(pushInterval);
+                } catch { }
+            }, 60 * 1000);
+        });
+    }
+
+    public async pushInterval(docs: any[], secondTry = false) {
+        let pushRows: MyPushRow[] = await Promise.all(
+            docs.map(doc => this.getPushRow(doc))
+        );
+        let conflicts = await this.pushOptions.handler(pushRows);
+
+        // handle conflicts
+        if (conflicts.length > 0 && !secondTry) {
+            // apply pull modifier
+            if (this.pullOptions.modifier) {
+                conflicts = conflicts.map(doc => {
+                    if (this.pullOptions.modifier)
+                        return this.pullOptions.modifier(doc);
+                    return doc;
+                });
+            }
+            
+            // update masterstate
+            await this.collection.remoteBulkAdd(conflicts);
+            
+            // try again with updated data
+            await this.pushInterval(docs, true);
+        } else if (conflicts.length === 0) {
+            await this.collection.markUntouched(docs);
+        }
+    }
+
+    private async getPushRow(doc: any): Promise<MyPushRow> {
+        const primaryKey = this.collection.primaryKey;
+        const docId = doc[primaryKey];
+        let assumedMaster = await this.collection.masterTable.get(docId);
+
+        doc = this.applyPushMod(doc);
+        assumedMaster = this.applyPushMod(assumedMaster);
+        
+        return {
+            newDocumentState: doc,
+            assumedMasterState: assumedMaster
+        };
+    }
+
+    private applyPushMod(doc: any): any {
+        // modify only a copy
+        let mod = JSON.parse(JSON.stringify(doc));
+
+        // remove everthing that is not defined by the schema
+        Object.keys(mod).forEach(key => {
+            if (this.collection.schema && !(key in this.collection.schema.properties)) {
+                    delete mod[key];
+            }
+        });
+
+        // apply modifier if defined
+        if (this.pushOptions.modifier) {
+            mod = this.pushOptions.modifier(mod);
+        }
+
+        return mod;
     }
 }

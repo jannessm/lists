@@ -7,10 +7,12 @@ import { defaultConflictHandler } from "./conflict-handler";
 import { ConflictHandler } from "./types/replication";
 import { QueryObject } from "./types/classes";
 import { MyDatabase } from "./database";
+import { DatabaseChanges } from "./types/common";
 
 export class MyCollection<DocType, DocMethods, Reactivity> {
     private lastCheckpoint?: unknown;
     $: Observable<MyDocument<DocType, DocMethods>[]>;
+    replication$: Observable<MyDocument<DocType, DocMethods>[]>;
 
     private conflictHandler!: ConflictHandler;
 
@@ -23,6 +25,10 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
     ) {
         this.$ = this.db.$.pipe(
             filter(changes => changes.collection == this.tableName),
+            map(changes => changes.changes)
+        );
+        this.replication$ = this.db.$.pipe(
+            filter(changes => changes.replicate && changes.collection == this.tableName),
             map(changes => changes.changes)
         );
         
@@ -46,6 +52,10 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
     }
     get masterTable() {
         return this.db.dexie.table(this.tableName + '_master_states');
+    }
+
+    get schema() {
+        return this.db.schema ? this.db.schema[this.tableName].schema : undefined;
     }
 
     find(query?: QueryOptions): MyQuery<DocType, DocMethods> {
@@ -76,18 +86,48 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
     }
 
     async insert(doc: any) {
-        Object.assign(doc, {'touched': true});
-        this.table.add(doc);
+        // operate on copy only
+        const newDoc = JSON.parse(JSON.stringify(doc));
+        Object.assign(newDoc, {touched: true});
+        this.table.add(newDoc);
+        this.db.next(this.tableName,
+                     [new MyDocument<DocType, DocMethods>(this, newDoc)]
+        );
+    }
+
+    async markUntouched(docs: MyDocument<DocType, DocMethods>[]) {
+        const changes = docs.map((doc: any) => {
+            return {
+                key: doc[this.primaryKey],
+                changes: {touched: false}
+            };
+        });
+        this.table.bulkUpdate(changes);
+    }
+
+    async update(newDoc: any) {
+        // operate on copy only
+        newDoc = JSON.parse(JSON.stringify(newDoc));
+        Object.assign(newDoc, {touched: true});
+        
+        const key = await this.table.put(newDoc);
+        const updatedDoc = await this.table.get(key);
+        this.db.next(
+            this.tableName,
+            [new MyDocument<DocType, DocMethods>(this, updatedDoc)]
+        );
     }
 
     async remoteBulkAdd(docs: any[]) {
         // add new docs to mastertable and "forks"
         //   if doc exists in forks -> resolve err and add again
-        await this.table.bulkAdd(docs).catch(async (err) => {
+        try {
+            await this.table.bulkAdd(docs);
+        } catch (err: any) {
             const bulk = [];
             for (const [pos, error] of Object.entries(err.failuresByPos)) {
                 if (!(error as any).message.includes('Key already exists')) {
-                    // console.error(error);
+                    console.error(error);
                 }
                 const trueMaster = docs[parseInt(pos)];
                 const assumedMaster = await this.masterTable.get(
@@ -103,7 +143,7 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
             if (bulk.length > 0) {
                 await this.table.bulkPut(bulk);
             }
-        });
+        }
         
         // update masterstates
         await this.masterTable.bulkPut(docs);
@@ -111,7 +151,11 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
         // emit changes
         const updatedIds = docs.map(doc => doc[this.primaryKey]);
         const newDocs = await this.table.bulkGet(updatedIds);
-        this.db.next(this.tableName, newDocs.map(doc => new MyDocument<DocType, DocMethods>(this, doc)));
+        this.db.next(
+            this.tableName,
+            newDocs.map(doc => new MyDocument<DocType, DocMethods>(this, doc)),
+            false
+        );
     }
 
     async getAssumedMaster(key: string) {

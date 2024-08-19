@@ -73,7 +73,7 @@ export function pushQueryBuilderFromSchema(
 
     const builder = (rows: MyPushRow[]) => {
         const query = `mutation Push${ucCollectionName}($rows: [${ucCollectionName}InputPushRow!]) {
-            push${ucCollectionName}(${collectionName}PushRow: $rows) {
+            push${ucCollectionName}(rows: $rows) {
 ${returnFields}
             }
         }`;
@@ -88,7 +88,7 @@ ${returnFields}
         return {
             query,
             variables: {
-                $rows: sendRows
+                rows: sendRows
             }
         };
     };

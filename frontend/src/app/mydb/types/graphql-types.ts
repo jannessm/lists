@@ -62,6 +62,6 @@ export type MyStreamBuilder = (headers: any) => {
 export type MyPushBuilder = (rows: MyPushRow[]) => {
     query: string;
     variables: {
-        $rows: MyPushRow[];
+        [key: string]: MyPushRow[];
     }
 }
