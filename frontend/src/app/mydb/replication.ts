@@ -90,7 +90,6 @@ export class Replicator {
             .map(doc => JSON.parse(JSON.stringify(doc)));
 
         this.pushInterval(docs).catch(err => {
-            console.log(err);
             // try push each min until succession
             const pushInterval = setInterval(async () => {
                 try {

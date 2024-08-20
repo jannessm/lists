@@ -2900,7 +2900,7 @@ var require_pusher = __commonJS({
               connect(minPriority, callback) {
                 var strategies = this.strategies;
                 var current = 0;
-                var timeout = this.timeout;
+                var timeout2 = this.timeout;
                 var runner = null;
                 var tryNextStrategy = (error, handshake) => {
                   if (handshake) {
@@ -2911,14 +2911,14 @@ var require_pusher = __commonJS({
                       current = current % strategies.length;
                     }
                     if (current < strategies.length) {
-                      if (timeout) {
-                        timeout = timeout * 2;
+                      if (timeout2) {
+                        timeout2 = timeout2 * 2;
                         if (this.timeoutLimit) {
-                          timeout = Math.min(timeout, this.timeoutLimit);
+                          timeout2 = Math.min(timeout2, this.timeoutLimit);
                         }
                       }
                       runner = this.tryStrategy(strategies[current], minPriority, {
-                        timeout,
+                        timeout: timeout2,
                         failFast: this.failFast
                       }, tryNextStrategy);
                     } else {
@@ -2927,7 +2927,7 @@ var require_pusher = __commonJS({
                   }
                 };
                 runner = this.tryStrategy(strategies[current], minPriority, {
-                  timeout,
+                  timeout: timeout2,
                   failFast: this.failFast
                 }, tryNextStrategy);
                 return {
@@ -10872,14 +10872,14 @@ var config = {
 
 // node_modules/rxjs/dist/esm/internal/scheduler/timeoutProvider.js
 var timeoutProvider = {
-  setTimeout(handler, timeout, ...args) {
+  setTimeout(handler, timeout2, ...args) {
     const {
       delegate
     } = timeoutProvider;
     if (delegate === null || delegate === void 0 ? void 0 : delegate.setTimeout) {
-      return delegate.setTimeout(handler, timeout, ...args);
+      return delegate.setTimeout(handler, timeout2, ...args);
     }
-    return setTimeout(handler, timeout, ...args);
+    return setTimeout(handler, timeout2, ...args);
   },
   clearTimeout(handle) {
     const {
@@ -11665,14 +11665,14 @@ var Action = class extends Subscription {
 
 // node_modules/rxjs/dist/esm/internal/scheduler/intervalProvider.js
 var intervalProvider = {
-  setInterval(handler, timeout, ...args) {
+  setInterval(handler, timeout2, ...args) {
     const {
       delegate
     } = intervalProvider;
     if (delegate === null || delegate === void 0 ? void 0 : delegate.setInterval) {
-      return delegate.setInterval(handler, timeout, ...args);
+      return delegate.setInterval(handler, timeout2, ...args);
     }
-    return setInterval(handler, timeout, ...args);
+    return setInterval(handler, timeout2, ...args);
   },
   clearInterval(handle) {
     const {
@@ -12465,6 +12465,65 @@ function firstValueFrom(source, config2) {
 // node_modules/rxjs/dist/esm/internal/util/isDate.js
 function isValidDate(value) {
   return value instanceof Date && !isNaN(value);
+}
+
+// node_modules/rxjs/dist/esm/internal/operators/timeout.js
+var TimeoutError = createErrorClass((_super) => function TimeoutErrorImpl(info = null) {
+  _super(this);
+  this.message = "Timeout has occurred";
+  this.name = "TimeoutError";
+  this.info = info;
+});
+function timeout(config2, schedulerArg) {
+  const {
+    first: first2,
+    each,
+    with: _with = timeoutErrorFactory,
+    scheduler = schedulerArg !== null && schedulerArg !== void 0 ? schedulerArg : asyncScheduler,
+    meta = null
+  } = isValidDate(config2) ? {
+    first: config2
+  } : typeof config2 === "number" ? {
+    each: config2
+  } : config2;
+  if (first2 == null && each == null) {
+    throw new TypeError("No timeout provided.");
+  }
+  return operate((source, subscriber) => {
+    let originalSourceSubscription;
+    let timerSubscription;
+    let lastValue = null;
+    let seen = 0;
+    const startTimer = (delay2) => {
+      timerSubscription = executeSchedule(subscriber, scheduler, () => {
+        try {
+          originalSourceSubscription.unsubscribe();
+          innerFrom(_with({
+            meta,
+            lastValue,
+            seen
+          })).subscribe(subscriber);
+        } catch (err) {
+          subscriber.error(err);
+        }
+      }, delay2);
+    };
+    originalSourceSubscription = source.subscribe(createOperatorSubscriber(subscriber, (value) => {
+      timerSubscription === null || timerSubscription === void 0 ? void 0 : timerSubscription.unsubscribe();
+      seen++;
+      subscriber.next(lastValue = value);
+      each > 0 && startTimer(each);
+    }, void 0, void 0, () => {
+      if (!(timerSubscription === null || timerSubscription === void 0 ? void 0 : timerSubscription.closed)) {
+        timerSubscription === null || timerSubscription === void 0 ? void 0 : timerSubscription.unsubscribe();
+      }
+      lastValue = null;
+    }));
+    !seen && startTimer(first2 != null ? typeof first2 === "number" ? first2 : +first2 - scheduler.now() : each);
+  });
+}
+function timeoutErrorFactory(info) {
+  throw new TimeoutError(info);
 }
 
 // node_modules/rxjs/dist/esm/internal/operators/map.js
@@ -24887,9 +24946,9 @@ var _TimerScheduler = class _TimerScheduler {
       // frame duration.
       this.invokeTimerAt && this.invokeTimerAt - invokeAt > FRAME_DURATION_MS) {
         this.clearTimeout();
-        const timeout = Math.max(invokeAt - now, FRAME_DURATION_MS);
+        const timeout2 = Math.max(invokeAt - now, FRAME_DURATION_MS);
         this.invokeTimerAt = invokeAt;
-        this.timeoutId = setTimeout(callback, timeout);
+        this.timeoutId = setTimeout(callback, timeout2);
       }
     }
   }
@@ -25270,7 +25329,7 @@ function applyDeferBlockStateWithScheduling(newState, lDetails, lContainer, tNod
     lDetails[NEXT_DEFER_BLOCK_STATE] = newState;
   }
 }
-function scheduleDeferBlockUpdate(timeout, lDetails, tNode, lContainer, hostLView) {
+function scheduleDeferBlockUpdate(timeout2, lDetails, tNode, lContainer, hostLView) {
   const callback = () => {
     const nextState = lDetails[NEXT_DEFER_BLOCK_STATE];
     lDetails[STATE_IS_FROZEN_UNTIL] = null;
@@ -25279,7 +25338,7 @@ function scheduleDeferBlockUpdate(timeout, lDetails, tNode, lContainer, hostLVie
       renderDeferBlockState(nextState, tNode, lContainer);
     }
   };
-  return scheduleTimerTrigger(timeout, callback, hostLView);
+  return scheduleTimerTrigger(timeout2, callback, hostLView);
 }
 function isValidStateChange(currentState, newState) {
   return currentState < newState;
@@ -30772,13 +30831,13 @@ var _Testability = class _Testability {
       };
     });
   }
-  addCallback(cb, timeout, updateCb) {
+  addCallback(cb, timeout2, updateCb) {
     let timeoutId = -1;
-    if (timeout && timeout > 0) {
+    if (timeout2 && timeout2 > 0) {
       timeoutId = setTimeout(() => {
         this._callbacks = this._callbacks.filter((cb2) => cb2.timeoutId !== timeoutId);
         cb();
-      }, timeout);
+      }, timeout2);
     }
     this._callbacks.push({
       doneCb: cb,
@@ -30798,11 +30857,11 @@ var _Testability = class _Testability {
    *    pending macrotasks changes. If this callback returns true doneCb will not be invoked
    *    and no further updates will be issued.
    */
-  whenStable(doneCb, timeout, updateCb) {
+  whenStable(doneCb, timeout2, updateCb) {
     if (updateCb && !this.taskTrackingZone) {
       throw new Error('Task tracking zone is required when passing an update callback to whenStable(). Is "zone.js/plugins/task-tracking" loaded?');
     }
-    this.addCallback(doneCb, timeout, updateCb);
+    this.addCallback(doneCb, timeout2, updateCb);
     this._runCallbacksIfReady();
   }
   /**
@@ -88581,7 +88640,6 @@ var MyCollection = class {
   }
   insert(doc) {
     return __async(this, null, function* () {
-      console.log(doc);
       const newDoc = JSON.parse(JSON.stringify(doc));
       Object.assign(newDoc, { touched: true });
       this.table.add(newDoc);
@@ -88986,7 +89044,6 @@ var Replicator = class {
       return;
     docs = docs.map((doc) => doc.isClassObject ? doc.lastData : doc).map((doc) => JSON.parse(JSON.stringify(doc)));
     this.pushInterval(docs).catch((err) => {
-      console.log(err);
       const pushInterval = setInterval(() => __async(this, null, function* () {
         try {
           yield this.pushInterval(docs);
@@ -90514,7 +90571,6 @@ var _ResetPasswordComponent = class _ResetPasswordComponent {
           if (!!this.form) {
             this.form.disable();
             this.form.setErrors({ invalidLink: true });
-            console.log(this.form.hasError("invalidLink"));
             clearInterval(interval);
           }
         }, 100);
@@ -93711,7 +93767,6 @@ var _ListComponent = class _ListComponent {
     this.initialized = false;
     this.slots = computed(() => {
       if (this.listItems() && this.list()) {
-        console.log("group items");
         return this.groupItems(this.list(), this.listItems());
       }
       return [];
@@ -94132,10 +94187,14 @@ function laravelInterceptor(req, next) {
 // src/app/interceptors/no-connection.ts
 function noConnectionInterceptor(req, next) {
   const pusher = inject(PusherService);
-  return next(req).pipe(tap((event) => {
+  return next(req).pipe(map((event) => {
     if (event.type === HttpEventType.ResponseHeader && event.status === 0) {
-      pusher.online.next(false);
+      throw new Error("timeout");
     }
+    return event;
+  }), timeout(1e3), catchError((err) => {
+    pusher.online.next(false);
+    return of();
   }));
 }
 
@@ -94421,8 +94480,8 @@ function ngswAppInitializer(injector, script, options, platformId) {
     }).catch((err) => console.error("Service worker registration failed with:", err))));
   };
 }
-function delayWithTimeout(timeout) {
-  return of(null).pipe(delay(timeout));
+function delayWithTimeout(timeout2) {
+  return of(null).pipe(delay(timeout2));
 }
 function whenStable2(injector) {
   const appRef = injector.get(ApplicationRef);

@@ -87,7 +87,6 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
 
     async insert(doc: any) {
         // operate on copy only
-        console.log(doc);
         const newDoc = JSON.parse(JSON.stringify(doc));
         Object.assign(newDoc, {touched: true});
         this.table.add(newDoc);

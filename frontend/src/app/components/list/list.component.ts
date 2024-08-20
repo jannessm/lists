@@ -55,7 +55,6 @@ export class ListComponent implements AfterViewInit {
 
   slots: Signal<Slot[]> = computed(() => {
     if (this.listItems() && this.list()) {
-      console.log('group items');
       return this.groupItems(this.list(), this.listItems());
     }
     return [];
