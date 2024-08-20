@@ -1,11 +1,11 @@
 import { Injector, untracked } from "@angular/core";
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ITEM_SCHEMA } from "../../mydb/types/list-item";
+import { ITEM_SCHEMA, itemsConflictHandler } from "../../mydb/types/list-item";
 import { DATA_TYPE } from "../../mydb/types/graphql-types";
 import { MyReactivityFactory } from "../../mydb/types/interfaces";
 import { MyDatabase, createMyDatabase } from "../../mydb/database";
 import { ME_SCHEMA } from "../../mydb/types/me";
-import { LISTS_SCHEMA } from "../../mydb/types/lists";
+import { LISTS_SCHEMA, listsConflictHandler } from "../../mydb/types/lists";
 
 export let DB_INSTANCE: any;
 
@@ -65,10 +65,12 @@ export async function addCollections(db: MyDatabase): Promise<MyDatabase> {
                 users: function() {
                     return [(this as any).createdBy, ...(this as any).sharedWith];
                 }
-            }
+            }, 
+            conflictHandler: listsConflictHandler
         },
         [DATA_TYPE.LIST_ITEM]: {
             schema: ITEM_SCHEMA,
+            conflictHandler: itemsConflictHandler
         }
     });
 

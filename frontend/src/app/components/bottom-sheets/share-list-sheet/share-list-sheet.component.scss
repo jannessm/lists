@@ -1,0 +1,24 @@
+.shared-user {
+    width: calc(100% - 24px);
+    padding: 6px 12px;
+    border-radius: 5px;
+    border: solid 1px grey;
+    display: flex;
+    justify-content: space-between;
+
+    .badge {
+        width: 48px;
+        height: 48px;
+        margin-left: 0 !important;
+        margin-right: 12px;
+    }
+
+    button {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }
+
+    span {
+        line-height: 42px;
+    }
+}

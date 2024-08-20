@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/bottom-sheets/share-list-sheet/share-list-sheet.component.scss"],
+  "sourcesContent": [".shared-user {\n    width: calc(100% - 24px);\n    padding: 6px 12px;\n    border-radius: 5px;\n    border: solid 1px grey;\n    display: flex;\n    justify-content: space-between;\n\n    .badge {\n        width: 48px;\n        height: 48px;\n        margin-left: 0 !important;\n        margin-right: 12px;\n    }\n\n    button {\n        margin-top: 0 !important;\n        margin-bottom: 0 !important;\n    }\n\n    span {\n        line-height: 42px;\n    }\n}\n"],
+  "mappings": ";AAAA,CAAA;AACI,SAAA,KAAA,KAAA,EAAA;AACA,WAAA,IAAA;AACA,iBAAA;AACA,UAAA,MAAA,IAAA;AACA,WAAA;AACA,mBAAA;;AAEA,CARJ,YAQI,CAAA;AACI,SAAA;AACA,UAAA;AACA,eAAA;AACA,gBAAA;;AAGJ,CAfJ,YAeI;AACI,cAAA;AACA,iBAAA;;AAGJ,CApBJ,YAoBI;AACI,eAAA;;",
+  "names": []
+}

@@ -160,21 +160,10 @@ export class ReplicationService {
 }
 
 function fixArraysInSchema(query: string, schema: any): string {
-  
-  // Object.keys(schema.schema.properties).forEach(key => {
-  //   const value = Object(schema.schema.properties)[key];
-    
-  //   if (value.type === 'array') {
-  //     if (value.items.type === 'object') {
-  //       const props = Object.keys(value.items.properties);
-  //       query = query.replace(key, `${key} {${props.join(' ')}}`);
-  //     }
-  //   }
-  // });
 
   if (query.indexOf('pushItems') > -1 || query.indexOf('streamItems') > -1 || query.indexOf('pullItems') > -1) {
     query = query.replace('lists', 'lists { id }');
   }
 
-  return query.replace('clientUpdatedAt', '');
+  return query;
 }

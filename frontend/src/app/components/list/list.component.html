@@ -2,17 +2,17 @@
     <div class="content-header">
         <button class="menu" mat-icon-button [matMenuTriggerFor]="menu"><mat-icon>more_vert</mat-icon></button>
         <mat-menu #menu="matMenu">
-            <button mat-menu-item (click)="listSettings()" *ngIf="userIsAdmin()">Einstellungen</button>
-            <button mat-menu-item (click)="shareList()">Teilen</button>
+            <button mat-menu-item (click)="listSettings()" [disabled]="!userIsAdmin()">Einstellungen</button>
+            <button mat-menu-item (click)="shareList()" [disabled]="!userIsAdmin()">Teilen</button>
             <button mat-menu-item (click)="listToText()">Verschicken</button>
             <button mat-menu-item (click)="markAllNotDone()">Alle Einträge abwählen</button>
             <button mat-menu-item (click)="deleteAll()">Alle Einträge löschen</button>
             <button mat-menu-item (click)="deleteAllDone()">Alle erledigten Einträge löschen</button>
-            <button mat-menu-item (click)="deleteList()" *ngIf="userIsAdmin()">Löschen</button>
+            <button mat-menu-item (click)="deleteList()" [disabled]="!userIsAdmin()">Löschen</button>
         </mat-menu>
         
         <h1 *ngIf="list()">{{list().name}}</h1>
-        <div class="users" *ngIf="list() && list().users().length > 1">
+        <div class="users" *ngIf="list() && list().users().length > 1" (click)="shareList()">
             <button mat-mini-fab *ngFor="let user of list().users(); let i = index" [class]="'user-fab-' + i % 12" disabled >{{user?.name | nameBadge}}</button>
         </div>
     </div>
@@ -31,7 +31,7 @@
         
             <ng-container *ngFor="let item of slot.items">
                 <app-list-item
-                    *ngIf="(!item.done || !slotCollapseStates[slot.name] || true) && list() && me()"
+                    *ngIf="(!item.done || !slotCollapseStates[slot.name]) && list() && me()"
                     [me]="me"
                     [list]="list"
                     [item]="item"

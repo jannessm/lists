@@ -145,17 +145,40 @@ export class ListComponent implements AfterViewInit {
   }
 
   shareList() {
-    if (this.list && this.list()) {
-      const dialogRef = this.bottomSheet.open(ShareListSheetComponent);
+    if (this.userIsAdmin() && this.list && this.list()) {
+      const dialogRef = this.bottomSheet.open(ShareListSheetComponent, {
+        data: {lists: this.list}
+      });
 
       dialogRef.afterDismissed().subscribe(data => {
         if (!!data && this.list && this.list()) {
-          this.authService.shareLists(data.email, this.list().id).subscribe(success => {
-            if (!success) {
-              this.snackbar.open('Einladung konnte nicht verschickt werden.', 'Ok');
-            }
-            this.snackbar.open('Einladung zum Beitreten der Liste wurde verschickt.', 'Ok');
-          });
+
+          // add
+          if (!!data.email) {
+            this.authService.shareLists(data.email, this.list().id)
+              .subscribe(success => {
+                if (!success) {
+                  this.snackbar.open('Einladung konnte nicht verschickt werden.', 'Ok');
+                }
+                this.snackbar.open('Einladung zum Beitreten der Liste wurde verschickt.', 'Ok');
+              });
+          
+          // remove
+          } else if (!!data.remove) {
+            const confirm = this.bottomSheet.open(ConfirmSheetComponent, {
+              data: 'Lösche Nutzer ' + data.remove.name + ' aus dieser Liste.'
+            });
+
+            confirm.afterDismissed().subscribe(del => {
+              this.authService.unshareLists(data.remove.id, this.list().id)
+                .subscribe(success => {
+                  if (!success) {
+                    this.snackbar.open('Nutzer ' + data.remove.name + ' wurde entfernt.', 'Ok');
+                  }
+                  this.snackbar.open('Nutzer konnte nicht verschickt werden.', 'Ok');
+                })
+            })
+          }
         }
       })
     }

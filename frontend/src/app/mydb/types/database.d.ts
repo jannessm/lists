@@ -34,7 +34,7 @@ export interface AddCollectionsOptions {
 export interface CollectionOptions {
     schema: JsonSchema;
     methods?: CollectionMethods;
-    conflictHandler?: () => MyDocument<unknown, unknown>;
+    conflictHandler?: (forkState: any, assumedMasterState: any, trueMasterState: any) => any;
 }
 
 export type CollectionMethods = {

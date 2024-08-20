@@ -87981,6 +87981,11 @@ var _AuthApiService = class _AuthApiService {
       email
     }, { observe: "response" }).pipe(catchError(() => of(false)), map(this.okMapper));
   }
+  unshareLists(user, listsId) {
+    return this.http.post(BASE_API + `unshare-lists/${listsId}`, {
+      user
+    }, { observe: "response" }).pipe(catchError(() => of(false)), map(this.okMapper));
+  }
   okMapper(res) {
     if (res instanceof HttpResponse) {
       return res.status === 200;
@@ -88268,6 +88273,29 @@ var LISTS_SCHEMA = {
   }, COMMON_SCHEMA),
   required: ["id", "name", "isShoppingList", "createdBy", "sharedWith"]
 };
+function listsConflictHandler(forkState, assumedMasterState, trueMasterState) {
+  if (!assumedMasterState || !trueMasterState) {
+    return forkState;
+  } else {
+    const newState = JSON.parse(JSON.stringify(forkState));
+    if (assumedMasterState.name !== trueMasterState.name) {
+      newState.name = trueMasterState.name;
+    }
+    if (assumedMasterState.isShoppingList !== trueMasterState.isShoppingList) {
+      newState.isShoppingList = trueMasterState.isShoppingList;
+    }
+    if (assumedMasterState.sharedWith.length !== trueMasterState.sharedWith.length) {
+      newState.sharedWith = trueMasterState.sharedWith;
+    }
+    if (assumedMasterState.updatedAt !== trueMasterState.updatedAt) {
+      newState.updatedAt = trueMasterState.updatedAt;
+    }
+    if (assumedMasterState._deleted !== trueMasterState._deleted) {
+      newState._deleted = trueMasterState._deleted;
+    }
+    return newState;
+  }
+}
 
 // src/app/mydb/types/me.ts
 var THEME;
@@ -88362,6 +88390,35 @@ var ITEM_SCHEMA = {
   }, COMMON_SCHEMA),
   required: ["id", "name", "createdBy", "done", "lists"]
 };
+function itemsConflictHandler(forkState, assumedMasterState, trueMasterState) {
+  if (!assumedMasterState || !trueMasterState) {
+    return forkState;
+  } else {
+    const newState = JSON.parse(JSON.stringify(forkState));
+    if (assumedMasterState.name !== trueMasterState.name) {
+      newState.name = trueMasterState.name;
+    }
+    if (assumedMasterState.done !== trueMasterState.done) {
+      newState.done = trueMasterState.done;
+    }
+    if (assumedMasterState.description !== trueMasterState.description) {
+      newState.description = trueMasterState.description;
+    }
+    if (assumedMasterState.reminder !== trueMasterState.reminder) {
+      newState.reminder = trueMasterState.reminder;
+    }
+    if (assumedMasterState.due !== trueMasterState.due) {
+      newState.due = trueMasterState.due;
+    }
+    if (assumedMasterState.updatedAt !== trueMasterState.updatedAt) {
+      newState.updatedAt = trueMasterState.updatedAt;
+    }
+    if (assumedMasterState._deleted !== trueMasterState._deleted) {
+      newState._deleted = trueMasterState._deleted;
+    }
+    return newState;
+  }
+}
 
 // src/app/mydb/types/graphql-types.ts
 var graphQLGenerationInput = {
@@ -88577,8 +88634,8 @@ var MyQuery = class {
 };
 
 // src/app/mydb/conflict-handler.ts
-function defaultConflictHandler(forkState, assumendMasterState, trueMasterState) {
-  if (!assumendMasterState || assumendMasterState.updatedAt === trueMasterState.updatedAt) {
+function defaultConflictHandler(forkState, assumedMasterState, trueMasterState) {
+  if (!assumedMasterState || !trueMasterState || assumedMasterState.updatedAt === trueMasterState.updatedAt) {
     return forkState;
   } else {
     return trueMasterState;
@@ -88868,10 +88925,12 @@ function addCollections(db) {
           users: function() {
             return [this.createdBy, ...this.sharedWith];
           }
-        }
+        },
+        conflictHandler: listsConflictHandler
       },
       [DATA_TYPE.LIST_ITEM]: {
-        schema: ITEM_SCHEMA
+        schema: ITEM_SCHEMA,
+        conflictHandler: itemsConflictHandler
       }
     });
     console.log("DatabaseService: created");
@@ -89270,7 +89329,7 @@ function fixArraysInSchema(query2, schema) {
   if (query2.indexOf("pushItems") > -1 || query2.indexOf("streamItems") > -1 || query2.indexOf("pullItems") > -1) {
     query2 = query2.replace("lists", "lists { id }");
   }
-  return query2.replace("clientUpdatedAt", "");
+  return query2;
 }
 
 // src/app/services/data/data.service.ts
@@ -89425,6 +89484,9 @@ var _AuthService = class _AuthService {
   }
   shareLists(email, listsId) {
     return this.api.shareLists(email, listsId);
+  }
+  unshareLists(userId, listsId) {
+    return this.api.unshareLists(userId, listsId);
   }
 };
 _AuthService.\u0275fac = function AuthService_Factory(\u0275t) {
@@ -90656,10 +90718,33 @@ var ResetPasswordComponent = _ResetPasswordComponent;
 })();
 
 // src/app/components/bottom-sheets/share-list-sheet/share-list-sheet.component.ts
+function ShareListSheetComponent_div_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 6)(1, "div")(2, "button", 7);
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "nameBadge");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "span");
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const user_r1 = ctx.$implicit;
+    const i_r2 = ctx.index;
+    \u0275\u0275advance(2);
+    \u0275\u0275classMap("badge user-fab-" + (i_r2 + 1) % 12);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 4, user_r1 == null ? null : user_r1.name));
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(user_r1.name);
+  }
+}
 var _ShareListSheetComponent = class _ShareListSheetComponent {
-  constructor(bottomSheetRef, fb) {
+  constructor(bottomSheetRef, data, fb) {
     this.bottomSheetRef = bottomSheetRef;
+    this.data = data;
     this.fb = fb;
+    this.lists = data.lists;
     this.form = fb.group({
       "email": ["", Validators.required]
     });
@@ -90669,53 +90754,47 @@ var _ShareListSheetComponent = class _ShareListSheetComponent {
       "email": this.form.controls["email"].value.toLowerCase().trim()
     });
   }
+  removeSharedWith(user) {
+    this.bottomSheetRef.dismiss({
+      "remove": user
+    });
+  }
 };
 _ShareListSheetComponent.\u0275fac = function ShareListSheetComponent_Factory(\u0275t) {
-  return new (\u0275t || _ShareListSheetComponent)(\u0275\u0275directiveInject(MatBottomSheetRef), \u0275\u0275directiveInject(FormBuilder));
+  return new (\u0275t || _ShareListSheetComponent)(\u0275\u0275directiveInject(MatBottomSheetRef), \u0275\u0275directiveInject(MAT_BOTTOM_SHEET_DATA), \u0275\u0275directiveInject(FormBuilder));
 };
-_ShareListSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ShareListSheetComponent, selectors: [["app-share-list-sheet"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 7, vars: 3, consts: [["autocomplete", "off", 3, "formGroup"], ["appearance", "outline"], ["matInput", "", "formControlName", "email", "placeholder", "Email"], ["mat-stroked-button", "", 3, "click", "disabled"], ["mat-flat-button", "", "color", "primary", 3, "click"]], template: function ShareListSheetComponent_Template(rf, ctx) {
+_ShareListSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ShareListSheetComponent, selectors: [["app-share-list-sheet"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 8, vars: 4, consts: [["class", "shared-user", 4, "ngFor", "ngForOf"], ["autocomplete", "off", 3, "formGroup"], ["appearance", "outline"], ["matInput", "", "formControlName", "email", "placeholder", "Email"], ["mat-stroked-button", "", 3, "click", "disabled"], ["mat-flat-button", "", "color", "primary", 3, "click"], [1, "shared-user"], ["mat-mini-fab", "", "disabled", ""]], template: function ShareListSheetComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "form", 0)(1, "mat-form-field", 1);
-    \u0275\u0275element(2, "input", 2);
+    \u0275\u0275template(0, ShareListSheetComponent_div_0_Template, 7, 6, "div", 0);
+    \u0275\u0275elementStart(1, "form", 1)(2, "mat-form-field", 2);
+    \u0275\u0275element(3, "input", 3);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "button", 3);
-    \u0275\u0275listener("click", function ShareListSheetComponent_Template_button_click_3_listener() {
+    \u0275\u0275elementStart(4, "button", 4);
+    \u0275\u0275listener("click", function ShareListSheetComponent_Template_button_click_4_listener() {
       return ctx.returnFormContent();
     });
-    \u0275\u0275text(4);
+    \u0275\u0275text(5);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "button", 4);
-    \u0275\u0275listener("click", function ShareListSheetComponent_Template_button_click_5_listener() {
+    \u0275\u0275elementStart(6, "button", 5);
+    \u0275\u0275listener("click", function ShareListSheetComponent_Template_button_click_6_listener() {
       return ctx.bottomSheetRef.dismiss();
     });
-    \u0275\u0275text(6, "Abbrechen");
+    \u0275\u0275text(7, "Abbrechen");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
+    \u0275\u0275property("ngForOf", ctx.lists().sharedWith);
+    \u0275\u0275advance();
     \u0275\u0275property("formGroup", ctx.form);
     \u0275\u0275advance(3);
     \u0275\u0275property("disabled", !ctx.form.valid);
     \u0275\u0275advance();
     \u0275\u0275textInterpolate("Speichern");
   }
-}, dependencies: [
-  FormsModule,
-  \u0275NgNoValidate,
-  DefaultValueAccessor,
-  NgControlStatus,
-  NgControlStatusGroup,
-  ReactiveFormsModule,
-  FormGroupDirective,
-  FormControlName,
-  CommonModule,
-  MaterialModule,
-  MatButton,
-  MatFormField,
-  MatInput
-], styles: ["\n\nbutton[_ngcontent-%COMP%] {\n  width: 100%;\n  margin: 6px 0;\n}\nbutton[_ngcontent-%COMP%]:last-child {\n  margin-bottom: 38pt;\n}\nform[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  margin: 24px 0;\n}\nform[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  margin: 24px 0;\n}\n/*# sourceMappingURL=styles.css.map */"] });
+}, dependencies: [FormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, ReactiveFormsModule, FormGroupDirective, FormControlName, CommonModule, NgForOf, MaterialModule, MatButton, MatMiniFabButton, MatFormField, MatInput, NameBadgePipe], styles: ["\n\n.shared-user[_ngcontent-%COMP%] {\n  width: calc(100% - 24px);\n  padding: 6px 12px;\n  border-radius: 5px;\n  border: solid 1px grey;\n  display: flex;\n  justify-content: space-between;\n}\n.shared-user[_ngcontent-%COMP%]   .badge[_ngcontent-%COMP%] {\n  width: 48px;\n  height: 48px;\n  margin-left: 0 !important;\n  margin-right: 12px;\n}\n.shared-user[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin-top: 0 !important;\n  margin-bottom: 0 !important;\n}\n.shared-user[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  line-height: 42px;\n}\n/*# sourceMappingURL=share-list-sheet.component.css.map */", "\n\nbutton[_ngcontent-%COMP%] {\n  width: 100%;\n  margin: 6px 0;\n}\nbutton[_ngcontent-%COMP%]:last-child {\n  margin-bottom: 38pt;\n}\nform[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  margin: 24px 0;\n}\nform[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  margin: 24px 0;\n}\n/*# sourceMappingURL=styles.css.map */"] });
 var ShareListSheetComponent = _ShareListSheetComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ShareListSheetComponent, { className: "ShareListSheetComponent", filePath: "src/app/components/bottom-sheets/share-list-sheet/share-list-sheet.component.ts", lineNumber: 19 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ShareListSheetComponent, { className: "ShareListSheetComponent", filePath: "src/app/components/bottom-sheets/share-list-sheet/share-list-sheet.component.ts", lineNumber: 23 });
 })();
 
 // node_modules/flatpickr/dist/esm/types/options.js
@@ -93578,45 +93657,19 @@ var ListItemComponent = _ListItemComponent;
 // src/app/components/list/list.component.ts
 var _c015 = ["picker"];
 var _c112 = ["addInput"];
-function ListComponent_button_7_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 8);
-    \u0275\u0275listener("click", function ListComponent_button_7_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r2);
-      const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.listSettings());
-    });
-    \u0275\u0275text(1, "Einstellungen");
-    \u0275\u0275elementEnd();
-  }
-}
-function ListComponent_button_18_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 8);
-    \u0275\u0275listener("click", function ListComponent_button_18_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r4);
-      const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.deleteList());
-    });
-    \u0275\u0275text(1, "L\xF6schen");
-    \u0275\u0275elementEnd();
-  }
-}
-function ListComponent_h1_19_Template(rf, ctx) {
+function ListComponent_h1_21_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "h1");
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext();
+    const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r2.list().name);
+    \u0275\u0275textInterpolate(ctx_r1.list().name);
   }
 }
-function ListComponent_div_20_button_1_Template(rf, ctx) {
+function ListComponent_div_22_button_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "button", 23);
     \u0275\u0275text(1);
@@ -93624,110 +93677,116 @@ function ListComponent_div_20_button_1_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const user_r5 = ctx.$implicit;
-    const i_r6 = ctx.index;
-    \u0275\u0275classMap("user-fab-" + i_r6 % 12);
+    const user_r4 = ctx.$implicit;
+    const i_r5 = ctx.index;
+    \u0275\u0275classMap("user-fab-" + i_r5 % 12);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 3, user_r5 == null ? null : user_r5.name));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 3, user_r4 == null ? null : user_r4.name));
   }
 }
-function ListComponent_div_20_Template(rf, ctx) {
+function ListComponent_div_22_Template(rf, ctx) {
   if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 21);
-    \u0275\u0275template(1, ListComponent_div_20_button_1_Template, 3, 5, "button", 22);
+    \u0275\u0275listener("click", function ListComponent_div_22_Template_div_click_0_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.shareList());
+    });
+    \u0275\u0275template(1, ListComponent_div_22_button_1_Template, 3, 5, "button", 22);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext();
+    const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("ngForOf", ctx_r2.list().users());
+    \u0275\u0275property("ngForOf", ctx_r1.list().users());
   }
 }
-function ListComponent_div_23_Template(rf, ctx) {
+function ListComponent_div_25_Template(rf, ctx) {
   if (rf & 1) {
-    const _r7 = \u0275\u0275getCurrentView();
+    const _r6 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 24);
-    \u0275\u0275listener("click", function ListComponent_div_23_Template_div_click_0_listener($event) {
-      \u0275\u0275restoreView(_r7);
-      const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.closeFocusInput($event));
+    \u0275\u0275listener("click", function ListComponent_div_25_Template_div_click_0_listener($event) {
+      \u0275\u0275restoreView(_r6);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.closeFocusInput($event));
     });
     \u0275\u0275elementEnd();
   }
 }
-function ListComponent_div_24_mat_chip_listbox_3_Template(rf, ctx) {
+function ListComponent_div_26_mat_chip_listbox_3_Template(rf, ctx) {
   if (rf & 1) {
-    const _r8 = \u0275\u0275getCurrentView();
+    const _r7 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-chip-listbox", 28)(1, "mat-chip-option", 29);
-    \u0275\u0275listener("click", function ListComponent_div_24_mat_chip_listbox_3_Template_mat_chip_option_click_1_listener() {
-      \u0275\u0275restoreView(_r8);
-      const slot_r9 = \u0275\u0275nextContext().$implicit;
-      const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.slotCollapseStates[slot_r9.name] = !ctx_r2.slotCollapseStates[slot_r9.name]);
+    \u0275\u0275listener("click", function ListComponent_div_26_mat_chip_listbox_3_Template_mat_chip_option_click_1_listener() {
+      \u0275\u0275restoreView(_r7);
+      const slot_r8 = \u0275\u0275nextContext().$implicit;
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.slotCollapseStates[slot_r8.name] = !ctx_r1.slotCollapseStates[slot_r8.name]);
     });
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const slot_r9 = \u0275\u0275nextContext().$implicit;
-    const ctx_r2 = \u0275\u0275nextContext();
+    const slot_r8 = \u0275\u0275nextContext().$implicit;
+    const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("selected", !ctx_r2.slotCollapseStates[slot_r9.name]);
+    \u0275\u0275property("selected", !ctx_r1.slotCollapseStates[slot_r8.name]);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", slot_r9.nDone, " ");
+    \u0275\u0275textInterpolate1(" ", slot_r8.nDone, " ");
   }
 }
-function ListComponent_div_24_ng_container_4_app_list_item_1_Template(rf, ctx) {
+function ListComponent_div_26_ng_container_4_app_list_item_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "app-list-item", 31);
   }
   if (rf & 2) {
-    const item_r10 = \u0275\u0275nextContext().$implicit;
-    const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("me", ctx_r2.me)("list", ctx_r2.list)("item", item_r10);
+    const item_r9 = \u0275\u0275nextContext().$implicit;
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("me", ctx_r1.me)("list", ctx_r1.list)("item", item_r9);
   }
 }
-function ListComponent_div_24_ng_container_4_Template(rf, ctx) {
+function ListComponent_div_26_ng_container_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainerStart(0);
-    \u0275\u0275template(1, ListComponent_div_24_ng_container_4_app_list_item_1_Template, 1, 3, "app-list-item", 30);
+    \u0275\u0275template(1, ListComponent_div_26_ng_container_4_app_list_item_1_Template, 1, 3, "app-list-item", 30);
     \u0275\u0275elementContainerEnd();
   }
   if (rf & 2) {
-    const item_r10 = ctx.$implicit;
-    const slot_r9 = \u0275\u0275nextContext().$implicit;
-    const ctx_r2 = \u0275\u0275nextContext();
+    const item_r9 = ctx.$implicit;
+    const slot_r8 = \u0275\u0275nextContext().$implicit;
+    const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", (!item_r10.done || !ctx_r2.slotCollapseStates[slot_r9.name] || true) && ctx_r2.list() && ctx_r2.me());
+    \u0275\u0275property("ngIf", (!item_r9.done || !ctx_r1.slotCollapseStates[slot_r8.name]) && ctx_r1.list() && ctx_r1.me());
   }
 }
-function ListComponent_div_24_Template(rf, ctx) {
+function ListComponent_div_26_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 25)(1, "h2");
     \u0275\u0275text(2);
-    \u0275\u0275template(3, ListComponent_div_24_mat_chip_listbox_3_Template, 3, 2, "mat-chip-listbox", 26);
+    \u0275\u0275template(3, ListComponent_div_26_mat_chip_listbox_3_Template, 3, 2, "mat-chip-listbox", 26);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(4, ListComponent_div_24_ng_container_4_Template, 2, 1, "ng-container", 27);
+    \u0275\u0275template(4, ListComponent_div_26_ng_container_4_Template, 2, 1, "ng-container", 27);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const slot_r9 = ctx.$implicit;
+    const slot_r8 = ctx.$implicit;
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", slot_r9.name, " ");
+    \u0275\u0275textInterpolate1(" ", slot_r8.name, " ");
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", slot_r9.nDone > 0);
+    \u0275\u0275property("ngIf", slot_r8.nDone > 0);
     \u0275\u0275advance();
-    \u0275\u0275property("ngForOf", slot_r9.items);
+    \u0275\u0275property("ngForOf", slot_r8.items);
   }
 }
-function ListComponent_div_25_Template(rf, ctx) {
+function ListComponent_div_27_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 32);
     \u0275\u0275text(1, "Keine Eintr\xE4ge vorhanden");
     \u0275\u0275elementEnd();
   }
 }
-function ListComponent_mat_toolbar_27_Template(rf, ctx) {
+function ListComponent_mat_toolbar_29_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-toolbar", 33)(1, "mat-chip-listbox", 34)(2, "mat-chip-option", 35);
     \u0275\u0275text(3, "Heute");
@@ -93744,12 +93803,12 @@ function ListComponent_mat_toolbar_27_Template(rf, ctx) {
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275styleProp("display", ctx_r2.focusInput ? "block" : "none");
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275styleProp("display", ctx_r1.focusInput ? "block" : "none");
     \u0275\u0275advance();
-    \u0275\u0275property("formControl", ctx_r2.newItemTime);
+    \u0275\u0275property("formControl", ctx_r1.newItemTime);
     \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(8, 4, ctx_r2.timePickerDate, "short") || "Andere");
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(8, 4, ctx_r1.timePickerDate, "short") || "Andere");
   }
 }
 var _ListComponent = class _ListComponent {
@@ -93832,16 +93891,32 @@ var _ListComponent = class _ListComponent {
     }
   }
   shareList() {
-    if (this.list && this.list()) {
-      const dialogRef = this.bottomSheet.open(ShareListSheetComponent);
+    if (this.userIsAdmin() && this.list && this.list()) {
+      const dialogRef = this.bottomSheet.open(ShareListSheetComponent, {
+        data: { lists: this.list }
+      });
       dialogRef.afterDismissed().subscribe((data) => {
         if (!!data && this.list && this.list()) {
-          this.authService.shareLists(data.email, this.list().id).subscribe((success) => {
-            if (!success) {
-              this.snackbar.open("Einladung konnte nicht verschickt werden.", "Ok");
-            }
-            this.snackbar.open("Einladung zum Beitreten der Liste wurde verschickt.", "Ok");
-          });
+          if (!!data.email) {
+            this.authService.shareLists(data.email, this.list().id).subscribe((success) => {
+              if (!success) {
+                this.snackbar.open("Einladung konnte nicht verschickt werden.", "Ok");
+              }
+              this.snackbar.open("Einladung zum Beitreten der Liste wurde verschickt.", "Ok");
+            });
+          } else if (!!data.remove) {
+            const confirm = this.bottomSheet.open(ConfirmSheetComponent, {
+              data: "L\xF6sche Nutzer " + data.remove.name + " aus dieser Liste."
+            });
+            confirm.afterDismissed().subscribe((del) => {
+              this.authService.unshareLists(data.remove.id, this.list().id).subscribe((success) => {
+                if (!success) {
+                  this.snackbar.open("Nutzer " + data.remove.name + " wurde entfernt.", "Ok");
+                }
+                this.snackbar.open("Nutzer konnte nicht verschickt werden.", "Ok");
+              });
+            });
+          }
         }
       });
     }
@@ -94022,7 +94097,7 @@ _ListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _
     \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.picker = _t.first);
     \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.addInput = _t.first);
   }
-}, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 37, vars: 14, consts: [["menu", "matMenu"], ["itemsContainer", ""], ["addInput", ""], ["picker", ""], [1, "content-grid", 3, "click"], [1, "content-header"], ["mat-icon-button", "", 1, "menu", 3, "matMenuTriggerFor"], ["mat-menu-item", "", 3, "click", 4, "ngIf"], ["mat-menu-item", "", 3, "click"], [4, "ngIf"], ["class", "users", 4, "ngIf"], ["id", "items-container"], ["id", "overlay", 3, "click", 4, "ngIf"], ["class", "slots", 4, "ngFor", "ngForOf"], ["class", "no-lists", 4, "ngIf"], [1, "input-bar", 3, "click"], ["class", "toolbar-time", 3, "display", 4, "ngIf"], [1, "toolbar-input"], ["matInput", "", "placeholder", "Hinzuf\xFCgen", "autocomplete", "off", 1, "add-input", 3, "formControl"], ["mat-icon-button", "", 3, "click"], ["id", "picker", "type", "text", 3, "change"], [1, "users"], ["mat-mini-fab", "", "disabled", "", 3, "class", 4, "ngFor", "ngForOf"], ["mat-mini-fab", "", "disabled", ""], ["id", "overlay", 3, "click"], [1, "slots"], ["class", "slot-done-toggle", 4, "ngIf"], [4, "ngFor", "ngForOf"], [1, "slot-done-toggle"], [3, "click", "selected"], [3, "me", "list", "item", 4, "ngIf"], [3, "me", "list", "item"], [1, "no-lists"], [1, "toolbar-time"], [3, "formControl"], ["value", "today"], ["value", "tomorrow"], ["value", "different"], ["value", "sometime"]], template: function ListComponent_Template(rf, ctx) {
+}, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 39, vars: 15, consts: [["menu", "matMenu"], ["itemsContainer", ""], ["addInput", ""], ["picker", ""], [1, "content-grid", 3, "click"], [1, "content-header"], ["mat-icon-button", "", 1, "menu", 3, "matMenuTriggerFor"], ["mat-menu-item", "", 3, "click", "disabled"], ["mat-menu-item", "", 3, "click"], [4, "ngIf"], ["class", "users", 3, "click", 4, "ngIf"], ["id", "items-container"], ["id", "overlay", 3, "click", 4, "ngIf"], ["class", "slots", 4, "ngFor", "ngForOf"], ["class", "no-lists", 4, "ngIf"], [1, "input-bar", 3, "click"], ["class", "toolbar-time", 3, "display", 4, "ngIf"], [1, "toolbar-input"], ["matInput", "", "placeholder", "Hinzuf\xFCgen", "autocomplete", "off", 1, "add-input", 3, "formControl"], ["mat-icon-button", "", 3, "click"], ["id", "picker", "type", "text", 3, "change"], [1, "users", 3, "click"], ["mat-mini-fab", "", "disabled", "", 3, "class", 4, "ngFor", "ngForOf"], ["mat-mini-fab", "", "disabled", ""], ["id", "overlay", 3, "click"], [1, "slots"], ["class", "slot-done-toggle", 4, "ngIf"], [4, "ngFor", "ngForOf"], [1, "slot-done-toggle"], [3, "click", "selected"], [3, "me", "list", "item", 4, "ngIf"], [3, "me", "list", "item"], [1, "no-lists"], [1, "toolbar-time"], [3, "formControl"], ["value", "today"], ["value", "tomorrow"], ["value", "different"], ["value", "sometime"]], template: function ListComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 4);
@@ -94033,82 +94108,94 @@ _ListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _
     \u0275\u0275elementStart(1, "div", 5)(2, "button", 6)(3, "mat-icon");
     \u0275\u0275text(4, "more_vert");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(5, "mat-menu", null, 0);
-    \u0275\u0275template(7, ListComponent_button_7_Template, 2, 0, "button", 7);
-    \u0275\u0275elementStart(8, "button", 8);
-    \u0275\u0275listener("click", function ListComponent_Template_button_click_8_listener() {
+    \u0275\u0275elementStart(5, "mat-menu", null, 0)(7, "button", 7);
+    \u0275\u0275listener("click", function ListComponent_Template_button_click_7_listener() {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.listSettings());
+    });
+    \u0275\u0275text(8, "Einstellungen");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(9, "button", 7);
+    \u0275\u0275listener("click", function ListComponent_Template_button_click_9_listener() {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.shareList());
     });
-    \u0275\u0275text(9, "Teilen");
+    \u0275\u0275text(10, "Teilen");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "button", 8);
-    \u0275\u0275listener("click", function ListComponent_Template_button_click_10_listener() {
+    \u0275\u0275elementStart(11, "button", 8);
+    \u0275\u0275listener("click", function ListComponent_Template_button_click_11_listener() {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.listToText());
     });
-    \u0275\u0275text(11, "Verschicken");
+    \u0275\u0275text(12, "Verschicken");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(12, "button", 8);
-    \u0275\u0275listener("click", function ListComponent_Template_button_click_12_listener() {
+    \u0275\u0275elementStart(13, "button", 8);
+    \u0275\u0275listener("click", function ListComponent_Template_button_click_13_listener() {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.markAllNotDone());
     });
-    \u0275\u0275text(13, "Alle Eintr\xE4ge abw\xE4hlen");
+    \u0275\u0275text(14, "Alle Eintr\xE4ge abw\xE4hlen");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(14, "button", 8);
-    \u0275\u0275listener("click", function ListComponent_Template_button_click_14_listener() {
+    \u0275\u0275elementStart(15, "button", 8);
+    \u0275\u0275listener("click", function ListComponent_Template_button_click_15_listener() {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.deleteAll());
     });
-    \u0275\u0275text(15, "Alle Eintr\xE4ge l\xF6schen");
+    \u0275\u0275text(16, "Alle Eintr\xE4ge l\xF6schen");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(16, "button", 8);
-    \u0275\u0275listener("click", function ListComponent_Template_button_click_16_listener() {
+    \u0275\u0275elementStart(17, "button", 8);
+    \u0275\u0275listener("click", function ListComponent_Template_button_click_17_listener() {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.deleteAllDone());
     });
-    \u0275\u0275text(17, "Alle erledigten Eintr\xE4ge l\xF6schen");
+    \u0275\u0275text(18, "Alle erledigten Eintr\xE4ge l\xF6schen");
     \u0275\u0275elementEnd();
-    \u0275\u0275template(18, ListComponent_button_18_Template, 2, 0, "button", 7);
+    \u0275\u0275elementStart(19, "button", 7);
+    \u0275\u0275listener("click", function ListComponent_Template_button_click_19_listener() {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.deleteList());
+    });
+    \u0275\u0275text(20, "L\xF6schen");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275template(21, ListComponent_h1_21_Template, 2, 1, "h1", 9)(22, ListComponent_div_22_Template, 2, 1, "div", 10);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(19, ListComponent_h1_19_Template, 2, 1, "h1", 9)(20, ListComponent_div_20_Template, 2, 1, "div", 10);
+    \u0275\u0275elementStart(23, "div", 11, 1);
+    \u0275\u0275template(25, ListComponent_div_25_Template, 1, 0, "div", 12)(26, ListComponent_div_26_Template, 5, 3, "div", 13)(27, ListComponent_div_27_Template, 2, 0, "div", 14);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(21, "div", 11, 1);
-    \u0275\u0275template(23, ListComponent_div_23_Template, 1, 0, "div", 12)(24, ListComponent_div_24_Template, 5, 3, "div", 13)(25, ListComponent_div_25_Template, 2, 0, "div", 14);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(26, "div", 15);
-    \u0275\u0275listener("click", function ListComponent_Template_div_click_26_listener($event) {
+    \u0275\u0275elementStart(28, "div", 15);
+    \u0275\u0275listener("click", function ListComponent_Template_div_click_28_listener($event) {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.openFocusInput($event));
     });
-    \u0275\u0275template(27, ListComponent_mat_toolbar_27_Template, 11, 7, "mat-toolbar", 16);
-    \u0275\u0275elementStart(28, "mat-toolbar", 17)(29, "form");
-    \u0275\u0275element(30, "input", 18, 2);
-    \u0275\u0275elementStart(32, "button", 19);
-    \u0275\u0275listener("click", function ListComponent_Template_button_click_32_listener() {
+    \u0275\u0275template(29, ListComponent_mat_toolbar_29_Template, 11, 7, "mat-toolbar", 16);
+    \u0275\u0275elementStart(30, "mat-toolbar", 17)(31, "form");
+    \u0275\u0275element(32, "input", 18, 2);
+    \u0275\u0275elementStart(34, "button", 19);
+    \u0275\u0275listener("click", function ListComponent_Template_button_click_34_listener() {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.addItem());
     });
-    \u0275\u0275elementStart(33, "mat-icon");
-    \u0275\u0275text(34, "add");
+    \u0275\u0275elementStart(35, "mat-icon");
+    \u0275\u0275text(36, "add");
     \u0275\u0275elementEnd()()()();
-    \u0275\u0275elementStart(35, "input", 20, 3);
-    \u0275\u0275listener("change", function ListComponent_Template_input_change_35_listener($event) {
+    \u0275\u0275elementStart(37, "input", 20, 3);
+    \u0275\u0275listener("change", function ListComponent_Template_input_change_37_listener($event) {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.setTimePickerDate($event));
     });
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
-    const menu_r11 = \u0275\u0275reference(6);
+    const menu_r10 = \u0275\u0275reference(6);
     \u0275\u0275advance(2);
-    \u0275\u0275property("matMenuTriggerFor", menu_r11);
+    \u0275\u0275property("matMenuTriggerFor", menu_r10);
     \u0275\u0275advance(5);
-    \u0275\u0275property("ngIf", ctx.userIsAdmin());
-    \u0275\u0275advance(11);
-    \u0275\u0275property("ngIf", ctx.userIsAdmin());
-    \u0275\u0275advance();
+    \u0275\u0275property("disabled", !ctx.userIsAdmin());
+    \u0275\u0275advance(2);
+    \u0275\u0275property("disabled", !ctx.userIsAdmin());
+    \u0275\u0275advance(10);
+    \u0275\u0275property("disabled", !ctx.userIsAdmin());
+    \u0275\u0275advance(2);
     \u0275\u0275property("ngIf", ctx.list());
     \u0275\u0275advance();
     \u0275\u0275property("ngIf", ctx.list() && ctx.list().users().length > 1);
@@ -94192,7 +94279,7 @@ function noConnectionInterceptor(req, next) {
       throw new Error("timeout");
     }
     return event;
-  }), timeout(1e3), catchError((err) => {
+  }), timeout(1e4), catchError((err) => {
     pusher.online.next(false);
     return of();
   }));

@@ -76,45 +76,34 @@ type MyListsMethods = {
 export type MyListsDocument = MyDocument<MyListsDocumentType, MyListsMethods>
 export type MyListsCollection = MyCollection<MyListsDocumentType, MyListsMethods, Signal<unknown>>;
 
-// export const defaultConflictHandler: RxConflictHandler<any> = function (
-//     /**
-//      * The conflict handler gets 3 input properties:
-//      * - assumedMasterState: The state of the document that is assumed to be on the master branch
-//      * - newDocumentState: The new document state of the fork branch (=client) that RxDB want to write to the master
-//      * - realMasterState: The real master state of the document
-//      */
-//     i: RxConflictHandlerInput<any>
-// ): Promise<RxConflictHandlerOutput<any>> {
-//     /**
-//      * Here we detect if a conflict exists in the first place.
-//      * If there is no conflict, we return isEqual=true.
-//      * If there is a conflict, return isEqual=false.
-//      * In the default handler we do a deepEqual check,
-//      * but in your custom conflict handler you probably want
-//      * to compare specific properties of the document, like the updatedAt time,
-//      * for better performance because deepEqual() is expensive.
-//      */
-//     if (deepEqual(
-//         i.newDocumentState,
-//         i.realMasterState
-//         )) {
-//         console.log('conflictHandler equal');
-//         return Promise.resolve({
-//             isEqual: true
-//         });
-//     }
+export function listsConflictHandler(
+    forkState: MyListsDocumentType,
+    assumedMasterState: MyListsDocumentType | undefined,
+    trueMasterState: MyListsDocumentType | undefined,
+) {
+     // if no master state was ever registered
+     if (!assumedMasterState || !trueMasterState) {
+        return forkState;
+    // overwrite fork state with master changes that are different from the assumedMaster
+    } else {
+        const newState: MyListsDocumentType = JSON.parse(JSON.stringify(forkState));
+        
+        if (assumedMasterState.name !== trueMasterState.name) {
+            newState.name = trueMasterState.name;
+        }
+        if (assumedMasterState.isShoppingList !== trueMasterState.isShoppingList) {
+            newState.isShoppingList = trueMasterState.isShoppingList;
+        }
+        if (assumedMasterState.sharedWith.length !== trueMasterState.sharedWith.length) {
+            newState.sharedWith = trueMasterState.sharedWith;
+        }
+        if (assumedMasterState.updatedAt !== trueMasterState.updatedAt) {
+            newState.updatedAt = trueMasterState.updatedAt;
+        }
+        if (assumedMasterState._deleted !== trueMasterState._deleted) {
+            newState._deleted = trueMasterState._deleted;
+        }
 
-//     console.log('conflictHandler: <new>', i.newDocumentState.updatedAt, '<ass>', i.assumedMasterState?.updatedAt, '<real>', i.realMasterState.updatedAt);
-//     /**
-//      * If a conflict exists, we have to resolve it.
-//      * The default conflict handler will always
-//      * drop the fork state and use the master state instead.
-//      * 
-//      * In your custom conflict handler you likely want to merge properties
-//      * of the realMasterState and the newDocumentState instead.
-//      */
-//     return Promise.resolve({
-//         isEqual: false,
-//         documentData: i.realMasterState
-//     });
-// };
+        return newState;
+    }
+}

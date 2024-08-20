@@ -1,7 +1,7 @@
 import { HttpEventType, HttpHandlerFn, HttpRequest } from "@angular/common/http";
 import { inject } from "@angular/core";
 import { PusherService } from "../services/pusher/pusher.service";
-import { TimeoutError, catchError, map, of, tap, timeout } from "rxjs";
+import { catchError, map, of, timeout } from "rxjs";
 
 export function noConnectionInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) {
     const pusher = inject(PusherService);
@@ -13,7 +13,7 @@ export function noConnectionInterceptor(req: HttpRequest<unknown>, next: HttpHan
             }
             return event;
         }),
-        timeout(1_000),
+        timeout(10_000),
         catchError(err => {
             pusher.online.next(false);
             return of();

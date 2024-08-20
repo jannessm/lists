@@ -162,4 +162,8 @@ export class AuthService {
   shareLists(email: string, listsId: string) {
     return this.api.shareLists(email, listsId);
   }
+
+  unshareLists(userId: string, listsId: string) {
+    return this.api.unshareLists(userId, listsId);
+  }
 }

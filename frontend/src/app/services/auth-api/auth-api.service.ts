@@ -162,6 +162,15 @@ export class AuthApiService {
     )
   }
 
+  unshareLists(user: string, listsId: string): Observable<boolean> {
+    return this.http.post(BASE_API + `unshare-lists/${listsId}`, {
+      user
+    }, {observe: 'response'}).pipe(
+      catchError(() => of(false)),
+      map(this.okMapper)
+    )
+  }
+
   okMapper(res: HttpResponse<any> | boolean) {
     if (res instanceof HttpResponse) {
       return res.status === 200;
