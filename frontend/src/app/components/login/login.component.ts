@@ -12,6 +12,7 @@ import md5 from 'md5-ts';
 import { AuthService } from '../../services/auth/auth.service';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { HCaptchaComponent } from '../hcaptcha/hcaptcha.component';
 
 @Component({
   selector: 'app-login',
@@ -24,6 +25,7 @@ import { MatIconModule } from '@angular/material/icon';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    HCaptchaComponent
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
@@ -43,6 +45,7 @@ export class LoginComponent {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       pwd: ['', Validators.required],
+      captcha: ['', Validators.required]
     });
 
     Object.values(this.form.controls).forEach(control => 
@@ -65,7 +68,8 @@ export class LoginComponent {
   login() {
     this.authService.login(
       (this.form.controls['email'].value as string).toLowerCase(),
-      md5(this.form.controls['pwd'].value)
+      md5(this.form.controls['pwd'].value),
+      this.form.controls['captcha'].value
     ).subscribe(loggedIn => {
       if (!loggedIn) {
         this.wrongCredentials = true;
@@ -75,6 +79,15 @@ export class LoginComponent {
         });
       }
     })
+  }
+
+  captchaVerify(res: string) {
+    this.form.get('captcha')?.setErrors(null);
+    this.form.get('captcha')?.setValue(res);
+  }
+
+  captchaError() {
+    this.form.get('captcha')?.setErrors({'captcha': true});
   }
 
 }

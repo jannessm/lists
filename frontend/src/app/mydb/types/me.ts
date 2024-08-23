@@ -27,6 +27,12 @@ export const ME_SCHEMA = {
         emailVerifiedAt: {
             type: ['string', 'null']
         },
+        // lists: {
+        //     type: 'array',
+        //     items: {
+        //         type: 'string'
+        //     }
+        // },
 
         // settings
         theme: {

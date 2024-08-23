@@ -58,7 +58,10 @@ export const LISTS_SCHEMA = {
                     },
                     name: {
                         type: 'string'
-                    }
+                    },
+                    // email: {
+                    //     type: 'string'
+                    // }
                 }
             }
         },

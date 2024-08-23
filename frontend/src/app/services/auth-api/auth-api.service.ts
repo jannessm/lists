@@ -13,11 +13,12 @@ export class AuthApiService {
     this.http.get(BASE_API.replace('api/', '') + "sanctum/csrf-cookie").subscribe(()=>{});
   }
 
-  login(email: string, password: string): Observable<boolean> {
+  login(email: string, password: string, captcha: string): Observable<boolean> {
     return this.http.post<HttpResponse<AuthResponse>>(BASE_API + "login", {
       email,
       password,
-      remember: true
+      remember: true,
+      captcha
     }, {observe: 'response'}).pipe(
       catchError(() => of(false)),
       map(res => {
@@ -37,10 +38,11 @@ export class AuthApiService {
     name: string,
     email: string,
     password: string,
-    password_confirmation: string
+    password_confirmation: string,
+    captcha: string
   ): Observable<AuthResponse | REGISTER> {
     return this.http.post<AuthResponse>(BASE_API + "register", {
-      name, email, password, password_confirmation
+      name, email, password, password_confirmation, captcha
     }, { observe: 'response' }).pipe(
       catchError(res => {
         return of(res);

@@ -34,12 +34,20 @@
             </mat-error>
         </mat-form-field>
         
+        <app-hcaptcha
+            (verify)="captchaVerify($event)"
+            (error)="captchaError()"
+            (expired)="captchaError()"
+        ></app-hcaptcha>
+
+
         <mat-error *ngIf="form.hasError('notMatching')">
             Passwörter stimmen nicht überein!
         </mat-error>
         <mat-error *ngIf="form.hasError('error')">
             Etwas ist schief gelaufen!
         </mat-error>
+        <mat-error *ngIf="form.get('captcha')?.hasError('captcha')">Cpatcha nicht erfolgreich. Bitte neu laden.</mat-error>
         
         <button mat-flat-button color="primary" (click)="register()" [disabled]="form.invalid || form.disabled">Register</button>
         

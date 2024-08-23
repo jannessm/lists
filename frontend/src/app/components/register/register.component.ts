@@ -14,6 +14,7 @@ import { CommonModule } from '@angular/common';
 import { MatchValidator } from '../../../models/match.validators';
 import { REGISTER } from '../../globals';
 import { MatIconModule } from '@angular/material/icon';
+import { HCaptchaComponent } from '../hcaptcha/hcaptcha.component';
 
 @Component({
   selector: 'app-register',
@@ -26,6 +27,7 @@ import { MatIconModule } from '@angular/material/icon';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    HCaptchaComponent
   ],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
@@ -45,6 +47,7 @@ export class RegisterComponent {
       email: ['', [Validators.required, Validators.email]],
       pwd: ['', Validators.required],
       pwd_confirmation: ['', Validators.required],
+      captcha: ['', Validators.required]
     },
     {
       validators: MatchValidator('pwd', 'pwd_confirmation')
@@ -61,6 +64,7 @@ export class RegisterComponent {
       (this.form.controls['email'].value as string).toLowerCase(),
       md5(this.form.controls['pwd'].value),
       md5(this.form.controls['pwd_confirmation'].value),
+      this.form.controls['captcha'].value
     ).subscribe(res => {
       if (res == REGISTER.FOUND) {
         this.form.get('email')?.setErrors({emailOccupied: true});
@@ -70,4 +74,12 @@ export class RegisterComponent {
     });
   }
 
+  captchaVerify(res: string) {
+    this.form.get('captcha')?.setErrors(null);
+    this.form.get('captcha')?.setValue(res);
+  }
+
+  captchaError() {
+    this.form.get('captcha')?.setErrors({'captcha': true});
+  }
 }

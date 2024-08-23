@@ -19,7 +19,13 @@
             </mat-error>
         </mat-form-field>
     
+        <app-hcaptcha
+            (verify)="captchaVerify($event)"
+            (error)="captchaError()"
+            (expired)="captchaError()"
+        ></app-hcaptcha>
         <mat-error *ngIf="wrongCredentials">Es wurde kein Benutzer für diese Nutzerdaten gefunden.</mat-error>
+        <mat-error *ngIf="form.get('captcha')?.hasError('captcha')">Cpatcha nicht erfolgreich. Bitte neu laden.</mat-error>
         <button mat-flat-button color="primary" (click)="login()" [disabled]="form.invalid || form.disabled">Login</button>
         
         <div class="container">

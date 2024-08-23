@@ -66,12 +66,12 @@ export class AuthService {
     })
   }
 
-  login(email: string, password: string): Observable<boolean> {
+  login(email: string, password: string, captcha: string): Observable<boolean> {
     if (this.cookies.check(SESSION_COOKIE)) {
       this.cookies.delete(SESSION_COOKIE);
     }
 
-    return this.api.login(email, password).pipe(
+    return this.api.login(email, password, captcha).pipe(
       map(success => {
       if (success) {
         this.isLoggedIn.set(true);
@@ -91,9 +91,16 @@ export class AuthService {
     name: string,
     email: string,
     password: string,
-    password_confirmation: string
+    password_confirmation: string,
+    captcha: string
   ): Observable<AuthResponse | REGISTER> {
-    return this.api.register(name, email, password, password_confirmation).pipe(
+    return this.api.register(
+      name,
+      email,
+      password,
+      password_confirmation,
+      captcha
+    ).pipe(
       map(res => {
         if (res === REGISTER.SUCCESS) {
           this.isLoggedIn.set(true);

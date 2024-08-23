@@ -13,7 +13,7 @@ export function noConnectionInterceptor(req: HttpRequest<unknown>, next: HttpHan
             }
             return event;
         }),
-        timeout(10_000),
+        // timeout(10_000),
         catchError(err => {
             pusher.online.next(false);
             return of();

@@ -2900,7 +2900,7 @@ var require_pusher = __commonJS({
               connect(minPriority, callback) {
                 var strategies = this.strategies;
                 var current = 0;
-                var timeout2 = this.timeout;
+                var timeout = this.timeout;
                 var runner = null;
                 var tryNextStrategy = (error, handshake) => {
                   if (handshake) {
@@ -2911,14 +2911,14 @@ var require_pusher = __commonJS({
                       current = current % strategies.length;
                     }
                     if (current < strategies.length) {
-                      if (timeout2) {
-                        timeout2 = timeout2 * 2;
+                      if (timeout) {
+                        timeout = timeout * 2;
                         if (this.timeoutLimit) {
-                          timeout2 = Math.min(timeout2, this.timeoutLimit);
+                          timeout = Math.min(timeout, this.timeoutLimit);
                         }
                       }
                       runner = this.tryStrategy(strategies[current], minPriority, {
-                        timeout: timeout2,
+                        timeout,
                         failFast: this.failFast
                       }, tryNextStrategy);
                     } else {
@@ -2927,7 +2927,7 @@ var require_pusher = __commonJS({
                   }
                 };
                 runner = this.tryStrategy(strategies[current], minPriority, {
-                  timeout: timeout2,
+                  timeout,
                   failFast: this.failFast
                 }, tryNextStrategy);
                 return {
@@ -10872,14 +10872,14 @@ var config = {
 
 // node_modules/rxjs/dist/esm/internal/scheduler/timeoutProvider.js
 var timeoutProvider = {
-  setTimeout(handler, timeout2, ...args) {
+  setTimeout(handler, timeout, ...args) {
     const {
       delegate
     } = timeoutProvider;
     if (delegate === null || delegate === void 0 ? void 0 : delegate.setTimeout) {
-      return delegate.setTimeout(handler, timeout2, ...args);
+      return delegate.setTimeout(handler, timeout, ...args);
     }
-    return setTimeout(handler, timeout2, ...args);
+    return setTimeout(handler, timeout, ...args);
   },
   clearTimeout(handle) {
     const {
@@ -11665,14 +11665,14 @@ var Action = class extends Subscription {
 
 // node_modules/rxjs/dist/esm/internal/scheduler/intervalProvider.js
 var intervalProvider = {
-  setInterval(handler, timeout2, ...args) {
+  setInterval(handler, timeout, ...args) {
     const {
       delegate
     } = intervalProvider;
     if (delegate === null || delegate === void 0 ? void 0 : delegate.setInterval) {
-      return delegate.setInterval(handler, timeout2, ...args);
+      return delegate.setInterval(handler, timeout, ...args);
     }
-    return setInterval(handler, timeout2, ...args);
+    return setInterval(handler, timeout, ...args);
   },
   clearInterval(handle) {
     const {
@@ -12465,65 +12465,6 @@ function firstValueFrom(source, config2) {
 // node_modules/rxjs/dist/esm/internal/util/isDate.js
 function isValidDate(value) {
   return value instanceof Date && !isNaN(value);
-}
-
-// node_modules/rxjs/dist/esm/internal/operators/timeout.js
-var TimeoutError = createErrorClass((_super) => function TimeoutErrorImpl(info = null) {
-  _super(this);
-  this.message = "Timeout has occurred";
-  this.name = "TimeoutError";
-  this.info = info;
-});
-function timeout(config2, schedulerArg) {
-  const {
-    first: first2,
-    each,
-    with: _with = timeoutErrorFactory,
-    scheduler = schedulerArg !== null && schedulerArg !== void 0 ? schedulerArg : asyncScheduler,
-    meta = null
-  } = isValidDate(config2) ? {
-    first: config2
-  } : typeof config2 === "number" ? {
-    each: config2
-  } : config2;
-  if (first2 == null && each == null) {
-    throw new TypeError("No timeout provided.");
-  }
-  return operate((source, subscriber) => {
-    let originalSourceSubscription;
-    let timerSubscription;
-    let lastValue = null;
-    let seen = 0;
-    const startTimer = (delay2) => {
-      timerSubscription = executeSchedule(subscriber, scheduler, () => {
-        try {
-          originalSourceSubscription.unsubscribe();
-          innerFrom(_with({
-            meta,
-            lastValue,
-            seen
-          })).subscribe(subscriber);
-        } catch (err) {
-          subscriber.error(err);
-        }
-      }, delay2);
-    };
-    originalSourceSubscription = source.subscribe(createOperatorSubscriber(subscriber, (value) => {
-      timerSubscription === null || timerSubscription === void 0 ? void 0 : timerSubscription.unsubscribe();
-      seen++;
-      subscriber.next(lastValue = value);
-      each > 0 && startTimer(each);
-    }, void 0, void 0, () => {
-      if (!(timerSubscription === null || timerSubscription === void 0 ? void 0 : timerSubscription.closed)) {
-        timerSubscription === null || timerSubscription === void 0 ? void 0 : timerSubscription.unsubscribe();
-      }
-      lastValue = null;
-    }));
-    !seen && startTimer(first2 != null ? typeof first2 === "number" ? first2 : +first2 - scheduler.now() : each);
-  });
-}
-function timeoutErrorFactory(info) {
-  throw new TimeoutError(info);
 }
 
 // node_modules/rxjs/dist/esm/internal/operators/map.js
@@ -24946,9 +24887,9 @@ var _TimerScheduler = class _TimerScheduler {
       // frame duration.
       this.invokeTimerAt && this.invokeTimerAt - invokeAt > FRAME_DURATION_MS) {
         this.clearTimeout();
-        const timeout2 = Math.max(invokeAt - now, FRAME_DURATION_MS);
+        const timeout = Math.max(invokeAt - now, FRAME_DURATION_MS);
         this.invokeTimerAt = invokeAt;
-        this.timeoutId = setTimeout(callback, timeout2);
+        this.timeoutId = setTimeout(callback, timeout);
       }
     }
   }
@@ -25329,7 +25270,7 @@ function applyDeferBlockStateWithScheduling(newState, lDetails, lContainer, tNod
     lDetails[NEXT_DEFER_BLOCK_STATE] = newState;
   }
 }
-function scheduleDeferBlockUpdate(timeout2, lDetails, tNode, lContainer, hostLView) {
+function scheduleDeferBlockUpdate(timeout, lDetails, tNode, lContainer, hostLView) {
   const callback = () => {
     const nextState = lDetails[NEXT_DEFER_BLOCK_STATE];
     lDetails[STATE_IS_FROZEN_UNTIL] = null;
@@ -25338,7 +25279,7 @@ function scheduleDeferBlockUpdate(timeout2, lDetails, tNode, lContainer, hostLVi
       renderDeferBlockState(nextState, tNode, lContainer);
     }
   };
-  return scheduleTimerTrigger(timeout2, callback, hostLView);
+  return scheduleTimerTrigger(timeout, callback, hostLView);
 }
 function isValidStateChange(currentState, newState) {
   return currentState < newState;
@@ -30831,13 +30772,13 @@ var _Testability = class _Testability {
       };
     });
   }
-  addCallback(cb, timeout2, updateCb) {
+  addCallback(cb, timeout, updateCb) {
     let timeoutId = -1;
-    if (timeout2 && timeout2 > 0) {
+    if (timeout && timeout > 0) {
       timeoutId = setTimeout(() => {
         this._callbacks = this._callbacks.filter((cb2) => cb2.timeoutId !== timeoutId);
         cb();
-      }, timeout2);
+      }, timeout);
     }
     this._callbacks.push({
       doneCb: cb,
@@ -30857,11 +30798,11 @@ var _Testability = class _Testability {
    *    pending macrotasks changes. If this callback returns true doneCb will not be invoked
    *    and no further updates will be issued.
    */
-  whenStable(doneCb, timeout2, updateCb) {
+  whenStable(doneCb, timeout, updateCb) {
     if (updateCb && !this.taskTrackingZone) {
       throw new Error('Task tracking zone is required when passing an update callback to whenStable(). Is "zone.js/plugins/task-tracking" loaded?');
     }
-    this.addCallback(doneCb, timeout2, updateCb);
+    this.addCallback(doneCb, timeout, updateCb);
     this._runCallbacksIfReady();
   }
   /**
@@ -67537,6 +67478,71 @@ var MatIconModule = _MatIconModule;
   }], null, null);
 })();
 
+// src/environments/version.ts
+var version = "4.0.0";
+
+// src/environments/environment.ts
+var environment = {
+  production: false,
+  api: "http://127.0.0.1:8080/",
+  pusherUrl: "127.0.0.1",
+  dexieDebugMode: false,
+  hcaptcha: "10000000-ffff-ffff-ffff-000000000001",
+  locale: "de",
+  version,
+  vapid: "BEQ7Z6AYftjPVg8a554wmJUFeCeR5UAs4eBqWQOUFbbwlbK6qjlbo3TR7GwgpfhJ4TAT2-sGZZQMwkVXRQEdxOI"
+};
+
+// src/app/components/hcaptcha/hcaptcha.component.ts
+var _c05 = ["captcha"];
+var _HCaptchaComponent = class _HCaptchaComponent {
+  constructor() {
+    this.verify = new EventEmitter();
+    this.expired = new EventEmitter();
+    this.error = new EventEmitter();
+  }
+  ngAfterViewInit() {
+    const options = {
+      sitekey: environment.hcaptcha,
+      callback: (res) => {
+        this.verify.emit(res);
+      },
+      "expired-callback": (res) => {
+        this.expired.emit(res);
+      },
+      "error-callback": (err) => {
+        this.error.emit(err);
+      }
+    };
+    const initInterval = setInterval(() => {
+      if (this.captcha.nativeElement) {
+        this.widgetId = window.hcaptcha.render(this.captcha.nativeElement, options);
+        clearInterval(initInterval);
+      }
+    }, 100);
+  }
+};
+_HCaptchaComponent.\u0275fac = function HCaptchaComponent_Factory(\u0275t) {
+  return new (\u0275t || _HCaptchaComponent)();
+};
+_HCaptchaComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _HCaptchaComponent, selectors: [["app-hcaptcha"]], viewQuery: function HCaptchaComponent_Query(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275viewQuery(_c05, 7);
+  }
+  if (rf & 2) {
+    let _t;
+    \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.captcha = _t.first);
+  }
+}, outputs: { verify: "verify", expired: "expired", error: "error" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 2, vars: 0, consts: [["captcha", ""], [1, "h-captcha"]], template: function HCaptchaComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "div", 1, 0);
+  }
+} });
+var HCaptchaComponent = _HCaptchaComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(HCaptchaComponent, { className: "HCaptchaComponent", filePath: "src/app/components/hcaptcha/hcaptcha.component.ts", lineNumber: 15 });
+})();
+
 // src/app/globals.ts
 var BASE_API = "/api/";
 var SESSION_COOKIE = "ng_session";
@@ -67897,7 +67903,7 @@ var MatBadgeModule = _MatBadgeModule;
 })();
 
 // node_modules/@angular/material/fesm2022/chips.mjs
-var _c05 = ["*", [["mat-chip-avatar"], ["", "matChipAvatar", ""]], [["mat-chip-trailing-icon"], ["", "matChipRemove", ""], ["", "matChipTrailingIcon", ""]]];
+var _c06 = ["*", [["mat-chip-avatar"], ["", "matChipAvatar", ""]], [["mat-chip-trailing-icon"], ["", "matChipRemove", ""], ["", "matChipTrailingIcon", ""]]];
 var _c14 = ["*", "mat-chip-avatar, [matChipAvatar]", "mat-chip-trailing-icon,[matChipRemove],[matChipTrailingIcon]"];
 function MatChip_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -68492,7 +68498,7 @@ _MatChip.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   consts: [[1, "mat-mdc-chip-focus-overlay"], [1, "mdc-evolution-chip__cell", "mdc-evolution-chip__cell--primary"], ["matChipAction", "", 3, "isInteractive"], [1, "mdc-evolution-chip__graphic", "mat-mdc-chip-graphic"], [1, "mdc-evolution-chip__text-label", "mat-mdc-chip-action-label"], [1, "mat-mdc-chip-primary-focus-indicator", "mat-mdc-focus-indicator"], [1, "mdc-evolution-chip__cell", "mdc-evolution-chip__cell--trailing"]],
   template: function MatChip_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275projectionDef(_c05);
+      \u0275\u0275projectionDef(_c06);
       \u0275\u0275element(0, "span", 0);
       \u0275\u0275elementStart(1, "span", 1)(2, "span", 2);
       \u0275\u0275template(3, MatChip_Conditional_3_Template, 2, 0, "span", 3);
@@ -68811,7 +68817,7 @@ _MatChipOption.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   consts: [[1, "mat-mdc-chip-focus-overlay"], [1, "mdc-evolution-chip__cell", "mdc-evolution-chip__cell--primary"], ["matChipAction", "", "role", "option", 3, "_allowFocusWhenDisabled"], [1, "mdc-evolution-chip__graphic", "mat-mdc-chip-graphic"], [1, "mdc-evolution-chip__text-label", "mat-mdc-chip-action-label"], [1, "mat-mdc-chip-primary-focus-indicator", "mat-mdc-focus-indicator"], [1, "mdc-evolution-chip__cell", "mdc-evolution-chip__cell--trailing"], [1, "cdk-visually-hidden", 3, "id"], [1, "mdc-evolution-chip__checkmark"], ["viewBox", "-2 -3 30 30", "focusable", "false", "aria-hidden", "true", 1, "mdc-evolution-chip__checkmark-svg"], ["fill", "none", "stroke", "currentColor", "d", "M1.73,12.91 8.1,19.28 22.79,4.59", 1, "mdc-evolution-chip__checkmark-path"]],
   template: function MatChipOption_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275projectionDef(_c05);
+      \u0275\u0275projectionDef(_c06);
       \u0275\u0275element(0, "span", 0);
       \u0275\u0275elementStart(1, "span", 1)(2, "button", 2);
       \u0275\u0275template(3, MatChipOption_Conditional_3_Template, 5, 0, "span", 3);
@@ -70630,7 +70636,7 @@ var MatChipsModule = _MatChipsModule;
 })();
 
 // node_modules/@angular/material/fesm2022/checkbox.mjs
-var _c06 = ["input"];
+var _c07 = ["input"];
 var _c15 = ["label"];
 var _c25 = ["*"];
 var MAT_CHECKBOX_DEFAULT_OPTIONS = new InjectionToken("mat-checkbox-default-options", {
@@ -70922,7 +70928,7 @@ _MatCheckbox.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   selectors: [["mat-checkbox"]],
   viewQuery: function MatCheckbox_Query(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275viewQuery(_c06, 5);
+      \u0275\u0275viewQuery(_c07, 5);
       \u0275\u0275viewQuery(_c15, 5);
       \u0275\u0275viewQuery(MatRipple, 5);
     }
@@ -71659,7 +71665,7 @@ var UniqueSelectionDispatcher = _UniqueSelectionDispatcher;
 })();
 
 // node_modules/@angular/cdk/fesm2022/scrolling.mjs
-var _c07 = ["contentWrapper"];
+var _c08 = ["contentWrapper"];
 var _c16 = ["*"];
 var VIRTUAL_SCROLL_STRATEGY = new InjectionToken("VIRTUAL_SCROLL_STRATEGY");
 var FixedSizeVirtualScrollStrategy = class {
@@ -72649,7 +72655,7 @@ _CdkVirtualScrollViewport.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
   selectors: [["cdk-virtual-scroll-viewport"]],
   viewQuery: function CdkVirtualScrollViewport_Query(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275viewQuery(_c07, 7);
+      \u0275\u0275viewQuery(_c08, 7);
     }
     if (rf & 2) {
       let _t;
@@ -77547,7 +77553,7 @@ var MatBottomSheetModule = _MatBottomSheetModule;
 })();
 
 // node_modules/@angular/material/fesm2022/datepicker.mjs
-var _c08 = ["mat-calendar-body", ""];
+var _c09 = ["mat-calendar-body", ""];
 function _forTrack0($index, $item) {
   return this._trackRow($item);
 }
@@ -78202,7 +78208,7 @@ _MatCalendarBody.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   exportAs: ["matCalendarBody"],
   standalone: true,
   features: [\u0275\u0275NgOnChangesFeature, \u0275\u0275StandaloneFeature],
-  attrs: _c08,
+  attrs: _c09,
   decls: 7,
   vars: 5,
   consts: [["aria-hidden", "true"], ["role", "row"], [1, "mat-calendar-body-hidden-label", 3, "id"], [1, "mat-calendar-body-label"], [1, "mat-calendar-body-label", 3, "paddingTop", "paddingBottom"], ["role", "gridcell", 1, "mat-calendar-body-cell-container", 3, "width", "paddingTop", "paddingBottom"], ["role", "gridcell", 1, "mat-calendar-body-cell-container"], ["type", "button", 1, "mat-calendar-body-cell", 3, "click", "focus", "ngClass", "tabindex"], [1, "mat-calendar-body-cell-content", "mat-focus-indicator"], ["aria-hidden", "true", 1, "mat-calendar-body-cell-preview"]],
@@ -83339,7 +83345,7 @@ var MatDatepickerModule = _MatDatepickerModule;
 })();
 
 // node_modules/@angular/material/fesm2022/menu.mjs
-var _c09 = ["mat-menu-item", ""];
+var _c010 = ["mat-menu-item", ""];
 var _c18 = [[["mat-icon"], ["", "matMenuItemIcon", ""]], "*"];
 var _c27 = ["mat-icon, [matMenuItemIcon]", "*"];
 function MatMenuItem_Conditional_4_Template(rf, ctx) {
@@ -83493,7 +83499,7 @@ _MatMenuItem.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   exportAs: ["matMenuItem"],
   standalone: true,
   features: [\u0275\u0275InputTransformsFeature, \u0275\u0275StandaloneFeature],
-  attrs: _c09,
+  attrs: _c010,
   ngContentSelectors: _c27,
   decls: 5,
   vars: 3,
@@ -84709,7 +84715,7 @@ var MatMenuModule = _MatMenuModule;
 })();
 
 // node_modules/@angular/material/fesm2022/select.mjs
-var _c010 = ["trigger"];
+var _c011 = ["trigger"];
 var _c19 = ["panel"];
 var _c28 = [[["mat-select-trigger"]], "*"];
 var _c37 = ["mat-select-trigger", "*"];
@@ -85597,7 +85603,7 @@ _MatSelect.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   },
   viewQuery: function MatSelect_Query(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275viewQuery(_c010, 5);
+      \u0275\u0275viewQuery(_c011, 5);
       \u0275\u0275viewQuery(_c19, 5);
       \u0275\u0275viewQuery(CdkConnectedOverlay, 5);
     }
@@ -86083,7 +86089,7 @@ function SimpleSnackBar_Conditional_2_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", ctx_r1.data.action, " ");
   }
 }
-var _c011 = ["label"];
+var _c012 = ["label"];
 function MatSnackBarContainer_ng_template_4_Template(rf, ctx) {
 }
 var MAX_TIMEOUT = Math.pow(2, 31) - 1;
@@ -86526,7 +86532,7 @@ _MatSnackBarContainer.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   viewQuery: function MatSnackBarContainer_Query(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275viewQuery(CdkPortalOutlet, 7);
-      \u0275\u0275viewQuery(_c011, 7);
+      \u0275\u0275viewQuery(_c012, 7);
     }
     if (rf & 2) {
       let _t;
@@ -86877,7 +86883,7 @@ var MatSnackBarModule = _MatSnackBarModule;
 })();
 
 // node_modules/@angular/material/fesm2022/slide-toggle.mjs
-var _c012 = ["switch"];
+var _c013 = ["switch"];
 var _c110 = ["*"];
 function MatSlideToggle_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
@@ -87047,7 +87053,7 @@ _MatSlideToggle.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   selectors: [["mat-slide-toggle"]],
   viewQuery: function MatSlideToggle_Query(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275viewQuery(_c012, 5);
+      \u0275\u0275viewQuery(_c013, 5);
     }
     if (rf & 2) {
       let _t;
@@ -87405,7 +87411,7 @@ var MatSlideToggleModule = _MatSlideToggleModule;
 })();
 
 // node_modules/@angular/material/fesm2022/toolbar.mjs
-var _c013 = ["*", [["mat-toolbar-row"]]];
+var _c014 = ["*", [["mat-toolbar-row"]]];
 var _c111 = ["*", "mat-toolbar-row"];
 var _MatToolbarRow = class _MatToolbarRow {
 };
@@ -87491,7 +87497,7 @@ _MatToolbar.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   vars: 0,
   template: function MatToolbar_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275projectionDef(_c013);
+      \u0275\u0275projectionDef(_c014);
       \u0275\u0275projection(0);
       \u0275\u0275projection(1, 1);
     }
@@ -87882,11 +87888,12 @@ var _AuthApiService = class _AuthApiService {
     this.http.get(BASE_API.replace("api/", "") + "sanctum/csrf-cookie").subscribe(() => {
     });
   }
-  login(email, password) {
+  login(email, password, captcha) {
     return this.http.post(BASE_API + "login", {
       email,
       password,
-      remember: true
+      remember: true,
+      captcha
     }, { observe: "response" }).pipe(catchError(() => of(false)), map((res) => {
       if (res instanceof HttpResponse && res.status === 200) {
         return true;
@@ -87895,12 +87902,13 @@ var _AuthApiService = class _AuthApiService {
       }
     }));
   }
-  register(name, email, password, password_confirmation) {
+  register(name, email, password, password_confirmation, captcha) {
     return this.http.post(BASE_API + "register", {
       name,
       email,
       password,
-      password_confirmation
+      password_confirmation,
+      captcha
     }, { observe: "response" }).pipe(catchError((res) => {
       return of(res);
     }), map((res) => {
@@ -88001,22 +88009,6 @@ var AuthApiService = _AuthApiService;
 
 // src/app/services/pusher/pusher.service.ts
 var import_pusher_js = __toESM(require_pusher());
-
-// src/environments/version.ts
-var version = "4.0.0";
-
-// src/environments/environment.ts
-var environment = {
-  production: false,
-  api: "http://127.0.0.1:8080/",
-  pusherUrl: "127.0.0.1",
-  dexieDebugMode: false,
-  locale: "de",
-  version,
-  vapid: "BEQ7Z6AYftjPVg8a554wmJUFeCeR5UAs4eBqWQOUFbbwlbK6qjlbo3TR7GwgpfhJ4TAT2-sGZZQMwkVXRQEdxOI"
-};
-
-// src/app/services/pusher/pusher.service.ts
 var _PusherService = class _PusherService {
   constructor() {
     this.channels = [];
@@ -88267,6 +88259,9 @@ var LISTS_SCHEMA = {
           name: {
             type: "string"
           }
+          // email: {
+          //     type: 'string'
+          // }
         }
       }
     }
@@ -88321,6 +88316,12 @@ var ME_SCHEMA = {
     emailVerifiedAt: {
       type: ["string", "null"]
     },
+    // lists: {
+    //     type: 'array',
+    //     items: {
+    //         type: 'string'
+    //     }
+    // },
     // settings
     theme: {
       type: "string"
@@ -89417,11 +89418,11 @@ var _AuthService = class _AuthService {
       }
     });
   }
-  login(email, password) {
+  login(email, password, captcha) {
     if (this.cookies.check(SESSION_COOKIE)) {
       this.cookies.delete(SESSION_COOKIE);
     }
-    return this.api.login(email, password).pipe(map((success) => {
+    return this.api.login(email, password, captcha).pipe(map((success) => {
       if (success) {
         this.isLoggedIn.set(true);
         this.router.navigateByUrl("/user/lists");
@@ -89432,8 +89433,8 @@ var _AuthService = class _AuthService {
       }
     }));
   }
-  register(name, email, password, password_confirmation) {
-    return this.api.register(name, email, password, password_confirmation).pipe(map((res) => {
+  register(name, email, password, password_confirmation, captcha) {
+    return this.api.register(name, email, password, password_confirmation, captcha).pipe(map((res) => {
       if (res === REGISTER.SUCCESS) {
         this.isLoggedIn.set(true);
       }
@@ -89517,10 +89518,17 @@ function LoginComponent_mat_error_12_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
 }
-function LoginComponent_mat_error_13_Template(rf, ctx) {
+function LoginComponent_mat_error_14_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-error");
     \u0275\u0275text(1, "Es wurde kein Benutzer f\xFCr diese Nutzerdaten gefunden.");
+    \u0275\u0275elementEnd();
+  }
+}
+function LoginComponent_mat_error_15_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-error");
+    \u0275\u0275text(1, "Cpatcha nicht erfolgreich. Bitte neu laden.");
     \u0275\u0275elementEnd();
   }
 }
@@ -89533,7 +89541,8 @@ var _LoginComponent = class _LoginComponent {
     this.noSpacesRegex = /.*\S.*/;
     this.form = this.fb.group({
       email: ["", [Validators.required, Validators.email]],
-      pwd: ["", Validators.required]
+      pwd: ["", Validators.required],
+      captcha: ["", Validators.required]
     });
     Object.values(this.form.controls).forEach((control) => control.valueChanges.subscribe(() => {
       this.resetErrors();
@@ -89549,7 +89558,7 @@ var _LoginComponent = class _LoginComponent {
     }
   }
   login() {
-    this.authService.login(this.form.controls["email"].value.toLowerCase(), md5(this.form.controls["pwd"].value)).subscribe((loggedIn) => {
+    this.authService.login(this.form.controls["email"].value.toLowerCase(), md5(this.form.controls["pwd"].value), this.form.controls["captcha"].value).subscribe((loggedIn) => {
       if (!loggedIn) {
         this.wrongCredentials = true;
         Object.values(this.form.controls).forEach((control) => {
@@ -89558,11 +89567,18 @@ var _LoginComponent = class _LoginComponent {
       }
     });
   }
+  captchaVerify(res) {
+    this.form.get("captcha")?.setErrors(null);
+    this.form.get("captcha")?.setValue(res);
+  }
+  captchaError() {
+    this.form.get("captcha")?.setErrors({ "captcha": true });
+  }
 };
 _LoginComponent.\u0275fac = function LoginComponent_Factory(\u0275t) {
   return new (\u0275t || _LoginComponent)(\u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(Router));
 };
-_LoginComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LoginComponent, selectors: [["app-login"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 23, vars: 6, consts: [[3, "formGroup"], ["appearance", "outline"], ["matInput", "", "placeholder", "Email", "formControlName", "email", "type", "email"], [4, "ngIf"], ["matInput", "", "type", "password", "placeholder", "Password", "formControlName", "pwd"], ["mat-flat-button", "", "color", "primary", 3, "click", "disabled"], [1, "container"], ["mat-stroked-button", "", "routerLink", "/reset-password", "type", "button"], ["mat-stroked-button", "", "routerLink", "/register", "type", "button"]], template: function LoginComponent_Template(rf, ctx) {
+_LoginComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LoginComponent, selectors: [["app-login"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 25, vars: 7, consts: [[3, "formGroup"], ["appearance", "outline"], ["matInput", "", "placeholder", "Email", "formControlName", "email", "type", "email"], [4, "ngIf"], ["matInput", "", "type", "password", "placeholder", "Password", "formControlName", "pwd"], [3, "verify", "error", "expired"], ["mat-flat-button", "", "color", "primary", 3, "click", "disabled"], [1, "container"], ["mat-stroked-button", "", "routerLink", "/reset-password", "type", "button"], ["mat-stroked-button", "", "routerLink", "/register", "type", "button"]], template: function LoginComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div")(1, "form", 0)(2, "mat-form-field", 1)(3, "mat-label");
     \u0275\u0275text(4, "email");
@@ -89576,26 +89592,36 @@ _LoginComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: 
     \u0275\u0275element(11, "input", 4);
     \u0275\u0275template(12, LoginComponent_mat_error_12_Template, 2, 0, "mat-error", 3);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(13, LoginComponent_mat_error_13_Template, 2, 0, "mat-error", 3);
-    \u0275\u0275elementStart(14, "button", 5);
-    \u0275\u0275listener("click", function LoginComponent_Template_button_click_14_listener() {
+    \u0275\u0275elementStart(13, "app-hcaptcha", 5);
+    \u0275\u0275listener("verify", function LoginComponent_Template_app_hcaptcha_verify_13_listener($event) {
+      return ctx.captchaVerify($event);
+    })("error", function LoginComponent_Template_app_hcaptcha_error_13_listener() {
+      return ctx.captchaError();
+    })("expired", function LoginComponent_Template_app_hcaptcha_expired_13_listener() {
+      return ctx.captchaError();
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(14, LoginComponent_mat_error_14_Template, 2, 0, "mat-error", 3)(15, LoginComponent_mat_error_15_Template, 2, 0, "mat-error", 3);
+    \u0275\u0275elementStart(16, "button", 6);
+    \u0275\u0275listener("click", function LoginComponent_Template_button_click_16_listener() {
       return ctx.login();
     });
-    \u0275\u0275text(15, "Login");
+    \u0275\u0275text(17, "Login");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(16, "div", 6)(17, "button", 7);
-    \u0275\u0275text(18, "Passwort vergessen");
+    \u0275\u0275elementStart(18, "div", 7)(19, "button", 8);
+    \u0275\u0275text(20, "Passwort vergessen");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(19, "button", 8);
-    \u0275\u0275text(20, "Register");
-    \u0275\u0275elementStart(21, "mat-icon");
-    \u0275\u0275text(22, "chevron_right");
+    \u0275\u0275elementStart(21, "button", 9);
+    \u0275\u0275text(22, "Register");
+    \u0275\u0275elementStart(23, "mat-icon");
+    \u0275\u0275text(24, "chevron_right");
     \u0275\u0275elementEnd()()()()();
   }
   if (rf & 2) {
     let tmp_1_0;
     let tmp_2_0;
     let tmp_3_0;
+    let tmp_5_0;
     \u0275\u0275advance();
     \u0275\u0275property("formGroup", ctx.form);
     \u0275\u0275advance(5);
@@ -89604,15 +89630,17 @@ _LoginComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: 
     \u0275\u0275property("ngIf", (tmp_2_0 = ctx.form.get("email")) == null ? null : tmp_2_0.hasError("email"));
     \u0275\u0275advance(5);
     \u0275\u0275property("ngIf", (tmp_3_0 = ctx.form.get("pwd")) == null ? null : tmp_3_0.hasError("required"));
-    \u0275\u0275advance();
+    \u0275\u0275advance(2);
     \u0275\u0275property("ngIf", ctx.wrongCredentials);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", (tmp_5_0 = ctx.form.get("captcha")) == null ? null : tmp_5_0.hasError("captcha"));
     \u0275\u0275advance();
     \u0275\u0275property("disabled", ctx.form.invalid || ctx.form.disabled);
   }
-}, dependencies: [CommonModule, NgIf, RouterModule, RouterLink, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, MatButtonModule, MatButton, MatFormFieldModule, MatFormField, MatLabel, MatError, MatIconModule, MatIcon, MatInputModule, MatInput], styles: ["\n\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin: 12px 0;\n}\ndiv[_ngcontent-%COMP%]   .container[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  justify-content: space-between;\n  margin: 0;\n}\n/*# sourceMappingURL=login.component.css.map */"] });
+}, dependencies: [CommonModule, NgIf, RouterModule, RouterLink, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, MatButtonModule, MatButton, MatFormFieldModule, MatFormField, MatLabel, MatError, MatIconModule, MatIcon, MatInputModule, MatInput, HCaptchaComponent], styles: ["\n\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin: 12px 0;\n}\ndiv[_ngcontent-%COMP%]   .container[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  justify-content: space-between;\n  margin: 0;\n}\n/*# sourceMappingURL=login.component.css.map */"] });
 var LoginComponent = _LoginComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LoginComponent, { className: "LoginComponent", filePath: "src/app/components/login/login.component.ts", lineNumber: 31 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LoginComponent, { className: "LoginComponent", filePath: "src/app/components/login/login.component.ts", lineNumber: 33 });
 })();
 
 // src/app/guards/auth/auth.guard.ts
@@ -89695,17 +89723,24 @@ function RegisterComponent_mat_error_23_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
 }
-function RegisterComponent_mat_error_24_Template(rf, ctx) {
+function RegisterComponent_mat_error_25_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-error");
     \u0275\u0275text(1, " Passw\xF6rter stimmen nicht \xFCberein! ");
     \u0275\u0275elementEnd();
   }
 }
-function RegisterComponent_mat_error_25_Template(rf, ctx) {
+function RegisterComponent_mat_error_26_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-error");
     \u0275\u0275text(1, " Etwas ist schief gelaufen! ");
+    \u0275\u0275elementEnd();
+  }
+}
+function RegisterComponent_mat_error_27_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-error");
+    \u0275\u0275text(1, "Cpatcha nicht erfolgreich. Bitte neu laden.");
     \u0275\u0275elementEnd();
   }
 }
@@ -89718,14 +89753,15 @@ var _RegisterComponent = class _RegisterComponent {
       name: ["", [Validators.required]],
       email: ["", [Validators.required, Validators.email]],
       pwd: ["", Validators.required],
-      pwd_confirmation: ["", Validators.required]
+      pwd_confirmation: ["", Validators.required],
+      captcha: ["", Validators.required]
     }, {
       validators: MatchValidator("pwd", "pwd_confirmation")
     });
     Object.values(this.form.controls).forEach((control) => control.valueChanges.subscribe(() => this.form.setErrors(null)));
   }
   register() {
-    this.authService.register(this.form.controls["name"].value, this.form.controls["email"].value.toLowerCase(), md5(this.form.controls["pwd"].value), md5(this.form.controls["pwd_confirmation"].value)).subscribe((res) => {
+    this.authService.register(this.form.controls["name"].value, this.form.controls["email"].value.toLowerCase(), md5(this.form.controls["pwd"].value), md5(this.form.controls["pwd_confirmation"].value), this.form.controls["captcha"].value).subscribe((res) => {
       if (res == REGISTER.FOUND) {
         this.form.get("email")?.setErrors({ emailOccupied: true });
       } else if (res == REGISTER.ERROR) {
@@ -89733,11 +89769,18 @@ var _RegisterComponent = class _RegisterComponent {
       }
     });
   }
+  captchaVerify(res) {
+    this.form.get("captcha")?.setErrors(null);
+    this.form.get("captcha")?.setValue(res);
+  }
+  captchaError() {
+    this.form.get("captcha")?.setErrors({ "captcha": true });
+  }
 };
 _RegisterComponent.\u0275fac = function RegisterComponent_Factory(\u0275t) {
   return new (\u0275t || _RegisterComponent)(\u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(AuthService));
 };
-_RegisterComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RegisterComponent, selectors: [["app-register"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 33, vars: 10, consts: [[3, "formGroup"], ["appearance", "outline"], ["matInput", "", "placeholder", "Name", "formControlName", "name"], [4, "ngIf"], ["matInput", "", "placeholder", "Email", "formControlName", "email", "type", "email"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "pwd"], ["matInput", "", "type", "password", "placeholder", "Passwort wiederholen", "formControlName", "pwd_confirmation"], ["mat-flat-button", "", "color", "primary", 3, "click", "disabled"], [1, "container"], ["mat-stroked-button", "", "type", "button", "routerLink", "/login"]], template: function RegisterComponent_Template(rf, ctx) {
+_RegisterComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RegisterComponent, selectors: [["app-register"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 35, vars: 11, consts: [[3, "formGroup"], ["appearance", "outline"], ["matInput", "", "placeholder", "Name", "formControlName", "name"], [4, "ngIf"], ["matInput", "", "placeholder", "Email", "formControlName", "email", "type", "email"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "pwd"], ["matInput", "", "type", "password", "placeholder", "Passwort wiederholen", "formControlName", "pwd_confirmation"], [3, "verify", "error", "expired"], ["mat-flat-button", "", "color", "primary", 3, "click", "disabled"], [1, "container"], ["mat-stroked-button", "", "type", "button", "routerLink", "/login"]], template: function RegisterComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div")(1, "form", 0)(2, "mat-form-field", 1)(3, "mat-label");
     \u0275\u0275text(4, "Name");
@@ -89763,17 +89806,26 @@ _RegisterComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ typ
     \u0275\u0275element(22, "input", 6);
     \u0275\u0275template(23, RegisterComponent_mat_error_23_Template, 2, 0, "mat-error", 3);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(24, RegisterComponent_mat_error_24_Template, 2, 0, "mat-error", 3)(25, RegisterComponent_mat_error_25_Template, 2, 0, "mat-error", 3);
-    \u0275\u0275elementStart(26, "button", 7);
-    \u0275\u0275listener("click", function RegisterComponent_Template_button_click_26_listener() {
+    \u0275\u0275elementStart(24, "app-hcaptcha", 7);
+    \u0275\u0275listener("verify", function RegisterComponent_Template_app_hcaptcha_verify_24_listener($event) {
+      return ctx.captchaVerify($event);
+    })("error", function RegisterComponent_Template_app_hcaptcha_error_24_listener() {
+      return ctx.captchaError();
+    })("expired", function RegisterComponent_Template_app_hcaptcha_expired_24_listener() {
+      return ctx.captchaError();
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(25, RegisterComponent_mat_error_25_Template, 2, 0, "mat-error", 3)(26, RegisterComponent_mat_error_26_Template, 2, 0, "mat-error", 3)(27, RegisterComponent_mat_error_27_Template, 2, 0, "mat-error", 3);
+    \u0275\u0275elementStart(28, "button", 8);
+    \u0275\u0275listener("click", function RegisterComponent_Template_button_click_28_listener() {
       return ctx.register();
     });
-    \u0275\u0275text(27, "Register");
+    \u0275\u0275text(29, "Register");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(28, "div", 8)(29, "button", 9)(30, "mat-icon");
-    \u0275\u0275text(31, "chevron_left");
+    \u0275\u0275elementStart(30, "div", 9)(31, "button", 10)(32, "mat-icon");
+    \u0275\u0275text(33, "chevron_left");
     \u0275\u0275elementEnd();
-    \u0275\u0275text(32, "Login");
+    \u0275\u0275text(34, "Login");
     \u0275\u0275elementEnd()()()();
   }
   if (rf & 2) {
@@ -89783,6 +89835,7 @@ _RegisterComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ typ
     let tmp_4_0;
     let tmp_5_0;
     let tmp_6_0;
+    let tmp_9_0;
     \u0275\u0275advance();
     \u0275\u0275property("formGroup", ctx.form);
     \u0275\u0275advance(5);
@@ -89797,17 +89850,19 @@ _RegisterComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ typ
     \u0275\u0275property("ngIf", (tmp_5_0 = ctx.form.get("pwd")) == null ? null : tmp_5_0.hasError("required"));
     \u0275\u0275advance(5);
     \u0275\u0275property("ngIf", (tmp_6_0 = ctx.form.get("pwd_confirmation")) == null ? null : tmp_6_0.hasError("required"));
-    \u0275\u0275advance();
+    \u0275\u0275advance(2);
     \u0275\u0275property("ngIf", ctx.form.hasError("notMatching"));
     \u0275\u0275advance();
     \u0275\u0275property("ngIf", ctx.form.hasError("error"));
     \u0275\u0275advance();
+    \u0275\u0275property("ngIf", (tmp_9_0 = ctx.form.get("captcha")) == null ? null : tmp_9_0.hasError("captcha"));
+    \u0275\u0275advance();
     \u0275\u0275property("disabled", ctx.form.invalid || ctx.form.disabled);
   }
-}, dependencies: [CommonModule, NgIf, RouterModule, RouterLink, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, MatButtonModule, MatButton, MatFormFieldModule, MatFormField, MatLabel, MatError, MatIconModule, MatIcon, MatInputModule, MatInput], styles: ["\n\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin: 12px 0;\n}\ndiv[_ngcontent-%COMP%]   .container[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  justify-content: space-between;\n  margin: 0;\n}\n/*# sourceMappingURL=register.component.css.map */"] });
+}, dependencies: [CommonModule, NgIf, RouterModule, RouterLink, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, MatButtonModule, MatButton, MatFormFieldModule, MatFormField, MatLabel, MatError, MatIconModule, MatIcon, MatInputModule, MatInput, HCaptchaComponent], styles: ["\n\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin: 12px 0;\n}\ndiv[_ngcontent-%COMP%]   .container[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  justify-content: space-between;\n  margin: 0;\n}\n/*# sourceMappingURL=register.component.css.map */"] });
 var RegisterComponent = _RegisterComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(RegisterComponent, { className: "RegisterComponent", filePath: "src/app/components/register/register.component.ts", lineNumber: 33 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(RegisterComponent, { className: "RegisterComponent", filePath: "src/app/components/register/register.component.ts", lineNumber: 35 });
 })();
 
 // src/app/components/cookie/cookie.component.ts
@@ -93127,7 +93182,7 @@ var timePickerConfig = {
 };
 
 // src/app/components/bottom-sheets/update-item-sheet/update-item-sheet.component.ts
-var _c014 = ["autosize"];
+var _c015 = ["autosize"];
 function UpdateItemSheetComponent_mat_form_field_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-form-field", 2)(1, "mat-label");
@@ -93377,7 +93432,7 @@ _UpdateItemSheetComponent.\u0275fac = function UpdateItemSheetComponent_Factory(
 };
 _UpdateItemSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UpdateItemSheetComponent, selectors: [["app-update-item-sheet"]], viewQuery: function UpdateItemSheetComponent_Query(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275viewQuery(_c014, 5);
+    \u0275\u0275viewQuery(_c015, 5);
   }
   if (rf & 2) {
     let _t;
@@ -93655,7 +93710,7 @@ var ListItemComponent = _ListItemComponent;
 })();
 
 // src/app/components/list/list.component.ts
-var _c015 = ["picker"];
+var _c016 = ["picker"];
 var _c112 = ["addInput"];
 function ListComponent_h1_21_Template(rf, ctx) {
   if (rf & 1) {
@@ -94089,7 +94144,7 @@ _ListComponent.\u0275fac = function ListComponent_Factory(\u0275t) {
 };
 _ListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ListComponent, selectors: [["app-list"]], viewQuery: function ListComponent_Query(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275viewQuery(_c015, 5);
+    \u0275\u0275viewQuery(_c016, 5);
     \u0275\u0275viewQuery(_c112, 5);
   }
   if (rf & 2) {
@@ -94274,15 +94329,19 @@ function laravelInterceptor(req, next) {
 // src/app/interceptors/no-connection.ts
 function noConnectionInterceptor(req, next) {
   const pusher = inject(PusherService);
-  return next(req).pipe(map((event) => {
-    if (event.type === HttpEventType.ResponseHeader && event.status === 0) {
-      throw new Error("timeout");
-    }
-    return event;
-  }), timeout(1e4), catchError((err) => {
-    pusher.online.next(false);
-    return of();
-  }));
+  return next(req).pipe(
+    map((event) => {
+      if (event.type === HttpEventType.ResponseHeader && event.status === 0) {
+        throw new Error("timeout");
+      }
+      return event;
+    }),
+    // timeout(10_000),
+    catchError((err) => {
+      pusher.online.next(false);
+      return of();
+    })
+  );
 }
 
 // node_modules/@angular/service-worker/fesm2022/service-worker.mjs
@@ -94567,8 +94626,8 @@ function ngswAppInitializer(injector, script, options, platformId) {
     }).catch((err) => console.error("Service worker registration failed with:", err))));
   };
 }
-function delayWithTimeout(timeout2) {
-  return of(null).pipe(delay(timeout2));
+function delayWithTimeout(timeout) {
+  return of(null).pipe(delay(timeout));
 }
 function whenStable2(injector) {
   const appRef = injector.get(ApplicationRef);

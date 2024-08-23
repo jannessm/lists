@@ -1,6 +1,7 @@
 <?php
 
 use App\Providers\RouteServiceProvider;
+use App\Http\Middleware\CaptchaVerification;
 use Laravel\Fortify\Features;
 
 return [
@@ -102,7 +103,7 @@ return [
     |
     */
 
-    'middleware' => ['web'],
+    'middleware' => ['web', CaptchaVerification::class],
 
     /*
     |--------------------------------------------------------------------------

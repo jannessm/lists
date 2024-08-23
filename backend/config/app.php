@@ -169,7 +169,8 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\FortifyServiceProvider::class,
-        \Nuwave\Lighthouse\Subscriptions\SubscriptionServiceProvider::class
+        \Nuwave\Lighthouse\Subscriptions\SubscriptionServiceProvider::class,
+        Scyllaly\HCaptcha\HCaptchaServiceProvider::class,
     ])->toArray(),
 
     /*
@@ -184,7 +185,7 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        // 'Example' => App\Facades\Example::class,
+        'HCaptcha' => Scyllaly\HCaptcha\Facades\HCaptcha::class,
     ])->toArray(),
 
 ];
