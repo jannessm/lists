@@ -1,11 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, Signal } from '@angular/core';
+import { Component, Inject, Signal, WritableSignal, effect, signal } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_BOTTOM_SHEET_DATA, MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MaterialModule } from '../../../material.module';
 import { MyListsDocument } from '../../../mydb/types/lists';
 import { NameBadgePipe } from '../../../pipes/name-badge.pipe';
 import { MyUsersDocument } from '../../../mydb/types/users';
+import { Observable } from 'rxjs';
+import { DataService } from '../../../services/data/data.service';
 
 @Component({
   selector: 'app-share-list-sheet',
@@ -15,7 +18,8 @@ import { MyUsersDocument } from '../../../mydb/types/users';
     ReactiveFormsModule,
     CommonModule,
     MaterialModule,
-    NameBadgePipe
+    NameBadgePipe,
+    MatAutocompleteModule
   ],
   templateUrl: './share-list-sheet.component.html',
   styleUrls: ['./share-list-sheet.component.scss', '../styles.scss']
@@ -24,7 +28,10 @@ export class ShareListSheetComponent {
 
   lists: Signal<MyListsDocument>;
   isAdmin: boolean;
+  allUsers$?: Observable<MyUsersDocument[]>;
+  allUsers: WritableSignal<MyUsersDocument[]> = signal([]);
   users: Signal<MyUsersDocument[]>;
+  filteredUsers: WritableSignal<MyUsersDocument[]> = signal([]);
   form: FormGroup;
 
   constructor(
@@ -34,7 +41,8 @@ export class ShareListSheetComponent {
       users: Signal<MyUsersDocument[]>,
       isAdmin: boolean
     },
-    private fb: FormBuilder) {
+    private fb: FormBuilder,
+    private dataService: DataService) {
 
     this.lists = data.lists;
     this.isAdmin = data.isAdmin;
@@ -44,7 +52,22 @@ export class ShareListSheetComponent {
       'email': ['', Validators.required]
     });
 
+    effect(() => {
+      this.allUsers$ = this.dataService.db.users.find({
+        neqSelector: {
+          id: this.users().map(u => u.id)
+        }
+      }).$ as Observable<any[]>;
 
+      this.allUsers$.subscribe(user => {
+        this.allUsers.set(user)
+        this.filteredUsers.set(user.filter(u => u.email.includes(this.form.get('email')?.value)));
+      });
+    });
+
+    this.form.get('email')?.valueChanges.subscribe(val => {
+      this.filteredUsers.set(this.allUsers().filter(u => u.email.includes(val)));
+    });
   }
 
   returnFormContent() {

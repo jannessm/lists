@@ -47,6 +47,9 @@ export type QueryOptions = {
     selector?: {
         [key: string]: any;
     };
+    neqSelector?: {
+        [key: string]: any;
+    };
     sort?: SortCriterias;
 }
 

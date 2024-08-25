@@ -194,9 +194,23 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
                     return Object.entries(query.selector).reduce((carry, val) => {
                         const key = val[0];
                         const value = val[1];
-    
+                        
+                        if (value instanceof Array) {
+                            return carry && value.reduce((c, v) => doc[key] === v || c, false);
+                        }
+
                         return carry || doc[key] === value;
                     }, false);
+                } else if (query.neqSelector && !doc._deleted) {
+                    return Object.entries(query.neqSelector).reduce((carry, val) => {
+                        const key = val[0];
+                        const value = val[1];
+    
+                        if (value instanceof Array) {
+                            return carry && value.reduce((c, v) => doc[key] !== v && c, true);
+                        }
+                        return carry && doc[key] !== value;
+                    }, true);
                 }
                 return !doc._deleted;
             },
