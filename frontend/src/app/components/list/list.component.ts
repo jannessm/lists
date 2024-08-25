@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Signal, ViewChild, computed, effect } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Signal, ViewChild, WritableSignal, computed, effect, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.component';
@@ -19,7 +19,9 @@ import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { ListItemComponent } from '../list-item/list-item.component';
 import { MyMeDocument } from '../../mydb/types/me';
 import { timePickerConfig } from '../../../models/time-picker';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
+import { MyUsersDocument } from '../../mydb/types/users';
+import { UsersService } from '../../services/users/users.service';
 
 @Component({
   selector: 'app-list',
@@ -44,6 +46,9 @@ export class ListComponent implements AfterViewInit {
   list!: Signal<MyListsDocument>;
   listItems!: Signal<MyItemDocument[]>;
 
+  users$?: Subscription;
+  users: WritableSignal<MyUsersDocument[]> = signal([]);
+
   newItem = new FormControl('');
   focusInput: boolean = false;
   newItemTime = new FormControl('sometime');
@@ -67,7 +72,8 @@ export class ListComponent implements AfterViewInit {
     private router: Router,
     private authService: AuthService,
     private snackbar: MatSnackBar,
-    private dataService: DataService
+    private dataService: DataService,
+    private usersService: UsersService
   ) {
     this.me = this.authService.me;
     const id = this.location.path(false).split('/').pop();
@@ -88,8 +94,8 @@ export class ListComponent implements AfterViewInit {
       this.toggleNewTimeSelected(val);
     });
 
-    // handle if a list gets deleted while the list is opened
     effect(() => {
+      // handle if a list gets deleted while the list is opened
       if(this.initialized && (!this.list() || this.list()._deleted)) {
         const snackbar = this.snackbar.open('Liste wurde gelöscht', 'Ok');
         snackbar.afterDismissed().subscribe(() => {
@@ -99,6 +105,8 @@ export class ListComponent implements AfterViewInit {
       // make sure a list was loaded before
       } else if (!this.initialized && !!this.list()) {
         this.initialized = true;
+        const users = this.usersService.getMany(this.list().users());
+        this.users$ = users.subscribe(u => this.users.set(u));
       }
     });
   }
@@ -110,6 +118,7 @@ export class ListComponent implements AfterViewInit {
 
   ngOnDestroy() {
     this.newItemSub.unsubscribe();
+    this.users$?.unsubscribe();
   }
 
   listSettings() {
@@ -145,9 +154,9 @@ export class ListComponent implements AfterViewInit {
   }
 
   shareList() {
-    if (this.userIsAdmin() && this.list && this.list()) {
+    if (this.list && this.list()) {
       const dialogRef = this.bottomSheet.open(ShareListSheetComponent, {
-        data: {lists: this.list}
+        data: {lists: this.list, isAdmin: this.userIsAdmin(), users: this.users}
       });
 
       dialogRef.afterDismissed().subscribe(data => {
@@ -170,7 +179,7 @@ export class ListComponent implements AfterViewInit {
             });
 
             confirm.afterDismissed().subscribe(del => {
-              this.authService.unshareLists(data.remove.id, this.list().id)
+              this.authService.unshareLists(data.remove, this.list().id)
                 .subscribe(success => {
                   if (!success) {
                     this.snackbar.open('Nutzer ' + data.remove.name + ' wurde entfernt.', 'Ok');
@@ -378,6 +387,6 @@ export class ListComponent implements AfterViewInit {
   }
 
   userIsAdmin() {
-    return !!this.me()?.id && this.me()?.id === this.list()?.createdBy.id;
+    return !!this.me()?.id && this.me()?.id === this.list()?.createdBy;
   }
 }

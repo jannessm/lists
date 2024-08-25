@@ -7,7 +7,6 @@ import { defaultConflictHandler } from "./conflict-handler";
 import { ConflictHandler } from "./types/replication";
 import { QueryObject } from "./types/classes";
 import { MyDatabase } from "./database";
-import { DatabaseChanges } from "./types/common";
 
 export class MyCollection<DocType, DocMethods, Reactivity> {
     private lastCheckpoint?: unknown;
@@ -34,6 +33,8 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
         
         if (!conflictHandler) {
             this.conflictHandler = defaultConflictHandler;
+        } else {
+            this.conflictHandler = conflictHandler;
         }
     }
 

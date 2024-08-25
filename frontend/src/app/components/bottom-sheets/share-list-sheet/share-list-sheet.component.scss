@@ -5,6 +5,18 @@
     border: solid 1px grey;
     display: flex;
     justify-content: space-between;
+    margin-bottom: 8px;
+
+    .user-info {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+    }
+
+    .admin {
+        color: grey;
+        margin: auto 0;
+    }
 
     .badge {
         width: 48px;

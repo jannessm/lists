@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Laravel\Fortify\Contracts\EmailVerificationNotificationSentResponse;
 
+use App\Models\Lists;
+
 class ShareListsController extends Controller
 {
     /**
@@ -23,6 +25,12 @@ class ShareListsController extends Controller
         }
 
         return new JsonReponse('', 400);
+    }
+
+    public function unshare(Request $request, String $lists_id) {
+        $request->user()->unshareLists($lists_id, $request->input('user'));
+
+        return new JsonResponse('', 201);
     }
 
     /**

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 
@@ -35,9 +35,10 @@ import { HCaptchaComponent } from '../hcaptcha/hcaptcha.component';
 export class RegisterComponent {
 
   form: FormGroup;
-
+  
   noSpacesRegex = /.*\S.*/;
-
+  initCaptcha = signal(false);
+  
   constructor(
     private fb: FormBuilder,
     private authService: AuthService
@@ -51,6 +52,10 @@ export class RegisterComponent {
     },
     {
       validators: MatchValidator('pwd', 'pwd_confirmation')
+    });
+
+    this.form.valueChanges.subscribe(() => {
+      this.initCaptcha.set(true);
     });
 
     Object.values(this.form.controls).forEach(control => 

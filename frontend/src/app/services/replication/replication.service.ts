@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { DataApiService } from '../data-api/data-api.service';
 import { Subject, firstValueFrom, lastValueFrom } from 'rxjs';
-import { graphQLGenerationInput } from '../../mydb/types/graphql-types';
+import { DATA_TYPE, graphQLGenerationInput } from '../../mydb/types/graphql-types';
 import { MutationResponse, PullResult, PushResult, QueryResponse, SubscriptionResponse } from '../../../models/responses';
 import { PusherService } from '../pusher/pusher.service';
 import { MyMeCollection } from '../../mydb/types/me';
@@ -10,6 +10,9 @@ import { MyItemCollection } from '../../mydb/types/list-item';
 import { MyPushRow } from '../../mydb/types/common';
 import { pullQueryBuilderFromSchema, pullStreamBuilderFromSchema, pushQueryBuilderFromSchema } from '../../mydb/graphql-helpers';
 import { replicateCollection } from '../../mydb/replication';
+import { MyCollection } from '../../mydb/collection';
+import { MyReplicationOptions } from '../../mydb/types/replication';
+import { fixQuery, packRef, removeItems, unpackRef } from './helper';
 
 type GenerationInputKey = keyof typeof graphQLGenerationInput;
 
@@ -38,7 +41,7 @@ export class ReplicationService {
 
   async setupReplication(
     collectionName: string,
-    collection: MyMeCollection | MyListsCollection | MyItemCollection,
+    collection: MyCollection<any, unknown, unknown>,
     meId: string | null
   ) {
     if (!(await firstValueFrom(this.pusher.online))) {
@@ -66,14 +69,15 @@ export class ReplicationService {
     );
 
     const operationName = collectionName[0].toUpperCase() + collectionName.substring(1);
-    const replication = await replicateCollection({
+
+    const replicationConfig: MyReplicationOptions = {
       replicationIdentifier: collectionName,
       collection,
       pull: {
         async handler(checkpoint: unknown, batchSize: number) {
           const query = pullQuery(checkpoint, batchSize);
 
-          query.query = fixArraysInSchema(query.query, schema);
+          query.query = fixQuery(query.query);
 
           const result = await firstValueFrom(that.api.graphQL<QueryResponse<PullResult>>(query));
 
@@ -81,39 +85,37 @@ export class ReplicationService {
         },
         stream$: await this.initStream(collectionName, meId),
         modifier: (doc: any) => {
-          if ('lists' in doc) {
-            doc['lists'] = doc['lists']['id'];
-          }
+          packRef(doc, ['lists', 'createdBy', 'sharedWith']);
+
           doc['clientUpdatedAt'] = (new Date()).toISOString();
 
           return doc;
         }
-      },
-      push: {
+      }
+    };
+
+    if (collectionName !== DATA_TYPE.USERS) {
+      replicationConfig['push'] = {
         async handler(changedRows: MyPushRow[]) {
           const query = pushQuery(changedRows);
 
-          query.query = fixArraysInSchema(query.query, schema);
+          query.query = fixQuery(query.query);
     
           const result = await firstValueFrom(that.api.graphQL<MutationResponse<PushResult>>(query));
 
           return (result.data as PushResult)['push' + operationName];
         },
         modifier: (doc: any) => {
-          if ("sharedWith" in doc) {
-            delete doc['sharedWith'];
-          }
-          if ("items" in doc) {
-            delete doc['items'];
-          }
-          if ("lists" in doc) {
-            doc['lists'] = {id: doc['lists']};
-          }
+          removeItems(doc, ['sharedWith', 'items']);
+
+          unpackRef(doc, ['lists', 'createdBy']);
 
           return doc;
         }
-      }
-    });
+      };
+    }
+
+    const replication = await replicateCollection(replicationConfig);
 
     this.replications[collectionName] = replication;
 
@@ -135,7 +137,7 @@ export class ReplicationService {
     const query = pullStreamQuery(headers);
     
     // fix array items
-    query.query = fixArraysInSchema(query.query, schema);
+    query.query = fixQuery(query.query);
 
     const subscriptionResponse = await firstValueFrom(this.api.graphQL<SubscriptionResponse<any>>(query.query, query.variables));
     const channel = subscriptionResponse.extensions.lighthouse_subscriptions.channel;
@@ -157,13 +159,4 @@ export class ReplicationService {
     return pullStream.asObservable();
   }
 
-}
-
-function fixArraysInSchema(query: string, schema: any): string {
-
-  if (query.indexOf('pushItems') > -1 || query.indexOf('streamItems') > -1 || query.indexOf('pullItems') > -1) {
-    query = query.replace('lists', 'lists { id }');
-  }
-
-  return query;
 }

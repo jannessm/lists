@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, Signal } from '@angular/core';
+import { Component, HostListener, Input, Signal, WritableSignal, effect, signal } from '@angular/core';
 import { MaterialModule } from '../../material.module';
 import { CommonModule } from '@angular/common';
 import { MyItemDocument } from '../../mydb/types/list-item';
@@ -11,6 +11,9 @@ import { is_today } from '../../../models/categories_timeslots';
 import { FormsModule } from '@angular/forms';
 import { MyMeDocument } from '../../mydb/types/me';
 import { DataService } from '../../services/data/data.service';
+import { UsersService } from '../../services/users/users.service';
+import { MyUsersDocument } from '../../mydb/types/users';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-list-item',
@@ -26,11 +29,14 @@ import { DataService } from '../../services/data/data.service';
 })
 export class ListItemComponent {
   @Input()
-  me?: Signal<MyMeDocument>;
+  me!: Signal<MyMeDocument>;
   @Input()
-  list?: Signal<MyListsDocument>;
+  list!: Signal<MyListsDocument>;
   @Input()
-  item?: MyItemDocument;
+  item!: MyItemDocument;
+
+  createdBy$?: Observable<MyUsersDocument>;
+  createdBy: WritableSignal<MyUsersDocument | undefined> = signal(undefined);
 
   pointerDown: boolean = false;
   pointerPosY: number | undefined; 
@@ -45,7 +51,17 @@ export class ListItemComponent {
     this.pointerPosY = event.changedTouches[0].clientY;
   }
 
-  constructor(private bottomSheet: MatBottomSheet) { }
+  constructor(
+    private bottomSheet: MatBottomSheet,
+    public users: UsersService
+  ) {
+    effect(() => {
+      if (this.item && this.list()) {
+        this.createdBy$ = this.users.get(this.item.createdBy);
+        this.createdBy$.subscribe(u => this.createdBy.set(u));
+      }
+    })
+  }
 
   toggleDone() {
     if (this.item) {
@@ -67,7 +83,7 @@ export class ListItemComponent {
 
   userFab(item: MyItemDocument) {
     if (this.list) {
-      const index = this.list().users().findIndex(val => val.id === item.createdBy.id);
+      const index = this.list().users().findIndex(i => i === item.createdBy);
       if (index) {
         return index;
       }

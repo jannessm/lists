@@ -12,8 +12,8 @@
         </mat-menu>
         
         <h1 *ngIf="list()">{{list().name}}</h1>
-        <div class="users" *ngIf="list() && list().users().length > 1" (click)="shareList()">
-            <button mat-mini-fab *ngFor="let user of list().users(); let i = index" [class]="'user-fab-' + i % 12" disabled >{{user?.name | nameBadge}}</button>
+        <div class="users" *ngIf="users() && users().length > 1" (click)="shareList()">
+            <button mat-mini-fab *ngFor="let user of users(); let i = index" [class]="'user-fab-' + i % 12" disabled >{{user?.name | nameBadge}}</button>
         </div>
     </div>
 

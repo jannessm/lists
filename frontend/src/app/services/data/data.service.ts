@@ -33,18 +33,15 @@ export class DataService {
   async initDB(meId: string | null) {
     if (this.db && !this.dbInitialized) {
       let repl = await this.replicationService.setupReplication(DATA_TYPE.ME, this.db.me, meId);
-      // repl.error$.subscribe(err => {console.error(err)});
-
       this.replications[DATA_TYPE.ME] = repl;
+      
+      repl = await this.replicationService.setupReplication(DATA_TYPE.USERS, this.db.users, meId);
+      this.replications[DATA_TYPE.USERS] = repl;
 
       repl = await this.replicationService.setupReplication(DATA_TYPE.LISTS, this.db.lists, meId);
-      // repl.error$.subscribe(err => {console.error(err)});
-
       this.replications[DATA_TYPE.LISTS] = repl;
-
+      
       repl = await this.replicationService.setupReplication(DATA_TYPE.LIST_ITEM, this.db.items, meId);
-      // repl.error$.subscribe(err => {console.error(err)});
-
       this.replications[DATA_TYPE.LIST_ITEM] = repl;
     }
 
@@ -58,6 +55,7 @@ export class DataService {
       //   repl.remove();
       // });
       await this.db.me.remove();
+      await this.db.users.remove();
       await this.db.lists.remove();
       await this.db.items.remove();
       this.dbInitialized = false;

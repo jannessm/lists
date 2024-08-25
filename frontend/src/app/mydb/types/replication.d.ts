@@ -6,7 +6,7 @@ export type MyReplicationOptions = {
     replicationIdentifier: string;
     collection: MyCollection;
     pull: MyPullOptions;
-    push: MyPushOptions;
+    push?: MyPushOptions;
 }
 
 export type MyPullOptions = {

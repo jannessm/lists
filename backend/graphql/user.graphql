@@ -50,6 +50,9 @@ input UserInput {
 input MeInputHeaders {
   id: String
 }
+input UsersInputHeaders {
+  id: String
+}
 
 input MeInputPushRow {
   newDocumentState: UserInput!
@@ -59,25 +62,15 @@ input MeInputPushRow {
 input MeInputCheckpoint {
   updatedAt: DateTimeUtc
 }
-
-input UsersInputHeaders {
-  id: String
-}
-
-input UsersInputPushRow {
-  newDocumentState: UserInput!
-  assumedMasterState: UserInput!
-}
-
 input UsersInputCheckpoint {
-  id: String @where(operator: ">=")
-  updatedAt: DateTimeUtc @where(key: "updated_at", operator: ">=")
+  id: String
+  updatedAt: DateTimeUtc
 }
 
 
 ####### Response Types #######
 
-type UserPullBulk {
+type UsersPullBulk {
   documents: [User]!
   checkpoint: CheckpointType
 }

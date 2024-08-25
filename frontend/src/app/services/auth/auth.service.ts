@@ -5,7 +5,7 @@ import { REGISTER, SESSION_COOKIE } from '../../globals';
 import dayjs from 'dayjs';
 import md5 from 'md5-ts';
 import { Router } from '@angular/router';
-import { Observable, map } from 'rxjs';
+import { Observable, map, debounceTime } from 'rxjs';
 import { AuthResponse, ChangeEmailStatus } from '../../../models/responses';
 import { PusherService } from '../pusher/pusher.service';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
@@ -54,7 +54,7 @@ export class AuthService {
       this.isLoggedIn.set(!!loggedIn);
     });
 
-    this.pusher.online.subscribe(isOnline => {
+    this.pusher.online.pipe(debounceTime(1000)).subscribe(isOnline => {
       if (isOnline && this.isLoggedIn()) {
         this.evaluateVerifiedMail();
         this.verificationInverval = setInterval(this.evaluateVerifiedMail.bind(this), 5 * 60 * 1000);

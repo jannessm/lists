@@ -35,6 +35,7 @@
         </mat-form-field>
         
         <app-hcaptcha
+            [init]="initCaptcha"
             (verify)="captchaVerify($event)"
             (error)="captchaError()"
             (expired)="captchaError()"

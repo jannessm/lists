@@ -88,9 +88,10 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
     public function friends() {
         $users = $this->lists()->map(function ($val) {
             return $val->users();
-        })->flatten()->unique('id')->filter(function ($val, $key) {
+        })->flatten()->unique('id')
+        ->filter(function ($val, $key) {
             return $val->id !== Auth::id();
-        })->values()->all();
+        });
         return $users;
     }
 
@@ -113,7 +114,7 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
             foreach ($assumedMaster as $param => $val) {
                 // compare timestamps
                 if (in_array($param, ["created_at", "updated_at"])) {
-                    $conflict = $masterList[$param]->ne($val);
+                    $conflict = $masterUser[$param]->ne($val);
                 } else if ($masterUser[$param] != $val) {
                     array_push($conflicts, $masterUser);
                     $conflict = TRUE;

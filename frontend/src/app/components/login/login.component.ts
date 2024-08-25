@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 
@@ -36,6 +36,7 @@ export class LoginComponent {
 
   wrongCredentials = false;
   noSpacesRegex = /.*\S.*/;
+  initCaptcha = signal(false);
 
   constructor(
     private fb: FormBuilder,
@@ -46,6 +47,10 @@ export class LoginComponent {
       email: ['', [Validators.required, Validators.email]],
       pwd: ['', Validators.required],
       captcha: ['', Validators.required]
+    });
+
+    this.form.valueChanges.subscribe(() => {
+      this.initCaptcha.set(true);
     });
 
     Object.values(this.form.controls).forEach(control => 

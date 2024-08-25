@@ -2900,7 +2900,7 @@ var require_pusher = __commonJS({
               connect(minPriority, callback) {
                 var strategies = this.strategies;
                 var current = 0;
-                var timeout = this.timeout;
+                var timeout2 = this.timeout;
                 var runner = null;
                 var tryNextStrategy = (error, handshake) => {
                   if (handshake) {
@@ -2911,14 +2911,14 @@ var require_pusher = __commonJS({
                       current = current % strategies.length;
                     }
                     if (current < strategies.length) {
-                      if (timeout) {
-                        timeout = timeout * 2;
+                      if (timeout2) {
+                        timeout2 = timeout2 * 2;
                         if (this.timeoutLimit) {
-                          timeout = Math.min(timeout, this.timeoutLimit);
+                          timeout2 = Math.min(timeout2, this.timeoutLimit);
                         }
                       }
                       runner = this.tryStrategy(strategies[current], minPriority, {
-                        timeout,
+                        timeout: timeout2,
                         failFast: this.failFast
                       }, tryNextStrategy);
                     } else {
@@ -2927,7 +2927,7 @@ var require_pusher = __commonJS({
                   }
                 };
                 runner = this.tryStrategy(strategies[current], minPriority, {
-                  timeout,
+                  timeout: timeout2,
                   failFast: this.failFast
                 }, tryNextStrategy);
                 return {
@@ -10872,14 +10872,14 @@ var config = {
 
 // node_modules/rxjs/dist/esm/internal/scheduler/timeoutProvider.js
 var timeoutProvider = {
-  setTimeout(handler, timeout, ...args) {
+  setTimeout(handler, timeout2, ...args) {
     const {
       delegate
     } = timeoutProvider;
     if (delegate === null || delegate === void 0 ? void 0 : delegate.setTimeout) {
-      return delegate.setTimeout(handler, timeout, ...args);
+      return delegate.setTimeout(handler, timeout2, ...args);
     }
-    return setTimeout(handler, timeout, ...args);
+    return setTimeout(handler, timeout2, ...args);
   },
   clearTimeout(handle) {
     const {
@@ -11665,14 +11665,14 @@ var Action = class extends Subscription {
 
 // node_modules/rxjs/dist/esm/internal/scheduler/intervalProvider.js
 var intervalProvider = {
-  setInterval(handler, timeout, ...args) {
+  setInterval(handler, timeout2, ...args) {
     const {
       delegate
     } = intervalProvider;
     if (delegate === null || delegate === void 0 ? void 0 : delegate.setInterval) {
-      return delegate.setInterval(handler, timeout, ...args);
+      return delegate.setInterval(handler, timeout2, ...args);
     }
-    return setInterval(handler, timeout, ...args);
+    return setInterval(handler, timeout2, ...args);
   },
   clearInterval(handle) {
     const {
@@ -12465,6 +12465,65 @@ function firstValueFrom(source, config2) {
 // node_modules/rxjs/dist/esm/internal/util/isDate.js
 function isValidDate(value) {
   return value instanceof Date && !isNaN(value);
+}
+
+// node_modules/rxjs/dist/esm/internal/operators/timeout.js
+var TimeoutError = createErrorClass((_super) => function TimeoutErrorImpl(info = null) {
+  _super(this);
+  this.message = "Timeout has occurred";
+  this.name = "TimeoutError";
+  this.info = info;
+});
+function timeout(config2, schedulerArg) {
+  const {
+    first: first2,
+    each,
+    with: _with = timeoutErrorFactory,
+    scheduler = schedulerArg !== null && schedulerArg !== void 0 ? schedulerArg : asyncScheduler,
+    meta = null
+  } = isValidDate(config2) ? {
+    first: config2
+  } : typeof config2 === "number" ? {
+    each: config2
+  } : config2;
+  if (first2 == null && each == null) {
+    throw new TypeError("No timeout provided.");
+  }
+  return operate((source, subscriber) => {
+    let originalSourceSubscription;
+    let timerSubscription;
+    let lastValue = null;
+    let seen = 0;
+    const startTimer = (delay2) => {
+      timerSubscription = executeSchedule(subscriber, scheduler, () => {
+        try {
+          originalSourceSubscription.unsubscribe();
+          innerFrom(_with({
+            meta,
+            lastValue,
+            seen
+          })).subscribe(subscriber);
+        } catch (err) {
+          subscriber.error(err);
+        }
+      }, delay2);
+    };
+    originalSourceSubscription = source.subscribe(createOperatorSubscriber(subscriber, (value) => {
+      timerSubscription === null || timerSubscription === void 0 ? void 0 : timerSubscription.unsubscribe();
+      seen++;
+      subscriber.next(lastValue = value);
+      each > 0 && startTimer(each);
+    }, void 0, void 0, () => {
+      if (!(timerSubscription === null || timerSubscription === void 0 ? void 0 : timerSubscription.closed)) {
+        timerSubscription === null || timerSubscription === void 0 ? void 0 : timerSubscription.unsubscribe();
+      }
+      lastValue = null;
+    }));
+    !seen && startTimer(first2 != null ? typeof first2 === "number" ? first2 : +first2 - scheduler.now() : each);
+  });
+}
+function timeoutErrorFactory(info) {
+  throw new TimeoutError(info);
 }
 
 // node_modules/rxjs/dist/esm/internal/operators/map.js
@@ -24887,9 +24946,9 @@ var _TimerScheduler = class _TimerScheduler {
       // frame duration.
       this.invokeTimerAt && this.invokeTimerAt - invokeAt > FRAME_DURATION_MS) {
         this.clearTimeout();
-        const timeout = Math.max(invokeAt - now, FRAME_DURATION_MS);
+        const timeout2 = Math.max(invokeAt - now, FRAME_DURATION_MS);
         this.invokeTimerAt = invokeAt;
-        this.timeoutId = setTimeout(callback, timeout);
+        this.timeoutId = setTimeout(callback, timeout2);
       }
     }
   }
@@ -25270,7 +25329,7 @@ function applyDeferBlockStateWithScheduling(newState, lDetails, lContainer, tNod
     lDetails[NEXT_DEFER_BLOCK_STATE] = newState;
   }
 }
-function scheduleDeferBlockUpdate(timeout, lDetails, tNode, lContainer, hostLView) {
+function scheduleDeferBlockUpdate(timeout2, lDetails, tNode, lContainer, hostLView) {
   const callback = () => {
     const nextState = lDetails[NEXT_DEFER_BLOCK_STATE];
     lDetails[STATE_IS_FROZEN_UNTIL] = null;
@@ -25279,7 +25338,7 @@ function scheduleDeferBlockUpdate(timeout, lDetails, tNode, lContainer, hostLVie
       renderDeferBlockState(nextState, tNode, lContainer);
     }
   };
-  return scheduleTimerTrigger(timeout, callback, hostLView);
+  return scheduleTimerTrigger(timeout2, callback, hostLView);
 }
 function isValidStateChange(currentState, newState) {
   return currentState < newState;
@@ -30772,13 +30831,13 @@ var _Testability = class _Testability {
       };
     });
   }
-  addCallback(cb, timeout, updateCb) {
+  addCallback(cb, timeout2, updateCb) {
     let timeoutId = -1;
-    if (timeout && timeout > 0) {
+    if (timeout2 && timeout2 > 0) {
       timeoutId = setTimeout(() => {
         this._callbacks = this._callbacks.filter((cb2) => cb2.timeoutId !== timeoutId);
         cb();
-      }, timeout);
+      }, timeout2);
     }
     this._callbacks.push({
       doneCb: cb,
@@ -30798,11 +30857,11 @@ var _Testability = class _Testability {
    *    pending macrotasks changes. If this callback returns true doneCb will not be invoked
    *    and no further updates will be issued.
    */
-  whenStable(doneCb, timeout, updateCb) {
+  whenStable(doneCb, timeout2, updateCb) {
     if (updateCb && !this.taskTrackingZone) {
       throw new Error('Task tracking zone is required when passing an update callback to whenStable(). Is "zone.js/plugins/task-tracking" loaded?');
     }
-    this.addCallback(doneCb, timeout, updateCb);
+    this.addCallback(doneCb, timeout2, updateCb);
     this._runCallbacksIfReady();
   }
   /**
@@ -67500,26 +67559,23 @@ var _HCaptchaComponent = class _HCaptchaComponent {
     this.verify = new EventEmitter();
     this.expired = new EventEmitter();
     this.error = new EventEmitter();
-  }
-  ngAfterViewInit() {
-    const options = {
-      sitekey: environment.hcaptcha,
-      callback: (res) => {
-        this.verify.emit(res);
-      },
-      "expired-callback": (res) => {
-        this.expired.emit(res);
-      },
-      "error-callback": (err) => {
-        this.error.emit(err);
-      }
-    };
-    const initInterval = setInterval(() => {
-      if (this.captcha.nativeElement) {
+    effect(() => {
+      if (this.init() && this.captcha.nativeElement) {
+        const options = {
+          sitekey: environment.hcaptcha,
+          callback: (res) => {
+            this.verify.emit(res);
+          },
+          "expired-callback": (res) => {
+            this.expired.emit(res);
+          },
+          "error-callback": (err) => {
+            this.error.emit(err);
+          }
+        };
         this.widgetId = window.hcaptcha.render(this.captcha.nativeElement, options);
-        clearInterval(initInterval);
       }
-    }, 100);
+    });
   }
 };
 _HCaptchaComponent.\u0275fac = function HCaptchaComponent_Factory(\u0275t) {
@@ -67533,7 +67589,7 @@ _HCaptchaComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ typ
     let _t;
     \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.captcha = _t.first);
   }
-}, outputs: { verify: "verify", expired: "expired", error: "error" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 2, vars: 0, consts: [["captcha", ""], [1, "h-captcha"]], template: function HCaptchaComponent_Template(rf, ctx) {
+}, inputs: { init: "init" }, outputs: { verify: "verify", expired: "expired", error: "error" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 2, vars: 0, consts: [["captcha", ""], [1, "h-captcha"]], template: function HCaptchaComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "div", 1, 0);
   }
@@ -88238,31 +88294,12 @@ var LISTS_SCHEMA = {
       type: "boolean"
     },
     createdBy: {
-      type: "object",
-      properties: {
-        id: {
-          type: "string"
-        },
-        name: {
-          type: "string"
-        }
-      }
+      type: "string"
     },
     sharedWith: {
       type: "array",
       items: {
-        type: "object",
-        properties: {
-          id: {
-            type: "string"
-          },
-          name: {
-            type: "string"
-          }
-          // email: {
-          //     type: 'string'
-          // }
-        }
+        type: "string"
       }
     }
   }, COMMON_SCHEMA),
@@ -88369,15 +88406,7 @@ var ITEM_SCHEMA = {
       type: ["string", "null"]
     },
     createdBy: {
-      type: "object",
-      properties: {
-        id: {
-          type: "string"
-        },
-        name: {
-          type: "string"
-        }
-      }
+      type: "string"
     },
     reminder: {
       type: ["string", "null"]
@@ -88421,11 +88450,37 @@ function itemsConflictHandler(forkState, assumedMasterState, trueMasterState) {
   }
 }
 
+// src/app/mydb/types/users.ts
+var USERS_SCHEMA = {
+  version: 0,
+  primaryKey: "id",
+  type: "object",
+  properties: __spreadValues({
+    id: {
+      type: "string"
+    },
+    name: {
+      type: "string"
+    },
+    email: {
+      type: "string"
+    }
+  }, COMMON_SCHEMA),
+  required: ["id", "name", "email"]
+};
+
 // src/app/mydb/types/graphql-types.ts
 var graphQLGenerationInput = {
   me: {
     schema: ME_SCHEMA,
     checkpointFields: [
+      "updatedAt"
+    ]
+  },
+  users: {
+    schema: USERS_SCHEMA,
+    checkpointFields: [
+      "id",
       "updatedAt"
     ]
   },
@@ -88447,6 +88502,7 @@ var graphQLGenerationInput = {
 var DATA_TYPE;
 (function(DATA_TYPE2) {
   DATA_TYPE2["ME"] = "me";
+  DATA_TYPE2["USERS"] = "users";
   DATA_TYPE2["LISTS"] = "lists";
   DATA_TYPE2["LIST_ITEM"] = "items";
 })(DATA_TYPE || (DATA_TYPE = {}));
@@ -88610,7 +88666,7 @@ var MyQuery = class {
     this.collection = collection;
     this.query = query2;
     this.subject = new BehaviorSubject([]);
-    this.collection.$.pipe(filter((docs) => docs.reduce((carry, doc) => carry || this.query.filter(doc), false))).subscribe((docs) => {
+    this.collection.$.pipe(filter((docs) => docs.reduce((carry, doc) => carry || this.query.filter(doc), false))).subscribe(() => {
       this.update();
     });
     this.update();
@@ -88655,6 +88711,8 @@ var MyCollection = class {
     this.replication$ = this.db.$.pipe(filter((changes) => changes.replicate && changes.collection == this.tableName), map((changes) => changes.changes));
     if (!conflictHandler) {
       this.conflictHandler = defaultConflictHandler;
+    } else {
+      this.conflictHandler = conflictHandler;
     }
   }
   get $$() {
@@ -88920,6 +88978,9 @@ function addCollections(db) {
       [DATA_TYPE.ME]: {
         schema: ME_SCHEMA
       },
+      [DATA_TYPE.USERS]: {
+        schema: ME_SCHEMA
+      },
       [DATA_TYPE.LISTS]: {
         schema: LISTS_SCHEMA,
         methods: {
@@ -89100,7 +89161,7 @@ var Replicator = class {
     }));
   }
   push(docs) {
-    if (docs.length === 0)
+    if (docs.length === 0 || !this.pushOptions)
       return;
     docs = docs.map((doc) => doc.isClassObject ? doc.lastData : doc).map((doc) => JSON.parse(JSON.stringify(doc)));
     this.pushInterval(docs).catch((err) => {
@@ -89115,6 +89176,8 @@ var Replicator = class {
   }
   pushInterval(docs, secondTry = false) {
     return __async(this, null, function* () {
+      if (!this.pushOptions)
+        return;
       let pushRows = yield Promise.all(docs.map((doc) => this.getPushRow(doc)));
       let conflicts = yield this.pushOptions.handler(pushRows);
       if (conflicts.length > 0 && !secondTry) {
@@ -89153,12 +89216,43 @@ var Replicator = class {
         delete mod[key];
       }
     });
-    if (this.pushOptions.modifier) {
+    if (this.pushOptions?.modifier) {
       mod = this.pushOptions.modifier(mod);
     }
     return mod;
   }
 };
+
+// src/app/services/replication/helper.ts
+function packRef(doc, keys) {
+  keys.forEach((key) => {
+    if (key in doc && doc[key] instanceof Array) {
+      doc[key] = doc[key].map((d) => d["id"]);
+    } else if (key in doc) {
+      doc[key] = doc[key]["id"];
+    }
+  });
+}
+function unpackRef(doc, keys) {
+  keys.forEach((key) => {
+    if (key in doc && typeof doc[key] === "string") {
+      doc[key] = { id: doc[key] };
+    } else if (key in doc) {
+      doc[key] = doc[key].map((d) => {
+        id: d;
+      });
+    }
+  });
+}
+function removeItems(doc, keys) {
+  keys.forEach((key) => {
+    delete doc[key];
+  });
+}
+function fixQuery(query2) {
+  query2 = query2.replace("lists", "lists { id }").replace("createdBy", "createdBy { id }").replace("sharedWith {\n                }", "sharedWith { id }");
+  return query2;
+}
 
 // src/app/services/data-api/data-api.service.ts
 var _DataApiService = class _DataApiService {
@@ -89247,50 +89341,45 @@ var _ReplicationService = class _ReplicationService {
       const pullQuery = pullQueryBuilderFromSchema(collectionName, schema);
       const pushQuery = pushQueryBuilderFromSchema(collectionName, schema);
       const operationName = collectionName[0].toUpperCase() + collectionName.substring(1);
-      const replication = yield replicateCollection({
+      const replicationConfig = {
         replicationIdentifier: collectionName,
         collection,
         pull: {
           handler(checkpoint, batchSize) {
             return __async(this, null, function* () {
               const query2 = pullQuery(checkpoint, batchSize);
-              query2.query = fixArraysInSchema(query2.query, schema);
+              query2.query = fixQuery(query2.query);
               const result = yield firstValueFrom(that.api.graphQL(query2));
               return result.data["pull" + operationName];
             });
           },
           stream$: yield this.initStream(collectionName, meId),
           modifier: (doc) => {
-            if ("lists" in doc) {
-              doc["lists"] = doc["lists"]["id"];
-            }
+            packRef(doc, ["lists", "createdBy", "sharedWith"]);
             doc["clientUpdatedAt"] = (/* @__PURE__ */ new Date()).toISOString();
             return doc;
           }
-        },
-        push: {
+        }
+      };
+      if (collectionName !== DATA_TYPE.USERS) {
+        let _b;
+        replicationConfig["push"] = {
           handler(changedRows) {
             return __async(this, null, function* () {
               const query2 = pushQuery(changedRows);
-              query2.query = fixArraysInSchema(query2.query, schema);
+              query2.query = fixQuery(query2.query);
               const result = yield firstValueFrom(that.api.graphQL(query2));
               return result.data["push" + operationName];
             });
           },
           modifier: (doc) => {
-            if ("sharedWith" in doc) {
-              delete doc["sharedWith"];
-            }
-            if ("items" in doc) {
-              delete doc["items"];
-            }
-            if ("lists" in doc) {
-              doc["lists"] = { id: doc["lists"] };
-            }
+            removeItems(doc, ["sharedWith", "items"]);
+            unpackRef(doc, ["lists", "createdBy"]);
             return doc;
           }
-        }
-      });
+        };
+      }
+      const replication = yield replicateCollection(replicationConfig);
       this.replications[collectionName] = replication;
       return replication;
     });
@@ -89304,7 +89393,7 @@ var _ReplicationService = class _ReplicationService {
         headers = { id: meId };
       }
       const query2 = pullStreamQuery(headers);
-      query2.query = fixArraysInSchema(query2.query, schema);
+      query2.query = fixQuery(query2.query);
       const subscriptionResponse = yield firstValueFrom(this.api.graphQL(query2.query, query2.variables));
       const channel = subscriptionResponse.extensions.lighthouse_subscriptions.channel;
       const operationName = "stream" + collectionName[0].toUpperCase() + collectionName.substring(1);
@@ -89326,12 +89415,6 @@ _ReplicationService.\u0275fac = function ReplicationService_Factory(\u0275t) {
 };
 _ReplicationService.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _ReplicationService, factory: _ReplicationService.\u0275fac, providedIn: "root" });
 var ReplicationService = _ReplicationService;
-function fixArraysInSchema(query2, schema) {
-  if (query2.indexOf("pushItems") > -1 || query2.indexOf("streamItems") > -1 || query2.indexOf("pullItems") > -1) {
-    query2 = query2.replace("lists", "lists { id }");
-  }
-  return query2;
-}
 
 // src/app/services/data/data.service.ts
 var _DataService = class _DataService {
@@ -89352,6 +89435,8 @@ var _DataService = class _DataService {
       if (this.db && !this.dbInitialized) {
         let repl = yield this.replicationService.setupReplication(DATA_TYPE.ME, this.db.me, meId);
         this.replications[DATA_TYPE.ME] = repl;
+        repl = yield this.replicationService.setupReplication(DATA_TYPE.USERS, this.db.users, meId);
+        this.replications[DATA_TYPE.USERS] = repl;
         repl = yield this.replicationService.setupReplication(DATA_TYPE.LISTS, this.db.lists, meId);
         this.replications[DATA_TYPE.LISTS] = repl;
         repl = yield this.replicationService.setupReplication(DATA_TYPE.LIST_ITEM, this.db.items, meId);
@@ -89365,6 +89450,7 @@ var _DataService = class _DataService {
       if (this.dbInitialized) {
         console.log("remove data");
         yield this.db.me.remove();
+        yield this.db.users.remove();
         yield this.db.lists.remove();
         yield this.db.items.remove();
         this.dbInitialized = false;
@@ -89407,7 +89493,7 @@ var _AuthService = class _AuthService {
     this.api.validateLogin().subscribe((loggedIn) => {
       this.isLoggedIn.set(!!loggedIn);
     });
-    this.pusher.online.subscribe((isOnline) => {
+    this.pusher.online.pipe(debounceTime(1e3)).subscribe((isOnline) => {
       if (isOnline && this.isLoggedIn()) {
         this.evaluateVerifiedMail();
         this.verificationInverval = setInterval(this.evaluateVerifiedMail.bind(this), 5 * 60 * 1e3);
@@ -89539,10 +89625,14 @@ var _LoginComponent = class _LoginComponent {
     this.router = router;
     this.wrongCredentials = false;
     this.noSpacesRegex = /.*\S.*/;
+    this.initCaptcha = signal(false);
     this.form = this.fb.group({
       email: ["", [Validators.required, Validators.email]],
       pwd: ["", Validators.required],
       captcha: ["", Validators.required]
+    });
+    this.form.valueChanges.subscribe(() => {
+      this.initCaptcha.set(true);
     });
     Object.values(this.form.controls).forEach((control) => control.valueChanges.subscribe(() => {
       this.resetErrors();
@@ -89578,7 +89668,7 @@ var _LoginComponent = class _LoginComponent {
 _LoginComponent.\u0275fac = function LoginComponent_Factory(\u0275t) {
   return new (\u0275t || _LoginComponent)(\u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(Router));
 };
-_LoginComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LoginComponent, selectors: [["app-login"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 25, vars: 7, consts: [[3, "formGroup"], ["appearance", "outline"], ["matInput", "", "placeholder", "Email", "formControlName", "email", "type", "email"], [4, "ngIf"], ["matInput", "", "type", "password", "placeholder", "Password", "formControlName", "pwd"], [3, "verify", "error", "expired"], ["mat-flat-button", "", "color", "primary", 3, "click", "disabled"], [1, "container"], ["mat-stroked-button", "", "routerLink", "/reset-password", "type", "button"], ["mat-stroked-button", "", "routerLink", "/register", "type", "button"]], template: function LoginComponent_Template(rf, ctx) {
+_LoginComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LoginComponent, selectors: [["app-login"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 25, vars: 8, consts: [[3, "formGroup"], ["appearance", "outline"], ["matInput", "", "placeholder", "Email", "formControlName", "email", "type", "email"], [4, "ngIf"], ["matInput", "", "type", "password", "placeholder", "Password", "formControlName", "pwd"], [3, "verify", "error", "expired", "init"], ["mat-flat-button", "", "color", "primary", 3, "click", "disabled"], [1, "container"], ["mat-stroked-button", "", "routerLink", "/reset-password", "type", "button"], ["mat-stroked-button", "", "routerLink", "/register", "type", "button"]], template: function LoginComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div")(1, "form", 0)(2, "mat-form-field", 1)(3, "mat-label");
     \u0275\u0275text(4, "email");
@@ -89621,7 +89711,7 @@ _LoginComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: 
     let tmp_1_0;
     let tmp_2_0;
     let tmp_3_0;
-    let tmp_5_0;
+    let tmp_6_0;
     \u0275\u0275advance();
     \u0275\u0275property("formGroup", ctx.form);
     \u0275\u0275advance(5);
@@ -89630,10 +89720,12 @@ _LoginComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: 
     \u0275\u0275property("ngIf", (tmp_2_0 = ctx.form.get("email")) == null ? null : tmp_2_0.hasError("email"));
     \u0275\u0275advance(5);
     \u0275\u0275property("ngIf", (tmp_3_0 = ctx.form.get("pwd")) == null ? null : tmp_3_0.hasError("required"));
-    \u0275\u0275advance(2);
+    \u0275\u0275advance();
+    \u0275\u0275property("init", ctx.initCaptcha);
+    \u0275\u0275advance();
     \u0275\u0275property("ngIf", ctx.wrongCredentials);
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", (tmp_5_0 = ctx.form.get("captcha")) == null ? null : tmp_5_0.hasError("captcha"));
+    \u0275\u0275property("ngIf", (tmp_6_0 = ctx.form.get("captcha")) == null ? null : tmp_6_0.hasError("captcha"));
     \u0275\u0275advance();
     \u0275\u0275property("disabled", ctx.form.invalid || ctx.form.disabled);
   }
@@ -89749,6 +89841,7 @@ var _RegisterComponent = class _RegisterComponent {
     this.fb = fb;
     this.authService = authService;
     this.noSpacesRegex = /.*\S.*/;
+    this.initCaptcha = signal(false);
     this.form = this.fb.group({
       name: ["", [Validators.required]],
       email: ["", [Validators.required, Validators.email]],
@@ -89757,6 +89850,9 @@ var _RegisterComponent = class _RegisterComponent {
       captcha: ["", Validators.required]
     }, {
       validators: MatchValidator("pwd", "pwd_confirmation")
+    });
+    this.form.valueChanges.subscribe(() => {
+      this.initCaptcha.set(true);
     });
     Object.values(this.form.controls).forEach((control) => control.valueChanges.subscribe(() => this.form.setErrors(null)));
   }
@@ -89780,7 +89876,7 @@ var _RegisterComponent = class _RegisterComponent {
 _RegisterComponent.\u0275fac = function RegisterComponent_Factory(\u0275t) {
   return new (\u0275t || _RegisterComponent)(\u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(AuthService));
 };
-_RegisterComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RegisterComponent, selectors: [["app-register"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 35, vars: 11, consts: [[3, "formGroup"], ["appearance", "outline"], ["matInput", "", "placeholder", "Name", "formControlName", "name"], [4, "ngIf"], ["matInput", "", "placeholder", "Email", "formControlName", "email", "type", "email"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "pwd"], ["matInput", "", "type", "password", "placeholder", "Passwort wiederholen", "formControlName", "pwd_confirmation"], [3, "verify", "error", "expired"], ["mat-flat-button", "", "color", "primary", 3, "click", "disabled"], [1, "container"], ["mat-stroked-button", "", "type", "button", "routerLink", "/login"]], template: function RegisterComponent_Template(rf, ctx) {
+_RegisterComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RegisterComponent, selectors: [["app-register"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 35, vars: 12, consts: [[3, "formGroup"], ["appearance", "outline"], ["matInput", "", "placeholder", "Name", "formControlName", "name"], [4, "ngIf"], ["matInput", "", "placeholder", "Email", "formControlName", "email", "type", "email"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "pwd"], ["matInput", "", "type", "password", "placeholder", "Passwort wiederholen", "formControlName", "pwd_confirmation"], [3, "verify", "error", "expired", "init"], ["mat-flat-button", "", "color", "primary", 3, "click", "disabled"], [1, "container"], ["mat-stroked-button", "", "type", "button", "routerLink", "/login"]], template: function RegisterComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div")(1, "form", 0)(2, "mat-form-field", 1)(3, "mat-label");
     \u0275\u0275text(4, "Name");
@@ -89835,7 +89931,7 @@ _RegisterComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ typ
     let tmp_4_0;
     let tmp_5_0;
     let tmp_6_0;
-    let tmp_9_0;
+    let tmp_10_0;
     \u0275\u0275advance();
     \u0275\u0275property("formGroup", ctx.form);
     \u0275\u0275advance(5);
@@ -89850,12 +89946,14 @@ _RegisterComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ typ
     \u0275\u0275property("ngIf", (tmp_5_0 = ctx.form.get("pwd")) == null ? null : tmp_5_0.hasError("required"));
     \u0275\u0275advance(5);
     \u0275\u0275property("ngIf", (tmp_6_0 = ctx.form.get("pwd_confirmation")) == null ? null : tmp_6_0.hasError("required"));
-    \u0275\u0275advance(2);
+    \u0275\u0275advance();
+    \u0275\u0275property("init", ctx.initCaptcha);
+    \u0275\u0275advance();
     \u0275\u0275property("ngIf", ctx.form.hasError("notMatching"));
     \u0275\u0275advance();
     \u0275\u0275property("ngIf", ctx.form.hasError("error"));
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", (tmp_9_0 = ctx.form.get("captcha")) == null ? null : tmp_9_0.hasError("captcha"));
+    \u0275\u0275property("ngIf", (tmp_10_0 = ctx.form.get("captcha")) == null ? null : tmp_10_0.hasError("captcha"));
     \u0275\u0275advance();
     \u0275\u0275property("disabled", ctx.form.invalid || ctx.form.disabled);
   }
@@ -90773,25 +90871,111 @@ var ResetPasswordComponent = _ResetPasswordComponent;
 })();
 
 // src/app/components/bottom-sheets/share-list-sheet/share-list-sheet.component.ts
+function ShareListSheetComponent_div_0_span_9_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 9);
+    \u0275\u0275text(1, "Admin");
+    \u0275\u0275elementEnd();
+  }
+}
+function ShareListSheetComponent_div_0_button_10_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 10);
+    \u0275\u0275listener("click", function ShareListSheetComponent_div_0_button_10_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r1);
+      const user_r2 = \u0275\u0275nextContext().$implicit;
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.removeSharedWith(user_r2.id));
+    });
+    \u0275\u0275elementStart(1, "mat-icon");
+    \u0275\u0275text(2, "close");
+    \u0275\u0275elementEnd()();
+  }
+}
 function ShareListSheetComponent_div_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 6)(1, "div")(2, "button", 7);
+    \u0275\u0275elementStart(0, "div", 4)(1, "div", 5)(2, "button", 6);
     \u0275\u0275text(3);
     \u0275\u0275pipe(4, "nameBadge");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(5, "span");
     \u0275\u0275text(6);
-    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "span");
+    \u0275\u0275text(8);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275template(9, ShareListSheetComponent_div_0_span_9_Template, 2, 0, "span", 7)(10, ShareListSheetComponent_div_0_button_10_Template, 3, 0, "button", 8);
+    \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const user_r1 = ctx.$implicit;
-    const i_r2 = ctx.index;
+    const user_r2 = ctx.$implicit;
+    const i_r4 = ctx.index;
+    const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275classMap("badge user-fab-" + (i_r2 + 1) % 12);
+    \u0275\u0275classMap("badge user-fab-" + i_r4 % 12);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 4, user_r1 == null ? null : user_r1.name));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 7, user_r2 == null ? null : user_r2.name));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(user_r1.name);
+    \u0275\u0275textInterpolate(user_r2.name);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(user_r2.email);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", user_r2.id === ctx_r2.lists().createdBy);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.isAdmin && user_r2.id !== ctx_r2.lists().createdBy);
+  }
+}
+function ShareListSheetComponent_h4_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "h4");
+    \u0275\u0275text(1, "Hinzuf\xFCgen");
+    \u0275\u0275elementEnd();
+  }
+}
+function ShareListSheetComponent_form_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "form", 11)(1, "mat-form-field", 12);
+    \u0275\u0275element(2, "input", 13);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "button", 14);
+    \u0275\u0275listener("click", function ShareListSheetComponent_form_2_Template_button_click_3_listener() {
+      \u0275\u0275restoreView(_r5);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.returnFormContent());
+    });
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "button", 15);
+    \u0275\u0275listener("click", function ShareListSheetComponent_form_2_Template_button_click_5_listener() {
+      \u0275\u0275restoreView(_r5);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.bottomSheetRef.dismiss());
+    });
+    \u0275\u0275text(6, "Abbrechen");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275property("formGroup", ctx_r2.form);
+    \u0275\u0275advance(3);
+    \u0275\u0275property("disabled", !ctx_r2.form.valid);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate("Speichern");
+  }
+}
+function ShareListSheetComponent_button_3_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r6 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 15);
+    \u0275\u0275listener("click", function ShareListSheetComponent_button_3_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r6);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.bottomSheetRef.dismiss());
+    });
+    \u0275\u0275text(1, "Schlie\xDFen");
+    \u0275\u0275elementEnd();
   }
 }
 var _ShareListSheetComponent = class _ShareListSheetComponent {
@@ -90800,53 +90984,48 @@ var _ShareListSheetComponent = class _ShareListSheetComponent {
     this.data = data;
     this.fb = fb;
     this.lists = data.lists;
+    this.isAdmin = data.isAdmin;
+    this.users = data.users;
     this.form = fb.group({
       "email": ["", Validators.required]
     });
   }
   returnFormContent() {
-    this.bottomSheetRef.dismiss({
-      "email": this.form.controls["email"].value.toLowerCase().trim()
-    });
+    let resp;
+    if (this.isAdmin) {
+      resp = {
+        "email": this.form.controls["email"].value.toLowerCase().trim()
+      };
+    }
+    this.bottomSheetRef.dismiss(resp);
   }
-  removeSharedWith(user) {
-    this.bottomSheetRef.dismiss({
-      "remove": user
-    });
+  removeSharedWith(userId) {
+    let resp;
+    if (this.isAdmin) {
+      resp = {
+        "remove": userId
+      };
+    }
+    this.bottomSheetRef.dismiss(resp);
   }
 };
 _ShareListSheetComponent.\u0275fac = function ShareListSheetComponent_Factory(\u0275t) {
   return new (\u0275t || _ShareListSheetComponent)(\u0275\u0275directiveInject(MatBottomSheetRef), \u0275\u0275directiveInject(MAT_BOTTOM_SHEET_DATA), \u0275\u0275directiveInject(FormBuilder));
 };
-_ShareListSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ShareListSheetComponent, selectors: [["app-share-list-sheet"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 8, vars: 4, consts: [["class", "shared-user", 4, "ngFor", "ngForOf"], ["autocomplete", "off", 3, "formGroup"], ["appearance", "outline"], ["matInput", "", "formControlName", "email", "placeholder", "Email"], ["mat-stroked-button", "", 3, "click", "disabled"], ["mat-flat-button", "", "color", "primary", 3, "click"], [1, "shared-user"], ["mat-mini-fab", "", "disabled", ""]], template: function ShareListSheetComponent_Template(rf, ctx) {
+_ShareListSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ShareListSheetComponent, selectors: [["app-share-list-sheet"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 4, vars: 4, consts: [["class", "shared-user", 4, "ngFor", "ngForOf"], [4, "ngIf"], ["autocomplete", "off", 3, "formGroup", 4, "ngIf"], ["mat-flat-button", "", "color", "primary", 3, "click", 4, "ngIf"], [1, "shared-user"], [1, "user-info"], ["mat-mini-fab", "", "disabled", ""], ["class", "admin", 4, "ngIf"], ["mat-icon-button", "", 3, "click", 4, "ngIf"], [1, "admin"], ["mat-icon-button", "", 3, "click"], ["autocomplete", "off", 3, "formGroup"], ["appearance", "outline"], ["matInput", "", "formControlName", "email", "placeholder", "Email"], ["mat-stroked-button", "", 3, "click", "disabled"], ["mat-flat-button", "", "color", "primary", 3, "click"]], template: function ShareListSheetComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShareListSheetComponent_div_0_Template, 7, 6, "div", 0);
-    \u0275\u0275elementStart(1, "form", 1)(2, "mat-form-field", 2);
-    \u0275\u0275element(3, "input", 3);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "button", 4);
-    \u0275\u0275listener("click", function ShareListSheetComponent_Template_button_click_4_listener() {
-      return ctx.returnFormContent();
-    });
-    \u0275\u0275text(5);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "button", 5);
-    \u0275\u0275listener("click", function ShareListSheetComponent_Template_button_click_6_listener() {
-      return ctx.bottomSheetRef.dismiss();
-    });
-    \u0275\u0275text(7, "Abbrechen");
-    \u0275\u0275elementEnd()();
+    \u0275\u0275template(0, ShareListSheetComponent_div_0_Template, 11, 9, "div", 0)(1, ShareListSheetComponent_h4_1_Template, 2, 0, "h4", 1)(2, ShareListSheetComponent_form_2_Template, 7, 3, "form", 2)(3, ShareListSheetComponent_button_3_Template, 2, 0, "button", 3);
   }
   if (rf & 2) {
-    \u0275\u0275property("ngForOf", ctx.lists().sharedWith);
+    \u0275\u0275property("ngForOf", ctx.users());
     \u0275\u0275advance();
-    \u0275\u0275property("formGroup", ctx.form);
-    \u0275\u0275advance(3);
-    \u0275\u0275property("disabled", !ctx.form.valid);
+    \u0275\u0275property("ngIf", ctx.isAdmin);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate("Speichern");
+    \u0275\u0275property("ngIf", ctx.isAdmin);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", !ctx.isAdmin);
   }
-}, dependencies: [FormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, ReactiveFormsModule, FormGroupDirective, FormControlName, CommonModule, NgForOf, MaterialModule, MatButton, MatMiniFabButton, MatFormField, MatInput, NameBadgePipe], styles: ["\n\n.shared-user[_ngcontent-%COMP%] {\n  width: calc(100% - 24px);\n  padding: 6px 12px;\n  border-radius: 5px;\n  border: solid 1px grey;\n  display: flex;\n  justify-content: space-between;\n}\n.shared-user[_ngcontent-%COMP%]   .badge[_ngcontent-%COMP%] {\n  width: 48px;\n  height: 48px;\n  margin-left: 0 !important;\n  margin-right: 12px;\n}\n.shared-user[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin-top: 0 !important;\n  margin-bottom: 0 !important;\n}\n.shared-user[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  line-height: 42px;\n}\n/*# sourceMappingURL=share-list-sheet.component.css.map */", "\n\nbutton[_ngcontent-%COMP%] {\n  width: 100%;\n  margin: 6px 0;\n}\nbutton[_ngcontent-%COMP%]:last-child {\n  margin-bottom: 38pt;\n}\nform[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  margin: 24px 0;\n}\nform[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  margin: 24px 0;\n}\n/*# sourceMappingURL=styles.css.map */"] });
+}, dependencies: [FormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, ReactiveFormsModule, FormGroupDirective, FormControlName, CommonModule, NgForOf, NgIf, MaterialModule, MatButton, MatIconButton, MatMiniFabButton, MatFormField, MatIcon, MatInput, NameBadgePipe], styles: ["\n\n.shared-user[_ngcontent-%COMP%] {\n  width: calc(100% - 24px);\n  padding: 6px 12px;\n  border-radius: 5px;\n  border: solid 1px grey;\n  display: flex;\n  justify-content: space-between;\n  margin-bottom: 8px;\n}\n.shared-user[_ngcontent-%COMP%]   .user-info[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 4px;\n  align-items: center;\n}\n.shared-user[_ngcontent-%COMP%]   .admin[_ngcontent-%COMP%] {\n  color: grey;\n  margin: auto 0;\n}\n.shared-user[_ngcontent-%COMP%]   .badge[_ngcontent-%COMP%] {\n  width: 48px;\n  height: 48px;\n  margin-left: 0 !important;\n  margin-right: 12px;\n}\n.shared-user[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin-top: 0 !important;\n  margin-bottom: 0 !important;\n}\n.shared-user[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  line-height: 42px;\n}\n/*# sourceMappingURL=share-list-sheet.component.css.map */", "\n\nbutton[_ngcontent-%COMP%] {\n  width: 100%;\n  margin: 6px 0;\n}\nbutton[_ngcontent-%COMP%]:last-child {\n  margin-bottom: 38pt;\n}\nform[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  margin: 24px 0;\n}\nform[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  margin: 24px 0;\n}\n/*# sourceMappingURL=styles.css.map */"] });
 var ShareListSheetComponent = _ShareListSheetComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ShareListSheetComponent, { className: "ShareListSheetComponent", filePath: "src/app/components/bottom-sheets/share-list-sheet/share-list-sheet.component.ts", lineNumber: 23 });
@@ -93488,6 +93667,52 @@ var UpdateItemSheetComponent = _UpdateItemSheetComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UpdateItemSheetComponent, { className: "UpdateItemSheetComponent", filePath: "src/app/components/bottom-sheets/update-item-sheet/update-item-sheet.component.ts", lineNumber: 25 });
 })();
 
+// src/app/services/users/users.service.ts
+var _UsersService = class _UsersService {
+  constructor(data) {
+    this.data = data;
+  }
+  get(id) {
+    const query2 = this.data.db.users.find().$;
+    const meQuery = this.data.db.me.findOne().$;
+    const users = combineLatest([query2, meQuery]);
+    return users.pipe(map(([q, me]) => {
+      if (me && me.id === id) {
+        return me;
+      } else if (!!q) {
+        return q.find((doc) => id === doc.id);
+      }
+      return void 0;
+    }), filter((doc) => !!doc));
+  }
+  getMany(ids) {
+    const query2 = this.data.db.users.find().$;
+    const meQuery = this.data.db.me.findOne().$;
+    const users = combineLatest([query2, meQuery]);
+    return users.pipe(map(([q, me]) => {
+      if (!!q && !!me) {
+        return [...q, me].filter((doc) => !!ids.find((i) => i === doc.id)).sort(byIds(ids));
+      } else if (!!q) {
+        return q.filter((doc) => !!ids.find((i) => i === doc.id)).sort(byIds(ids));
+      } else if (!!me) {
+        return [me].filter((doc) => !!ids.find((i) => i === doc.id)).sort(byIds(ids));
+      } else {
+        return [];
+      }
+    }), filter((doc) => doc.length > 0));
+  }
+};
+_UsersService.\u0275fac = function UsersService_Factory(\u0275t) {
+  return new (\u0275t || _UsersService)(\u0275\u0275inject(DataService));
+};
+_UsersService.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _UsersService, factory: _UsersService.\u0275fac, providedIn: "root" });
+var UsersService = _UsersService;
+function byIds(ids) {
+  return (a, b) => {
+    return ids.findIndex((i) => a.id === i) - ids.findIndex((i) => b.id === i);
+  };
+}
+
 // src/app/components/list-item/list-item.component.ts
 function ListItemComponent_div_0_mat_chip_set_6_mat_chip_1_Template(rf, ctx) {
   if (rf & 1) {
@@ -93539,10 +93764,11 @@ function ListItemComponent_div_0_button_7_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
+    let tmp_3_0;
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275classMap("mini-user-fab user-fab-" + ctx_r1.userFab(ctx_r1.item) % 12);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 3, ctx_r1.item.createdBy.name));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 3, (tmp_3_0 = ctx_r1.createdBy()) == null ? null : tmp_3_0.name));
   }
 }
 function ListItemComponent_div_0_button_8_Template(rf, ctx) {
@@ -93587,6 +93813,7 @@ function ListItemComponent_div_0_Template(rf, ctx) {
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
+    let tmp_6_0;
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275classProp("item-done", ctx_r1.item.done);
     \u0275\u0275property("id", "id-" + ctx_r1.item.id);
@@ -93597,7 +93824,7 @@ function ListItemComponent_div_0_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275property("ngIf", !ctx_r1.list().isShoppingList);
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx_r1.item && ctx_r1.me && ctx_r1.me().id !== ctx_r1.item.createdBy.id);
+    \u0275\u0275property("ngIf", ctx_r1.item && ctx_r1.me().id !== ((tmp_6_0 = ctx_r1.createdBy()) == null ? null : tmp_6_0.id));
     \u0275\u0275advance();
     \u0275\u0275property("ngIf", ctx_r1.item && ctx_r1.item.done);
   }
@@ -93609,9 +93836,17 @@ var _ListItemComponent = class _ListItemComponent {
   onTouchMove(event) {
     this.pointerPosY = event.changedTouches[0].clientY;
   }
-  constructor(bottomSheet) {
+  constructor(bottomSheet, users) {
     this.bottomSheet = bottomSheet;
+    this.users = users;
+    this.createdBy = signal(void 0);
     this.pointerDown = false;
+    effect(() => {
+      if (this.item && this.list()) {
+        this.createdBy$ = this.users.get(this.item.createdBy);
+        this.createdBy$.subscribe((u3) => this.createdBy.set(u3));
+      }
+    });
   }
   toggleDone() {
     if (this.item) {
@@ -93630,7 +93865,7 @@ var _ListItemComponent = class _ListItemComponent {
   }
   userFab(item) {
     if (this.list) {
-      const index = this.list().users().findIndex((val) => val.id === item.createdBy.id);
+      const index = this.list().users().findIndex((i) => i === item.createdBy);
       if (index) {
         return index;
       }
@@ -93673,7 +93908,7 @@ var _ListItemComponent = class _ListItemComponent {
   }
 };
 _ListItemComponent.\u0275fac = function ListItemComponent_Factory(\u0275t) {
-  return new (\u0275t || _ListItemComponent)(\u0275\u0275directiveInject(MatBottomSheet));
+  return new (\u0275t || _ListItemComponent)(\u0275\u0275directiveInject(MatBottomSheet), \u0275\u0275directiveInject(UsersService));
 };
 _ListItemComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ListItemComponent, selectors: [["app-list-item"]], hostBindings: function ListItemComponent_HostBindings(rf, ctx) {
   if (rf & 1) {
@@ -93706,7 +93941,7 @@ _ListItemComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ typ
 ], styles: ["\n\n.item-done[_ngcontent-%COMP%]   .item-content[_ngcontent-%COMP%], \n.item-done[_ngcontent-%COMP%]   mat-chip[_ngcontent-%COMP%] {\n  color: grey;\n  text-decoration: line-through;\n  -webkit-user-select: none;\n  user-select: none;\n}\n.item[_ngcontent-%COMP%] {\n  background: #EEE;\n  border-radius: 8px;\n  margin: 6px 0;\n  width: 100%;\n}\n.item[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  color: grey;\n}\n.item[_ngcontent-%COMP%]   mat-checkbox[_ngcontent-%COMP%] {\n  margin: 8px;\n  position: relative;\n  width: calc(100% - 20px);\n}\n.item[_ngcontent-%COMP%]   mat-checkbox[_ngcontent-%COMP%]   .item-content[_ngcontent-%COMP%] {\n  white-space: pre-wrap;\n  margin-right: 36px;\n  margin-bottom: 0 !important;\n  -webkit-user-select: none;\n  user-select: none;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n.item[_ngcontent-%COMP%]   mat-checkbox[_ngcontent-%COMP%]   button.mini-user-fab[_ngcontent-%COMP%] {\n  margin-left: 6px !important;\n  float: none;\n  z-index: 0;\n}\n.item[_ngcontent-%COMP%]   mat-checkbox[_ngcontent-%COMP%]   button[_ngcontent-%COMP%]:not(.mini-user-fab) {\n  top: calc(50% - 24px);\n  position: absolute;\n  right: 0;\n}\n.item[_ngcontent-%COMP%]   mat-chip-listbox[_ngcontent-%COMP%], \n.item[_ngcontent-%COMP%]   mat-chip-option[_ngcontent-%COMP%] {\n  display: inline-block;\n  -webkit-user-select: none;\n  user-select: none;\n}\n/*# sourceMappingURL=list-item.component.css.map */"] });
 var ListItemComponent = _ListItemComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ListItemComponent, { className: "ListItemComponent", filePath: "src/app/components/list-item/list-item.component.ts", lineNumber: 27 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ListItemComponent, { className: "ListItemComponent", filePath: "src/app/components/list-item/list-item.component.ts", lineNumber: 30 });
 })();
 
 // src/app/components/list/list.component.ts
@@ -93754,7 +93989,7 @@ function ListComponent_div_22_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("ngForOf", ctx_r1.list().users());
+    \u0275\u0275property("ngForOf", ctx_r1.users());
   }
 }
 function ListComponent_div_25_Template(rf, ctx) {
@@ -93867,13 +94102,15 @@ function ListComponent_mat_toolbar_29_Template(rf, ctx) {
   }
 }
 var _ListComponent = class _ListComponent {
-  constructor(location2, bottomSheet, router, authService, snackbar, dataService) {
+  constructor(location2, bottomSheet, router, authService, snackbar, dataService, usersService) {
     this.location = location2;
     this.bottomSheet = bottomSheet;
     this.router = router;
     this.authService = authService;
     this.snackbar = snackbar;
     this.dataService = dataService;
+    this.usersService = usersService;
+    this.users = signal([]);
     this.newItem = new FormControl("");
     this.focusInput = false;
     this.newItemTime = new FormControl("sometime");
@@ -93909,6 +94146,8 @@ var _ListComponent = class _ListComponent {
         });
       } else if (!this.initialized && !!this.list()) {
         this.initialized = true;
+        const users = this.usersService.getMany(this.list().users());
+        this.users$ = users.subscribe((u3) => this.users.set(u3));
       }
     });
   }
@@ -93918,6 +94157,7 @@ var _ListComponent = class _ListComponent {
   }
   ngOnDestroy() {
     this.newItemSub.unsubscribe();
+    this.users$?.unsubscribe();
   }
   listSettings() {
     if (this.list && this.list()) {
@@ -93946,9 +94186,9 @@ var _ListComponent = class _ListComponent {
     }
   }
   shareList() {
-    if (this.userIsAdmin() && this.list && this.list()) {
+    if (this.list && this.list()) {
       const dialogRef = this.bottomSheet.open(ShareListSheetComponent, {
-        data: { lists: this.list }
+        data: { lists: this.list, isAdmin: this.userIsAdmin(), users: this.users }
       });
       dialogRef.afterDismissed().subscribe((data) => {
         if (!!data && this.list && this.list()) {
@@ -93964,7 +94204,7 @@ var _ListComponent = class _ListComponent {
               data: "L\xF6sche Nutzer " + data.remove.name + " aus dieser Liste."
             });
             confirm.afterDismissed().subscribe((del) => {
-              this.authService.unshareLists(data.remove.id, this.list().id).subscribe((success) => {
+              this.authService.unshareLists(data.remove, this.list().id).subscribe((success) => {
                 if (!success) {
                   this.snackbar.open("Nutzer " + data.remove.name + " wurde entfernt.", "Ok");
                 }
@@ -94136,11 +94376,11 @@ var _ListComponent = class _ListComponent {
     }
   }
   userIsAdmin() {
-    return !!this.me()?.id && this.me()?.id === this.list()?.createdBy.id;
+    return !!this.me()?.id && this.me()?.id === this.list()?.createdBy;
   }
 };
 _ListComponent.\u0275fac = function ListComponent_Factory(\u0275t) {
-  return new (\u0275t || _ListComponent)(\u0275\u0275directiveInject(Location), \u0275\u0275directiveInject(MatBottomSheet), \u0275\u0275directiveInject(Router), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(MatSnackBar), \u0275\u0275directiveInject(DataService));
+  return new (\u0275t || _ListComponent)(\u0275\u0275directiveInject(Location), \u0275\u0275directiveInject(MatBottomSheet), \u0275\u0275directiveInject(Router), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(MatSnackBar), \u0275\u0275directiveInject(DataService), \u0275\u0275directiveInject(UsersService));
 };
 _ListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ListComponent, selectors: [["app-list"]], viewQuery: function ListComponent_Query(rf, ctx) {
   if (rf & 1) {
@@ -94253,7 +94493,7 @@ _ListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _
     \u0275\u0275advance(2);
     \u0275\u0275property("ngIf", ctx.list());
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx.list() && ctx.list().users().length > 1);
+    \u0275\u0275property("ngIf", ctx.users() && ctx.users().length > 1);
     \u0275\u0275advance(3);
     \u0275\u0275property("ngIf", ctx.focusInput);
     \u0275\u0275advance();
@@ -94297,7 +94537,7 @@ _ListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _
 ], styles: ['\n\n.content-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-rows: [contentHeader] max-content [contentArea] 1fr [inputBar] 65px;\n  width: 100%;\n  height: 100%;\n  position: relative;\n  z-index: 11;\n  justify-content: start;\n  grid-template-columns: 100%;\n  grid-template-areas: "contentHeader" "contentArea" "inputBar";\n}\n.content-grid[_ngcontent-%COMP%]:has(.focusInput) {\n  height: calc(100% + 85px);\n  grid-template-rows: [contentHeader] max-content [contentArea] 1fr [inputBar] auto;\n}\n.content-header[_ngcontent-%COMP%] {\n  grid-area: contentHeader;\n}\n.content-header[_ngcontent-%COMP%]   .menu[_ngcontent-%COMP%] {\n  position: absolute;\n  top: -4px;\n  right: 0;\n}\n.content-header[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n  margin-top: 0;\n}\n.content-header[_ngcontent-%COMP%]   .users[_ngcontent-%COMP%] {\n  margin-bottom: 12px;\n  margin-top: -12px;\n}\n#items-container[_ngcontent-%COMP%] {\n  grid-area: contentArea;\n  height: 100%;\n  overflow-y: auto;\n  overflow-x: hidden;\n  position: relative;\n}\n#items-container[_ngcontent-%COMP%]   #overlay[_ngcontent-%COMP%] {\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  z-index: 1000;\n}\n#items-container[_ngcontent-%COMP%]   .slot-done-toggle[_ngcontent-%COMP%] {\n  float: right;\n}\n#items-container[_ngcontent-%COMP%]   .slot[_ngcontent-%COMP%]:last-child {\n  margin-bottom: 85px;\n}\n#items-container[_ngcontent-%COMP%]   .no-lists[_ngcontent-%COMP%] {\n  width: 100%;\n  color: grey;\n  text-align: center;\n  padding-top: 25%;\n}\n.slots[_ngcontent-%COMP%]   mat-chip-option[_ngcontent-%COMP%] {\n  line-height: 36px;\n  -webkit-user-select: none;\n  user-select: none;\n}\n.slots[_ngcontent-%COMP%]   mat-chip-option[_ngcontent-%COMP%]   mat-icon[_ngcontent-%COMP%] {\n  position: relative;\n  top: 6px;\n}\n.input-bar[_ngcontent-%COMP%] {\n  grid-area: inputBar;\n  width: calc(100% + 24px);\n  margin-left: -12px;\n  display: flex;\n  justify-content: space-between;\n  flex-direction: column;\n}\n.input-bar[_ngcontent-%COMP%]   mat-toolbar[_ngcontent-%COMP%] {\n  width: 100%;\n}\n.input-bar[_ngcontent-%COMP%]   mat-toolbar.toolbar-time[_ngcontent-%COMP%] {\n  display: none;\n  padding: 8px;\n  min-height: 46px;\n  height: auto;\n}\n.input-bar[_ngcontent-%COMP%]   mat-toolbar.toolbar-input[_ngcontent-%COMP%] {\n  padding: 12px;\n  height: 64px;\n}\n.input-bar[_ngcontent-%COMP%]   mat-toolbar.toolbar-input[_ngcontent-%COMP%]   form[_ngcontent-%COMP%] {\n  display: flex;\n  width: 100%;\n}\n.input-bar[_ngcontent-%COMP%]   mat-toolbar.toolbar-input[_ngcontent-%COMP%]   form[_ngcontent-%COMP%]   .add-input[_ngcontent-%COMP%] {\n  border: none;\n  border-radius: 8px;\n  padding: 8px;\n  width: 100%;\n  background-color: white;\n  line-height: 32px;\n  font-size: 20px;\n  flex-grow: 1;\n}\n.input-bar[_ngcontent-%COMP%]   mat-toolbar.toolbar-input.isShoppingList[_ngcontent-%COMP%] {\n  height: 78px;\n}\n#picker[_ngcontent-%COMP%] {\n  opacity: 0;\n  position: absolute;\n  bottom: 30px;\n  height: 0;\n  width: 0;\n  z-index: -100;\n}\n/*# sourceMappingURL=list.component.css.map */'] });
 var ListComponent = _ListComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ListComponent, { className: "ListComponent", filePath: "src/app/components/list/list.component.ts", lineNumber: 39 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ListComponent, { className: "ListComponent", filePath: "src/app/components/list/list.component.ts", lineNumber: 41 });
 })();
 
 // src/app/app.routes.ts
@@ -94329,19 +94569,17 @@ function laravelInterceptor(req, next) {
 // src/app/interceptors/no-connection.ts
 function noConnectionInterceptor(req, next) {
   const pusher = inject(PusherService);
-  return next(req).pipe(
-    map((event) => {
-      if (event.type === HttpEventType.ResponseHeader && event.status === 0) {
-        throw new Error("timeout");
-      }
-      return event;
-    }),
-    // timeout(10_000),
-    catchError((err) => {
-      pusher.online.next(false);
-      return of();
-    })
-  );
+  return next(req).pipe(map((event) => {
+    if (event.type === HttpEventType.ResponseHeader && event.status === 0) {
+      throw new Error("timeout");
+    } else if (!pusher.online.value) {
+      pusher.online.next(true);
+    }
+    return event;
+  }), timeout(3e4), catchError((err) => {
+    pusher.online.next(false);
+    return of();
+  }));
 }
 
 // node_modules/@angular/service-worker/fesm2022/service-worker.mjs
@@ -94626,8 +94864,8 @@ function ngswAppInitializer(injector, script, options, platformId) {
     }).catch((err) => console.error("Service worker registration failed with:", err))));
   };
 }
-function delayWithTimeout(timeout) {
-  return of(null).pipe(delay(timeout));
+function delayWithTimeout(timeout2) {
+  return of(null).pipe(delay(timeout2));
 }
 function whenStable2(injector) {
   const appRef = injector.get(ApplicationRef);

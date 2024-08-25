@@ -26,8 +26,8 @@ trait CanShareLists
         return false;
     }
 
-    public function confirmShareLists(String $listsId) {
-        $lists = Lists::where('id', $listsId)->first();
+    public function confirmShareLists(String $lists_id) {
+        $lists = Lists::where('id', $lists_id)->first();
 
         if ($lists) {
             $lists->sharedWith()->attach($this);
@@ -47,10 +47,26 @@ trait CanShareLists
 
             Subscription::broadcast('streamLists', collect([$lists])->all());
             Subscription::broadcast('streamItems', $lists->items->all());
+            Subscription::broadcast('streamUsers', $lists->users());
             
             return true;
         }
         return false;
+    }
+
+    public function unshareLists(String $lists_id, String $user_id) {
+        $lists = Lists::where('id', $lists_id)->first();
+
+        if (!!$user_id && $this->id === $lists->createdBy->id) {
+            $lists->sharedWith()->detach($user_id);
+            
+            $lists->updated_at = $this->freshTimestamp();
+            $lists->save();
+            
+            var_dump($lists->sharedWith);
+            Subscription::broadcast('streamLists', collect([$lists])->all());
+            Subscription::broadcast('streamUsers', $lists->users);
+        }
     }
 
     public function sendShareEmailNotification(String $id, String $email) {

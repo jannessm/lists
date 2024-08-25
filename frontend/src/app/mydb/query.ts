@@ -64,7 +64,7 @@ export class MyQuery<DocType, DocMethods> {
                     carry || this.query.filter(doc), false
                 ))
             )
-            .subscribe(docs => {
+            .subscribe(() => {
                 this.update();
             });
         

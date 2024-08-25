@@ -5,6 +5,7 @@
 
 type Query @guard {
     pullMe(checkpoint: MeInputCheckpoint @spread, limit: Int!): MePullBulk!
+    pullUsers(checkpoint: UsersInputCheckpoint @spread, limit: Int!): UsersPullBulk!
   
     pullLists(checkpoint: ListsInputCheckpoint @spread, limit: Int!): ListsPullBulk!
     
@@ -21,6 +22,7 @@ type Mutation @guard {
 
 type Subscription @guard {
   streamMe(headers: MeInputHeaders): MePullBulk
+  streamUsers(headers: UsersInputHeaders): UsersPullBulk
   streamLists(headers: ListsInputHeaders): ListsPullBulk
   streamItems(headers: ItemsInputHeaders): ListItemPullBulk
 }

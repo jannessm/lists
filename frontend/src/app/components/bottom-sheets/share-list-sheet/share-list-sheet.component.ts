@@ -5,7 +5,7 @@ import { MAT_BOTTOM_SHEET_DATA, MatBottomSheetRef } from '@angular/material/bott
 import { MaterialModule } from '../../../material.module';
 import { MyListsDocument } from '../../../mydb/types/lists';
 import { NameBadgePipe } from '../../../pipes/name-badge.pipe';
-import { ForeignId } from '../../../mydb/types/common';
+import { MyUsersDocument } from '../../../mydb/types/users';
 
 @Component({
   selector: 'app-share-list-sheet',
@@ -23,29 +23,47 @@ import { ForeignId } from '../../../mydb/types/common';
 export class ShareListSheetComponent {
 
   lists: Signal<MyListsDocument>;
+  isAdmin: boolean;
+  users: Signal<MyUsersDocument[]>;
   form: FormGroup;
 
   constructor(
     public bottomSheetRef: MatBottomSheetRef<ShareListSheetComponent>,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: {lists: Signal<MyListsDocument>},
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: {
+      lists: Signal<MyListsDocument>,
+      users: Signal<MyUsersDocument[]>,
+      isAdmin: boolean
+    },
     private fb: FormBuilder) {
 
     this.lists = data.lists;
+    this.isAdmin = data.isAdmin;
+    this.users = data.users;
     
     this.form = fb.group({
       'email': ['', Validators.required]
     });
+
+
   }
 
   returnFormContent() {
-    this.bottomSheetRef.dismiss({
-      'email': this.form.controls['email'].value.toLowerCase().trim()
-    });
+    let resp;
+    if (this.isAdmin) {
+      resp = {
+        'email': this.form.controls['email'].value.toLowerCase().trim()
+      };
+    }
+    this.bottomSheetRef.dismiss(resp);
   }
 
-  removeSharedWith(user?: ForeignId) {
-    this.bottomSheetRef.dismiss({
-      'remove': user
-    });
+  removeSharedWith(userId: string) {
+    let resp;
+    if (this.isAdmin) {
+      resp = {
+        'remove': userId
+      };
+    }
+    this.bottomSheetRef.dismiss(resp);
   }
 }

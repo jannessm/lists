@@ -67,6 +67,10 @@ Route::get('share-lists/confirm/{id}/{hash}', [ShareListsController::class, 'con
             ->middleware(['web', 'signed', 'throttle:'.$verificationLimiter])
             ->name('share-lists.confirm');
 
+Route::post('unshare-lists/{id}', [ShareListsController::class, 'unshare'])
+            ->middleware(['web', 'throttle:'.$verificationLimiter])
+            ->name('unshare-lists');
+
 Route::post('email/share-lists-notification/{id}', [ShareListsController::class, 'store'])
     ->middleware(["web", 'throttle:'.$verificationLimiter])
     ->name('share-lists.send');

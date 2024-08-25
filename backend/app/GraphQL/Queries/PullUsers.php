@@ -15,12 +15,14 @@ final class PullUsers
      */
     public function __invoke($_, array $args)
     {
+        $user = Auth::user();
+    
         if (!array_key_exists("updatedAt", $args)) {
             $updatedAt = Carbon::createFromTimestampUTC(-1);
         } else {
             $updatedAt = $args['updatedAt'];
         }
-        $updatedAt = $updatedAt->toDateTimeString();
+        $updatedAt = $updatedAt->toISOString();
 
         if (!array_key_exists('id', $args)) {
             $id = '';
@@ -28,21 +30,20 @@ final class PullUsers
             $id = $args['id'];
         }
 
-        $users = \App\Models\User::orderBy('updated_at')
-            ->orderBy('id')
-            ->where("updated_at", ">", $updatedAt)
-            ->orWhere(function (Builder $query) use ($id, $updatedAt) {
-                $query->where([
-                    ["updated_at", "=", $updatedAt],
-                    ["id", ">", $id]
-                ]);
-            })
-            ->limit($args["limit"])
-            ->get()->all();
+        $users = $user->friends()->sortBy('updated_at')
+            ->sortBy('id');
+
+        $filteredUsers = $users->where("updated_at", ">", $updatedAt)
+            ->merge(
+                $users->where("updated_at", $updatedAt)
+                    ->where("id", ">", $id)
+            )
+            ->slice(0, $args["limit"])
+            ->all();
         
-        $last_user = end($users);
+        $last_user = end($filteredUsers);
         $result = [
-            "documents" => $users,
+            "documents" => $filteredUsers,
             "checkpoint" => null
         ];
         
@@ -53,8 +54,8 @@ final class PullUsers
             ];
         } else {
             $result["checkpoint"] = [
-                "id" => $args["id"],
-                "updatedAt" => $args["updatedAt"]
+                "id" => $id,
+                "updatedAt" => $updatedAt
             ];
         }
 

@@ -3,12 +3,19 @@ import { ME_SCHEMA } from "./me";
 import { ITEM_SCHEMA } from "./list-item";
 import { JsonSchema } from "./schema";
 import { MyPushRow } from "./common";
+import { USERS_SCHEMA } from "./users";
 
 export const graphQLGenerationInput = {
     me: {
         schema: ME_SCHEMA,
         checkpointFields: [
             'updatedAt'
+        ]
+    },
+    users: {
+        schema: USERS_SCHEMA,
+        checkpointFields: [
+            'id', 'updatedAt'
         ]
     },
     lists: {
@@ -32,7 +39,7 @@ export type GraphQLSchema = {
 
 export enum DATA_TYPE {
     ME = "me",
-    // USER = "user",
+    USERS = "users",
     LISTS = "lists",
     LIST_ITEM = "items"
 }

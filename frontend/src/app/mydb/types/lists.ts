@@ -38,31 +38,12 @@ export const LISTS_SCHEMA = {
             type: 'boolean'
         },
         createdBy: {
-            type: 'object',
-            properties: {
-                id: {
-                    type: 'string'
-                },
-                name: {
-                    type: 'string'
-                }
-            }
+            type: 'string',
         },
         sharedWith: {
             type: 'array',
             items: {
-                type: 'object',
-                properties: {
-                    id: {
-                        type: 'string'
-                    },
-                    name: {
-                        type: 'string'
-                    },
-                    // email: {
-                    //     type: 'string'
-                    // }
-                }
+                type: 'string',
             }
         },
         ...COMMON_SCHEMA
@@ -73,7 +54,7 @@ export const LISTS_SCHEMA = {
 type MyListsDocumentType = AsTyped<typeof LISTS_SCHEMA>;
 
 type MyListsMethods = {
-    users(): ForeignId[];
+    users(): string[];
 }
 
 export type MyListsDocument = MyDocument<MyListsDocumentType, MyListsMethods>

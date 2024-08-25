@@ -1,12 +1,16 @@
-<div *ngFor="let user of lists().sharedWith; let i = index" class="shared-user">
-    <div>
-        <button mat-mini-fab [class]="'badge user-fab-' + ((i + 1) % 12)" disabled>{{user?.name | nameBadge}}</button>
+<div *ngFor="let user of users(); let i = index" class="shared-user">
+    <div class="user-info">
+        <button mat-mini-fab [class]="'badge user-fab-' + (i % 12)" disabled>{{user?.name | nameBadge}}</button>
         <span>{{user.name}}</span>
+        <span>{{user.email}}</span>
     </div>
-    <!-- <button mat-icon-button (click)="removeSharedWith(user)"><mat-icon>close</mat-icon></button> -->
+    <span *ngIf="user.id === lists().createdBy" class="admin">Admin</span>
+    <button mat-icon-button (click)="removeSharedWith(user.id)" *ngIf="isAdmin && user.id !== lists().createdBy"><mat-icon>close</mat-icon></button>
 </div>
 
-<form [formGroup]="form" autocomplete="off">
+<h4 *ngIf="isAdmin">Hinzufügen</h4>
+
+<form [formGroup]="form" autocomplete="off" *ngIf="isAdmin">
     <mat-form-field appearance="outline">
         <input matInput formControlName="email" placeholder="Email">
     </mat-form-field>
@@ -14,3 +18,5 @@
     <button mat-stroked-button [disabled]="!form.valid" (click)="returnFormContent()">{{'Speichern'}}</button>
     <button mat-flat-button color="primary" (click)="bottomSheetRef.dismiss()">Abbrechen</button>
 </form>
+
+<button mat-flat-button color="primary" (click)="bottomSheetRef.dismiss()" *ngIf="!isAdmin">Schließen</button>

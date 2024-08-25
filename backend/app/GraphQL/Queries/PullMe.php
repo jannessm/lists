@@ -22,12 +22,6 @@ final class PullMe
         }
         $updatedAt = $updatedAt->toISOString();
 
-        if (!array_key_exists('id', $args)) {
-            $id = '';
-        } else {
-            $id = $args['id'];
-        }
-
         $users = \App\Models\User::orderBy('updated_at')
             ->where([
                 ["id", "=", Auth::id()],

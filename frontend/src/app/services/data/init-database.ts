@@ -59,6 +59,9 @@ export async function addCollections(db: MyDatabase): Promise<MyDatabase> {
         [DATA_TYPE.ME]: {
             schema: ME_SCHEMA,
         },
+        [DATA_TYPE.USERS]: {
+            schema: ME_SCHEMA,
+        },
         [DATA_TYPE.LISTS]: {
             schema: LISTS_SCHEMA,
             methods: {

@@ -24,7 +24,7 @@ export class Replicator {
         private identifier: string,
         private collection: MyCollection<unknown, unknown, unknown>,
         private pullOptions: MyPullOptions,
-        private pushOptions: MyPushOptions,
+        private pushOptions?: MyPushOptions,
     ) {
         this.localEvents$ = this.collection.replication$.subscribe(docs => {
             this.push(docs);
@@ -83,7 +83,7 @@ export class Replicator {
     }
 
     public push(docs: MyDocument<any, unknown>[]) {
-        if (docs.length === 0) return;
+        if (docs.length === 0 || !this.pushOptions) return;
 
         // create deep copies to avoid modifying MyDocument instances.
         docs = docs.map(doc => doc.isClassObject ? doc.lastData : doc)
@@ -102,6 +102,8 @@ export class Replicator {
     }
 
     public async pushInterval(docs: any[], secondTry = false) {
+        if (!this.pushOptions) return;
+
         let pushRows: MyPushRow[] = await Promise.all(
             docs.map(doc => this.getPushRow(doc))
         );
@@ -156,7 +158,7 @@ export class Replicator {
         });
 
         // apply modifier if defined
-        if (this.pushOptions.modifier) {
+        if (this.pushOptions?.modifier) {
             mod = this.pushOptions.modifier(mod);
         }
 

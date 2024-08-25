@@ -6,9 +6,11 @@ import { MyDocument } from "../document";
 import { MyMeCollection } from "./me";
 import { MyListsCollection } from "./lists";
 import { MyItemCollection } from "./list-item";
+import { MyUsersCollection } from "./users";
 
 export type MyListsCollections = {
     me: MyMeCollection,
+    users: MyUsersCollection,
     lists: MyListsCollection,
     items: MyItemCollection
 };

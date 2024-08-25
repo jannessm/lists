@@ -47,15 +47,7 @@ export const ITEM_SCHEMA = {
             type: ['string', 'null']
         },
         createdBy: {
-            type: 'object',
-            properties: {
-                id: {
-                    type: 'string'
-                },
-                name: {
-                    type: 'string'
-                }
-            }
+            type: 'string',
         },
         reminder: {
             type: ['string', 'null']
