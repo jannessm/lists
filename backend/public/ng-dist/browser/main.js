@@ -89515,7 +89515,9 @@ var _AuthService = class _AuthService {
         this.pusher.unsubscribe();
         this.dataService.removeData();
         setTimeout(() => {
-          this.router.navigateByUrl("/login");
+          if (this.router.url.startsWith("/user")) {
+            this.router.navigateByUrl("/login");
+          }
         }, 100);
       }
     });
@@ -89648,10 +89650,9 @@ function LoginComponent_mat_error_15_Template(rf, ctx) {
   }
 }
 var _LoginComponent = class _LoginComponent {
-  constructor(fb, authService, router) {
+  constructor(fb, authService) {
     this.fb = fb;
     this.authService = authService;
-    this.router = router;
     this.wrongCredentials = false;
     this.noSpacesRegex = /.*\S.*/;
     this.initCaptcha = signal(false);
@@ -89696,9 +89697,9 @@ var _LoginComponent = class _LoginComponent {
   }
 };
 _LoginComponent.\u0275fac = function LoginComponent_Factory(\u0275t) {
-  return new (\u0275t || _LoginComponent)(\u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(Router));
+  return new (\u0275t || _LoginComponent)(\u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(AuthService));
 };
-_LoginComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LoginComponent, selectors: [["app-login"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 25, vars: 8, consts: [[3, "formGroup"], ["appearance", "outline"], ["matInput", "", "placeholder", "Email", "formControlName", "email", "type", "email"], [4, "ngIf"], ["matInput", "", "type", "password", "placeholder", "Password", "formControlName", "pwd"], [3, "verify", "error", "expired", "init"], ["mat-flat-button", "", "color", "primary", 3, "click", "disabled"], [1, "container"], ["mat-stroked-button", "", "routerLink", "/reset-password", "type", "button"], ["mat-stroked-button", "", "routerLink", "/register", "type", "button"]], template: function LoginComponent_Template(rf, ctx) {
+_LoginComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LoginComponent, selectors: [["app-login"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 25, vars: 8, consts: [[3, "formGroup"], ["appearance", "outline"], ["matInput", "", "placeholder", "Email", "formControlName", "email", "type", "email"], [4, "ngIf"], ["matInput", "", "type", "password", "placeholder", "Password", "formControlName", "pwd"], [3, "verify", "error", "expired", "init"], ["mat-flat-button", "", "color", "primary", 3, "click", "disabled"], [1, "container"], ["mat-stroked-button", "", "routerLink", "/forgot-password", "type", "button"], ["mat-stroked-button", "", "routerLink", "/register", "type", "button"]], template: function LoginComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div")(1, "form", 0)(2, "mat-form-field", 1)(3, "mat-label");
     \u0275\u0275text(4, "email");
@@ -89769,7 +89770,7 @@ var LoginComponent = _LoginComponent;
 var authGuard = (route, state2) => {
   const auth = inject(AuthService);
   const router = inject(Router);
-  if (auth.isLoggedIn()) {
+  if (auth.isLoggedIn() || !router.url.startsWith("/user")) {
     return true;
   } else {
     return router.parseUrl("/login");
@@ -90156,11 +90157,10 @@ function ListsOverviewComponent_div_9_Template(rf, ctx) {
   }
 }
 var _ListsOverviewComponent = class _ListsOverviewComponent {
-  constructor(bottomSheet, dataService, authService, zone) {
+  constructor(bottomSheet, dataService, authService) {
     this.bottomSheet = bottomSheet;
     this.dataService = dataService;
     this.authService = authService;
-    this.zone = zone;
     this.lists = this.dataService.db.lists.find({
       sort: [{ name: "asc" }]
     }).$$;
@@ -90182,7 +90182,7 @@ var _ListsOverviewComponent = class _ListsOverviewComponent {
   }
 };
 _ListsOverviewComponent.\u0275fac = function ListsOverviewComponent_Factory(\u0275t) {
-  return new (\u0275t || _ListsOverviewComponent)(\u0275\u0275directiveInject(MatBottomSheet), \u0275\u0275directiveInject(DataService), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(NgZone));
+  return new (\u0275t || _ListsOverviewComponent)(\u0275\u0275directiveInject(MatBottomSheet), \u0275\u0275directiveInject(DataService), \u0275\u0275directiveInject(AuthService));
 };
 _ListsOverviewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ListsOverviewComponent, selectors: [["app-lists-overview"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 10, vars: 2, consts: [[1, "content-grid"], [1, "content-header"], ["mat-icon-button", "", 1, "add-button", 3, "click"], [1, "container"], ["class", "list-card", "mat-raised-button", "", 3, "routerLink", 4, "ngFor", "ngForOf"], ["class", "no-lists", 4, "ngIf"], ["mat-raised-button", "", 1, "list-card", 3, "routerLink"], [3, "color", 4, "ngIf"], [1, "no-lists"]], template: function ListsOverviewComponent_Template(rf, ctx) {
   if (rf & 1) {
@@ -90545,11 +90545,9 @@ function SettingsComponent_div_0_Template(rf, ctx) {
   }
 }
 var _SettingsComponent = class _SettingsComponent {
-  constructor(authService, themeService, dataService, router, fb, snackBar, pusher) {
+  constructor(authService, themeService, fb, snackBar, pusher) {
     this.authService = authService;
     this.themeService = themeService;
-    this.dataService = dataService;
-    this.router = router;
     this.fb = fb;
     this.snackBar = snackBar;
     this.pusher = pusher;
@@ -90664,7 +90662,7 @@ var _SettingsComponent = class _SettingsComponent {
   }
 };
 _SettingsComponent.\u0275fac = function SettingsComponent_Factory(\u0275t) {
-  return new (\u0275t || _SettingsComponent)(\u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(ThemeService), \u0275\u0275directiveInject(DataService), \u0275\u0275directiveInject(Router), \u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(MatSnackBar), \u0275\u0275directiveInject(PusherService));
+  return new (\u0275t || _SettingsComponent)(\u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(ThemeService), \u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(MatSnackBar), \u0275\u0275directiveInject(PusherService));
 };
 _SettingsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsComponent, selectors: [["app-settings"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 1, vars: 1, consts: [["class", "container", 4, "ngIf"], [1, "container"], ["mat-icon-button", "", "class", "edit-buttons", 3, "click", 4, "ngIf"], ["disabled", "", "mat-fab", "", "class", "user-fab-0", 4, "ngIf"], [1, "inner-container"], [4, "ngIf"], [3, "formGroup", 4, "ngIf"], ["mat-stroked-button", "", "color", "primary", 3, "click", 4, "ngIf"], ["mat-stroked-button", "", 3, "disabled", "click", 4, "ngIf"], ["appearance", "outline"], [3, "formControl"], ["value", "auto"], ["value", "light"], ["value", "dark"], ["mat-stroked-button", "", 3, "click"], ["id", "version"], ["mat-icon-button", "", 1, "edit-buttons", 3, "click"], ["disabled", "", "mat-fab", "", 1, "user-fab-0"], [3, "formGroup"], ["matInput", "", "formControlName", "name"], ["matInput", "", "formControlName", "email"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "oldPwd"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "pwd"], ["matInput", "", "type", "password", "placeholder", "Passwort wiederholen", "formControlName", "pwdConfirmation"], ["mat-stroked-button", "", "color", "primary", 3, "click"], ["mat-stroked-button", "", 3, "click", "disabled"]], template: function SettingsComponent_Template(rf, ctx) {
   if (rf & 1) {
@@ -90702,7 +90700,7 @@ _SettingsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ typ
 ], styles: ["\n\n.container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  height: 100%;\n}\n.container[_ngcontent-%COMP%]   button.user-fab-0[_ngcontent-%COMP%] {\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   button.edit-buttons[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 32px;\n  right: 0;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%] {\n  overflow: hidden auto;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   div[_ngcontent-%COMP%]:first-child {\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   #version[_ngcontent-%COMP%] {\n  color: grey;\n  font-size: 12px;\n  margin-top: 48px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   form[_ngcontent-%COMP%], \n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   mat-form-field[_ngcontent-%COMP%] {\n  width: 100%;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n/*# sourceMappingURL=settings.component.css.map */"] });
 var SettingsComponent = _SettingsComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsComponent, { className: "SettingsComponent", filePath: "src/app/components/settings/settings.component.ts", lineNumber: 33 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsComponent, { className: "SettingsComponent", filePath: "src/app/components/settings/settings.component.ts", lineNumber: 32 });
 })();
 
 // src/app/components/forgot-password/forgot-password.component.ts
@@ -90777,10 +90775,10 @@ _ForgotPasswordComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
     \u0275\u0275advance();
     \u0275\u0275property("disabled", ctx.form.invalid || ctx.form.disabled);
   }
-}, dependencies: [CommonModule, NgIf, RouterModule, RouterLink, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, MatButtonModule, MatButton, MatFormFieldModule, MatFormField, MatLabel, MatError, MatIconModule, MatIcon, MatInputModule, MatInput], styles: ["\n\ndiv[_ngcontent-%COMP%] {\n  margin: 96px;\n}\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin: 12px 0;\n}\ndiv[_ngcontent-%COMP%]   .container[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  justify-content: space-between;\n  margin: 0;\n}\n/*# sourceMappingURL=forgot-password.component.css.map */"] });
+}, dependencies: [CommonModule, NgIf, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, MatButtonModule, MatButton, MatFormFieldModule, MatFormField, MatLabel, MatError, MatIconModule, MatIcon, MatInputModule, MatInput], styles: ["\n\ndiv[_ngcontent-%COMP%] {\n  margin: 96px;\n}\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin: 12px 0;\n}\ndiv[_ngcontent-%COMP%]   .container[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  justify-content: space-between;\n  margin: 0;\n}\n/*# sourceMappingURL=forgot-password.component.css.map */"] });
 var ForgotPasswordComponent = _ForgotPasswordComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ForgotPasswordComponent, { className: "ForgotPasswordComponent", filePath: "src/app/components/forgot-password/forgot-password.component.ts", lineNumber: 30 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ForgotPasswordComponent, { className: "ForgotPasswordComponent", filePath: "src/app/components/forgot-password/forgot-password.component.ts", lineNumber: 27 });
 })();
 
 // src/app/components/reset-password/reset-password.component.ts
@@ -95434,8 +95432,19 @@ function ListComponent_mat_toolbar_29_Template(rf, ctx) {
   }
 }
 var _ListComponent = class _ListComponent {
-  constructor(location2, bottomSheet, router, authService, snackbar, dataService, usersService) {
-    this.location = location2;
+  set id(id) {
+    if (!!id) {
+      this.list = this.dataService.db.lists.findOne({
+        selector: { id }
+      }).$$;
+      this.listItems = this.dataService.db.items.find({
+        selector: { lists: id }
+      }).$$;
+    } else {
+      this.router.navigateByUrl("/user/lists");
+    }
+  }
+  constructor(bottomSheet, router, authService, snackbar, dataService, usersService) {
     this.bottomSheet = bottomSheet;
     this.router = router;
     this.authService = authService;
@@ -95456,17 +95465,6 @@ var _ListComponent = class _ListComponent {
     });
     this.slotCollapseStates = {};
     this.me = this.authService.me;
-    const id = this.location.path(false).split("/").pop();
-    if (!!id) {
-      this.list = this.dataService.db.lists.findOne({
-        selector: { id }
-      }).$$;
-      this.listItems = this.dataService.db.items.find({
-        selector: { lists: id }
-      }).$$;
-    } else {
-      this.router.navigateByUrl("/user/lists");
-    }
     this.newItemSub = this.newItemTime.valueChanges.subscribe((val) => {
       this.toggleNewTimeSelected(val);
     });
@@ -95712,7 +95710,7 @@ var _ListComponent = class _ListComponent {
   }
 };
 _ListComponent.\u0275fac = function ListComponent_Factory(\u0275t) {
-  return new (\u0275t || _ListComponent)(\u0275\u0275directiveInject(Location), \u0275\u0275directiveInject(MatBottomSheet), \u0275\u0275directiveInject(Router), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(MatSnackBar), \u0275\u0275directiveInject(DataService), \u0275\u0275directiveInject(UsersService));
+  return new (\u0275t || _ListComponent)(\u0275\u0275directiveInject(MatBottomSheet), \u0275\u0275directiveInject(Router), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(MatSnackBar), \u0275\u0275directiveInject(DataService), \u0275\u0275directiveInject(UsersService));
 };
 _ListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ListComponent, selectors: [["app-list"]], viewQuery: function ListComponent_Query(rf, ctx) {
   if (rf & 1) {
@@ -95724,7 +95722,7 @@ _ListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _
     \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.picker = _t.first);
     \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.addInput = _t.first);
   }
-}, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 39, vars: 15, consts: [["menu", "matMenu"], ["itemsContainer", ""], ["addInput", ""], ["picker", ""], [1, "content-grid", 3, "click"], [1, "content-header"], ["mat-icon-button", "", 1, "menu", 3, "matMenuTriggerFor"], ["mat-menu-item", "", 3, "click", "disabled"], ["mat-menu-item", "", 3, "click"], [4, "ngIf"], ["class", "users", 3, "click", 4, "ngIf"], ["id", "items-container"], ["id", "overlay", 3, "click", 4, "ngIf"], ["class", "slots", 4, "ngFor", "ngForOf"], ["class", "no-lists", 4, "ngIf"], [1, "input-bar", 3, "click"], ["class", "toolbar-time", 3, "display", 4, "ngIf"], [1, "toolbar-input"], ["matInput", "", "placeholder", "Hinzuf\xFCgen", "autocomplete", "off", 1, "add-input", 3, "formControl"], ["mat-icon-button", "", 3, "click"], ["id", "picker", "type", "text", 3, "change"], [1, "users", 3, "click"], ["mat-mini-fab", "", "disabled", "", 3, "class", 4, "ngFor", "ngForOf"], ["mat-mini-fab", "", "disabled", ""], ["id", "overlay", 3, "click"], [1, "slots"], ["class", "slot-done-toggle", 4, "ngIf"], [4, "ngFor", "ngForOf"], [1, "slot-done-toggle"], [3, "click", "selected"], [3, "me", "list", "item", 4, "ngIf"], [3, "me", "list", "item"], [1, "no-lists"], [1, "toolbar-time"], [3, "formControl"], ["value", "today"], ["value", "tomorrow"], ["value", "different"], ["value", "sometime"]], template: function ListComponent_Template(rf, ctx) {
+}, inputs: { id: "id" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 39, vars: 15, consts: [["menu", "matMenu"], ["itemsContainer", ""], ["addInput", ""], ["picker", ""], [1, "content-grid", 3, "click"], [1, "content-header"], ["mat-icon-button", "", 1, "menu", 3, "matMenuTriggerFor"], ["mat-menu-item", "", 3, "click", "disabled"], ["mat-menu-item", "", 3, "click"], [4, "ngIf"], ["class", "users", 3, "click", 4, "ngIf"], ["id", "items-container"], ["id", "overlay", 3, "click", 4, "ngIf"], ["class", "slots", 4, "ngFor", "ngForOf"], ["class", "no-lists", 4, "ngIf"], [1, "input-bar", 3, "click"], ["class", "toolbar-time", 3, "display", 4, "ngIf"], [1, "toolbar-input"], ["matInput", "", "placeholder", "Hinzuf\xFCgen", "autocomplete", "off", 1, "add-input", 3, "formControl"], ["mat-icon-button", "", 3, "click"], ["id", "picker", "type", "text", 3, "change"], [1, "users", 3, "click"], ["mat-mini-fab", "", "disabled", "", 3, "class", 4, "ngFor", "ngForOf"], ["mat-mini-fab", "", "disabled", ""], ["id", "overlay", 3, "click"], [1, "slots"], ["class", "slot-done-toggle", 4, "ngIf"], [4, "ngFor", "ngForOf"], [1, "slot-done-toggle"], [3, "click", "selected"], [3, "me", "list", "item", 4, "ngIf"], [3, "me", "list", "item"], [1, "no-lists"], [1, "toolbar-time"], [3, "formControl"], ["value", "today"], ["value", "tomorrow"], ["value", "different"], ["value", "sometime"]], template: function ListComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 4);
@@ -96268,7 +96266,7 @@ var appConfig = {
       multi: true,
       deps: [Injector]
     },
-    provideRouter(routes),
+    provideRouter(routes, withComponentInputBinding()),
     provideAnimations(),
     provideHttpClient(withInterceptors([laravelInterceptor, noConnectionInterceptor])),
     provideServiceWorker("ngsw-worker.js", {

@@ -4,7 +4,7 @@ import { AuthApiService } from '../auth-api/auth-api.service';
 import { REGISTER, SESSION_COOKIE } from '../../globals';
 import dayjs from 'dayjs';
 import md5 from 'md5-ts';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, map, debounceTime } from 'rxjs';
 import { AuthResponse, ChangeEmailStatus } from '../../../models/responses';
 import { PusherService } from '../pusher/pusher.service';
@@ -43,7 +43,9 @@ export class AuthService {
         this.pusher.unsubscribe();
         this.dataService.removeData();
         setTimeout(() => {
-          this.router.navigateByUrl('/login');
+          if (this.router.url.startsWith('/user')) {
+            this.router.navigateByUrl('/login');
+          }
         }, 100);
       }
     });

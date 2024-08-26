@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, Signal, ViewChild, WritableSignal, computed, effect, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, Signal, ViewChild, WritableSignal, computed, effect, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.component';
@@ -41,6 +41,21 @@ import { UsersService } from '../../services/users/users.service';
 export class ListComponent implements AfterViewInit, OnDestroy {
   @ViewChild('picker') picker!: ElementRef;
   @ViewChild('addInput') addInput!: ElementRef;
+
+  @Input()
+  set id(id: string) {
+    if (!!id) {
+      this.list = this.dataService.db.lists.findOne({
+        selector: { id }
+      }).$$ as Signal<MyListsDocument>;
+
+      this.listItems = this.dataService.db.items.find({
+        selector: {lists: id }
+      }).$$ as Signal<MyItemDocument[]>;
+    } else {
+      this.router.navigateByUrl('/user/lists');
+    }
+  }
   
   me: Signal<MyMeDocument>;
   list!: Signal<MyListsDocument>;
@@ -67,7 +82,6 @@ export class ListComponent implements AfterViewInit, OnDestroy {
   slotCollapseStates: {[key: string]: boolean} = {};
 
   constructor(
-    private location: Location,
     private bottomSheet: MatBottomSheet,
     private router: Router,
     private authService: AuthService,
@@ -76,19 +90,6 @@ export class ListComponent implements AfterViewInit, OnDestroy {
     private usersService: UsersService
   ) {
     this.me = this.authService.me;
-    const id = this.location.path(false).split('/').pop();
-
-    if (!!id) {
-      this.list = this.dataService.db.lists.findOne({
-        selector: { id }
-      }).$$ as Signal<MyListsDocument>;
-
-      this.listItems = this.dataService.db.items.find({
-        selector: {lists: id }
-      }).$$ as Signal<MyItemDocument[]>;
-    } else {
-      this.router.navigateByUrl('/user/lists');
-    }
 
     this.newItemSub = this.newItemTime.valueChanges.subscribe(val => {
       this.toggleNewTimeSelected(val);

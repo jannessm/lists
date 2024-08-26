@@ -43,7 +43,6 @@ export class LoginComponent implements OnDestroy {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router,
   ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],

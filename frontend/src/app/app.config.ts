@@ -1,10 +1,9 @@
 import { APP_INITIALIZER, ApplicationConfig, Injector, LOCALE_ID, isDevMode } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
 import { routes } from './app.routes';
-import { CookieService } from 'ngx-cookie-service';
 import { laravelInterceptor } from './interceptors/laravel-tokens';
 import { noConnectionInterceptor } from './interceptors/no-connection';
 import { provideServiceWorker } from '@angular/service-worker';
@@ -19,7 +18,7 @@ export const appConfig: ApplicationConfig = {
       multi: true,
       deps: [Injector]
     },
-    provideRouter(routes),
+    provideRouter(routes, withComponentInputBinding()),
     provideAnimations(),
     provideHttpClient(withInterceptors([laravelInterceptor, noConnectionInterceptor])),
     provideServiceWorker('ngsw-worker.js', {

@@ -1,8 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, Signal, effect } from '@angular/core';
+import { Component, OnDestroy, Signal } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { SwPush } from '@angular/service-worker';
 import { MaterialModule } from '../../material.module';
 import { AuthService } from '../../services/auth/auth.service';
 import { environment } from '../../../environments/environment';
@@ -45,8 +44,6 @@ export class SettingsComponent implements OnDestroy {
   constructor(
     private authService: AuthService,
     private themeService: ThemeService,
-    private dataService: DataService,
-    private router: Router,
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
     public pusher: PusherService,

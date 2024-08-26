@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,14 +9,12 @@ import { AuthService } from '../../services/auth/auth.service';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-forgot-pwd',
   standalone: true,
   imports: [
     CommonModule,
-    RouterModule,
     ReactiveFormsModule,
     MatButtonModule,
     MatFormFieldModule,

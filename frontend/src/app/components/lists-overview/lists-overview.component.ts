@@ -28,7 +28,6 @@ export class ListsOverviewComponent {
     public bottomSheet: MatBottomSheet,
     private dataService: DataService,
     private authService: AuthService,
-    private zone: NgZone
   ) {
     this.lists = this.dataService.db.lists.find({
       sort: [{name: 'asc'}]
