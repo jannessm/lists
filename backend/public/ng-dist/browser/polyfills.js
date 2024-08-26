@@ -1,10 +1,3 @@
-// src/polyfills.js
-window.global = window;
-window.process = {
-  env: { DEBUG: void 0 },
-  nextTick: (fn, ...args) => setTimeout(() => fn(...args))
-};
-
 // node_modules/zone.js/fesm2015/zone.js
 var global = globalThis;
 function __symbol__(name) {

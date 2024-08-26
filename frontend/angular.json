@@ -21,15 +21,16 @@
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
-              "src/polyfills.js",
               "zone.js"
             ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              "src/assets",
-              "src/manifest.webmanifest"
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
             ],
             "styles": [
               "src/color-theme.scss",
@@ -59,7 +60,8 @@
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "serviceWorker": "ngsw-config.json"
             }
           },
           "defaultConfiguration": "production"

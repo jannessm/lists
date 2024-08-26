@@ -5,8 +5,8 @@ import { version } from './version';
 
 export const environment = {
   production: false,
-  api: 'http://127.0.0.1:8080/',
-  pusherUrl: '127.0.0.1',
+  api: 'http://localhost:8080/',
+  pusherUrl: 'localhost',
   dexieDebugMode: false,
   hcaptcha: '10000000-ffff-ffff-ffff-000000000001',
   locale: 'de',

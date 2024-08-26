@@ -22,6 +22,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     provideHttpClient(withInterceptors([laravelInterceptor, noConnectionInterceptor])),
     provideServiceWorker('ngsw-worker.js', {
+        // enabled: true,
         enabled: !isDevMode(),
         registrationStrategy: 'registerWhenStable:30000'
     }),
