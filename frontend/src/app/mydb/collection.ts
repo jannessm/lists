@@ -66,7 +66,12 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
         } else {
             req = {
                 filter: (doc: any) => !doc._deleted,
-                query: () => this.table.toArray()
+                query: async () => {
+                    const table = await this.table.toArray();
+                    return table.map(doc => {
+                        new MyDocument<DocType, DocMethods>(this, doc);
+                    });
+                }
             }
         }
         return new MyQuery<DocType, DocMethods>(this, req);
@@ -79,7 +84,10 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
         } else {
             req = {
                 filter: (doc: any) => true,
-                query: () => this.table.toCollection().first()
+                query: async () => {
+                    const doc = await this.table.toCollection().first();
+                    return new MyDocument<DocType, DocMethods>(this, doc);
+                }
             }
         }
         

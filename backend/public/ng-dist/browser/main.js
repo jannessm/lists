@@ -82925,7 +82925,12 @@ var MyCollection = class {
     } else {
       req = {
         filter: (doc) => !doc._deleted,
-        query: () => this.table.toArray()
+        query: () => __async(this, null, function* () {
+          const table = yield this.table.toArray();
+          return table.map((doc) => {
+            new MyDocument(this, doc);
+          });
+        })
       };
     }
     return new MyQuery(this, req);
@@ -82937,7 +82942,10 @@ var MyCollection = class {
     } else {
       req = {
         filter: (doc) => true,
-        query: () => this.table.toCollection().first()
+        query: () => __async(this, null, function* () {
+          const doc = yield this.table.toCollection().first();
+          return new MyDocument(this, doc);
+        })
       };
     }
     return new MyQuerySingle(this, req);
@@ -84420,21 +84428,29 @@ var NameBadgePipe = _NameBadgePipe;
 
 // src/app/services/theme/theme.service.ts
 var _ThemeService = class _ThemeService {
-  constructor() {
-    this.userPreference = THEME.AUTO;
+  constructor(authService) {
+    this.authService = authService;
+    this.userPreference = signal(THEME.AUTO);
     window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
       this.updateTheme();
     });
     this.isDark = signal(window.matchMedia("(prefers-color-scheme: dark)").matches);
     this.updateTheme();
+    effect(() => {
+      if (this.authService.me()) {
+        setTimeout(() => {
+          this.updateTheme(this.authService.me().theme);
+        });
+      }
+    });
   }
   updateTheme(userPreference) {
     if (userPreference) {
-      this.userPreference = userPreference;
+      this.userPreference.set(userPreference);
     }
     let isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    if (this.userPreference !== THEME.AUTO) {
-      isDark = this.userPreference === THEME.DARK;
+    if (this.userPreference() !== THEME.AUTO) {
+      isDark = this.userPreference() === THEME.DARK;
     }
     this.isDark.set(isDark);
     const metaTag = document.querySelector("meta[name=theme-color]");
@@ -84444,7 +84460,7 @@ var _ThemeService = class _ThemeService {
   }
 };
 _ThemeService.\u0275fac = function ThemeService_Factory(\u0275t) {
-  return new (\u0275t || _ThemeService)();
+  return new (\u0275t || _ThemeService)(\u0275\u0275inject(AuthService));
 };
 _ThemeService.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _ThemeService, factory: _ThemeService.\u0275fac, providedIn: "root" });
 var ThemeService = _ThemeService;
@@ -84741,8 +84757,13 @@ var _SettingsComponent = class _SettingsComponent {
     this.version = environment.version;
     this.editMode = false;
     this.user = this.authService.me;
-    this.theme = new FormControl("auto");
+    this.theme = new FormControl("");
     this.defaultList = new FormControl("null");
+    effect(() => {
+      if (this.themeService.userPreference()) {
+        this.theme.setValue(this.themeService.userPreference(), { emitEvent: false });
+      }
+    });
     this.themeSub = this.theme.valueChanges.subscribe((theme) => {
       if (this.user()) {
         this.user().patch({

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, Signal } from '@angular/core';
+import { Component, OnDestroy, Signal, effect } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MaterialModule } from '../../material.module';
@@ -49,8 +49,14 @@ export class SettingsComponent implements OnDestroy {
     public pusher: PusherService,
   ) {
     this.user = this.authService.me;
-    this.theme = new FormControl<string>('auto');
+    this.theme = new FormControl<string>('');
     this.defaultList = new FormControl<string>('null');
+
+    effect(() => {
+      if (this.themeService.userPreference()) {
+        this.theme.setValue(this.themeService.userPreference(), {emitEvent: false});
+      }
+    })
 
     this.themeSub = this.theme.valueChanges.subscribe(theme => {
       // push changes
