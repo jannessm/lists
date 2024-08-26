@@ -56,9 +56,12 @@ body {
         @include mat.snack-bar-color(m3-theme.$dark-theme);
         @include mat.toolbar-color(m3-theme.$dark-theme);
     
-        .item, .add-input{
+        .item, .add-input {
             background: #464646 !important;
             color: white;
+        }
+        .list-card {
+            background: #464646 !important;
         }
     }
 }
