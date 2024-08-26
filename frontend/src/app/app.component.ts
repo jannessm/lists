@@ -16,6 +16,9 @@ import { HttpClient } from '@angular/common/http';
  * @link https://www.bennadel.com/blog/3448-binding-rxjs-observable-sources-outside-of-the-ngzone-in-angular-6-0-2.htm
  */
 import 'zone.js/plugins/zone-patch-rxjs';
+import { SwUpdate } from '@angular/service-worker';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { ConfirmSheetComponent } from './components/bottom-sheets/confirm-sheet/confirm-sheet.component';
 
 @Component({
   selector: 'app-root',
@@ -45,16 +48,26 @@ export class AppComponent {
     public router: Router,
     private themeService: ThemeService,
     private cookieService: CookieService,
-    private http: HttpClient) {
-      effect(() => {
-        this.setTheme(this.themeService.isDark());
-      });
+    private swUpdate: SwUpdate,
+    private bottomSheet: MatBottomSheet
+  ) {
+    effect(() => {
+      this.setTheme(this.themeService.isDark());
+    });
 
-      if (!this.cookieService.check('listsId')) {
-        this.cookieService.set('listsId', uuid(), 365);
-      }
+    if (!this.cookieService.check('listsId')) {
+      this.cookieService.set('listsId', uuid(), 365);
+    }
 
-      (screen.orientation as any).lock("portrait");
+    (screen.orientation as any).lock("portrait");
+
+    if (this.swUpdate.isEnabled) {
+      this.swUpdate.versionUpdates.subscribe(event => {
+        if (event.type === 'VERSION_DETECTED') {
+          this.showAppUpdateAlert();
+        }
+      })
+    }
   }
 
   ngAfterViewChecked(): void {
@@ -78,5 +91,19 @@ export class AppComponent {
     } else {
       document.body.classList.remove('dark-theme');
     }
+  }
+
+  showAppUpdateAlert() {
+    const sheetRef = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Ein Update ist verfügbar! Jetzt updaten?'});
+
+    sheetRef.afterDismissed().subscribe(update => {
+      if (update) {
+        this.doAppUpdate();
+      }
+    });
+  }
+  
+  doAppUpdate() {
+    this.swUpdate.activateUpdate().then(() => document.location.reload());
   }
 }

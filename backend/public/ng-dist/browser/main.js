@@ -96555,14 +96555,15 @@ function AppComponent_mat_toolbar_5_Template(rf, ctx) {
   }
 }
 var _AppComponent = class _AppComponent {
-  constructor(pusher, authService, dataService, router, themeService, cookieService, http) {
+  constructor(pusher, authService, dataService, router, themeService, cookieService, swUpdate, bottomSheet) {
     this.pusher = pusher;
     this.authService = authService;
     this.dataService = dataService;
     this.router = router;
     this.themeService = themeService;
     this.cookieService = cookieService;
-    this.http = http;
+    this.swUpdate = swUpdate;
+    this.bottomSheet = bottomSheet;
     this.title = "Lists";
     this.startPos = 0;
     this.scrollTop = -1;
@@ -96577,6 +96578,13 @@ var _AppComponent = class _AppComponent {
       this.cookieService.set("listsId", v4_default(), 365);
     }
     screen.orientation.lock("portrait");
+    if (this.swUpdate.isEnabled) {
+      this.swUpdate.versionUpdates.subscribe((event) => {
+        if (event.type === "VERSION_DETECTED") {
+          this.showAppUpdateAlert();
+        }
+      });
+    }
   }
   ngAfterViewChecked() {
     const urlParts = window.location.href.split("#");
@@ -96599,9 +96607,20 @@ var _AppComponent = class _AppComponent {
       document.body.classList.remove("dark-theme");
     }
   }
+  showAppUpdateAlert() {
+    const sheetRef = this.bottomSheet.open(ConfirmSheetComponent, { data: "Ein Update ist verf\xFCgbar! Jetzt updaten?" });
+    sheetRef.afterDismissed().subscribe((update) => {
+      if (update) {
+        this.doAppUpdate();
+      }
+    });
+  }
+  doAppUpdate() {
+    this.swUpdate.activateUpdate().then(() => document.location.reload());
+  }
 };
 _AppComponent.\u0275fac = function AppComponent_Factory(\u0275t) {
-  return new (\u0275t || _AppComponent)(\u0275\u0275directiveInject(PusherService), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(DataService), \u0275\u0275directiveInject(Router), \u0275\u0275directiveInject(ThemeService), \u0275\u0275directiveInject(CookieService), \u0275\u0275directiveInject(HttpClient));
+  return new (\u0275t || _AppComponent)(\u0275\u0275directiveInject(PusherService), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(DataService), \u0275\u0275directiveInject(Router), \u0275\u0275directiveInject(ThemeService), \u0275\u0275directiveInject(CookieService), \u0275\u0275directiveInject(SwUpdate), \u0275\u0275directiveInject(MatBottomSheet));
 };
 _AppComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 6, vars: 6, consts: [["id", "app-container"], ["id", "offline-indicator", 4, "ngIf"], [1, "content"], [4, "ngIf"], ["id", "offline-indicator"], ["mat-button", "", "routerLink", "/user/lists", 3, "color"], [1, "toolbar-button"], ["mat-button", "", "routerLink", "/user/settings", 3, "color"]], template: function AppComponent_Template(rf, ctx) {
   if (rf & 1) {
@@ -96636,7 +96655,7 @@ _AppComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _A
 ], styles: ['\n\n#app-container[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-rows: [offlineIndicator] 5px [content] calc(100% - 5px - 85px) [footer] 85px;\n  grid-template-columns: 1fr min(100%, 769px) 1fr;\n  height: 100%;\n  width: 100%;\n  grid-template-areas: ". offlineIndicator ." ". content ." ". footer .";\n}\n#offline-indicator[_ngcontent-%COMP%] {\n  height: 29px;\n  width: 100%;\n  background-color: darkred;\n  padding: 6px 12px;\n  grid-area: offlineIndicator;\n  animation: _ngcontent-%COMP%_offline 300ms ease-out 3s forwards;\n  overflow: hidden;\n  box-sizing: border-box;\n}\nmat-toolbar[_ngcontent-%COMP%] {\n  grid-area: footer;\n  display: flex;\n  justify-content: space-around;\n  height: 100%;\n  z-index: 10;\n  width: 100%;\n}\nmat-toolbar[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  height: 100%;\n  flex: 1;\n}\nmat-toolbar[_ngcontent-%COMP%]   .toolbar-button[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n}\n.content[_ngcontent-%COMP%] {\n  grid-area: content;\n  padding: 12px 12px 0;\n  width: 100%;\n  box-sizing: border-box;\n  padding-top: 24px;\n}\n@keyframes _ngcontent-%COMP%_offline {\n  0% {\n    height: 24px;\n    color: white;\n  }\n  100% {\n    height: 5px;\n    color: darkred;\n  }\n}\n/*# sourceMappingURL=app.component.css.map */'] });
 var AppComponent = _AppComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "src/app/app.component.ts", lineNumber: 32 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "src/app/app.component.ts", lineNumber: 35 });
 })();
 
 // src/main.ts
