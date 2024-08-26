@@ -1,5 +1,5 @@
 import Dexie from "dexie";
-import { AddCollectionsOptions, CollectionOptions, CreateDatabaseOptions } from "./types/database";
+import { AddCollectionsOptions, CreateDatabaseOptions } from "./types/database";
 import { MyReactivityFactory } from "./types/interfaces";
 import { DexieSchema } from "./types/schema";
 import { MyCollection } from "./collection";

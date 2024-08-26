@@ -88813,9 +88813,10 @@ var MyCollection = class {
     });
   }
   remove() {
-    return __async(this, null, function* () {
-      return this.table.clear();
-    });
+    return Promise.all([
+      this.table.clear(),
+      this.masterTable.clear()
+    ]);
   }
   getLastCheckpoint() {
     return __async(this, null, function* () {
@@ -89133,9 +89134,13 @@ var Replicator = class {
     });
     this.pull().then(() => this.startStream());
   }
+  remove() {
+    return this.collection.replicationTable.clear();
+  }
   destroy() {
     this.stream$?.unsubscribe();
     this.remoteEvents$.complete();
+    this.localEvents$.unsubscribe();
   }
   pull() {
     return __async(this, null, function* () {
@@ -89460,7 +89465,9 @@ var _DataService = class _DataService {
   removeData() {
     return __async(this, null, function* () {
       if (this.dbInitialized) {
-        console.log("remove data");
+        Object.values(this.replications).forEach((repl) => {
+          repl.remove();
+        });
         yield this.db.me.remove();
         yield this.db.users.remove();
         yield this.db.lists.remove();

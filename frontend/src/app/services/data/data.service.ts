@@ -7,12 +7,13 @@ import { HttpClient } from '@angular/common/http';
 import { BASE_API } from '../../globals';
 import { DB_INSTANCE } from './init-database';
 import { MyListsDatabase } from '../../mydb/types/database';
+import { Replicator } from '../../mydb/replication';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
-  replications: any = {};
+  replications: {[key: string]: Replicator} = {};
   dbInitialized = false;
 
   groceryCategories: GroceryCategories | undefined;
@@ -50,10 +51,9 @@ export class DataService {
 
   async removeData() {
     if (this.dbInitialized) {
-      console.log('remove data');
-      // Object.values(this.replications).forEach(repl => {
-      //   repl.remove();
-      // });
+      Object.values(this.replications).forEach(repl => {
+        repl.remove();
+      });
       await this.db.me.remove();
       await this.db.users.remove();
       await this.db.lists.remove();

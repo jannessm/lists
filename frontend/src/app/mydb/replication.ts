@@ -33,9 +33,14 @@ export class Replicator {
         this.pull().then(() => this.startStream());
     }
 
+    public remove() {
+        return this.collection.replicationTable.clear();
+    }
+
     public destroy() {
         this.stream$?.unsubscribe();
         this.remoteEvents$.complete();
+        this.localEvents$.unsubscribe();
     }
 
     public async pull() {

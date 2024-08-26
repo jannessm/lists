@@ -15,7 +15,7 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
 
     private conflictHandler!: ConflictHandler;
 
-    constructor(private db: MyDatabase,
+    constructor(public db: MyDatabase,
                 private tableName: string,
                 public primaryKey: string,
                 public reactivity: MyReactivityFactory,
@@ -163,8 +163,11 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
         return this.masterTable.get({[this.primaryKey]: key});
     }
     
-    async remove() {
-        return this.table.clear();
+    remove() {
+        return Promise.all([
+            this.table.clear(),
+            this.masterTable.clear()
+        ]);
     }
 
     async getLastCheckpoint(): Promise<unknown> {

@@ -44,3 +44,7 @@
 ## Emails
 - [ ] verify email
 - [ ] join list
+
+# Logout
+- [ ] redirect to /login
+- [ ] data is cleared
