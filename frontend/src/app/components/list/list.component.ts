@@ -19,7 +19,7 @@ import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { ListItemComponent } from '../list-item/list-item.component';
 import { MyMeDocument } from '../../mydb/types/me';
 import { timePickerConfig } from '../../../models/time-picker';
-import { Observable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { MyUsersDocument } from '../../mydb/types/users';
 import { UsersService } from '../../services/users/users.service';
 

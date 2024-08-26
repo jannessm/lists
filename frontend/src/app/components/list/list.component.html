@@ -11,7 +11,7 @@
             <button mat-menu-item (click)="deleteList()" [disabled]="!userIsAdmin()">Löschen</button>
         </mat-menu>
         
-        <h1 *ngIf="list()">{{list().name}}</h1>
+        <h2 *ngIf="list()">{{list().name}}</h2>
         <div class="users" *ngIf="users() && users().length > 1" (click)="shareList()">
             <button mat-mini-fab *ngFor="let user of users(); let i = index" [class]="'user-fab-' + i % 12" disabled >{{user?.name | nameBadge}}</button>
         </div>
@@ -20,14 +20,14 @@
     <div id="items-container" #itemsContainer>
         <div id="overlay" *ngIf="focusInput" (click)="closeFocusInput($event)"></div>
         <div class="slots" *ngFor="let slot of slots()">
-            <h2>
+            <h5>
                 {{ slot.name }}
                 <mat-chip-listbox *ngIf="slot.nDone > 0" class="slot-done-toggle">
                     <mat-chip-option (click)="slotCollapseStates[slot.name] = !slotCollapseStates[slot.name]" [selected]="!slotCollapseStates[slot.name]">
                         {{ slot.nDone }}
                     </mat-chip-option>
                 </mat-chip-listbox>
-            </h2>
+            </h5>
         
             <ng-container *ngFor="let item of slot.items">
                 <app-list-item

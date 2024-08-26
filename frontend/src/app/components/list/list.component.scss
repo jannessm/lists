@@ -23,6 +23,7 @@
 
 .content-header {
     grid-area: contentHeader;
+    position: relative;
 
     .menu {
         position: absolute;
@@ -30,7 +31,7 @@
         right: 0;
     }
     
-    h1 {
+    h2 {
         margin-top: 0;
     }
     
@@ -60,8 +61,8 @@
         float: right;
     }
 
-    .slot:last-child {
-        margin-bottom: $nav-bar-height;
+    .slots:not(:first-child) {
+        margin-top: 0.5em;
     }
 
     .no-lists {

@@ -1,11 +1,9 @@
 @use 'sass:list';
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 @import 'flatpickr/dist/flatpickr.css'; // you may need to adjust the css import depending on your build tool
 @import 'variables.scss';
 
 html, body { height: 100%; overflow: hidden; }
-body { margin: 0px; font-family: Roboto, "Helvetica Neue", sans-serif; position: relative; }
+body { margin: 0px; }
 
 @media (min-width: 769px) {
     body {

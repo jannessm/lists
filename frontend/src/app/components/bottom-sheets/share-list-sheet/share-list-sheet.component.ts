@@ -66,8 +66,10 @@ export class ShareListSheetComponent implements OnDestroy {
       this.allUsersSub?.unsubscribe();
 
       this.allUsersSub = this.allUsers$.subscribe(user => {
-        this.allUsers.set(user)
-        this.filteredUsers.set(user.filter(u => u.email.includes(this.form.get('email')?.value)));
+        setTimeout(() => {
+          this.allUsers.set(user)
+          this.filteredUsers.set(user.filter(u => u.email.includes(this.form.get('email')?.value)));
+        }, 1);
       });
     });
 
@@ -82,6 +84,10 @@ export class ShareListSheetComponent implements OnDestroy {
 
   ngOnDestroy() {
     this.unsubscribe();
+  }
+
+  usersSubscription(user: MyUsersDocument[]) {
+
   }
 
   unsubscribe() {

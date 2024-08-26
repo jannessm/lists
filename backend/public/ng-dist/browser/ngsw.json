@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1724701946685,
+  "timestamp": 1724710284615,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -29,6 +29,10 @@
         "ignoreVary": true
       },
       "urls": [
+        "/fonts/JosefinSans-Italic-VariableFont_wght.ttf",
+        "/fonts/JosefinSans-VariableFont_wght.ttf",
+        "/fonts/OpenSans-VariableFont_wdth,wght.ttf",
+        "/fonts/icons.woff2",
         "/icons/Icon-100.png",
         "/icons/Icon-1024.png",
         "/icons/Icon-114.png",
@@ -98,6 +102,10 @@
   "dataGroups": [],
   "hashTable": {
     "/favicon.ico": "7d800dae01ac7afa17e08d3d29d864e3ff564198",
+    "/fonts/JosefinSans-Italic-VariableFont_wght.ttf": "6c47591a940e3c86a268d5bed1e151214eb4d1df",
+    "/fonts/JosefinSans-VariableFont_wght.ttf": "ad2439d6f0dfc795c4dbefb342383f9f02810427",
+    "/fonts/OpenSans-VariableFont_wdth,wght.ttf": "ecdf1d58c0932a775c89b5ad48a7a0aaad66de4f",
+    "/fonts/icons.woff2": "0bc0c675480d94ec7e8609dda6227f88c5d08d2c",
     "/icons/Icon-100.png": "a7cdd2f05814cc927ffb4231a7edecb5f2f7ab77",
     "/icons/Icon-1024.png": "505514c58b37c8f5fe9d505c65eca7658dbc8907",
     "/icons/Icon-114.png": "1294c4c19b2a716dab3d8a0ff4e9e86c27afcb1d",
@@ -131,8 +139,8 @@
     "/icons/Icon-87.png": "d4ef3b927145a42c76781883c5f2d3e7c59bf5f3",
     "/icons/Icon-88.png": "1b58214f207b53e4f4bd869ed9ed90cd842481f4",
     "/icons/Icon-96.png": "8a76db05c4e69e1f045c368672cacffe30bd9373",
-    "/index.html": "4a56592e1f23540f7e6d8bb36e2e26c02e125039",
-    "/main.js": "3561c6a5a41a0105b43fe65a1dbdd9ff647fc2f4",
+    "/index.html": "451bebad192aadb35567d5c0519a20a28656692b",
+    "/main.js": "47df7b74b0b0df468df0a5d50841a9ef18acd96f",
     "/manifest.webmanifest": "71ace416d035303163462a24fbde866df8274869",
     "/polyfills.js": "286e423c2a9084a5f2620554d177994a18c6e055",
     "/scripts.js": "332ddf2d47eae870201e61b0219c0f7cdaf38445",
@@ -165,7 +173,7 @@
     "/splash_screens/iPhone_8__iPhone_7__iPhone_6s__iPhone_6__4.7__iPhone_SE_landscape.png": "cf5de8a2c85611246b1289d9706f0e5d8a6f8984",
     "/splash_screens/iPhone_8__iPhone_7__iPhone_6s__iPhone_6__4.7__iPhone_SE_portrait.png": "2d9489cb79421e2120443d9fb2c9557baa49d28b",
     "/splash_screens/icon.png": "ac5a2c00d333047cdcafadc930e5a73354ca89ed",
-    "/styles.css": "5b4b57b9619bc4426d14d7cf4022a85ddce4e2e1"
+    "/styles.css": "5c74f5c688fb61137e56dcd45f05c799c9654def"
   },
   "navigationUrls": [
     {
