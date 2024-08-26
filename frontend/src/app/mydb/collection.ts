@@ -166,7 +166,8 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
     remove() {
         return Promise.all([
             this.table.clear(),
-            this.masterTable.clear()
+            this.masterTable.clear(),
+            this.replicationTable.clear()
         ]);
     }
 

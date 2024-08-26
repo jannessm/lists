@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnDestroy, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 
@@ -13,6 +13,7 @@ import { AuthService } from '../../services/auth/auth.service';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { HCaptchaComponent } from '../hcaptcha/hcaptcha.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -30,9 +31,10 @@ import { HCaptchaComponent } from '../hcaptcha/hcaptcha.component';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent {
+export class LoginComponent implements OnDestroy {
 
   form: FormGroup;
+  formSub: Subscription;
 
   wrongCredentials = false;
   noSpacesRegex = /.*\S.*/;
@@ -49,15 +51,14 @@ export class LoginComponent {
       captcha: ['', Validators.required]
     });
 
-    this.form.valueChanges.subscribe(() => {
+    this.formSub = this.form.valueChanges.subscribe(() => {
       this.initCaptcha.set(true);
+      this.resetErrors();
     });
+  }
 
-    Object.values(this.form.controls).forEach(control => 
-      control.valueChanges.subscribe(() => {
-        this.resetErrors();
-      })
-    );
+  ngOnDestroy() {
+    this.formSub.unsubscribe();
   }
 
   resetErrors() {

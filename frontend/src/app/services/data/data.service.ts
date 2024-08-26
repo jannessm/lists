@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 
 import { ReplicationService } from '../replication/replication.service';
 import { DATA_TYPE } from '../../mydb/types/graphql-types';
@@ -12,7 +12,7 @@ import { Replicator } from '../../mydb/replication';
 @Injectable({
   providedIn: 'root'
 })
-export class DataService {
+export class DataService implements OnDestroy {
   replications: {[key: string]: Replicator} = {};
   dbInitialized = false;
 
@@ -25,6 +25,10 @@ export class DataService {
     this.http.get<GroceryCategories>(BASE_API + 'grocery-categories').subscribe(cats => {
       this.groceryCategories = cats;
     });
+  }
+
+  ngOnDestroy(): void {
+    this.db.destroy();
   }
 
   get db(): MyListsDatabase {
@@ -52,7 +56,7 @@ export class DataService {
   async removeData() {
     if (this.dbInitialized) {
       Object.values(this.replications).forEach(repl => {
-        repl.remove();
+        repl.destroy();
       });
       await this.db.me.remove();
       await this.db.users.remove();

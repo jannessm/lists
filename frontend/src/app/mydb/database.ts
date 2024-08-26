@@ -28,6 +28,10 @@ export class MyDatabase {
         this.$ = this.changes.asObservable();
     }
 
+    destroy() {
+        this.changes.complete();
+    }
+
     async addCollections(options: AddCollectionsOptions) {
         if (!this.initialied) {
             this.schema = options;

@@ -1,5 +1,4 @@
-import { Injectable, Signal, WritableSignal, signal } from '@angular/core';
-import { ReplaySubject } from 'rxjs';
+import { Injectable, WritableSignal, signal } from '@angular/core';
 import { THEME } from '../../mydb/types/me';
 
 @Injectable({

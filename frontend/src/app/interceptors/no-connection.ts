@@ -7,18 +7,20 @@ export function noConnectionInterceptor(req: HttpRequest<unknown>, next: HttpHan
     const pusher = inject(PusherService);
     
     return next(req).pipe(
-        map(event => {
-            if (event.type === HttpEventType.ResponseHeader && event.status === 0) {
-                throw new Error('timeout');
+        timeout(30_000),
+        tap(event => {
+            if (
+                (event.type === HttpEventType.ResponseHeader && event.status === 0)
+            ) {
+                pusher.online.next(false);
             } else if (!pusher.online.value) {
                 pusher.online.next(true);
             }
             return event;
         }),
-        timeout(30_000),
         catchError(err => {
             pusher.online.next(false);
-            return of();
+            throw err;
         })
     );
   }

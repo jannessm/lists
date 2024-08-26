@@ -11,7 +11,6 @@ import { PusherService } from '../pusher/pusher.service';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { VerifyMailComponent } from '../../components/bottom-sheets/verify-mail/verify-mail.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Location } from '@angular/common';
 import { MyMeDocument } from '../../mydb/types/me';
 import { DataService } from '../data/data.service';
 
@@ -31,8 +30,7 @@ export class AuthService {
               private pusher: PusherService,
               private dataService: DataService,
               private bottomsheet: MatBottomSheet,
-              private snackBar: MatSnackBar,
-              private location: Location) {
+              private snackBar: MatSnackBar) {
     this.me = this.dataService.db.me.findOne().$$;
     this.isLoggedIn = signal(this.cookies.check(SESSION_COOKIE));
     
@@ -73,17 +71,17 @@ export class AuthService {
 
     return this.api.login(email, password, captcha).pipe(
       map(success => {
-      if (success) {
-        this.isLoggedIn.set(true);
+        if (success) {
+          this.isLoggedIn.set(true);
 
-        this.router.navigateByUrl('/user/lists');
+          this.router.navigateByUrl('/user/lists');
 
-        return true;
-      } else {
-        this.isLoggedIn.set(false);
+          return true;
+        } else {
+          this.isLoggedIn.set(false);
 
-        return false;
-      }
+          return false;
+        }
     }));
   }
 

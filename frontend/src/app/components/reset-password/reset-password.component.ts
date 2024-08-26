@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MaterialModule } from '../../material.module';
 import { CommonModule } from '@angular/common';
@@ -6,6 +6,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AuthService } from '../../services/auth/auth.service';
 import { MatchValidator } from '../../../models/match.validators';
 import md5 from 'md5-ts';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-reset-password',
@@ -19,11 +20,12 @@ import md5 from 'md5-ts';
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.scss'
 })
-export class ResetPasswordComponent {
+export class ResetPasswordComponent implements OnDestroy {
   token: string | undefined;
   email: string | undefined;
 
   form: FormGroup;
+  formSub: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -54,9 +56,13 @@ export class ResetPasswordComponent {
       validators: MatchValidator('pwd', 'pwd_confirmation')
     });
 
-    Object.values(this.form.controls).forEach(control => 
-      control.valueChanges.subscribe(() => this.form.setErrors(null))
-    );
+    this.formSub = this.form.valueChanges.subscribe(() => {
+      this.form.setErrors(null);
+    });
+  }
+
+  ngOnDestroy(): void {
+      this.formSub.unsubscribe();
   }
 
   resetPwd() {

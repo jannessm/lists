@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Signal, effect } from '@angular/core';
+import { Component, OnDestroy, Signal, effect } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SwPush } from '@angular/service-worker';
@@ -15,6 +15,7 @@ import { ChangeEmailStatus } from '../../../models/responses';
 import { PusherService } from '../../services/pusher/pusher.service';
 import { MatchValidator, NoMatchValidator } from '../../../models/match.validators';
 import md5 from 'md5-ts';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-settings',
@@ -29,15 +30,17 @@ import md5 from 'md5-ts';
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss']
 })
-export class SettingsComponent {
+export class SettingsComponent implements OnDestroy {
   user: Signal<MyMeDocument>;
   version = environment.version;
 
   theme: FormControl;
+  themeSub: Subscription;
   defaultList: FormControl;
 
   editMode = false;
   editForm: FormGroup;
+  editFormSub: Subscription;
 
   constructor(
     private authService: AuthService,
@@ -52,7 +55,7 @@ export class SettingsComponent {
     this.theme = new FormControl<string>('auto');
     this.defaultList = new FormControl<string>('null');
 
-    this.theme.valueChanges.subscribe(theme => {
+    this.themeSub = this.theme.valueChanges.subscribe(theme => {
       // push changes
       if (this.user()) {
         this.user().patch({
@@ -84,11 +87,14 @@ export class SettingsComponent {
       pwdConfirmation: ['', []]
     },
     {
-      validators: [MatchValidator('pwd', 'pwdConfirmation'), NoMatchValidator('oldPwd', 'pwd')]
+      validators: [
+        MatchValidator('pwd', 'pwdConfirmation'),
+        NoMatchValidator('oldPwd', 'pwd')
+      ]
     });
 
-    Object.values(this.editForm.controls).forEach(control => 
-      control.valueChanges.subscribe(() => this.editForm.setErrors(null))
+    this.editFormSub = this.editForm.valueChanges.subscribe(
+      () => this.editForm.setErrors(null)
     );
 
     this.pusher.online.subscribe(isOnline => {
@@ -104,6 +110,11 @@ export class SettingsComponent {
         this.editForm.get('pwdConfirmation')?.enable();
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.themeSub.unsubscribe();
+    this.editFormSub.unsubscribe();
   }
 
   logout() {

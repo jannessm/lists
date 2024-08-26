@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnDestroy, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 
@@ -15,6 +15,7 @@ import { MatchValidator } from '../../../models/match.validators';
 import { REGISTER } from '../../globals';
 import { MatIconModule } from '@angular/material/icon';
 import { HCaptchaComponent } from '../hcaptcha/hcaptcha.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-register',
@@ -32,9 +33,10 @@ import { HCaptchaComponent } from '../hcaptcha/hcaptcha.component';
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnDestroy {
 
   form: FormGroup;
+  fromSub: Subscription;
   
   noSpacesRegex = /.*\S.*/;
   initCaptcha = signal(false);
@@ -54,13 +56,14 @@ export class RegisterComponent {
       validators: MatchValidator('pwd', 'pwd_confirmation')
     });
 
-    this.form.valueChanges.subscribe(() => {
+    this.fromSub = this.form.valueChanges.subscribe(() => {
       this.initCaptcha.set(true);
+      this.form.setErrors(null);
     });
+  }
 
-    Object.values(this.form.controls).forEach(control => 
-      control.valueChanges.subscribe(() => this.form.setErrors(null))
-    );
+  ngOnDestroy(): void {
+      this.fromSub.unsubscribe();
   }
 
   register() {

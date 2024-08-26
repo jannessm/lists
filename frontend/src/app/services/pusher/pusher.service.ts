@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import Pusher from 'pusher-js';
 import { BehaviorSubject } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -6,7 +6,7 @@ import { environment } from '../../../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
-export class PusherService {
+export class PusherService implements OnDestroy {
   pusher: Pusher | undefined;
   channels: string[] = [];
   socketID: string = '';
@@ -20,6 +20,7 @@ export class PusherService {
 
   ngOnDestroy() {
     this.pusher?.disconnect();
+    this.online.complete();
   }
 
   async init() {

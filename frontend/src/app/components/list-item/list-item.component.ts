@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, Signal, WritableSignal, effect, signal } from '@angular/core';
+import { Component, HostListener, Input, OnDestroy, Signal, WritableSignal, effect, signal } from '@angular/core';
 import { MaterialModule } from '../../material.module';
 import { CommonModule } from '@angular/common';
 import { MyItemDocument } from '../../mydb/types/list-item';
@@ -13,7 +13,7 @@ import { MyMeDocument } from '../../mydb/types/me';
 import { DataService } from '../../services/data/data.service';
 import { UsersService } from '../../services/users/users.service';
 import { MyUsersDocument } from '../../mydb/types/users';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-list-item',
@@ -27,7 +27,7 @@ import { Observable } from 'rxjs';
   templateUrl: './list-item.component.html',
   styleUrl: './list-item.component.scss'
 })
-export class ListItemComponent {
+export class ListItemComponent implements OnDestroy {
   @Input()
   me!: Signal<MyMeDocument>;
   @Input()
@@ -36,6 +36,7 @@ export class ListItemComponent {
   item!: MyItemDocument;
 
   createdBy$?: Observable<MyUsersDocument>;
+  createdBySub?: Subscription;
   createdBy: WritableSignal<MyUsersDocument | undefined> = signal(undefined);
 
   pointerDown: boolean = false;
@@ -58,9 +59,14 @@ export class ListItemComponent {
     effect(() => {
       if (this.item && this.list()) {
         this.createdBy$ = this.users.get(this.item.createdBy);
-        this.createdBy$.subscribe(u => this.createdBy.set(u));
+        this.createdBySub?.unsubscribe();
+        this.createdBySub = this.createdBy$.subscribe(u => this.createdBy.set(u));
       }
     })
+  }
+
+  ngOnDestroy() {
+    this.createdBySub?.unsubscribe();
   }
 
   toggleDone() {

@@ -88075,6 +88075,7 @@ var _PusherService = class _PusherService {
   }
   ngOnDestroy() {
     this.pusher?.disconnect();
+    this.online.complete();
   }
   init() {
     return __async(this, null, function* () {
@@ -88815,7 +88816,8 @@ var MyCollection = class {
   remove() {
     return Promise.all([
       this.table.clear(),
-      this.masterTable.clear()
+      this.masterTable.clear(),
+      this.replicationTable.clear()
     ]);
   }
   getLastCheckpoint() {
@@ -88912,6 +88914,9 @@ var MyDatabase = class _MyDatabase {
     this.changes = new Subject();
     this.dexie = new import_wrapper_default(name);
     this.$ = this.changes.asObservable();
+  }
+  destroy() {
+    this.changes.complete();
   }
   addCollections(options) {
     return __async(this, null, function* () {
@@ -89340,6 +89345,9 @@ var _ReplicationService = class _ReplicationService {
       this.lastPusherState = isOnline;
     });
   }
+  ngOnDestroy() {
+    Object.values(this.streamSubjects).forEach((subj) => subj.complete());
+  }
   setupReplication(collectionName, collection, meId) {
     return __async(this, null, function* () {
       if (!(yield firstValueFrom(this.pusher.online))) {
@@ -89444,6 +89452,9 @@ var _DataService = class _DataService {
       this.groceryCategories = cats;
     });
   }
+  ngOnDestroy() {
+    this.db.destroy();
+  }
   get db() {
     return DB_INSTANCE;
   }
@@ -89466,7 +89477,7 @@ var _DataService = class _DataService {
     return __async(this, null, function* () {
       if (this.dbInitialized) {
         Object.values(this.replications).forEach((repl) => {
-          repl.remove();
+          repl.destroy();
         });
         yield this.db.me.remove();
         yield this.db.users.remove();
@@ -89485,7 +89496,7 @@ var DataService = _DataService;
 
 // src/app/services/auth/auth.service.ts
 var _AuthService = class _AuthService {
-  constructor(cookies, api, router, pusher, dataService, bottomsheet, snackBar, location2) {
+  constructor(cookies, api, router, pusher, dataService, bottomsheet, snackBar) {
     this.cookies = cookies;
     this.api = api;
     this.router = router;
@@ -89493,7 +89504,6 @@ var _AuthService = class _AuthService {
     this.dataService = dataService;
     this.bottomsheet = bottomsheet;
     this.snackBar = snackBar;
-    this.location = location2;
     this.me = this.dataService.db.me.findOne().$$;
     this.isLoggedIn = signal(this.cookies.check(SESSION_COOKIE));
     effect(() => {
@@ -89596,7 +89606,7 @@ var _AuthService = class _AuthService {
   }
 };
 _AuthService.\u0275fac = function AuthService_Factory(\u0275t) {
-  return new (\u0275t || _AuthService)(\u0275\u0275inject(CookieService), \u0275\u0275inject(AuthApiService), \u0275\u0275inject(Router), \u0275\u0275inject(PusherService), \u0275\u0275inject(DataService), \u0275\u0275inject(MatBottomSheet), \u0275\u0275inject(MatSnackBar), \u0275\u0275inject(Location));
+  return new (\u0275t || _AuthService)(\u0275\u0275inject(CookieService), \u0275\u0275inject(AuthApiService), \u0275\u0275inject(Router), \u0275\u0275inject(PusherService), \u0275\u0275inject(DataService), \u0275\u0275inject(MatBottomSheet), \u0275\u0275inject(MatSnackBar));
 };
 _AuthService.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _AuthService, factory: _AuthService.\u0275fac, providedIn: "root" });
 var AuthService = _AuthService;
@@ -89650,12 +89660,13 @@ var _LoginComponent = class _LoginComponent {
       pwd: ["", Validators.required],
       captcha: ["", Validators.required]
     });
-    this.form.valueChanges.subscribe(() => {
+    this.formSub = this.form.valueChanges.subscribe(() => {
       this.initCaptcha.set(true);
-    });
-    Object.values(this.form.controls).forEach((control) => control.valueChanges.subscribe(() => {
       this.resetErrors();
-    }));
+    });
+  }
+  ngOnDestroy() {
+    this.formSub.unsubscribe();
   }
   resetErrors() {
     if (this.wrongCredentials) {
@@ -89751,7 +89762,7 @@ _LoginComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: 
 }, dependencies: [CommonModule, NgIf, RouterModule, RouterLink, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, MatButtonModule, MatButton, MatFormFieldModule, MatFormField, MatLabel, MatError, MatIconModule, MatIcon, MatInputModule, MatInput, HCaptchaComponent], styles: ["\n\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin: 12px 0;\n}\ndiv[_ngcontent-%COMP%]   .container[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  justify-content: space-between;\n  margin: 0;\n}\n/*# sourceMappingURL=login.component.css.map */"] });
 var LoginComponent = _LoginComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LoginComponent, { className: "LoginComponent", filePath: "src/app/components/login/login.component.ts", lineNumber: 33 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LoginComponent, { className: "LoginComponent", filePath: "src/app/components/login/login.component.ts", lineNumber: 34 });
 })();
 
 // src/app/guards/auth/auth.guard.ts
@@ -89870,10 +89881,13 @@ var _RegisterComponent = class _RegisterComponent {
     }, {
       validators: MatchValidator("pwd", "pwd_confirmation")
     });
-    this.form.valueChanges.subscribe(() => {
+    this.fromSub = this.form.valueChanges.subscribe(() => {
       this.initCaptcha.set(true);
+      this.form.setErrors(null);
     });
-    Object.values(this.form.controls).forEach((control) => control.valueChanges.subscribe(() => this.form.setErrors(null)));
+  }
+  ngOnDestroy() {
+    this.fromSub.unsubscribe();
   }
   register() {
     this.authService.register(this.form.controls["name"].value, this.form.controls["email"].value.toLowerCase(), md5(this.form.controls["pwd"].value), md5(this.form.controls["pwd_confirmation"].value), this.form.controls["captcha"].value).subscribe((res) => {
@@ -89895,33 +89909,33 @@ var _RegisterComponent = class _RegisterComponent {
 _RegisterComponent.\u0275fac = function RegisterComponent_Factory(\u0275t) {
   return new (\u0275t || _RegisterComponent)(\u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(AuthService));
 };
-_RegisterComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RegisterComponent, selectors: [["app-register"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 35, vars: 12, consts: [[3, "formGroup"], ["appearance", "outline"], ["matInput", "", "placeholder", "Name", "formControlName", "name"], [4, "ngIf"], ["matInput", "", "placeholder", "Email", "formControlName", "email", "type", "email"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "pwd"], ["matInput", "", "type", "password", "placeholder", "Passwort wiederholen", "formControlName", "pwd_confirmation"], [3, "verify", "error", "expired", "init"], ["mat-flat-button", "", "color", "primary", 3, "click", "disabled"], [1, "container"], ["mat-stroked-button", "", "type", "button", "routerLink", "/login"]], template: function RegisterComponent_Template(rf, ctx) {
+_RegisterComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RegisterComponent, selectors: [["app-register"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 35, vars: 12, consts: [[1, "container"], [3, "formGroup"], ["appearance", "outline"], ["matInput", "", "placeholder", "Name", "formControlName", "name"], [4, "ngIf"], ["matInput", "", "placeholder", "Email", "formControlName", "email", "type", "email"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "pwd"], ["matInput", "", "type", "password", "placeholder", "Passwort wiederholen", "formControlName", "pwd_confirmation"], [3, "verify", "error", "expired", "init"], ["mat-flat-button", "", "color", "primary", 3, "click", "disabled"], ["mat-stroked-button", "", "type", "button", "routerLink", "/login"]], template: function RegisterComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div")(1, "form", 0)(2, "mat-form-field", 1)(3, "mat-label");
+    \u0275\u0275elementStart(0, "div", 0)(1, "form", 1)(2, "mat-form-field", 2)(3, "mat-label");
     \u0275\u0275text(4, "Name");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(5, "input", 2);
-    \u0275\u0275template(6, RegisterComponent_mat_error_6_Template, 2, 0, "mat-error", 3);
+    \u0275\u0275element(5, "input", 3);
+    \u0275\u0275template(6, RegisterComponent_mat_error_6_Template, 2, 0, "mat-error", 4);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "mat-form-field", 1)(8, "mat-label");
+    \u0275\u0275elementStart(7, "mat-form-field", 2)(8, "mat-label");
     \u0275\u0275text(9, "Email");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(10, "input", 4);
-    \u0275\u0275template(11, RegisterComponent_mat_error_11_Template, 2, 0, "mat-error", 3)(12, RegisterComponent_mat_error_12_Template, 2, 0, "mat-error", 3)(13, RegisterComponent_mat_error_13_Template, 2, 0, "mat-error", 3);
+    \u0275\u0275element(10, "input", 5);
+    \u0275\u0275template(11, RegisterComponent_mat_error_11_Template, 2, 0, "mat-error", 4)(12, RegisterComponent_mat_error_12_Template, 2, 0, "mat-error", 4)(13, RegisterComponent_mat_error_13_Template, 2, 0, "mat-error", 4);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(14, "mat-form-field", 1)(15, "mat-label");
+    \u0275\u0275elementStart(14, "mat-form-field", 2)(15, "mat-label");
     \u0275\u0275text(16, "Passwort");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(17, "input", 5);
-    \u0275\u0275template(18, RegisterComponent_mat_error_18_Template, 2, 0, "mat-error", 3);
+    \u0275\u0275element(17, "input", 6);
+    \u0275\u0275template(18, RegisterComponent_mat_error_18_Template, 2, 0, "mat-error", 4);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(19, "mat-form-field", 1)(20, "mat-label");
+    \u0275\u0275elementStart(19, "mat-form-field", 2)(20, "mat-label");
     \u0275\u0275text(21, "Passwort wiederholen");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(22, "input", 6);
-    \u0275\u0275template(23, RegisterComponent_mat_error_23_Template, 2, 0, "mat-error", 3);
+    \u0275\u0275element(22, "input", 7);
+    \u0275\u0275template(23, RegisterComponent_mat_error_23_Template, 2, 0, "mat-error", 4);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(24, "app-hcaptcha", 7);
+    \u0275\u0275elementStart(24, "app-hcaptcha", 8);
     \u0275\u0275listener("verify", function RegisterComponent_Template_app_hcaptcha_verify_24_listener($event) {
       return ctx.captchaVerify($event);
     })("error", function RegisterComponent_Template_app_hcaptcha_error_24_listener() {
@@ -89930,14 +89944,14 @@ _RegisterComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ typ
       return ctx.captchaError();
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275template(25, RegisterComponent_mat_error_25_Template, 2, 0, "mat-error", 3)(26, RegisterComponent_mat_error_26_Template, 2, 0, "mat-error", 3)(27, RegisterComponent_mat_error_27_Template, 2, 0, "mat-error", 3);
-    \u0275\u0275elementStart(28, "button", 8);
+    \u0275\u0275template(25, RegisterComponent_mat_error_25_Template, 2, 0, "mat-error", 4)(26, RegisterComponent_mat_error_26_Template, 2, 0, "mat-error", 4)(27, RegisterComponent_mat_error_27_Template, 2, 0, "mat-error", 4);
+    \u0275\u0275elementStart(28, "button", 9);
     \u0275\u0275listener("click", function RegisterComponent_Template_button_click_28_listener() {
       return ctx.register();
     });
     \u0275\u0275text(29, "Register");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(30, "div", 9)(31, "button", 10)(32, "mat-icon");
+    \u0275\u0275elementStart(30, "div", 0)(31, "button", 10)(32, "mat-icon");
     \u0275\u0275text(33, "chevron_left");
     \u0275\u0275elementEnd();
     \u0275\u0275text(34, "Login");
@@ -89976,10 +89990,10 @@ _RegisterComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ typ
     \u0275\u0275advance();
     \u0275\u0275property("disabled", ctx.form.invalid || ctx.form.disabled);
   }
-}, dependencies: [CommonModule, NgIf, RouterModule, RouterLink, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, MatButtonModule, MatButton, MatFormFieldModule, MatFormField, MatLabel, MatError, MatIconModule, MatIcon, MatInputModule, MatInput, HCaptchaComponent], styles: ["\n\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin: 12px 0;\n}\ndiv[_ngcontent-%COMP%]   .container[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  justify-content: space-between;\n  margin: 0;\n}\n/*# sourceMappingURL=register.component.css.map */"] });
+}, dependencies: [CommonModule, NgIf, RouterModule, RouterLink, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, MatButtonModule, MatButton, MatFormFieldModule, MatFormField, MatLabel, MatError, MatIconModule, MatIcon, MatInputModule, MatInput, HCaptchaComponent], styles: ["\n\n.container[_ngcontent-%COMP%] {\n  overflow-y: auto;\n  height: 100%;\n}\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin: 12px 0;\n}\ndiv[_ngcontent-%COMP%]   .container[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  justify-content: space-between;\n  margin: 0;\n}\n/*# sourceMappingURL=register.component.css.map */"] });
 var RegisterComponent = _RegisterComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(RegisterComponent, { className: "RegisterComponent", filePath: "src/app/components/register/register.component.ts", lineNumber: 35 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(RegisterComponent, { className: "RegisterComponent", filePath: "src/app/components/register/register.component.ts", lineNumber: 36 });
 })();
 
 // src/app/components/cookie/cookie.component.ts
@@ -90544,7 +90558,7 @@ var _SettingsComponent = class _SettingsComponent {
     this.user = this.authService.me;
     this.theme = new FormControl("auto");
     this.defaultList = new FormControl("null");
-    this.theme.valueChanges.subscribe((theme) => {
+    this.themeSub = this.theme.valueChanges.subscribe((theme) => {
       if (this.user()) {
         this.user().patch({
           theme
@@ -90559,9 +90573,12 @@ var _SettingsComponent = class _SettingsComponent {
       pwd: ["", []],
       pwdConfirmation: ["", []]
     }, {
-      validators: [MatchValidator("pwd", "pwdConfirmation"), NoMatchValidator("oldPwd", "pwd")]
+      validators: [
+        MatchValidator("pwd", "pwdConfirmation"),
+        NoMatchValidator("oldPwd", "pwd")
+      ]
     });
-    Object.values(this.editForm.controls).forEach((control) => control.valueChanges.subscribe(() => this.editForm.setErrors(null)));
+    this.editFormSub = this.editForm.valueChanges.subscribe(() => this.editForm.setErrors(null));
     this.pusher.online.subscribe((isOnline) => {
       if (!isOnline) {
         this.editForm.get("email")?.disable();
@@ -90575,6 +90592,10 @@ var _SettingsComponent = class _SettingsComponent {
         this.editForm.get("pwdConfirmation")?.enable();
       }
     });
+  }
+  ngOnDestroy() {
+    this.themeSub.unsubscribe();
+    this.editFormSub.unsubscribe();
   }
   logout() {
     this.authService.logout();
@@ -90681,7 +90702,7 @@ _SettingsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ typ
 ], styles: ["\n\n.container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  height: 100%;\n}\n.container[_ngcontent-%COMP%]   button.user-fab-0[_ngcontent-%COMP%] {\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   button.edit-buttons[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 32px;\n  right: 0;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%] {\n  overflow: hidden auto;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   div[_ngcontent-%COMP%]:first-child {\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   #version[_ngcontent-%COMP%] {\n  color: grey;\n  font-size: 12px;\n  margin-top: 48px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   form[_ngcontent-%COMP%], \n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   mat-form-field[_ngcontent-%COMP%] {\n  width: 100%;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n/*# sourceMappingURL=settings.component.css.map */"] });
 var SettingsComponent = _SettingsComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsComponent, { className: "SettingsComponent", filePath: "src/app/components/settings/settings.component.ts", lineNumber: 32 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsComponent, { className: "SettingsComponent", filePath: "src/app/components/settings/settings.component.ts", lineNumber: 33 });
 })();
 
 // src/app/components/forgot-password/forgot-password.component.ts
@@ -90759,7 +90780,7 @@ _ForgotPasswordComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
 }, dependencies: [CommonModule, NgIf, RouterModule, RouterLink, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, MatButtonModule, MatButton, MatFormFieldModule, MatFormField, MatLabel, MatError, MatIconModule, MatIcon, MatInputModule, MatInput], styles: ["\n\ndiv[_ngcontent-%COMP%] {\n  margin: 96px;\n}\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin: 12px 0;\n}\ndiv[_ngcontent-%COMP%]   .container[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  justify-content: space-between;\n  margin: 0;\n}\n/*# sourceMappingURL=forgot-password.component.css.map */"] });
 var ForgotPasswordComponent = _ForgotPasswordComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ForgotPasswordComponent, { className: "ForgotPasswordComponent", filePath: "src/app/components/forgot-password/forgot-password.component.ts", lineNumber: 29 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ForgotPasswordComponent, { className: "ForgotPasswordComponent", filePath: "src/app/components/forgot-password/forgot-password.component.ts", lineNumber: 30 });
 })();
 
 // src/app/components/reset-password/reset-password.component.ts
@@ -90816,7 +90837,12 @@ var _ResetPasswordComponent = class _ResetPasswordComponent {
     }, {
       validators: MatchValidator("pwd", "pwd_confirmation")
     });
-    Object.values(this.form.controls).forEach((control) => control.valueChanges.subscribe(() => this.form.setErrors(null)));
+    this.formSub = this.form.valueChanges.subscribe(() => {
+      this.form.setErrors(null);
+    });
+  }
+  ngOnDestroy() {
+    this.formSub.unsubscribe();
   }
   resetPwd() {
     if (this.form.invalid) {
@@ -90886,7 +90912,7 @@ _ResetPasswordComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
 }, dependencies: [MaterialModule, MatButton, MatFormField, MatLabel, MatError, MatIcon, MatInput, CommonModule, NgIf, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, RouterModule, RouterLink], styles: ["\n\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin: 12px 0;\n}\ndiv[_ngcontent-%COMP%]   .container[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  justify-content: space-between;\n  margin: 0;\n}\n/*# sourceMappingURL=reset-password.component.css.map */"] });
 var ResetPasswordComponent = _ResetPasswordComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ResetPasswordComponent, { className: "ResetPasswordComponent", filePath: "src/app/components/reset-password/reset-password.component.ts", lineNumber: 22 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ResetPasswordComponent, { className: "ResetPasswordComponent", filePath: "src/app/components/reset-password/reset-password.component.ts", lineNumber: 23 });
 })();
 
 // node_modules/@angular/material/fesm2022/autocomplete.mjs
@@ -92235,6 +92261,7 @@ var _ShareListSheetComponent = class _ShareListSheetComponent {
     this.dataService = dataService;
     this.allUsers = signal([]);
     this.filteredUsers = signal([]);
+    this.subscriptions = [];
     this.lists = data.lists;
     this.isAdmin = data.isAdmin;
     this.users = data.users;
@@ -92247,14 +92274,25 @@ var _ShareListSheetComponent = class _ShareListSheetComponent {
           id: this.users().map((u3) => u3.id)
         }
       }).$;
-      this.allUsers$.subscribe((user) => {
+      this.allUsersSub?.unsubscribe();
+      this.allUsersSub = this.allUsers$.subscribe((user) => {
         this.allUsers.set(user);
         this.filteredUsers.set(user.filter((u3) => u3.email.includes(this.form.get("email")?.value)));
       });
     });
-    this.form.get("email")?.valueChanges.subscribe((val) => {
+    const sub = this.form.get("email")?.valueChanges.subscribe((val) => {
       this.filteredUsers.set(this.allUsers().filter((u3) => u3.email.includes(val)));
     });
+    if (sub) {
+      this.subscriptions.push(sub);
+    }
+  }
+  ngOnDestroy() {
+    this.unsubscribe();
+  }
+  unsubscribe() {
+    this.subscriptions.forEach((s) => s.unsubscribe());
+    this.allUsersSub?.unsubscribe();
   }
   returnFormContent() {
     let resp;
@@ -95134,9 +95172,13 @@ var _ListItemComponent = class _ListItemComponent {
     effect(() => {
       if (this.item && this.list()) {
         this.createdBy$ = this.users.get(this.item.createdBy);
-        this.createdBy$.subscribe((u3) => this.createdBy.set(u3));
+        this.createdBySub?.unsubscribe();
+        this.createdBySub = this.createdBy$.subscribe((u3) => this.createdBy.set(u3));
       }
     });
+  }
+  ngOnDestroy() {
+    this.createdBySub?.unsubscribe();
   }
   toggleDone() {
     if (this.item) {
@@ -95859,16 +95901,16 @@ function laravelInterceptor(req, next) {
 // src/app/interceptors/no-connection.ts
 function noConnectionInterceptor(req, next) {
   const pusher = inject(PusherService);
-  return next(req).pipe(map((event) => {
+  return next(req).pipe(timeout(3e4), tap((event) => {
     if (event.type === HttpEventType.ResponseHeader && event.status === 0) {
-      throw new Error("timeout");
+      pusher.online.next(false);
     } else if (!pusher.online.value) {
       pusher.online.next(true);
     }
     return event;
-  }), timeout(3e4), catchError((err) => {
+  }), catchError((err) => {
     pusher.online.next(false);
-    return of();
+    throw err;
   }));
 }
 

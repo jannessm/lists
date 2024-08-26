@@ -1,4 +1,4 @@
-import { Component, NgZone, Signal, effect } from '@angular/core';
+import { Component, NgZone, Signal } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.component';
 

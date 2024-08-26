@@ -1,12 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { DataApiService } from '../data-api/data-api.service';
 import { Subject, firstValueFrom, lastValueFrom } from 'rxjs';
 import { DATA_TYPE, graphQLGenerationInput } from '../../mydb/types/graphql-types';
 import { MutationResponse, PullResult, PushResult, QueryResponse, SubscriptionResponse } from '../../../models/responses';
 import { PusherService } from '../pusher/pusher.service';
-import { MyMeCollection } from '../../mydb/types/me';
-import { MyListsCollection } from '../../mydb/types/lists';
-import { MyItemCollection } from '../../mydb/types/list-item';
 import { MyPushRow } from '../../mydb/types/common';
 import { pullQueryBuilderFromSchema, pullStreamBuilderFromSchema, pushQueryBuilderFromSchema } from '../../mydb/graphql-helpers';
 import { replicateCollection } from '../../mydb/replication';
@@ -19,7 +16,7 @@ type GenerationInputKey = keyof typeof graphQLGenerationInput;
 @Injectable({
   providedIn: 'root'
 })
-export class ReplicationService {
+export class ReplicationService implements OnDestroy {
 
   replications: {[key: string]: any} = {};
   streamSubjects: {[key: string]: Subject<any>} = {};
@@ -37,6 +34,10 @@ export class ReplicationService {
       }
       this.lastPusherState = isOnline;
     })
+  }
+
+  ngOnDestroy(): void {
+    Object.values(this.streamSubjects).forEach(subj => subj.complete());
   }
 
   async setupReplication(

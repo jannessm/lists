@@ -22,6 +22,7 @@ export type MyDatabaseBase<reactivity> = {
     private reactivity: MyReactivityFactory<reactivity>;
     private db: Dexie;
     private schema?: AddCollectionsOptions;
+    destroy: () => void;
 };
 
 export interface CreateDatabaseOptions {

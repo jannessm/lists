@@ -22,7 +22,6 @@ export class AuthApiService {
     }, {observe: 'response'}).pipe(
       catchError(() => of(false)),
       map(res => {
-
         // success
         if (res instanceof HttpResponse && res.status === 200) {
           return true;

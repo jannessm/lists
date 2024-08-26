@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Signal, ViewChild, WritableSignal, computed, effect, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, Signal, ViewChild, WritableSignal, computed, effect, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.component';
@@ -38,7 +38,7 @@ import { UsersService } from '../../services/users/users.service';
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss']
 })
-export class ListComponent implements AfterViewInit {
+export class ListComponent implements AfterViewInit, OnDestroy {
   @ViewChild('picker') picker!: ElementRef;
   @ViewChild('addInput') addInput!: ElementRef;
   

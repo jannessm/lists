@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, ViewChild } from '@angular/core';
+import { Component, Inject, OnDestroy, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { MaterialModule } from '../../../material.module';
@@ -22,7 +22,7 @@ import { MyItemDocument } from '../../../mydb/types/list-item';
   templateUrl: './update-item-sheet.component.html',
   styleUrls: ['./update-item-sheet.component.scss', '../styles.scss']
 })
-export class UpdateItemSheetComponent {
+export class UpdateItemSheetComponent implements OnDestroy {
   form: FormGroup;
   list: MyListsDocument;
   timezone: string;
@@ -64,6 +64,7 @@ export class UpdateItemSheetComponent {
         this.form.get('due')?.disable();
       }
     });
+    
     if (formSub) {
       this.subscriptions.push(formSub);
     }
