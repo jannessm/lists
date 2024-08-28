@@ -37,7 +37,8 @@ export class UsersService {
     return users.pipe(
       map(([q, me]) => {
         if (!!q && !!me) {
-          return [...q, me].filter(doc => !!ids.find(i => i === doc.id)).sort(byIds(ids));
+          return [...q, me].filter(doc => 
+            !!doc && !!ids.find(i => i === doc.id)).sort(byIds(ids));
         } else if (!!q) {
           return q.filter(doc => !!ids.find(i => i === doc.id)).sort(byIds(ids));
         } else if (!!me) {

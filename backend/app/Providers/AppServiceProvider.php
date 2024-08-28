@@ -7,6 +7,9 @@ use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Notifications\Messages\MailMessage;
 
+use NotificationChannels\WebPush\ReportHandlerInterface;
+use NotificationChannels\WebPush\ReportHandler;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -40,5 +43,9 @@ class AppServiceProvider extends ServiceProvider
                 ->line('Der Link ist 60 Minuten gültig. Sollte keine Anfrage gestellt worden sein, ist keine weitere Aktion nötig.')
                 ->salutation("Mit freundlichen Grüßen");
         });
+
+        $this->app->when(MyWebPushChannel::class)
+            ->needs(ReportHandlerInterface::class)
+            ->give(ReportHandler::class);
     }
 }

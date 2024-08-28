@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Notification;
 
 use Nuwave\Lighthouse\Execution\Utils\Subscription;
 
+use App\Notifications\ListsChanged;
+
 class ListItem extends Model
 {
     use HasFactory, HasUlids;
@@ -114,14 +116,16 @@ class ListItem extends Model
             Subscription::broadcast('streamItems', $updatedItems);
 
             foreach($updatedItems as $updatedItem) {
-                foreach($args['rows'] as $item) {
-                    if ($updatedItem->id === $item['newDocumentState']['id']) {
+                foreach($args['rows'] as $row) {
+                    if ($updatedItem->id === $row['newDocumentState']['id']) {
                         $otherUsers = $updatedItem->lists
                             ->users()
                             ->whereNotIn('id', [$user->id]);
-                        $notification = ListsChanged::fromPushRow($item);
                         
-                        Notification::send($otherUsers, $notification);
+                        $notification = ListsChanged::fromPushRow($row, $updatedItem);
+                        
+                        // Notification::send($otherUsers, $notification);
+                        Notification::sendNow($updatedItem->lists->users(), $notification);
                         break;
                     }
                 }

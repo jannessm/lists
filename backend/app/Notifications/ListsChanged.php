@@ -8,11 +8,11 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 use NotificationChannels\WebPush\WebPushMessage;
-use NotificationChannels\WebPush\WebPushChannel;
 
+use App\Providers\MyWebPushChannel;
 use App\Models\ListItem;
 
-enum ListsChangeEvent {
+enum ListChangeEvent {
     case Added;
     case Done;
     case Changed;
@@ -41,16 +41,20 @@ class ListsChanged extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return [WebPushChannel::class];
+        return [MyWebPushChannel::class];
     }
 
     /**
      * Determine if the notification should be sent.
      */
-    public function shouldSend(object $notifiable, string $channel): bool
+    public function shouldSendPush(object $notifiable, string $endpoint): bool
     {
-        // return $this->invoice->isPaid();
-        return true;
+        $settings = $notifiable->getPushSettings($endpoint);
+        if (!$settings) {
+            return false;
+        }
+
+        return $settings->receive_push && $settings->receive_lists_changed;
     }
 
     public function toWebPush($notifiable, $notification) {
@@ -84,9 +88,9 @@ class ListsChanged extends Notification implements ShouldQueue
 
     function eventToText() {
         switch ($this->type) {
-            case ListsChangeEvent::Added:
+            case ListChangeEvent::Added:
                 return 'hinzugefügt';
-            case ListsChangeEvent::Done:
+            case ListChangeEvent::Done:
                 return 'erledigt';
             
             default:
@@ -94,16 +98,16 @@ class ListsChanged extends Notification implements ShouldQueue
         }
     }
 
-    static function fromPushRow($pushRow, ListsItem $item) {
+    static function fromPushRow($pushRow, ListItem $item) {
         $newState = $pushRow['newDocumentState'];
         $master = $pushRow['assumedMasterState'];
 
         if (!$master) {
-            return new ListsChanged($item, ListsChangeEvent::Added);
+            return new ListsChanged($item, ListChangeEvent::Added);
         } else if ($newState['done'] !== $master['done'] && $item->done) {
-            return new ListsChanged($item, ListsChangeEvent::Done);
+            return new ListsChanged($item, ListChangeEvent::Done);
         }
 
-        return new ListsChanged($item, ListsChangeEvent::Changed);
+        return new ListsChanged($item, ListChangeEvent::Changed);
     }
 }
