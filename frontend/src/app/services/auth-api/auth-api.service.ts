@@ -172,6 +172,17 @@ export class AuthApiService {
     )
   }
 
+  pushSubscribe(endpoint: string, key: string, token: string): Observable<boolean> {
+    return this.http.post(BASE_API + 'push/subscribe', {
+      endpoint,
+      key,
+      token
+    }, {observe: 'response'}).pipe(
+      catchError(() => of(false)),
+      map(this.okMapper)
+    )
+  }
+
   okMapper(res: HttpResponse<any> | boolean) {
     if (res instanceof HttpResponse) {
       return res.status === 200;

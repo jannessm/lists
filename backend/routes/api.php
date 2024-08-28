@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 use Nuwave\Lighthouse\Execution\Utils\Subscription;
 
+use App\Http\Controllers\PushController;
 use App\Http\Controllers\ShareListsController;
 
 
@@ -33,6 +34,12 @@ Route::middleware("web")->get('auth', function(Request $request) {
     }
     return ["loggedIn" => $user->id];
 });
+
+
+
+/**
+ * email routes
+ */
 
 Route::middleware(["web"])->get('email/verified', function(Request $request) {
     $user = $request->user();
@@ -63,6 +70,13 @@ Route::middleware(["web"])->post('user/change-email', function(Request $request)
     return ['status' => 'ok'];
 });
 
+
+
+
+/**
+ * share lists routes
+ */
+
 Route::get('share-lists/confirm/{id}/{hash}', [ShareListsController::class, 'confirm'])
             ->middleware(['web', 'signed', 'throttle:'.$verificationLimiter])
             ->name('share-lists.confirm');
@@ -74,6 +88,22 @@ Route::post('unshare-lists/{id}', [ShareListsController::class, 'unshare'])
 Route::post('email/share-lists-notification/{id}', [ShareListsController::class, 'store'])
     ->middleware(["web", 'throttle:'.$verificationLimiter])
     ->name('share-lists.send');
+
+
+
+/**
+ * push notifications
+ */
+Route::post('push/subscribe', [PushController::class, 'subscribe'])
+    ->middleware(['web', 'throttle:'.$verificationLimiter])
+    ->name('push.subscribe');
+
+Route::post('push/unsubscribe', [PushController::class, 'unsubscribe'])
+->middleware(['web', 'throttle:'.$verificationLimiter])
+->name('push.unsubscribe');
+
+
+
 
 Route::get('grocery-categories', function(Request $request) {
     $handle = fopen(resource_path() . '/grocery_categories.tsv', 'rb');

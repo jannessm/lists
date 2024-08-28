@@ -1,6 +1,6 @@
 <div class="container" *ngIf="user()">
     <button mat-icon-button
-        *ngIf="!editMode"
+        *ngIf="!editMode()"
         class="edit-buttons"
         (click)="enterEditMode()">
             <mat-icon>edit</mat-icon>
@@ -10,98 +10,36 @@
         disabled
         mat-fab
         class="user-fab-0"
-        *ngIf="!editMode && user() && !!user().name">
+        *ngIf="!editMode() && user() && !!user().name">
             {{user().name | nameBadge}}
     </button>
     <button
         disabled
         mat-fab
         class="user-fab-0"
-        *ngIf="editMode">
-            {{editForm.get('name')?.value | nameBadge}}
+        *ngIf="editMode()">
+            {{userName() | nameBadge}}
     </button>
 
     <div class="inner-container">
 
-        <div *ngIf="user() && !editMode">{{user().name}}</div>
-        <div *ngIf="user() && !editMode">{{user().email}}</div>
+        <div *ngIf="user() && !editMode()">{{user().name}}</div>
+        <div *ngIf="user() && !editMode()">{{user().email}}</div>
     
-        <form [formGroup]="editForm" *ngIf="editMode">
-            <mat-form-field appearance="outline">
-                <mat-label>Name</mat-label>
-                <input matInput formControlName="name">
-                <mat-error *ngIf="editForm.get('name')?.hasError('required')">
-                    Name muss angegeben werden!
-                </mat-error>
-            </mat-form-field>
-            
-            <mat-form-field appearance="outline">
-                <mat-label>Email</mat-label>
-                <input matInput formControlName="email">
-                <mat-hint *ngIf="!(pusher.online | async)">Im Offlinemodus nicht änderbar.</mat-hint>
-                <mat-error *ngIf="editForm.get('email')?.hasError('required')">
-                    Email muss angegeben werden!
-                </mat-error>
-                <mat-error *ngIf="editForm.get('email')?.hasError('email')">
-                    Bitte eine gültige Email Adresse angeben!
-                </mat-error>
-            </mat-form-field>
-            <br>
-            <br>
-            <br>
-            <br>
-            <br>
-            <mat-form-field appearance="outline">
-                <mat-label>Altes Passwort</mat-label>
-                <input matInput type="password" placeholder="Passwort" formControlName="oldPwd">
-                <mat-error *ngIf="editForm.get('oldPwd')?.hasError('required')">
-                    Passwort muss angegeben werden!
-                </mat-error>
-                <mat-hint>Nach einer Änderung des Passworts musst du dich erneut einloggen.</mat-hint>
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-                <mat-label>Neues Passwort</mat-label>
-                <input matInput type="password" placeholder="Passwort" formControlName="pwd">
-                <mat-error *ngIf="editForm.get('pwd')?.hasError('required')">
-                    Ein neues Passwort muss angegeben werden!
-                </mat-error>
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-                <mat-label>Passwort wiederholen</mat-label>
-                <input matInput type="password" placeholder="Passwort wiederholen" formControlName="pwdConfirmation">
-                <mat-error *ngIf="editForm.get('pwdConfirmation')?.hasError('required')">
-                    Das neue Passwort muss wiederholt werden!
-                </mat-error>
-                <mat-error *ngIf="editForm.hasError('notMatching')">
-                    Neue Passwörter stimmen nicht überein!
-                </mat-error>
-                <mat-error *ngIf="editForm.hasError('matching')">
-                    Das neue Passwort muss sich vom alten Passwort unterscheiden!
-                </mat-error>
-            </mat-form-field>
-        </form>
-    
-        <button mat-stroked-button color="primary" (click)="cancelChanges()" *ngIf="editMode">Abbrechen</button>
-        <button mat-stroked-button (click)="saveChanges()" *ngIf="editMode" [disabled]="!editForm.valid">Speichern</button>
+        <app-settings-edit-form
+            [editMode]="editMode"
+            [disabled]="editFormDisabled"
+            (name)="userName.set($event)"
+            class="forms"
+        ></app-settings-edit-form>
     
         <hr>
     
-        <mat-form-field appearance="outline">
-            <mat-label>Theme</mat-label>
-            <mat-select [formControl]="theme">
-                <mat-option value="auto">auto</mat-option>
-                <mat-option value="light">hell</mat-option>
-                <mat-option value="dark">dunkel</mat-option>
-            </mat-select>
-        </mat-form-field>
+        <app-settings-theme-form class="forms"></app-settings-theme-form>
 
-        <!-- <mat-form-field appearance="outline">
-            <mat-label>Startliste</mat-label>
-            <mat-select [formControl]="defaultList">
-                <mat-option value="null">keine</mat-option>
-                <mat-option [value]="l.id" *ngFor="let l in lists">{{l.name}}</mat-option>
-            </mat-select>
-        </mat-form-field> -->
+        <hr>
+
+        <app-settings-push-form class="forms"></app-settings-push-form>
         
         <button mat-stroked-button (click)="logout()">Logout</button>
         <div id="version">v{{version}}</div>

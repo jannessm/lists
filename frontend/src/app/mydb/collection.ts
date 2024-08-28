@@ -86,7 +86,9 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
                 filter: (doc: any) => true,
                 query: async () => {
                     const doc = await this.table.toCollection().first();
-                    return new MyDocument<DocType, DocMethods>(this, doc);
+                    if (doc)
+                        return new MyDocument<DocType, DocMethods>(this, doc);
+                    return undefined;
                 }
             }
         }

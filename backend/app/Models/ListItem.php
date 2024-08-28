@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
+
 use Nuwave\Lighthouse\Execution\Utils\Subscription;
 
 class ListItem extends Model
@@ -86,7 +88,6 @@ class ListItem extends Model
                     }
 
                     if ($conflict) {
-                        // var_dump($param, $masterItem[$param], $val);
                         array_push($conflicts, $masterItem);
                         break;
                     }
@@ -111,6 +112,20 @@ class ListItem extends Model
             $ids = array_column($upserts, 'id');
             $updatedItems = ListItem::whereIn('id', $ids)->orderBy('updated_at')->get()->all();
             Subscription::broadcast('streamItems', $updatedItems);
+
+            foreach($updatedItems as $updatedItem) {
+                foreach($args['rows'] as $item) {
+                    if ($updatedItem->id === $item['newDocumentState']['id']) {
+                        $otherUsers = $updatedItem->lists
+                            ->users()
+                            ->whereNotIn('id', [$user->id]);
+                        $notification = ListsChanged::fromPushRow($item);
+                        
+                        Notification::send($otherUsers, $notification);
+                        break;
+                    }
+                }
+            }
         }
 
         return $conflicts;

@@ -13,14 +13,22 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\HasApiTokens;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 
 use Illuminate\Support\Facades\DB;
 use Nuwave\Lighthouse\Execution\Utils\Subscription;
 
 use App\CanShareLists;
+use App\HasPushSettings;
 
 class User extends Authenticatable implements MustVerifyEmail, CanResetPassword {
-    use HasApiTokens, HasFactory, Notifiable, HasUlids, CanShareLists;
+    use HasApiTokens,
+        HasFactory,
+        Notifiable,
+        HasUlids,
+        CanShareLists,
+        HasPushSubscriptions,
+        HasPushSettings;
 
     /**
      * The attributes that are mass assignable.

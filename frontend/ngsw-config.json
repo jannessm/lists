@@ -11,7 +11,8 @@
           "/index.html",
           "/manifest.webmanifest",
           "/*.css",
-          "/*.js"
+          "/*.js",
+          "/*.json"
         ]
       }
     },
@@ -23,6 +24,26 @@
         "files": [
           "/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
         ]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "api calls",
+      "urls": ["api/grocery-categories"],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 1000,
+        "maxAge": "1d"
+      }
+    },
+    {
+      "name": "api calls",
+      "urls": ["api/**"],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 1000,
+        "maxAge": "10m"
       }
     }
   ]

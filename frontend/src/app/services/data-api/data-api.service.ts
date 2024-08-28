@@ -11,19 +11,7 @@ import { MyGraphQLQuery } from '../../mydb/types/graphql-types';
 })
 export class DataApiService {
 
-  constructor(private http: HttpClient, private cookies: CookieService) { }
-
-  headers() {
-    const xsrf = this.cookies.get('XSRF-TOKEN');
-
-    if (!xsrf) {
-      return {}
-    }
-
-    return {
-      'X-XSRF-TOKEN': xsrf
-    }
-  }
+  constructor(private http: HttpClient) { }
 
   mutation<T>(
     query: string | MyGraphQLQuery,

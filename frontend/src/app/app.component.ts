@@ -19,6 +19,7 @@ import 'zone.js/plugins/zone-patch-rxjs';
 import { SwUpdate } from '@angular/service-worker';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ConfirmSheetComponent } from './components/bottom-sheets/confirm-sheet/confirm-sheet.component';
+import { WebPushService } from './services/web-push/web-push.service';
 
 @Component({
   selector: 'app-root',
@@ -49,7 +50,8 @@ export class AppComponent {
     private themeService: ThemeService,
     private cookieService: CookieService,
     private swUpdate: SwUpdate,
-    private bottomSheet: MatBottomSheet
+    private bottomSheet: MatBottomSheet,
+    private webPush: WebPushService
   ) {
     effect(() => {
       this.setTheme(this.themeService.isDark());

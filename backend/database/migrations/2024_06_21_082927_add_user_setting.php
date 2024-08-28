@@ -25,7 +25,13 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['theme', 'default_list']);
+            $table->dropColumn([
+                'theme',
+                'default_list',
+                'receive_web_push',
+                'receive_web_push_lists_changed',
+                'receive_web_push_reminder',
+            ]);
         });
     }
 };

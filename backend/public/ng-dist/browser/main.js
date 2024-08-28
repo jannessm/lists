@@ -32082,9 +32082,6 @@ function runPlatformInitializers(injector) {
   const inits = injector.get(PLATFORM_INITIALIZER, null);
   inits?.forEach((init) => init());
 }
-function isDevMode() {
-  return typeof ngDevMode === "undefined" || !!ngDevMode;
-}
 function enableProdMode() {
   if (typeof ngDevMode === "undefined" || ngDevMode) {
     _global["ngDevMode"] = false;
@@ -67530,7 +67527,7 @@ var environment = {
   hcaptcha: "10000000-ffff-ffff-ffff-000000000001",
   locale: "de",
   version,
-  vapid: "BEQ7Z6AYftjPVg8a554wmJUFeCeR5UAs4eBqWQOUFbbwlbK6qjlbo3TR7GwgpfhJ4TAT2-sGZZQMwkVXRQEdxOI"
+  vapid: "BP_6-nx9gAkQu0FbpjUH3EjQNePCH5hJhD9gepQRrHArsHshyUuxzM_PvxOQuGKfBllwzIEHfrH32e_5xDLgFEw"
 };
 
 // src/app/components/hcaptcha/hcaptcha.component.ts
@@ -82237,6 +82234,13 @@ var _AuthApiService = class _AuthApiService {
       user
     }, { observe: "response" }).pipe(catchError(() => of(false)), map(this.okMapper));
   }
+  pushSubscribe(endpoint, key, token) {
+    return this.http.post(BASE_API + "push/subscribe", {
+      endpoint,
+      key,
+      token
+    }, { observe: "response" }).pipe(catchError(() => of(false)), map(this.okMapper));
+  }
   okMapper(res) {
     if (res instanceof HttpResponse) {
       return res.status === 200;
@@ -82944,7 +82948,9 @@ var MyCollection = class {
         filter: (doc) => true,
         query: () => __async(this, null, function* () {
           const doc = yield this.table.toCollection().first();
-          return new MyDocument(this, doc);
+          if (doc)
+            return new MyDocument(this, doc);
+          return void 0;
         })
       };
     }
@@ -83473,18 +83479,8 @@ function fixQuery(query2) {
 
 // src/app/services/data-api/data-api.service.ts
 var _DataApiService = class _DataApiService {
-  constructor(http, cookies) {
+  constructor(http) {
     this.http = http;
-    this.cookies = cookies;
-  }
-  headers() {
-    const xsrf = this.cookies.get("XSRF-TOKEN");
-    if (!xsrf) {
-      return {};
-    }
-    return {
-      "X-XSRF-TOKEN": xsrf
-    };
   }
   mutation(query2, variables = {}) {
     if (typeof query2 != "string") {
@@ -83518,7 +83514,7 @@ var _DataApiService = class _DataApiService {
   }
 };
 _DataApiService.\u0275fac = function DataApiService_Factory(\u0275t) {
-  return new (\u0275t || _DataApiService)(\u0275\u0275inject(HttpClient), \u0275\u0275inject(CookieService));
+  return new (\u0275t || _DataApiService)(\u0275\u0275inject(HttpClient));
 };
 _DataApiService.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _DataApiService, factory: _DataApiService.\u0275fac, providedIn: "root" });
 var DataApiService = _DataApiService;
@@ -83800,6 +83796,13 @@ var _AuthService = class _AuthService {
   }
   unshareLists(userId, listsId) {
     return this.api.unshareLists(userId, listsId);
+  }
+  pushSubscribe(sub) {
+    const json = sub.toJSON();
+    if (json.endpoint && json.keys) {
+      return this.api.pushSubscribe(json.endpoint, json.keys["p256dh"], json.keys["auth"]);
+    }
+    return of(false);
   }
 };
 _AuthService.\u0275fac = function AuthService_Factory(\u0275t) {
@@ -84426,6 +84429,321 @@ _NameBadgePipe.\u0275fac = function NameBadgePipe_Factory(\u0275t) {
 _NameBadgePipe.\u0275pipe = /* @__PURE__ */ \u0275\u0275definePipe({ name: "nameBadge", type: _NameBadgePipe, pure: true, standalone: true });
 var NameBadgePipe = _NameBadgePipe;
 
+// src/app/components/settings/edit-form/edit-form.component.ts
+function EditFormComponent_form_1_mat_error_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-error");
+    \u0275\u0275text(1, " Name muss angegeben werden! ");
+    \u0275\u0275elementEnd();
+  }
+}
+function EditFormComponent_form_1_mat_hint_10_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-hint");
+    \u0275\u0275text(1, "Im Offlinemodus nicht \xE4nderbar.");
+    \u0275\u0275elementEnd();
+  }
+}
+function EditFormComponent_form_1_mat_error_11_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-error");
+    \u0275\u0275text(1, " Email muss angegeben werden! ");
+    \u0275\u0275elementEnd();
+  }
+}
+function EditFormComponent_form_1_mat_error_12_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-error");
+    \u0275\u0275text(1, " Bitte eine g\xFCltige Email Adresse angeben! ");
+    \u0275\u0275elementEnd();
+  }
+}
+function EditFormComponent_form_1_mat_hint_22_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-hint");
+    \u0275\u0275text(1, "Im Offlinemodus nicht \xE4nderbar.");
+    \u0275\u0275elementEnd();
+  }
+}
+function EditFormComponent_form_1_mat_error_23_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-error");
+    \u0275\u0275text(1, " Passwort muss angegeben werden! ");
+    \u0275\u0275elementEnd();
+  }
+}
+function EditFormComponent_form_1_mat_hint_30_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-hint");
+    \u0275\u0275text(1, "Im Offlinemodus nicht \xE4nderbar.");
+    \u0275\u0275elementEnd();
+  }
+}
+function EditFormComponent_form_1_mat_error_31_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-error");
+    \u0275\u0275text(1, " Ein neues Passwort muss angegeben werden! ");
+    \u0275\u0275elementEnd();
+  }
+}
+function EditFormComponent_form_1_mat_hint_36_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-hint");
+    \u0275\u0275text(1, "Im Offlinemodus nicht \xE4nderbar.");
+    \u0275\u0275elementEnd();
+  }
+}
+function EditFormComponent_form_1_mat_error_37_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-error");
+    \u0275\u0275text(1, " Das neue Passwort muss wiederholt werden! ");
+    \u0275\u0275elementEnd();
+  }
+}
+function EditFormComponent_form_1_mat_error_38_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-error");
+    \u0275\u0275text(1, " Neue Passw\xF6rter stimmen nicht \xFCberein! ");
+    \u0275\u0275elementEnd();
+  }
+}
+function EditFormComponent_form_1_mat_error_39_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-error");
+    \u0275\u0275text(1, " Das neue Passwort muss sich vom alten Passwort unterscheiden! ");
+    \u0275\u0275elementEnd();
+  }
+}
+function EditFormComponent_form_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "form", 3)(1, "mat-form-field", 4)(2, "mat-label");
+    \u0275\u0275text(3, "Name");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(4, "input", 5);
+    \u0275\u0275template(5, EditFormComponent_form_1_mat_error_5_Template, 2, 0, "mat-error", 6);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "mat-form-field", 4)(7, "mat-label");
+    \u0275\u0275text(8, "Email");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(9, "input", 7);
+    \u0275\u0275template(10, EditFormComponent_form_1_mat_hint_10_Template, 2, 0, "mat-hint", 6)(11, EditFormComponent_form_1_mat_error_11_Template, 2, 0, "mat-error", 6)(12, EditFormComponent_form_1_mat_error_12_Template, 2, 0, "mat-error", 6);
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(13, "br")(14, "br")(15, "br")(16, "br")(17, "br");
+    \u0275\u0275elementStart(18, "mat-form-field", 4)(19, "mat-label");
+    \u0275\u0275text(20, "Altes Passwort");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(21, "input", 8);
+    \u0275\u0275template(22, EditFormComponent_form_1_mat_hint_22_Template, 2, 0, "mat-hint", 6)(23, EditFormComponent_form_1_mat_error_23_Template, 2, 0, "mat-error", 6);
+    \u0275\u0275elementStart(24, "mat-hint");
+    \u0275\u0275text(25, "Nach einer \xC4nderung des Passworts musst du dich erneut einloggen.");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(26, "mat-form-field", 4)(27, "mat-label");
+    \u0275\u0275text(28, "Neues Passwort");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(29, "input", 9);
+    \u0275\u0275template(30, EditFormComponent_form_1_mat_hint_30_Template, 2, 0, "mat-hint", 6)(31, EditFormComponent_form_1_mat_error_31_Template, 2, 0, "mat-error", 6);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(32, "mat-form-field", 4)(33, "mat-label");
+    \u0275\u0275text(34, "Passwort wiederholen");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(35, "input", 10);
+    \u0275\u0275template(36, EditFormComponent_form_1_mat_hint_36_Template, 2, 0, "mat-hint", 6)(37, EditFormComponent_form_1_mat_error_37_Template, 2, 0, "mat-error", 6)(38, EditFormComponent_form_1_mat_error_38_Template, 2, 0, "mat-error", 6)(39, EditFormComponent_form_1_mat_error_39_Template, 2, 0, "mat-error", 6);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    let tmp_2_0;
+    let tmp_4_0;
+    let tmp_5_0;
+    let tmp_7_0;
+    let tmp_9_0;
+    let tmp_11_0;
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275property("formGroup", ctx_r0.editForm);
+    \u0275\u0275advance(5);
+    \u0275\u0275property("ngIf", (tmp_2_0 = ctx_r0.editForm.get("name")) == null ? null : tmp_2_0.hasError("required"));
+    \u0275\u0275advance(5);
+    \u0275\u0275property("ngIf", ctx_r0.disabled());
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", (tmp_4_0 = ctx_r0.editForm.get("email")) == null ? null : tmp_4_0.hasError("required"));
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", (tmp_5_0 = ctx_r0.editForm.get("email")) == null ? null : tmp_5_0.hasError("email"));
+    \u0275\u0275advance(10);
+    \u0275\u0275property("ngIf", ctx_r0.disabled());
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", (tmp_7_0 = ctx_r0.editForm.get("oldPwd")) == null ? null : tmp_7_0.hasError("required"));
+    \u0275\u0275advance(7);
+    \u0275\u0275property("ngIf", ctx_r0.disabled());
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", (tmp_9_0 = ctx_r0.editForm.get("pwd")) == null ? null : tmp_9_0.hasError("required"));
+    \u0275\u0275advance(5);
+    \u0275\u0275property("ngIf", ctx_r0.disabled());
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", (tmp_11_0 = ctx_r0.editForm.get("pwdConfirmation")) == null ? null : tmp_11_0.hasError("required"));
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r0.editForm.hasError("notMatching"));
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r0.editForm.hasError("matching"));
+  }
+}
+function EditFormComponent_button_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 11);
+    \u0275\u0275listener("click", function EditFormComponent_button_2_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r0.cancelChanges());
+    });
+    \u0275\u0275text(1, "Abbrechen");
+    \u0275\u0275elementEnd();
+  }
+}
+function EditFormComponent_button_3_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 12);
+    \u0275\u0275listener("click", function EditFormComponent_button_3_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r0 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r0.saveChanges());
+    });
+    \u0275\u0275text(1, "Speichern");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275property("disabled", !ctx_r0.editForm.valid);
+  }
+}
+var _EditFormComponent = class _EditFormComponent {
+  constructor(fb, authService, snackBar) {
+    this.fb = fb;
+    this.authService = authService;
+    this.snackBar = snackBar;
+    this.editMode = signal(false);
+    this.disabled = signal(false);
+    this.name = new EventEmitter();
+    this.user = this.authService.me;
+    this.editForm = fb.group({
+      name: ["", Validators.required],
+      email: ["", [Validators.required, Validators.email]],
+      oldPwd: ["", []],
+      pwd: ["", []],
+      pwdConfirmation: ["", []]
+    }, {
+      validators: [
+        MatchValidator("pwd", "pwdConfirmation"),
+        NoMatchValidator("oldPwd", "pwd")
+      ]
+    });
+    this.editFormSub = this.editForm.valueChanges.subscribe(() => {
+      this.editForm.setErrors(null);
+      this.name.emit(this.editForm.get("name")?.value || "");
+    });
+    effect(() => {
+      if (this.editMode() && this.user()) {
+        this.editForm.get("name")?.setValue(this.user().name);
+        this.editForm.get("email")?.setValue(this.user().email);
+      } else {
+        this.editForm.reset();
+      }
+      if (this.disabled()) {
+        this.editForm.get("email")?.disable();
+        this.editForm.get("oldPwd")?.disable();
+        this.editForm.get("pwd")?.disable();
+        this.editForm.get("pwdConfirmation")?.disable();
+      } else {
+        this.editForm.get("email")?.enable();
+        this.editForm.get("oldPwd")?.enable();
+        this.editForm.get("pwd")?.enable();
+        this.editForm.get("pwdConfirmation")?.enable();
+      }
+    });
+  }
+  ngOnDestroy() {
+    this.editFormSub.unsubscribe();
+  }
+  saveChanges() {
+    if (this.editForm.invalid) {
+      return;
+    }
+    const name = this.editForm.get("name")?.value;
+    const email = this.editForm.get("email")?.value;
+    const oldPwd = md5(this.editForm.get("oldPwd")?.value);
+    const pwd = md5(this.editForm.get("pwd")?.value);
+    const pwdConfirmation = md5(this.editForm.get("pwdConfirmation")?.value);
+    let patch = {};
+    if (!!this.user && !!name && !!email && this.editForm.valid) {
+      this.setName(name);
+      this.setEmail(email);
+      this.setPwd(oldPwd, pwd, pwdConfirmation);
+      this.editMode.set(false);
+    } else {
+      this.snackBar.open("Name und Email sind fehlerhaft.", "Ok");
+    }
+  }
+  cancelChanges() {
+    this.editMode.set(false);
+  }
+  setName(name) {
+    if (this.user.name !== name) {
+      this.user().patch({ name });
+    }
+  }
+  setEmail(email) {
+    if (this.user && this.user().email !== email) {
+      this.authService.changeEmail(email).subscribe((res) => {
+        if (this.user) {
+          if (res === ChangeEmailStatus.EMAIL_ALREADY_USED) {
+            this.snackBar.open("Emailadresse wird bereits verwendet. Bitte w\xE4hle eine andere!", "Ok");
+          } else if (res === ChangeEmailStatus.ERROR) {
+            this.snackBar.open("Email konnte nicht ge\xE4ndert werden.", "Ok");
+          } else {
+            this.snackBar.open("Best\xE4tige deine neue Emailadresse per Link in der Best\xE4tigungsmail.", "Ok");
+            this.user().patch({
+              email,
+              emailVerifiedAt: null
+            });
+          }
+        }
+      });
+    }
+  }
+  setPwd(oldPwd, pwd, pwdConfirmation) {
+    if (!!oldPwd && !!pwd && !!pwdConfirmation && oldPwd !== pwd) {
+      this.authService.changePwd(oldPwd, pwd, pwdConfirmation).subscribe((res) => {
+        if (res) {
+          this.authService.logout();
+        } else {
+          this.snackBar.open("Passw\xF6rter konnten nicht ge\xE4ndert werden.", "Ok");
+        }
+      });
+    }
+  }
+};
+_EditFormComponent.\u0275fac = function EditFormComponent_Factory(\u0275t) {
+  return new (\u0275t || _EditFormComponent)(\u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(MatSnackBar));
+};
+_EditFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _EditFormComponent, selectors: [["app-settings-edit-form"]], inputs: { editMode: "editMode", disabled: "disabled" }, outputs: { name: "name" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 4, vars: 3, consts: [[3, "formGroup", 4, "ngIf"], ["mat-stroked-button", "", "color", "primary", 3, "click", 4, "ngIf"], ["mat-stroked-button", "", 3, "disabled", "click", 4, "ngIf"], [3, "formGroup"], ["appearance", "outline"], ["matInput", "", "formControlName", "name"], [4, "ngIf"], ["matInput", "", "formControlName", "email"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "oldPwd"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "pwd"], ["matInput", "", "type", "password", "placeholder", "Passwort wiederholen", "formControlName", "pwdConfirmation"], ["mat-stroked-button", "", "color", "primary", 3, "click"], ["mat-stroked-button", "", 3, "click", "disabled"]], template: function EditFormComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div");
+    \u0275\u0275template(1, EditFormComponent_form_1_Template, 40, 13, "form", 0)(2, EditFormComponent_button_2_Template, 2, 0, "button", 1)(3, EditFormComponent_button_3_Template, 2, 1, "button", 2);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx.editMode());
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx.editMode());
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx.editMode());
+  }
+}, dependencies: [CommonModule, NgIf, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, MaterialModule, MatButton, MatFormField, MatLabel, MatHint, MatError, MatInput], styles: ["\n\ndiv[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-form-field[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  width: 100%;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\ndiv[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n/*# sourceMappingURL=form.css.map */"] });
+var EditFormComponent = _EditFormComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(EditFormComponent, { className: "EditFormComponent", filePath: "src/app/components/settings/edit-form/edit-form.component.ts", lineNumber: 24 });
+})();
+
 // src/app/services/theme/theme.service.ts
 var _ThemeService = class _ThemeService {
   constructor(authService) {
@@ -84465,11 +84783,600 @@ _ThemeService.\u0275fac = function ThemeService_Factory(\u0275t) {
 _ThemeService.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _ThemeService, factory: _ThemeService.\u0275fac, providedIn: "root" });
 var ThemeService = _ThemeService;
 
+// src/app/components/settings/theme-form/theme-form.component.ts
+var _ThemeFormComponent = class _ThemeFormComponent {
+  constructor(themeService, authService) {
+    this.themeService = themeService;
+    this.authService = authService;
+    this.user = this.authService.me;
+    this.theme = new FormControl("");
+    effect(() => {
+      const pref = this.themeService.userPreference();
+      if (pref) {
+        this.theme.setValue(pref, { emitEvent: false });
+      }
+    });
+    this.themeSub = this.theme.valueChanges.subscribe((theme) => {
+      if (this.user()) {
+        this.user().patch({
+          theme
+        });
+        this.themeService.updateTheme(theme);
+      }
+    });
+  }
+  ngOnDestroy() {
+    this.themeSub.unsubscribe();
+  }
+};
+_ThemeFormComponent.\u0275fac = function ThemeFormComponent_Factory(\u0275t) {
+  return new (\u0275t || _ThemeFormComponent)(\u0275\u0275directiveInject(ThemeService), \u0275\u0275directiveInject(AuthService));
+};
+_ThemeFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ThemeFormComponent, selectors: [["app-settings-theme-form"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 11, vars: 1, consts: [["appearance", "outline"], [3, "formControl"], ["value", "auto"], ["value", "light"], ["value", "dark"]], template: function ThemeFormComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div")(1, "mat-form-field", 0)(2, "mat-label");
+    \u0275\u0275text(3, "Theme");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 1)(5, "mat-option", 2);
+    \u0275\u0275text(6, "auto");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "mat-option", 3);
+    \u0275\u0275text(8, "hell");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(9, "mat-option", 4);
+    \u0275\u0275text(10, "dunkel");
+    \u0275\u0275elementEnd()()()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(4);
+    \u0275\u0275property("formControl", ctx.theme);
+  }
+}, dependencies: [ReactiveFormsModule, NgControlStatus, FormControlDirective, MaterialModule, MatFormField, MatLabel, MatSelect, MatOption], styles: ["\n\ndiv[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-form-field[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  width: 100%;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\ndiv[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n/*# sourceMappingURL=form.css.map */"] });
+var ThemeFormComponent = _ThemeFormComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ThemeFormComponent, { className: "ThemeFormComponent", filePath: "src/app/components/settings/theme-form/theme-form.component.ts", lineNumber: 19 });
+})();
+
+// node_modules/@angular/service-worker/fesm2022/service-worker.mjs
+var ERR_SW_NOT_SUPPORTED = "Service workers are disabled or not supported by this browser";
+function errorObservable(message) {
+  return defer(() => throwError(new Error(message)));
+}
+var NgswCommChannel = class {
+  constructor(serviceWorker) {
+    this.serviceWorker = serviceWorker;
+    if (!serviceWorker) {
+      this.worker = this.events = this.registration = errorObservable(ERR_SW_NOT_SUPPORTED);
+    } else {
+      const controllerChangeEvents = fromEvent(serviceWorker, "controllerchange");
+      const controllerChanges = controllerChangeEvents.pipe(map(() => serviceWorker.controller));
+      const currentController = defer(() => of(serviceWorker.controller));
+      const controllerWithChanges = concat(currentController, controllerChanges);
+      this.worker = controllerWithChanges.pipe(filter((c) => !!c));
+      this.registration = this.worker.pipe(switchMap(() => serviceWorker.getRegistration()));
+      const rawEvents = fromEvent(serviceWorker, "message");
+      const rawEventPayload = rawEvents.pipe(map((event) => event.data));
+      const eventsUnconnected = rawEventPayload.pipe(filter((event) => event && event.type));
+      const events = eventsUnconnected.pipe(publish());
+      events.connect();
+      this.events = events;
+    }
+  }
+  postMessage(action, payload) {
+    return this.worker.pipe(take(1), tap((sw) => {
+      sw.postMessage(__spreadValues({
+        action
+      }, payload));
+    })).toPromise().then(() => void 0);
+  }
+  postMessageWithOperation(type, payload, operationNonce) {
+    const waitForOperationCompleted = this.waitForOperationCompleted(operationNonce);
+    const postMessage = this.postMessage(type, payload);
+    return Promise.all([postMessage, waitForOperationCompleted]).then(([, result]) => result);
+  }
+  generateNonce() {
+    return Math.round(Math.random() * 1e7);
+  }
+  eventsOfType(type) {
+    let filterFn;
+    if (typeof type === "string") {
+      filterFn = (event) => event.type === type;
+    } else {
+      filterFn = (event) => type.includes(event.type);
+    }
+    return this.events.pipe(filter(filterFn));
+  }
+  nextEventOfType(type) {
+    return this.eventsOfType(type).pipe(take(1));
+  }
+  waitForOperationCompleted(nonce) {
+    return this.eventsOfType("OPERATION_COMPLETED").pipe(filter((event) => event.nonce === nonce), take(1), map((event) => {
+      if (event.result !== void 0) {
+        return event.result;
+      }
+      throw new Error(event.error);
+    })).toPromise();
+  }
+  get isEnabled() {
+    return !!this.serviceWorker;
+  }
+};
+var _SwPush = class _SwPush {
+  /**
+   * True if the Service Worker is enabled (supported by the browser and enabled via
+   * `ServiceWorkerModule`).
+   */
+  get isEnabled() {
+    return this.sw.isEnabled;
+  }
+  constructor(sw) {
+    this.sw = sw;
+    this.pushManager = null;
+    this.subscriptionChanges = new Subject();
+    if (!sw.isEnabled) {
+      this.messages = NEVER;
+      this.notificationClicks = NEVER;
+      this.subscription = NEVER;
+      return;
+    }
+    this.messages = this.sw.eventsOfType("PUSH").pipe(map((message) => message.data));
+    this.notificationClicks = this.sw.eventsOfType("NOTIFICATION_CLICK").pipe(map((message) => message.data));
+    this.pushManager = this.sw.registration.pipe(map((registration) => registration.pushManager));
+    const workerDrivenSubscriptions = this.pushManager.pipe(switchMap((pm) => pm.getSubscription()));
+    this.subscription = merge(workerDrivenSubscriptions, this.subscriptionChanges);
+  }
+  /**
+   * Subscribes to Web Push Notifications,
+   * after requesting and receiving user permission.
+   *
+   * @param options An object containing the `serverPublicKey` string.
+   * @returns A Promise that resolves to the new subscription object.
+   */
+  requestSubscription(options) {
+    if (!this.sw.isEnabled || this.pushManager === null) {
+      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
+    }
+    const pushOptions = {
+      userVisibleOnly: true
+    };
+    let key = this.decodeBase64(options.serverPublicKey.replace(/_/g, "/").replace(/-/g, "+"));
+    let applicationServerKey = new Uint8Array(new ArrayBuffer(key.length));
+    for (let i = 0; i < key.length; i++) {
+      applicationServerKey[i] = key.charCodeAt(i);
+    }
+    pushOptions.applicationServerKey = applicationServerKey;
+    return this.pushManager.pipe(switchMap((pm) => pm.subscribe(pushOptions)), take(1)).toPromise().then((sub) => {
+      this.subscriptionChanges.next(sub);
+      return sub;
+    });
+  }
+  /**
+   * Unsubscribes from Service Worker push notifications.
+   *
+   * @returns A Promise that is resolved when the operation succeeds, or is rejected if there is no
+   *          active subscription or the unsubscribe operation fails.
+   */
+  unsubscribe() {
+    if (!this.sw.isEnabled) {
+      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
+    }
+    const doUnsubscribe = (sub) => {
+      if (sub === null) {
+        throw new Error("Not subscribed to push notifications.");
+      }
+      return sub.unsubscribe().then((success) => {
+        if (!success) {
+          throw new Error("Unsubscribe failed!");
+        }
+        this.subscriptionChanges.next(null);
+      });
+    };
+    return this.subscription.pipe(take(1), switchMap(doUnsubscribe)).toPromise();
+  }
+  decodeBase64(input2) {
+    return atob(input2);
+  }
+};
+_SwPush.\u0275fac = function SwPush_Factory(\u0275t) {
+  return new (\u0275t || _SwPush)(\u0275\u0275inject(NgswCommChannel));
+};
+_SwPush.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
+  token: _SwPush,
+  factory: _SwPush.\u0275fac
+});
+var SwPush = _SwPush;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SwPush, [{
+    type: Injectable
+  }], () => [{
+    type: NgswCommChannel
+  }], null);
+})();
+var _SwUpdate = class _SwUpdate {
+  /**
+   * True if the Service Worker is enabled (supported by the browser and enabled via
+   * `ServiceWorkerModule`).
+   */
+  get isEnabled() {
+    return this.sw.isEnabled;
+  }
+  constructor(sw) {
+    this.sw = sw;
+    if (!sw.isEnabled) {
+      this.versionUpdates = NEVER;
+      this.unrecoverable = NEVER;
+      return;
+    }
+    this.versionUpdates = this.sw.eventsOfType(["VERSION_DETECTED", "VERSION_INSTALLATION_FAILED", "VERSION_READY", "NO_NEW_VERSION_DETECTED"]);
+    this.unrecoverable = this.sw.eventsOfType("UNRECOVERABLE_STATE");
+  }
+  /**
+   * Checks for an update and waits until the new version is downloaded from the server and ready
+   * for activation.
+   *
+   * @returns a promise that
+   * - resolves to `true` if a new version was found and is ready to be activated.
+   * - resolves to `false` if no new version was found
+   * - rejects if any error occurs
+   */
+  checkForUpdate() {
+    if (!this.sw.isEnabled) {
+      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
+    }
+    const nonce = this.sw.generateNonce();
+    return this.sw.postMessageWithOperation("CHECK_FOR_UPDATES", {
+      nonce
+    }, nonce);
+  }
+  /**
+   * Updates the current client (i.e. browser tab) to the latest version that is ready for
+   * activation.
+   *
+   * In most cases, you should not use this method and instead should update a client by reloading
+   * the page.
+   *
+   * <div class="alert is-important">
+   *
+   * Updating a client without reloading can easily result in a broken application due to a version
+   * mismatch between the application shell and other page resources,
+   * such as lazy-loaded chunks, whose filenames may change between
+   * versions.
+   *
+   * Only use this method, if you are certain it is safe for your specific use case.
+   *
+   * </div>
+   *
+   * @returns a promise that
+   *  - resolves to `true` if an update was activated successfully
+   *  - resolves to `false` if no update was available (for example, the client was already on the
+   *    latest version).
+   *  - rejects if any error occurs
+   */
+  activateUpdate() {
+    if (!this.sw.isEnabled) {
+      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
+    }
+    const nonce = this.sw.generateNonce();
+    return this.sw.postMessageWithOperation("ACTIVATE_UPDATE", {
+      nonce
+    }, nonce);
+  }
+};
+_SwUpdate.\u0275fac = function SwUpdate_Factory(\u0275t) {
+  return new (\u0275t || _SwUpdate)(\u0275\u0275inject(NgswCommChannel));
+};
+_SwUpdate.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
+  token: _SwUpdate,
+  factory: _SwUpdate.\u0275fac
+});
+var SwUpdate = _SwUpdate;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SwUpdate, [{
+    type: Injectable
+  }], () => [{
+    type: NgswCommChannel
+  }], null);
+})();
+var SCRIPT = new InjectionToken(ngDevMode ? "NGSW_REGISTER_SCRIPT" : "");
+function ngswAppInitializer(injector, script, options, platformId) {
+  return () => {
+    if (!(isPlatformBrowser2(platformId) && "serviceWorker" in navigator && options.enabled !== false)) {
+      return;
+    }
+    const ngZone = injector.get(NgZone);
+    const appRef = injector.get(ApplicationRef);
+    ngZone.runOutsideAngular(() => {
+      const sw = navigator.serviceWorker;
+      const onControllerChange = () => sw.controller?.postMessage({
+        action: "INITIALIZE"
+      });
+      sw.addEventListener("controllerchange", onControllerChange);
+      appRef.onDestroy(() => {
+        sw.removeEventListener("controllerchange", onControllerChange);
+      });
+    });
+    let readyToRegister$;
+    if (typeof options.registrationStrategy === "function") {
+      readyToRegister$ = options.registrationStrategy();
+    } else {
+      const [strategy, ...args] = (options.registrationStrategy || "registerWhenStable:30000").split(":");
+      switch (strategy) {
+        case "registerImmediately":
+          readyToRegister$ = of(null);
+          break;
+        case "registerWithDelay":
+          readyToRegister$ = delayWithTimeout(+args[0] || 0);
+          break;
+        case "registerWhenStable":
+          readyToRegister$ = !args[0] ? whenStable2(injector) : merge(whenStable2(injector), delayWithTimeout(+args[0]));
+          break;
+        default:
+          throw new Error(`Unknown ServiceWorker registration strategy: ${options.registrationStrategy}`);
+      }
+    }
+    ngZone.runOutsideAngular(() => readyToRegister$.pipe(take(1)).subscribe(() => navigator.serviceWorker.register(script, {
+      scope: options.scope
+    }).catch((err) => console.error("Service worker registration failed with:", err))));
+  };
+}
+function delayWithTimeout(timeout2) {
+  return of(null).pipe(delay(timeout2));
+}
+function whenStable2(injector) {
+  const appRef = injector.get(ApplicationRef);
+  return appRef.isStable.pipe(filter((stable) => stable));
+}
+function ngswCommChannelFactory(opts, platformId) {
+  return new NgswCommChannel(isPlatformBrowser2(platformId) && opts.enabled !== false ? navigator.serviceWorker : void 0);
+}
+var SwRegistrationOptions = class {
+};
+function provideServiceWorker(script, options = {}) {
+  return makeEnvironmentProviders([SwPush, SwUpdate, {
+    provide: SCRIPT,
+    useValue: script
+  }, {
+    provide: SwRegistrationOptions,
+    useValue: options
+  }, {
+    provide: NgswCommChannel,
+    useFactory: ngswCommChannelFactory,
+    deps: [SwRegistrationOptions, PLATFORM_ID]
+  }, {
+    provide: APP_INITIALIZER,
+    useFactory: ngswAppInitializer,
+    deps: [Injector, SCRIPT, SwRegistrationOptions, PLATFORM_ID],
+    multi: true
+  }]);
+}
+var _ServiceWorkerModule = class _ServiceWorkerModule {
+  /**
+   * Register the given Angular Service Worker script.
+   *
+   * If `enabled` is set to `false` in the given options, the module will behave as if service
+   * workers are not supported by the browser, and the service worker will not be registered.
+   */
+  static register(script, options = {}) {
+    return {
+      ngModule: _ServiceWorkerModule,
+      providers: [provideServiceWorker(script, options)]
+    };
+  }
+};
+_ServiceWorkerModule.\u0275fac = function ServiceWorkerModule_Factory(\u0275t) {
+  return new (\u0275t || _ServiceWorkerModule)();
+};
+_ServiceWorkerModule.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+  type: _ServiceWorkerModule
+});
+_ServiceWorkerModule.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
+  providers: [SwPush, SwUpdate]
+});
+var ServiceWorkerModule = _ServiceWorkerModule;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ServiceWorkerModule, [{
+    type: NgModule,
+    args: [{
+      providers: [SwPush, SwUpdate]
+    }]
+  }], null, null);
+})();
+
+// src/app/services/web-push/web-push.service.ts
+var _WebPushService = class _WebPushService {
+  constructor(swPush, authService, dataApi) {
+    this.swPush = swPush;
+    this.authService = authService;
+    this.dataApi = dataApi;
+    this.subscribeChallenged = false;
+    this.settings = signal(void 0);
+    if (swPush.isEnabled) {
+      this.sub = toSignal(swPush.subscription);
+    } else {
+      this.sub = signal(void 0);
+    }
+    effect(() => {
+      const sub = this.sub();
+      if (sub === null && this.authService.me() && swPush.isEnabled) {
+        this.subscribe();
+      } else if (!!sub) {
+        this.getSettings(sub.endpoint);
+      }
+    });
+  }
+  subscribe() {
+    return __async(this, null, function* () {
+      this.subscribeChallenged = true;
+      const sub = yield this.swPush.requestSubscription({
+        serverPublicKey: environment.vapid
+      }).catch((err) => {
+        console.log(err);
+        return;
+      });
+      if (sub) {
+        this.authService.pushSubscribe(sub).subscribe((success) => {
+          if (success) {
+            this.getSettings(sub.endpoint);
+          }
+        });
+      }
+    });
+  }
+  getSettings(endpoint) {
+    this.dataApi.graphQL(`
+      query PushSettings($endpoint: String!) {
+        pushSettings(endpoint: $endpoint) {
+          receivePush
+          receiveListsChanged
+          receiveReminder
+        }
+      }
+    `, {
+      endpoint
+    }).subscribe((res) => {
+      if (res.data?.pushSettings) {
+        this.settings.set(res.data.pushSettings);
+      }
+    });
+  }
+  patchSettings(patch, endpoint) {
+    const settings = this.settings();
+    if (this.sub() && (settings?.receivePush !== patch.receivePush || settings?.receiveListsChanged !== patch.receiveListsChanged || settings?.receiveReminder !== patch.receiveReminder)) {
+      this.dataApi.graphQL(`
+        mutation PushSettings($settings: PushSettingsInput!) {
+          pushSettings(settings: $settings) {
+            receivePush
+            receiveListsChanged
+            receiveReminder
+          }
+        }
+      `, {
+        settings: __spreadProps(__spreadValues({}, patch), {
+          endpoint
+        })
+      }).subscribe((res) => {
+        if (res.data?.pushSettings) {
+          this.settings.set(res.data.pushSettings);
+        }
+      });
+    }
+  }
+};
+_WebPushService.\u0275fac = function WebPushService_Factory(\u0275t) {
+  return new (\u0275t || _WebPushService)(\u0275\u0275inject(SwPush), \u0275\u0275inject(AuthService), \u0275\u0275inject(DataApiService));
+};
+_WebPushService.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _WebPushService, factory: _WebPushService.\u0275fac, providedIn: "root" });
+var WebPushService = _WebPushService;
+
+// src/app/components/settings/push-form/push-form.component.ts
+var _PushFormComponent = class _PushFormComponent {
+  constructor(fb, pushService, snackBar) {
+    this.fb = fb;
+    this.pushService = pushService;
+    this.snackBar = snackBar;
+    this.form = fb.group({
+      receivePush: [false],
+      receiveListsChanged: [{ value: true, disabled: true }],
+      receiveReminder: [{ value: true, disabled: true }]
+    });
+    this.formSub = this.form.valueChanges.pipe(debounceTime(1e3)).subscribe(() => {
+      this.saveChanges();
+    });
+    this.pushSub = this.receivePush.valueChanges.subscribe(() => {
+      this.updateDisableStates();
+    });
+    effect(() => {
+      const settings = this.pushService.settings();
+      if (settings) {
+        this.receivePush.setValue(settings.receivePush && !!this.pushService.sub());
+        this.receiveListsChanged.setValue(settings.receiveListsChanged);
+        this.receiveReminder.setValue(settings.receiveReminder);
+      }
+    });
+  }
+  ngOnDestroy() {
+    this.formSub.unsubscribe();
+    this.pushSub.unsubscribe();
+  }
+  get receivePush() {
+    return this.form.get("receivePush");
+  }
+  get receiveListsChanged() {
+    return this.form.get("receiveListsChanged");
+  }
+  get receiveReminder() {
+    return this.form.get("receiveReminder");
+  }
+  updateDisableStates() {
+    if (!this.receivePush.value) {
+      this.receiveListsChanged.disable({ emitEvent: false });
+      this.receiveReminder.disable({ emitEvent: false });
+    } else {
+      this.receiveListsChanged.enable({ emitEvent: false });
+      this.receiveReminder.enable({ emitEvent: false });
+    }
+  }
+  saveChanges() {
+    return __async(this, null, function* () {
+      let sub = this.pushService.sub();
+      if (!sub && !this.pushService.subscribeChallenged) {
+        yield this.pushService.subscribe();
+        sub = this.pushService.sub();
+      }
+      if (!sub) {
+        this.snackBar.open("Bitte Push Benachrichtigungen im Browser aktivieren.", "Ok");
+        const settings = this.pushService.settings();
+        this.receivePush.setValue(false, { emitEvent: false });
+        this.receiveListsChanged.setValue(!!settings?.receiveListsChanged || this.receiveListsChanged.value, { emitEvent: false });
+        this.receiveReminder.setValue(!!settings?.receiveReminder || this.receiveReminder.value, { emitEvent: false });
+        this.updateDisableStates();
+      } else {
+        this.pushService.patchSettings({
+          receivePush: this.receivePush.value,
+          receiveListsChanged: this.receiveListsChanged.value,
+          receiveReminder: this.receiveReminder.value
+        }, sub.endpoint);
+      }
+    });
+  }
+};
+_PushFormComponent.\u0275fac = function PushFormComponent_Factory(\u0275t) {
+  return new (\u0275t || _PushFormComponent)(\u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(WebPushService), \u0275\u0275directiveInject(MatSnackBar));
+};
+_PushFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PushFormComponent, selectors: [["app-settings-push-form"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 9, vars: 3, consts: [["color", "primary", 3, "formControl"]], template: function PushFormComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div")(1, "h4");
+    \u0275\u0275text(2, "Push Benachritigungen");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "mat-slide-toggle", 0);
+    \u0275\u0275text(4, " Push Nachrichten ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "mat-slide-toggle", 0);
+    \u0275\u0275text(6, " Push Nachricht bei Ver\xE4nderung einer Liste ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "mat-slide-toggle", 0);
+    \u0275\u0275text(8, "Push Nachricht f\xFCr Erinnerungen");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(3);
+    \u0275\u0275property("formControl", ctx.receivePush);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("formControl", ctx.receiveListsChanged);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("formControl", ctx.receiveReminder);
+  }
+}, dependencies: [MaterialModule, MatSlideToggle, ReactiveFormsModule, NgControlStatus, FormControlDirective], styles: ["\n\nmat-slide-toggle[_ngcontent-%COMP%]:not(:first-of-type) {\n  margin-left: 64px;\n  width: calc(100% - 64px);\n}\n/*# sourceMappingURL=push-form.component.css.map */", "\n\ndiv[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-form-field[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  width: 100%;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\ndiv[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n/*# sourceMappingURL=form.css.map */"] });
+var PushFormComponent = _PushFormComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PushFormComponent, { className: "PushFormComponent", filePath: "src/app/components/settings/push-form/push-form.component.ts", lineNumber: 18 });
+})();
+
 // src/app/components/settings/settings.component.ts
 function SettingsComponent_div_0_button_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 16);
+    \u0275\u0275elementStart(0, "button", 10);
     \u0275\u0275listener("click", function SettingsComponent_div_0_button_1_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r2);
       const ctx_r2 = \u0275\u0275nextContext(2);
@@ -84482,7 +85389,7 @@ function SettingsComponent_div_0_button_1_Template(rf, ctx) {
 }
 function SettingsComponent_div_0_button_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "button", 17);
+    \u0275\u0275elementStart(0, "button", 11);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "nameBadge");
     \u0275\u0275elementEnd();
@@ -84495,16 +85402,15 @@ function SettingsComponent_div_0_button_2_Template(rf, ctx) {
 }
 function SettingsComponent_div_0_button_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "button", 17);
+    \u0275\u0275elementStart(0, "button", 11);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "nameBadge");
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    let tmp_2_0;
     const ctx_r2 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, (tmp_2_0 = ctx_r2.editForm.get("name")) == null ? null : tmp_2_0.value), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, ctx_r2.userName()), " ");
   }
 }
 function SettingsComponent_div_0_div_5_Template(rf, ctx) {
@@ -84531,381 +85437,104 @@ function SettingsComponent_div_0_div_6_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.user().email);
   }
 }
-function SettingsComponent_div_0_form_7_mat_error_5_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-error");
-    \u0275\u0275text(1, " Name muss angegeben werden! ");
-    \u0275\u0275elementEnd();
-  }
-}
-function SettingsComponent_div_0_form_7_mat_hint_10_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-hint");
-    \u0275\u0275text(1, "Im Offlinemodus nicht \xE4nderbar.");
-    \u0275\u0275elementEnd();
-  }
-}
-function SettingsComponent_div_0_form_7_mat_error_12_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-error");
-    \u0275\u0275text(1, " Email muss angegeben werden! ");
-    \u0275\u0275elementEnd();
-  }
-}
-function SettingsComponent_div_0_form_7_mat_error_13_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-error");
-    \u0275\u0275text(1, " Bitte eine g\xFCltige Email Adresse angeben! ");
-    \u0275\u0275elementEnd();
-  }
-}
-function SettingsComponent_div_0_form_7_mat_error_23_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-error");
-    \u0275\u0275text(1, " Passwort muss angegeben werden! ");
-    \u0275\u0275elementEnd();
-  }
-}
-function SettingsComponent_div_0_form_7_mat_error_30_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-error");
-    \u0275\u0275text(1, " Ein neues Passwort muss angegeben werden! ");
-    \u0275\u0275elementEnd();
-  }
-}
-function SettingsComponent_div_0_form_7_mat_error_35_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-error");
-    \u0275\u0275text(1, " Das neue Passwort muss wiederholt werden! ");
-    \u0275\u0275elementEnd();
-  }
-}
-function SettingsComponent_div_0_form_7_mat_error_36_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-error");
-    \u0275\u0275text(1, " Neue Passw\xF6rter stimmen nicht \xFCberein! ");
-    \u0275\u0275elementEnd();
-  }
-}
-function SettingsComponent_div_0_form_7_mat_error_37_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-error");
-    \u0275\u0275text(1, " Das neue Passwort muss sich vom alten Passwort unterscheiden! ");
-    \u0275\u0275elementEnd();
-  }
-}
-function SettingsComponent_div_0_form_7_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "form", 18)(1, "mat-form-field", 9)(2, "mat-label");
-    \u0275\u0275text(3, "Name");
-    \u0275\u0275elementEnd();
-    \u0275\u0275element(4, "input", 19);
-    \u0275\u0275template(5, SettingsComponent_div_0_form_7_mat_error_5_Template, 2, 0, "mat-error", 5);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "mat-form-field", 9)(7, "mat-label");
-    \u0275\u0275text(8, "Email");
-    \u0275\u0275elementEnd();
-    \u0275\u0275element(9, "input", 20);
-    \u0275\u0275template(10, SettingsComponent_div_0_form_7_mat_hint_10_Template, 2, 0, "mat-hint", 5);
-    \u0275\u0275pipe(11, "async");
-    \u0275\u0275template(12, SettingsComponent_div_0_form_7_mat_error_12_Template, 2, 0, "mat-error", 5)(13, SettingsComponent_div_0_form_7_mat_error_13_Template, 2, 0, "mat-error", 5);
-    \u0275\u0275elementEnd();
-    \u0275\u0275element(14, "br")(15, "br")(16, "br")(17, "br")(18, "br");
-    \u0275\u0275elementStart(19, "mat-form-field", 9)(20, "mat-label");
-    \u0275\u0275text(21, "Altes Passwort");
-    \u0275\u0275elementEnd();
-    \u0275\u0275element(22, "input", 21);
-    \u0275\u0275template(23, SettingsComponent_div_0_form_7_mat_error_23_Template, 2, 0, "mat-error", 5);
-    \u0275\u0275elementStart(24, "mat-hint");
-    \u0275\u0275text(25, "Nach einer \xC4nderung des Passworts musst du dich erneut einloggen.");
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(26, "mat-form-field", 9)(27, "mat-label");
-    \u0275\u0275text(28, "Neues Passwort");
-    \u0275\u0275elementEnd();
-    \u0275\u0275element(29, "input", 22);
-    \u0275\u0275template(30, SettingsComponent_div_0_form_7_mat_error_30_Template, 2, 0, "mat-error", 5);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(31, "mat-form-field", 9)(32, "mat-label");
-    \u0275\u0275text(33, "Passwort wiederholen");
-    \u0275\u0275elementEnd();
-    \u0275\u0275element(34, "input", 23);
-    \u0275\u0275template(35, SettingsComponent_div_0_form_7_mat_error_35_Template, 2, 0, "mat-error", 5)(36, SettingsComponent_div_0_form_7_mat_error_36_Template, 2, 0, "mat-error", 5)(37, SettingsComponent_div_0_form_7_mat_error_37_Template, 2, 0, "mat-error", 5);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    let tmp_3_0;
-    let tmp_5_0;
-    let tmp_6_0;
-    let tmp_7_0;
-    let tmp_8_0;
-    let tmp_9_0;
-    const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("formGroup", ctx_r2.editForm);
-    \u0275\u0275advance(5);
-    \u0275\u0275property("ngIf", (tmp_3_0 = ctx_r2.editForm.get("name")) == null ? null : tmp_3_0.hasError("required"));
-    \u0275\u0275advance(5);
-    \u0275\u0275property("ngIf", !\u0275\u0275pipeBind1(11, 10, ctx_r2.pusher.online));
-    \u0275\u0275advance(2);
-    \u0275\u0275property("ngIf", (tmp_5_0 = ctx_r2.editForm.get("email")) == null ? null : tmp_5_0.hasError("required"));
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", (tmp_6_0 = ctx_r2.editForm.get("email")) == null ? null : tmp_6_0.hasError("email"));
-    \u0275\u0275advance(10);
-    \u0275\u0275property("ngIf", (tmp_7_0 = ctx_r2.editForm.get("oldPwd")) == null ? null : tmp_7_0.hasError("required"));
-    \u0275\u0275advance(7);
-    \u0275\u0275property("ngIf", (tmp_8_0 = ctx_r2.editForm.get("pwd")) == null ? null : tmp_8_0.hasError("required"));
-    \u0275\u0275advance(5);
-    \u0275\u0275property("ngIf", (tmp_9_0 = ctx_r2.editForm.get("pwdConfirmation")) == null ? null : tmp_9_0.hasError("required"));
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx_r2.editForm.hasError("notMatching"));
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx_r2.editForm.hasError("matching"));
-  }
-}
-function SettingsComponent_div_0_button_8_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 24);
-    \u0275\u0275listener("click", function SettingsComponent_div_0_button_8_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r4);
-      const ctx_r2 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r2.cancelChanges());
-    });
-    \u0275\u0275text(1, "Abbrechen");
-    \u0275\u0275elementEnd();
-  }
-}
-function SettingsComponent_div_0_button_9_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 25);
-    \u0275\u0275listener("click", function SettingsComponent_div_0_button_9_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r5);
-      const ctx_r2 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r2.saveChanges());
-    });
-    \u0275\u0275text(1, "Speichern");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("disabled", !ctx_r2.editForm.valid);
-  }
-}
 function SettingsComponent_div_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 1);
     \u0275\u0275template(1, SettingsComponent_div_0_button_1_Template, 3, 0, "button", 2)(2, SettingsComponent_div_0_button_2_Template, 3, 3, "button", 3)(3, SettingsComponent_div_0_button_3_Template, 3, 3, "button", 3);
     \u0275\u0275elementStart(4, "div", 4);
-    \u0275\u0275template(5, SettingsComponent_div_0_div_5_Template, 2, 1, "div", 5)(6, SettingsComponent_div_0_div_6_Template, 2, 1, "div", 5)(7, SettingsComponent_div_0_form_7_Template, 38, 12, "form", 6)(8, SettingsComponent_div_0_button_8_Template, 2, 0, "button", 7)(9, SettingsComponent_div_0_button_9_Template, 2, 1, "button", 8);
-    \u0275\u0275element(10, "hr");
-    \u0275\u0275elementStart(11, "mat-form-field", 9)(12, "mat-label");
-    \u0275\u0275text(13, "Theme");
+    \u0275\u0275template(5, SettingsComponent_div_0_div_5_Template, 2, 1, "div", 5)(6, SettingsComponent_div_0_div_6_Template, 2, 1, "div", 5);
+    \u0275\u0275elementStart(7, "app-settings-edit-form", 6);
+    \u0275\u0275listener("name", function SettingsComponent_div_0_Template_app_settings_edit_form_name_7_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.userName.set($event));
+    });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(14, "mat-select", 10)(15, "mat-option", 11);
-    \u0275\u0275text(16, "auto");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(17, "mat-option", 12);
-    \u0275\u0275text(18, "hell");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(19, "mat-option", 13);
-    \u0275\u0275text(20, "dunkel");
-    \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(21, "button", 14);
-    \u0275\u0275listener("click", function SettingsComponent_div_0_Template_button_click_21_listener() {
+    \u0275\u0275element(8, "hr")(9, "app-settings-theme-form", 7)(10, "hr")(11, "app-settings-push-form", 7);
+    \u0275\u0275elementStart(12, "button", 8);
+    \u0275\u0275listener("click", function SettingsComponent_div_0_Template_button_click_12_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.logout());
     });
-    \u0275\u0275text(22, "Logout");
+    \u0275\u0275text(13, "Logout");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(23, "div", 15);
-    \u0275\u0275text(24);
+    \u0275\u0275elementStart(14, "div", 9);
+    \u0275\u0275text(15);
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", !ctx_r2.editMode);
+    \u0275\u0275property("ngIf", !ctx_r2.editMode());
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", !ctx_r2.editMode && ctx_r2.user() && !!ctx_r2.user().name);
+    \u0275\u0275property("ngIf", !ctx_r2.editMode() && ctx_r2.user() && !!ctx_r2.user().name);
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx_r2.editMode);
+    \u0275\u0275property("ngIf", ctx_r2.editMode());
     \u0275\u0275advance(2);
-    \u0275\u0275property("ngIf", ctx_r2.user() && !ctx_r2.editMode);
+    \u0275\u0275property("ngIf", ctx_r2.user() && !ctx_r2.editMode());
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx_r2.user() && !ctx_r2.editMode);
+    \u0275\u0275property("ngIf", ctx_r2.user() && !ctx_r2.editMode());
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx_r2.editMode);
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx_r2.editMode);
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx_r2.editMode);
-    \u0275\u0275advance(5);
-    \u0275\u0275property("formControl", ctx_r2.theme);
-    \u0275\u0275advance(10);
+    \u0275\u0275property("editMode", ctx_r2.editMode)("disabled", ctx_r2.editFormDisabled);
+    \u0275\u0275advance(8);
     \u0275\u0275textInterpolate1("v", ctx_r2.version, "");
   }
 }
 var _SettingsComponent = class _SettingsComponent {
-  constructor(authService, themeService, fb, snackBar, pusher) {
+  constructor(authService, fb, pusher) {
     this.authService = authService;
-    this.themeService = themeService;
     this.fb = fb;
-    this.snackBar = snackBar;
     this.pusher = pusher;
+    this.userName = signal("");
     this.version = environment.version;
-    this.editMode = false;
+    this.editMode = signal(false);
+    this.editFormDisabled = signal(false);
     this.user = this.authService.me;
-    this.theme = new FormControl("");
-    this.defaultList = new FormControl("null");
-    effect(() => {
-      if (this.themeService.userPreference()) {
-        this.theme.setValue(this.themeService.userPreference(), { emitEvent: false });
-      }
-    });
-    this.themeSub = this.theme.valueChanges.subscribe((theme) => {
-      if (this.user()) {
-        this.user().patch({
-          theme
-        });
-        this.themeService.updateTheme(theme);
-      }
-    });
-    this.editForm = fb.group({
-      name: ["", Validators.required],
-      email: ["", [Validators.required, Validators.email]],
-      oldPwd: ["", []],
-      pwd: ["", []],
-      pwdConfirmation: ["", []]
-    }, {
-      validators: [
-        MatchValidator("pwd", "pwdConfirmation"),
-        NoMatchValidator("oldPwd", "pwd")
-      ]
-    });
-    this.editFormSub = this.editForm.valueChanges.subscribe(() => this.editForm.setErrors(null));
-    this.pusher.online.subscribe((isOnline) => {
-      if (!isOnline) {
-        this.editForm.get("email")?.disable();
-        this.editForm.get("oldPwd")?.disable();
-        this.editForm.get("pwd")?.disable();
-        this.editForm.get("pwdConfirmation")?.disable();
-      } else {
-        this.editForm.get("email")?.enable();
-        this.editForm.get("oldPwd")?.enable();
-        this.editForm.get("pwd")?.enable();
-        this.editForm.get("pwdConfirmation")?.enable();
-      }
+    this.pusherSub = this.pusher.online.subscribe((isOnline) => {
+      this.editFormDisabled.set(!isOnline);
     });
   }
   ngOnDestroy() {
-    this.themeSub.unsubscribe();
-    this.editFormSub.unsubscribe();
+    this.pusherSub.unsubscribe();
   }
   logout() {
     this.authService.logout();
   }
   enterEditMode() {
-    if (this.user) {
-      this.editForm.get("name")?.setValue(this.user().name);
-      this.editForm.get("email")?.setValue(this.user().email);
-      this.editForm.get("oldPwd")?.setValue("");
-      this.editForm.get("pwd")?.setValue("");
-      this.editForm.get("pwdConfirmation")?.setValue("");
-    }
-    this.editMode = true;
-  }
-  cancelChanges() {
-    this.editForm.reset();
-    this.editMode = false;
-  }
-  saveChanges() {
-    if (this.editForm.invalid) {
-      return;
-    }
-    const name = this.editForm.get("name")?.value;
-    const email = this.editForm.get("email")?.value;
-    const oldPwd = md5(this.editForm.get("oldPwd")?.value);
-    const pwd = md5(this.editForm.get("pwd")?.value);
-    const pwdConfirmation = md5(this.editForm.get("pwdConfirmation")?.value);
-    let patch = {};
-    if (!!this.user && !!name && !!email && this.editForm.valid) {
-      if (this.user.name !== name) {
-        patch = Object.assign(patch, { name });
-      }
-      if (this.user && this.user().email !== email) {
-        this.authService.changeEmail(email).subscribe((res) => {
-          if (this.user) {
-            if (res === ChangeEmailStatus.EMAIL_ALREADY_USED) {
-              this.snackBar.open("Emailadresse wird bereits verwendet. Bitte w\xE4hle eine andere!", "Ok");
-            } else if (res === ChangeEmailStatus.ERROR) {
-              this.snackBar.open("Email konnte nicht ge\xE4ndert werden.", "Ok");
-            } else {
-              this.snackBar.open("Best\xE4tige deine neue Emailadresse per Link in der Best\xE4tigungsmail.", "Ok");
-              this.user().patch({
-                email,
-                emailVerifiedAt: null
-              });
-            }
-          }
-        });
-      }
-      if (!!oldPwd && !!pwd && !!pwdConfirmation && oldPwd !== pwd) {
-        this.authService.changePwd(oldPwd, pwd, pwdConfirmation).subscribe((res) => {
-          if (res) {
-            this.authService.logout();
-          } else {
-            this.snackBar.open("Passw\xF6rter konnten nicht ge\xE4ndert werden.", "Ok");
-          }
-        });
-      }
-      if (Object.keys(patch).length > 0) {
-        this.user().patch(patch);
-      }
-      this.editMode = false;
+    if (this.user()) {
+      this.editMode.set(true);
     } else {
-      this.snackBar.open("Name und Email sind fehlerhaft.", "Ok");
+      this.editMode.set(false);
     }
   }
 };
 _SettingsComponent.\u0275fac = function SettingsComponent_Factory(\u0275t) {
-  return new (\u0275t || _SettingsComponent)(\u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(ThemeService), \u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(MatSnackBar), \u0275\u0275directiveInject(PusherService));
+  return new (\u0275t || _SettingsComponent)(\u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(PusherService));
 };
-_SettingsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsComponent, selectors: [["app-settings"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 1, vars: 1, consts: [["class", "container", 4, "ngIf"], [1, "container"], ["mat-icon-button", "", "class", "edit-buttons", 3, "click", 4, "ngIf"], ["disabled", "", "mat-fab", "", "class", "user-fab-0", 4, "ngIf"], [1, "inner-container"], [4, "ngIf"], [3, "formGroup", 4, "ngIf"], ["mat-stroked-button", "", "color", "primary", 3, "click", 4, "ngIf"], ["mat-stroked-button", "", 3, "disabled", "click", 4, "ngIf"], ["appearance", "outline"], [3, "formControl"], ["value", "auto"], ["value", "light"], ["value", "dark"], ["mat-stroked-button", "", 3, "click"], ["id", "version"], ["mat-icon-button", "", 1, "edit-buttons", 3, "click"], ["disabled", "", "mat-fab", "", 1, "user-fab-0"], [3, "formGroup"], ["matInput", "", "formControlName", "name"], ["matInput", "", "formControlName", "email"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "oldPwd"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "pwd"], ["matInput", "", "type", "password", "placeholder", "Passwort wiederholen", "formControlName", "pwdConfirmation"], ["mat-stroked-button", "", "color", "primary", 3, "click"], ["mat-stroked-button", "", 3, "click", "disabled"]], template: function SettingsComponent_Template(rf, ctx) {
+_SettingsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsComponent, selectors: [["app-settings"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 1, vars: 1, consts: [["class", "container", 4, "ngIf"], [1, "container"], ["mat-icon-button", "", "class", "edit-buttons", 3, "click", 4, "ngIf"], ["disabled", "", "mat-fab", "", "class", "user-fab-0", 4, "ngIf"], [1, "inner-container"], [4, "ngIf"], [1, "forms", 3, "name", "editMode", "disabled"], [1, "forms"], ["mat-stroked-button", "", 3, "click"], ["id", "version"], ["mat-icon-button", "", 1, "edit-buttons", 3, "click"], ["disabled", "", "mat-fab", "", 1, "user-fab-0"]], template: function SettingsComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, SettingsComponent_div_0_Template, 25, 10, "div", 0);
+    \u0275\u0275template(0, SettingsComponent_div_0_Template, 16, 8, "div", 0);
   }
   if (rf & 2) {
     \u0275\u0275property("ngIf", ctx.user());
   }
 }, dependencies: [
   ReactiveFormsModule,
-  \u0275NgNoValidate,
-  DefaultValueAccessor,
-  NgControlStatus,
-  NgControlStatusGroup,
-  FormControlDirective,
-  FormGroupDirective,
-  FormControlName,
   FormsModule,
   CommonModule,
   NgIf,
-  AsyncPipe,
   MaterialModule,
   MatButton,
   MatIconButton,
   MatFabButton,
-  MatFormField,
-  MatLabel,
-  MatHint,
-  MatError,
   MatIcon,
-  MatInput,
-  MatSelect,
-  MatOption,
-  NameBadgePipe
-], styles: ["\n\n.container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  height: 100%;\n}\n.container[_ngcontent-%COMP%]   button.user-fab-0[_ngcontent-%COMP%] {\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   button.edit-buttons[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 32px;\n  right: 0;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%] {\n  overflow: hidden auto;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   div[_ngcontent-%COMP%]:first-child {\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   #version[_ngcontent-%COMP%] {\n  color: grey;\n  font-size: 12px;\n  margin-top: 48px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   form[_ngcontent-%COMP%], \n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   mat-form-field[_ngcontent-%COMP%] {\n  width: 100%;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n/*# sourceMappingURL=settings.component.css.map */"] });
+  NameBadgePipe,
+  EditFormComponent,
+  ThemeFormComponent,
+  PushFormComponent
+], styles: ["\n\n.container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  height: 100%;\n}\n.container[_ngcontent-%COMP%]   button.user-fab-0[_ngcontent-%COMP%] {\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   button.edit-buttons[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 32px;\n  right: 0;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%] {\n  overflow: hidden auto;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   div[_ngcontent-%COMP%]:first-child {\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   #version[_ngcontent-%COMP%] {\n  color: grey;\n  font-size: 12px;\n  margin-top: 48px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   .forms[_ngcontent-%COMP%] {\n  width: 100%;\n}\n/*# sourceMappingURL=settings.component.css.map */"] });
 var SettingsComponent = _SettingsComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsComponent, { className: "SettingsComponent", filePath: "src/app/components/settings/settings.component.ts", lineNumber: 32 });
@@ -90124,351 +90753,6 @@ function noConnectionInterceptor(req, next) {
   }));
 }
 
-// node_modules/@angular/service-worker/fesm2022/service-worker.mjs
-var ERR_SW_NOT_SUPPORTED = "Service workers are disabled or not supported by this browser";
-function errorObservable(message) {
-  return defer(() => throwError(new Error(message)));
-}
-var NgswCommChannel = class {
-  constructor(serviceWorker) {
-    this.serviceWorker = serviceWorker;
-    if (!serviceWorker) {
-      this.worker = this.events = this.registration = errorObservable(ERR_SW_NOT_SUPPORTED);
-    } else {
-      const controllerChangeEvents = fromEvent(serviceWorker, "controllerchange");
-      const controllerChanges = controllerChangeEvents.pipe(map(() => serviceWorker.controller));
-      const currentController = defer(() => of(serviceWorker.controller));
-      const controllerWithChanges = concat(currentController, controllerChanges);
-      this.worker = controllerWithChanges.pipe(filter((c) => !!c));
-      this.registration = this.worker.pipe(switchMap(() => serviceWorker.getRegistration()));
-      const rawEvents = fromEvent(serviceWorker, "message");
-      const rawEventPayload = rawEvents.pipe(map((event) => event.data));
-      const eventsUnconnected = rawEventPayload.pipe(filter((event) => event && event.type));
-      const events = eventsUnconnected.pipe(publish());
-      events.connect();
-      this.events = events;
-    }
-  }
-  postMessage(action, payload) {
-    return this.worker.pipe(take(1), tap((sw) => {
-      sw.postMessage(__spreadValues({
-        action
-      }, payload));
-    })).toPromise().then(() => void 0);
-  }
-  postMessageWithOperation(type, payload, operationNonce) {
-    const waitForOperationCompleted = this.waitForOperationCompleted(operationNonce);
-    const postMessage = this.postMessage(type, payload);
-    return Promise.all([postMessage, waitForOperationCompleted]).then(([, result]) => result);
-  }
-  generateNonce() {
-    return Math.round(Math.random() * 1e7);
-  }
-  eventsOfType(type) {
-    let filterFn;
-    if (typeof type === "string") {
-      filterFn = (event) => event.type === type;
-    } else {
-      filterFn = (event) => type.includes(event.type);
-    }
-    return this.events.pipe(filter(filterFn));
-  }
-  nextEventOfType(type) {
-    return this.eventsOfType(type).pipe(take(1));
-  }
-  waitForOperationCompleted(nonce) {
-    return this.eventsOfType("OPERATION_COMPLETED").pipe(filter((event) => event.nonce === nonce), take(1), map((event) => {
-      if (event.result !== void 0) {
-        return event.result;
-      }
-      throw new Error(event.error);
-    })).toPromise();
-  }
-  get isEnabled() {
-    return !!this.serviceWorker;
-  }
-};
-var _SwPush = class _SwPush {
-  /**
-   * True if the Service Worker is enabled (supported by the browser and enabled via
-   * `ServiceWorkerModule`).
-   */
-  get isEnabled() {
-    return this.sw.isEnabled;
-  }
-  constructor(sw) {
-    this.sw = sw;
-    this.pushManager = null;
-    this.subscriptionChanges = new Subject();
-    if (!sw.isEnabled) {
-      this.messages = NEVER;
-      this.notificationClicks = NEVER;
-      this.subscription = NEVER;
-      return;
-    }
-    this.messages = this.sw.eventsOfType("PUSH").pipe(map((message) => message.data));
-    this.notificationClicks = this.sw.eventsOfType("NOTIFICATION_CLICK").pipe(map((message) => message.data));
-    this.pushManager = this.sw.registration.pipe(map((registration) => registration.pushManager));
-    const workerDrivenSubscriptions = this.pushManager.pipe(switchMap((pm) => pm.getSubscription()));
-    this.subscription = merge(workerDrivenSubscriptions, this.subscriptionChanges);
-  }
-  /**
-   * Subscribes to Web Push Notifications,
-   * after requesting and receiving user permission.
-   *
-   * @param options An object containing the `serverPublicKey` string.
-   * @returns A Promise that resolves to the new subscription object.
-   */
-  requestSubscription(options) {
-    if (!this.sw.isEnabled || this.pushManager === null) {
-      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
-    }
-    const pushOptions = {
-      userVisibleOnly: true
-    };
-    let key = this.decodeBase64(options.serverPublicKey.replace(/_/g, "/").replace(/-/g, "+"));
-    let applicationServerKey = new Uint8Array(new ArrayBuffer(key.length));
-    for (let i = 0; i < key.length; i++) {
-      applicationServerKey[i] = key.charCodeAt(i);
-    }
-    pushOptions.applicationServerKey = applicationServerKey;
-    return this.pushManager.pipe(switchMap((pm) => pm.subscribe(pushOptions)), take(1)).toPromise().then((sub) => {
-      this.subscriptionChanges.next(sub);
-      return sub;
-    });
-  }
-  /**
-   * Unsubscribes from Service Worker push notifications.
-   *
-   * @returns A Promise that is resolved when the operation succeeds, or is rejected if there is no
-   *          active subscription or the unsubscribe operation fails.
-   */
-  unsubscribe() {
-    if (!this.sw.isEnabled) {
-      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
-    }
-    const doUnsubscribe = (sub) => {
-      if (sub === null) {
-        throw new Error("Not subscribed to push notifications.");
-      }
-      return sub.unsubscribe().then((success) => {
-        if (!success) {
-          throw new Error("Unsubscribe failed!");
-        }
-        this.subscriptionChanges.next(null);
-      });
-    };
-    return this.subscription.pipe(take(1), switchMap(doUnsubscribe)).toPromise();
-  }
-  decodeBase64(input2) {
-    return atob(input2);
-  }
-};
-_SwPush.\u0275fac = function SwPush_Factory(\u0275t) {
-  return new (\u0275t || _SwPush)(\u0275\u0275inject(NgswCommChannel));
-};
-_SwPush.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
-  token: _SwPush,
-  factory: _SwPush.\u0275fac
-});
-var SwPush = _SwPush;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SwPush, [{
-    type: Injectable
-  }], () => [{
-    type: NgswCommChannel
-  }], null);
-})();
-var _SwUpdate = class _SwUpdate {
-  /**
-   * True if the Service Worker is enabled (supported by the browser and enabled via
-   * `ServiceWorkerModule`).
-   */
-  get isEnabled() {
-    return this.sw.isEnabled;
-  }
-  constructor(sw) {
-    this.sw = sw;
-    if (!sw.isEnabled) {
-      this.versionUpdates = NEVER;
-      this.unrecoverable = NEVER;
-      return;
-    }
-    this.versionUpdates = this.sw.eventsOfType(["VERSION_DETECTED", "VERSION_INSTALLATION_FAILED", "VERSION_READY", "NO_NEW_VERSION_DETECTED"]);
-    this.unrecoverable = this.sw.eventsOfType("UNRECOVERABLE_STATE");
-  }
-  /**
-   * Checks for an update and waits until the new version is downloaded from the server and ready
-   * for activation.
-   *
-   * @returns a promise that
-   * - resolves to `true` if a new version was found and is ready to be activated.
-   * - resolves to `false` if no new version was found
-   * - rejects if any error occurs
-   */
-  checkForUpdate() {
-    if (!this.sw.isEnabled) {
-      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
-    }
-    const nonce = this.sw.generateNonce();
-    return this.sw.postMessageWithOperation("CHECK_FOR_UPDATES", {
-      nonce
-    }, nonce);
-  }
-  /**
-   * Updates the current client (i.e. browser tab) to the latest version that is ready for
-   * activation.
-   *
-   * In most cases, you should not use this method and instead should update a client by reloading
-   * the page.
-   *
-   * <div class="alert is-important">
-   *
-   * Updating a client without reloading can easily result in a broken application due to a version
-   * mismatch between the application shell and other page resources,
-   * such as lazy-loaded chunks, whose filenames may change between
-   * versions.
-   *
-   * Only use this method, if you are certain it is safe for your specific use case.
-   *
-   * </div>
-   *
-   * @returns a promise that
-   *  - resolves to `true` if an update was activated successfully
-   *  - resolves to `false` if no update was available (for example, the client was already on the
-   *    latest version).
-   *  - rejects if any error occurs
-   */
-  activateUpdate() {
-    if (!this.sw.isEnabled) {
-      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
-    }
-    const nonce = this.sw.generateNonce();
-    return this.sw.postMessageWithOperation("ACTIVATE_UPDATE", {
-      nonce
-    }, nonce);
-  }
-};
-_SwUpdate.\u0275fac = function SwUpdate_Factory(\u0275t) {
-  return new (\u0275t || _SwUpdate)(\u0275\u0275inject(NgswCommChannel));
-};
-_SwUpdate.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
-  token: _SwUpdate,
-  factory: _SwUpdate.\u0275fac
-});
-var SwUpdate = _SwUpdate;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SwUpdate, [{
-    type: Injectable
-  }], () => [{
-    type: NgswCommChannel
-  }], null);
-})();
-var SCRIPT = new InjectionToken(ngDevMode ? "NGSW_REGISTER_SCRIPT" : "");
-function ngswAppInitializer(injector, script, options, platformId) {
-  return () => {
-    if (!(isPlatformBrowser2(platformId) && "serviceWorker" in navigator && options.enabled !== false)) {
-      return;
-    }
-    const ngZone = injector.get(NgZone);
-    const appRef = injector.get(ApplicationRef);
-    ngZone.runOutsideAngular(() => {
-      const sw = navigator.serviceWorker;
-      const onControllerChange = () => sw.controller?.postMessage({
-        action: "INITIALIZE"
-      });
-      sw.addEventListener("controllerchange", onControllerChange);
-      appRef.onDestroy(() => {
-        sw.removeEventListener("controllerchange", onControllerChange);
-      });
-    });
-    let readyToRegister$;
-    if (typeof options.registrationStrategy === "function") {
-      readyToRegister$ = options.registrationStrategy();
-    } else {
-      const [strategy, ...args] = (options.registrationStrategy || "registerWhenStable:30000").split(":");
-      switch (strategy) {
-        case "registerImmediately":
-          readyToRegister$ = of(null);
-          break;
-        case "registerWithDelay":
-          readyToRegister$ = delayWithTimeout(+args[0] || 0);
-          break;
-        case "registerWhenStable":
-          readyToRegister$ = !args[0] ? whenStable2(injector) : merge(whenStable2(injector), delayWithTimeout(+args[0]));
-          break;
-        default:
-          throw new Error(`Unknown ServiceWorker registration strategy: ${options.registrationStrategy}`);
-      }
-    }
-    ngZone.runOutsideAngular(() => readyToRegister$.pipe(take(1)).subscribe(() => navigator.serviceWorker.register(script, {
-      scope: options.scope
-    }).catch((err) => console.error("Service worker registration failed with:", err))));
-  };
-}
-function delayWithTimeout(timeout2) {
-  return of(null).pipe(delay(timeout2));
-}
-function whenStable2(injector) {
-  const appRef = injector.get(ApplicationRef);
-  return appRef.isStable.pipe(filter((stable) => stable));
-}
-function ngswCommChannelFactory(opts, platformId) {
-  return new NgswCommChannel(isPlatformBrowser2(platformId) && opts.enabled !== false ? navigator.serviceWorker : void 0);
-}
-var SwRegistrationOptions = class {
-};
-function provideServiceWorker(script, options = {}) {
-  return makeEnvironmentProviders([SwPush, SwUpdate, {
-    provide: SCRIPT,
-    useValue: script
-  }, {
-    provide: SwRegistrationOptions,
-    useValue: options
-  }, {
-    provide: NgswCommChannel,
-    useFactory: ngswCommChannelFactory,
-    deps: [SwRegistrationOptions, PLATFORM_ID]
-  }, {
-    provide: APP_INITIALIZER,
-    useFactory: ngswAppInitializer,
-    deps: [Injector, SCRIPT, SwRegistrationOptions, PLATFORM_ID],
-    multi: true
-  }]);
-}
-var _ServiceWorkerModule = class _ServiceWorkerModule {
-  /**
-   * Register the given Angular Service Worker script.
-   *
-   * If `enabled` is set to `false` in the given options, the module will behave as if service
-   * workers are not supported by the browser, and the service worker will not be registered.
-   */
-  static register(script, options = {}) {
-    return {
-      ngModule: _ServiceWorkerModule,
-      providers: [provideServiceWorker(script, options)]
-    };
-  }
-};
-_ServiceWorkerModule.\u0275fac = function ServiceWorkerModule_Factory(\u0275t) {
-  return new (\u0275t || _ServiceWorkerModule)();
-};
-_ServiceWorkerModule.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
-  type: _ServiceWorkerModule
-});
-_ServiceWorkerModule.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
-  providers: [SwPush, SwUpdate]
-});
-var ServiceWorkerModule = _ServiceWorkerModule;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ServiceWorkerModule, [{
-    type: NgModule,
-    args: [{
-      providers: [SwPush, SwUpdate]
-    }]
-  }], null, null);
-})();
-
 // src/app/app.config.ts
 var appConfig = {
   providers: [
@@ -90482,8 +90766,8 @@ var appConfig = {
     provideAnimations(),
     provideHttpClient(withInterceptors([laravelInterceptor, noConnectionInterceptor])),
     provideServiceWorker("ngsw-worker.js", {
-      // enabled: true,
-      enabled: !isDevMode(),
+      enabled: true,
+      // enabled: !isDevMode(),
       registrationStrategy: "registerWhenStable:30000"
     }),
     {
@@ -90767,7 +91051,7 @@ function AppComponent_mat_toolbar_5_Template(rf, ctx) {
   }
 }
 var _AppComponent = class _AppComponent {
-  constructor(pusher, authService, dataService, router, themeService, cookieService, swUpdate, bottomSheet) {
+  constructor(pusher, authService, dataService, router, themeService, cookieService, swUpdate, bottomSheet, webPush) {
     this.pusher = pusher;
     this.authService = authService;
     this.dataService = dataService;
@@ -90776,6 +91060,7 @@ var _AppComponent = class _AppComponent {
     this.cookieService = cookieService;
     this.swUpdate = swUpdate;
     this.bottomSheet = bottomSheet;
+    this.webPush = webPush;
     this.title = "Lists";
     this.startPos = 0;
     this.scrollTop = -1;
@@ -90832,7 +91117,7 @@ var _AppComponent = class _AppComponent {
   }
 };
 _AppComponent.\u0275fac = function AppComponent_Factory(\u0275t) {
-  return new (\u0275t || _AppComponent)(\u0275\u0275directiveInject(PusherService), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(DataService), \u0275\u0275directiveInject(Router), \u0275\u0275directiveInject(ThemeService), \u0275\u0275directiveInject(CookieService), \u0275\u0275directiveInject(SwUpdate), \u0275\u0275directiveInject(MatBottomSheet));
+  return new (\u0275t || _AppComponent)(\u0275\u0275directiveInject(PusherService), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(DataService), \u0275\u0275directiveInject(Router), \u0275\u0275directiveInject(ThemeService), \u0275\u0275directiveInject(CookieService), \u0275\u0275directiveInject(SwUpdate), \u0275\u0275directiveInject(MatBottomSheet), \u0275\u0275directiveInject(WebPushService));
 };
 _AppComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 6, vars: 6, consts: [["id", "app-container"], ["id", "offline-indicator", 4, "ngIf"], [1, "content"], [4, "ngIf"], ["id", "offline-indicator"], ["mat-button", "", "routerLink", "/user/lists", 3, "color"], [1, "toolbar-button"], ["mat-button", "", "routerLink", "/user/settings", 3, "color"]], template: function AppComponent_Template(rf, ctx) {
   if (rf & 1) {
@@ -90867,7 +91152,7 @@ _AppComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _A
 ], styles: ['\n\n#app-container[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-rows: [offlineIndicator] 5px [content] calc(100% - 5px - 85px) [footer] 85px;\n  grid-template-columns: 1fr min(100%, 769px) 1fr;\n  height: 100%;\n  width: 100%;\n  grid-template-areas: ". offlineIndicator ." ". content ." ". footer .";\n}\n#offline-indicator[_ngcontent-%COMP%] {\n  height: 29px;\n  width: 100%;\n  background-color: darkred;\n  padding: 6px 12px;\n  grid-area: offlineIndicator;\n  animation: _ngcontent-%COMP%_offline 300ms ease-out 3s forwards;\n  overflow: hidden;\n  box-sizing: border-box;\n}\nmat-toolbar[_ngcontent-%COMP%] {\n  grid-area: footer;\n  display: flex;\n  justify-content: space-around;\n  height: 100%;\n  z-index: 10;\n  width: 100%;\n}\nmat-toolbar[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  height: 100%;\n  flex: 1;\n}\nmat-toolbar[_ngcontent-%COMP%]   .toolbar-button[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n}\n.content[_ngcontent-%COMP%] {\n  grid-area: content;\n  padding: 12px 12px 0;\n  width: 100%;\n  box-sizing: border-box;\n  padding-top: 24px;\n}\n@keyframes _ngcontent-%COMP%_offline {\n  0% {\n    height: 24px;\n    color: white;\n  }\n  100% {\n    height: 5px;\n    color: darkred;\n  }\n}\n/*# sourceMappingURL=app.component.css.map */'] });
 var AppComponent = _AppComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "src/app/app.component.ts", lineNumber: 35 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "src/app/app.component.ts", lineNumber: 36 });
 })();
 
 // src/main.ts

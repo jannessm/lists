@@ -5,7 +5,7 @@ import { REGISTER, SESSION_COOKIE } from '../../globals';
 import dayjs from 'dayjs';
 import md5 from 'md5-ts';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, map, debounceTime } from 'rxjs';
+import { Observable, map, debounceTime, of } from 'rxjs';
 import { AuthResponse, ChangeEmailStatus } from '../../../models/responses';
 import { PusherService } from '../pusher/pusher.service';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
@@ -172,5 +172,17 @@ export class AuthService {
 
   unshareLists(userId: string, listsId: string) {
     return this.api.unshareLists(userId, listsId);
+  }
+
+  pushSubscribe(sub: PushSubscription) {
+    const json = sub.toJSON();
+    if (json.endpoint && json.keys) {
+      return this.api.pushSubscribe(
+        json.endpoint,
+        json.keys['p256dh'],
+        json.keys['auth']
+      );
+    }
+    return of(false);
   }
 }
