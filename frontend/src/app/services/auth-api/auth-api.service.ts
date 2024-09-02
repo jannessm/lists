@@ -135,7 +135,12 @@ export class AuthApiService {
     return this.http.post(BASE_API + 'forgot-password', {
       email
     }, {observe: 'response'}).pipe(
-      catchError(() => of(false)),
+      catchError(err => {
+        if (err.status === 422) {
+          return of(true);
+        }
+        return of(false)
+      }),
       map(this.okMapper)
     );
   }
@@ -184,6 +189,7 @@ export class AuthApiService {
   }
 
   okMapper(res: HttpResponse<any> | boolean) {
+    console.log('ok', res);
     if (res instanceof HttpResponse) {
       return res.status === 200;
     }

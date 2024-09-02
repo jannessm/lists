@@ -82210,7 +82210,12 @@ var _AuthApiService = class _AuthApiService {
   forgotPwd(email) {
     return this.http.post(BASE_API + "forgot-password", {
       email
-    }, { observe: "response" }).pipe(catchError(() => of(false)), map(this.okMapper));
+    }, { observe: "response" }).pipe(catchError((err) => {
+      if (err.status === 422) {
+        return of(true);
+      }
+      return of(false);
+    }), map(this.okMapper));
   }
   resetPwd(token, email, password, password_confirmation) {
     return this.http.post(BASE_API + "reset-password", {
@@ -82242,6 +82247,7 @@ var _AuthApiService = class _AuthApiService {
     }, { observe: "response" }).pipe(catchError(() => of(false)), map(this.okMapper));
   }
   okMapper(res) {
+    console.log("ok", res);
     if (res instanceof HttpResponse) {
       return res.status === 200;
     }
@@ -90746,7 +90752,6 @@ function noConnectionInterceptor(req, next) {
     } else if (!pusher.online.value) {
       pusher.online.next(true);
     }
-    return event;
   }), catchError((err) => {
     pusher.online.next(false);
     throw err;
