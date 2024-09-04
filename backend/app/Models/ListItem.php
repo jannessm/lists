@@ -118,14 +118,13 @@ class ListItem extends Model
             foreach($updatedItems as $updatedItem) {
                 foreach($args['rows'] as $row) {
                     if ($updatedItem->id === $row['newDocumentState']['id']) {
-                        $otherUsers = $updatedItem->lists
-                            ->users()
-                            ->whereNotIn('id', [$user->id]);
+                        $users = $updatedItem->lists->users();
+                        $otherUsers = $users->whereNotIn('id', [$user->id]);
                         
-                        $notification = ListsChanged::fromPushRow($row, $updatedItem);
+                        $notification = ListsChanged::fromPushRow($row, $updatedItem, $user);
                         
                         // Notification::send($otherUsers, $notification);
-                        Notification::sendNow($updatedItem->lists->users(), $notification);
+                        Notification::send($users, $notification);
                         break;
                     }
                 }

@@ -29,7 +29,7 @@ export class WebPushService {
     
     effect(() => {
       const sub = this.sub();
-      if (sub === null && this.authService.me() && swPush.isEnabled) {
+      if (!this.subscribeChallenged && this.authService.me() && swPush.isEnabled) {
         this.subscribe();
       } else if (!!sub) {
         this.getSettings(sub.endpoint);

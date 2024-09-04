@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Nuwave\Lighthouse\Execution\Utils\Subscription;
 
 use App\CanShareLists;
-use App\HasPushSettings;
+use App\WebPush\HasPushSettings;
 
 class User extends Authenticatable implements MustVerifyEmail, CanResetPassword {
     use HasApiTokens,

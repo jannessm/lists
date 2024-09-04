@@ -18,7 +18,7 @@ export function noConnectionInterceptor(req: HttpRequest<unknown>, next: HttpHan
             }
         }),
         catchError(err => {
-            pusher.online.next(false);
+            // pusher.online.next(false);
             throw err;
         })
     );

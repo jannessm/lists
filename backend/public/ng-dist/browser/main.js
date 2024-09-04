@@ -85203,7 +85203,7 @@ var _WebPushService = class _WebPushService {
     }
     effect(() => {
       const sub = this.sub();
-      if (sub === null && this.authService.me() && swPush.isEnabled) {
+      if (!this.subscribeChallenged && this.authService.me() && swPush.isEnabled) {
         this.subscribe();
       } else if (!!sub) {
         this.getSettings(sub.endpoint);
@@ -90753,7 +90753,6 @@ function noConnectionInterceptor(req, next) {
       pusher.online.next(true);
     }
   }), catchError((err) => {
-    pusher.online.next(false);
     throw err;
   }));
 }

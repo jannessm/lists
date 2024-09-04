@@ -63,7 +63,6 @@ trait CanShareLists
             $lists->updated_at = $this->freshTimestamp();
             $lists->save();
             
-            var_dump($lists->sharedWith);
             Subscription::broadcast('streamLists', collect([$lists])->all());
             Subscription::broadcast('streamUsers', $lists->users);
         }

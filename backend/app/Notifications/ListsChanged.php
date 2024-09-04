@@ -9,8 +9,9 @@ use Illuminate\Notifications\Notification;
 
 use NotificationChannels\WebPush\WebPushMessage;
 
-use App\Providers\MyWebPushChannel;
+use App\WebPush\MyWebPushChannel;
 use App\Models\ListItem;
+use App\Models\User;
 
 enum ListChangeEvent {
     case Added;
@@ -22,17 +23,14 @@ class ListsChanged extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    private ListItem $item;
-    private ListChangeEvent $type;
-
     /**
      * Create a new notification instance.
      */
-    public function __construct(ListItem $item, ListChangeEvent $type)
-    {
-        $this->item = $item;
-        $this->type = $type;
-    }
+    public function __construct(
+        private ListItem $item,
+        private ListChangeEvent $type,
+        private User $actor)
+    { }
 
     /**
      * Get the notification's delivery channels.
@@ -59,11 +57,12 @@ class ListsChanged extends Notification implements ShouldQueue
 
     public function toWebPush($notifiable, $notification) {
         $list = $this->item->lists;
+        $actor = explode(' ', $this->actor->name)[0];
 
         return (new WebPushMessage)
-            ->title($list->name . 'geändert')
+            ->title($list->name . ' geändert')
             ->icon('/favicon.ico')
-            ->body($this->item->name . ' wurde ' . $this->eventToText() . '.')
+            ->body($actor . ' hat ' . $this->item->name . ' ' . $this->eventToText() . '.')
             ->action('Liste öffnen', 'open_list')
             ->options(['TTL' => 1000])
             ->data(['onActionClick' => [
@@ -76,14 +75,6 @@ class ListsChanged extends Notification implements ShouldQueue
                     "url" => "/user/lists/" . $list->id
                 ]
             ]]);
-            // ->badge()
-            // ->dir()
-            // ->image()
-            // ->lang()
-            // ->renotify()
-            // ->requireInteraction()
-            // ->tag()
-            // ->vibrate()
     }
 
     function eventToText() {
@@ -98,16 +89,16 @@ class ListsChanged extends Notification implements ShouldQueue
         }
     }
 
-    static function fromPushRow($pushRow, ListItem $item) {
+    static function fromPushRow($pushRow, ListItem $item, User $user) {
         $newState = $pushRow['newDocumentState'];
         $master = $pushRow['assumedMasterState'];
 
         if (!$master) {
-            return new ListsChanged($item, ListChangeEvent::Added);
+            return new ListsChanged($item, ListChangeEvent::Added, $user);
         } else if ($newState['done'] !== $master['done'] && $item->done) {
-            return new ListsChanged($item, ListChangeEvent::Done);
+            return new ListsChanged($item, ListChangeEvent::Done, $user);
         }
 
-        return new ListsChanged($item, ListChangeEvent::Changed);
+        return new ListsChanged($item, ListChangeEvent::Changed, $user);
     }
 }

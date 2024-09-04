@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\WebPush;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -15,7 +15,7 @@ trait HasPushSettings
     public function getPushSettings(String $endpoint) {
         return $this->allPushSettings->filter(
             function ($item) use ($endpoint) {
-                return $item->pushSubscription->endpoint === $endpoint;
+                return !!$item->pushSubscription && $item->pushSubscription->endpoint === $endpoint;
             }
         )->first();
     }

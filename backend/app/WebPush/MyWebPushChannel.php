@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Providers;
+namespace App\WebPush;
 
 use Illuminate\Notifications\Notification;
 use Minishlink\WebPush\Subscription;
@@ -26,8 +26,19 @@ class MyWebPushChannel extends WebPushChannel {
 
         /** @var \NotificationChannels\WebPush\WebPushMessage $message */
         $message = $notification->toWebPush($notifiable, $notification);
-        $payload = json_encode($message->toArray());
+        $payload = json_encode(["notification" => $message->toArray()]);
         $options = $message->getOptions();
+        
+        $webpush = config('webpush');
+        $publicKey = $webpush['vapid']['public_key'];
+        $privateKey = $webpush['vapid']['private_key'];
+
+        $auth['VAPID'] = compact('publicKey', 'privateKey');
+        $auth['VAPID']['subject'] = $webpush['vapid']['subject'];
+
+        if (empty($auth['VAPID']['subject'])) {
+            $auth['VAPID']['subject'] = url('/');
+        }
 
         /** @var \NotificationChannels\WebPush\PushSubscription $subscription */
         foreach ($subscriptions as $subscription) {
@@ -37,7 +48,7 @@ class MyWebPushChannel extends WebPushChannel {
                     $subscription->public_key,
                     $subscription->auth_token,
                     $subscription->content_encoding
-                ), $payload, $options);
+                ), $payload, $options, $auth);
             }
         }
 

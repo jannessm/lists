@@ -10,6 +10,8 @@ use Illuminate\Notifications\Messages\MailMessage;
 use NotificationChannels\WebPush\ReportHandlerInterface;
 use NotificationChannels\WebPush\ReportHandler;
 
+use App\WebPush\MyWebPushChannel;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
