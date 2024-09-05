@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/selects/reminder-select/reminder-select.component.scss"],
+  "sourcesContent": ["input {\n    display: none;\n}"],
+  "mappings": ";AAAA;AACI,WAAA;;",
+  "names": []
+}

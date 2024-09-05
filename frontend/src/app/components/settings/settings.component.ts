@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, Signal, WritableSignal, signal } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../../material.module';
 import { AuthService } from '../../services/auth/auth.service';
 import { environment } from '../../../environments/environment';
@@ -8,10 +8,10 @@ import { MyMeDocument } from '../../mydb/types/me';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { PusherService } from '../../services/pusher/pusher.service';
 import { Subscription } from 'rxjs';
-import { WebPushService } from '../../services/web-push/web-push.service';
 import { EditFormComponent } from './edit-form/edit-form.component';
 import { ThemeFormComponent } from './theme-form/theme-form.component';
 import { PushFormComponent } from './push-form/push-form.component';
+import { OthersFormComponent } from './others-form/others-form.component';
 
 @Component({
   selector: 'app-settings',
@@ -24,7 +24,8 @@ import { PushFormComponent } from './push-form/push-form.component';
     NameBadgePipe,
     EditFormComponent,
     ThemeFormComponent,
-    PushFormComponent
+    PushFormComponent,
+    OthersFormComponent
   ],
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss']

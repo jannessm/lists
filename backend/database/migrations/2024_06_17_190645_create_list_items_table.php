@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('description')->nullable(true);
             $table->timestamp('reminder')->nullable(true);
             $table->timestamp('due')->nullable(true);
+            $table->string('timezone')->nullable(false);
             $table->foreignUlid('created_by')->references('id')->on('users')->nullable(false);
             $table->foreignUlid('lists_id')->nullable(false)->cascadeOnDelete();
             $table->boolean('done')->default(false);

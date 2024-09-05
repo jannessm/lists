@@ -3,11 +3,12 @@ type ListItem {
   id: String!
   name: String!
   description: String
-  reminder: DateTimeUtc
+  reminder: String
   due: DateTimeUtc
   createdBy: User! @belongsTo
   lists: Lists! @belongsTo
   done: Boolean!
+  timezone: String!
   
   "When item was created."
   createdAt: DateTimeUtc! @rename(attribute: "created_at")
@@ -26,6 +27,7 @@ input ListItemInput {
   description: String
   reminder: DateTimeUtc
   due: DateTimeUtc
+  timezone: String!
   createdBy: RefInput @model(class: "App\\Models\\User") @belongsTo
   lists: RefInput! @model(class: "App\\Models\\Lists") @belongsTo
   done: Boolean!

@@ -12,13 +12,18 @@ class PushController extends Controller
         $token = $request->input('token');
 
         $user = $request->user();
+        if ($user) {
+            $user->updatePushSubscription($endpoint, $key, $token);
+        }
 
-        $user->updatePushSubscription($endpoint, $key, $token);
     }
 
     function unsubscribe(Request $request) {
         $endpoint = $request->input('endpoint');
 
-        $request->user()->deletePushSubscription($endpoint);
+        $user = $request->user();
+        if ($user) {
+            $user->deletePushSubscription($endpoint);
+        }
     }
 }

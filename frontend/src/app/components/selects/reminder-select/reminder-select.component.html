@@ -1,0 +1,7 @@
+<mat-label>Erinnerungen</mat-label>
+<mat-chip-listbox [(ngModel)]="reminder" [disabled]="disabled">
+    <mat-chip-option *ngFor="let val of options" [value]="val" (click)="onChange(value); onTouched();">{{getLabel(val)}}</mat-chip-option>
+    
+    <mat-chip-option *ngIf="showOthers" value="different" (click)="openFlatpickr()">{{(this.reminderDate | date:'short') || 'Andere'}}</mat-chip-option>
+</mat-chip-listbox>
+<input type="datetime-local" #pickr [(ngModel)]="reminderDate">

@@ -93,6 +93,17 @@ export class MyQuery<DocType, DocMethods> {
         this.subject.value.forEach(doc => doc.patch(patch));
     }
 
+    async bulkPatch(patch: any) {
+        const updates = this.subject.value.map(doc => {
+            return {
+                key: doc.key,
+                changes: patch
+            };
+        });
+
+        return this.collection.table.bulkUpdate(updates);
+    }
+
     remove() {
         this.subject.value.forEach(doc => doc.remove());
     }

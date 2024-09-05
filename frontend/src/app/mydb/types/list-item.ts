@@ -1,19 +1,21 @@
 import { AsTyped } from 'as-typed';
 import { ulid } from "ulid";
-import { ForeignId, COMMON_SCHEMA } from "./common";
+import { COMMON_SCHEMA } from "./common";
 import { Signal } from "@angular/core";
 import { MyDocument } from './classes';
 import { MyCollection } from '../collection';
+import { ReminderOptions } from '../../components/selects/reminder-select/options';
 
 
-export function newItem(item: any): any {
+export function newItem(item: any, defaultReminder?: string): any {
     const newItem = {
         id: ulid().toLowerCase(),
         name: '',
         description: '',
         createdBy: {id: '', name: ''},
-        reminder: '',
+        reminder: defaultReminder || ReminderOptions.MIN_0,
         due: '',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         lists: {id: '', name: ''},
         done: false,
         createdAt: new Date().toISOString(),
@@ -54,6 +56,9 @@ export const ITEM_SCHEMA = {
         },
         due: {
             type: ['string', 'null']
+        },
+        timezone: {
+            type: 'string'
         },
         lists: {
             type: 'string'

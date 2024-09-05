@@ -55,6 +55,10 @@ class ListItem extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function localeDueTime($format) {
+        return $this->due->timezone($this->timezone)->format($format);
+    }
+
     public function pushResolver($_, $args) {
         $user = Auth::user();
 

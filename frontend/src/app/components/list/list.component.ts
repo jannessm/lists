@@ -259,7 +259,7 @@ export class ListComponent implements AfterViewInit, OnDestroy {
         lists: this.list().id
       };
 
-      this.dataService.db.items.insert(newItem(item))
+      this.dataService.db.items.insert(newItem(item, this.me().defaultReminder))
         .then(() => {
           this.newItem.reset();
           this.timePickerDate = undefined;

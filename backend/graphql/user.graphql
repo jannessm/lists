@@ -21,6 +21,9 @@ type User implements Item {
 
   "Default list that is opened on startup"
   defaultList: Lists @canRoot(ability: "viewDetails")
+
+  "Default setting to use when selecting reminder"
+  defaultReminder: String @canRoot(ability: "viewDetails") @rename(attribute: "default_reminder")
   
   "When item was created."
   createdAt: DateTimeUtc! @rename(attribute: "created_at")
@@ -42,6 +45,7 @@ input UserInput {
   email: String
   emailVerifiedAt: DateTimeUtc @canRoot(ability: "viewDetails") @rename(attribute: "email_verified_at")
   theme: String @canRoot(ability: "viewDetails")
+  defaultReminder: String @canRoot(ability: "viewDetails") @rename(attribute: "default_reminder")
   createdAt: DateTimeUtc @rename(attribute: "created_at")
   updatedAt: DateTimeUtc @rename(attribute: "updated_at")
   _deleted: Boolean

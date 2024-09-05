@@ -134,6 +134,7 @@ class DatabaseSeeder extends Seeder
             $item['lists_id'] = $new_lists[$item['list_id']]->id;
             $item['created_by'] = $new_users[$item['created_by']]->id;
             $item['done'] = $item['done'] === 1 || $item['done'] === '1';
+            $item['timezone'] = 'Europe/Berlin';
             unset($item['list_id']);
 
             if (strlen($item['name']) > 50) {

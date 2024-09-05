@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, Inject, OnDestroy, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
@@ -9,6 +9,8 @@ import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { Subscription } from 'rxjs';
 import { MyListsDocument } from '../../../mydb/types/lists';
 import { MyItemDocument } from '../../../mydb/types/list-item';
+import { ReminderSelectComponent } from '../../selects/reminder-select/reminder-select.component';
+import { ReminderOptions } from '../../selects/reminder-select/options';
 
 @Component({
   selector: 'app-update-item-sheet',
@@ -17,8 +19,10 @@ import { MyItemDocument } from '../../../mydb/types/list-item';
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
-    MaterialModule
+    MaterialModule,
+    ReminderSelectComponent
   ],
+  providers: [DatePipe],
   templateUrl: './update-item-sheet.component.html',
   styleUrls: ['./update-item-sheet.component.scss', '../styles.scss']
 })
@@ -28,9 +32,7 @@ export class UpdateItemSheetComponent implements OnDestroy {
   timezone: string;
 
   dueFlatpickr!: flatpickr.Instance;
-  reminderFlatpickr!: flatpickr.Instance;
   duePickerOpen = false;
-  reminderPickerOpen = false;
 
   enableBottomSheetClose?: ReturnType<typeof setTimeout>;
 
@@ -41,7 +43,8 @@ export class UpdateItemSheetComponent implements OnDestroy {
   constructor(
     public bottomSheetRef: MatBottomSheetRef<UpdateItemSheetComponent>,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: {list: MyListsDocument, item: MyItemDocument},
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private datePipe: DatePipe
   ) {
     this.list = data.list;
     const due = !!data.item.due ? new Date(data.item.due) : null;
@@ -73,16 +76,6 @@ export class UpdateItemSheetComponent implements OnDestroy {
   }
 
   ngAfterViewInit() {
-    this.reminderFlatpickr = flatpickr('#reminder-picker', timePickerConfig) as flatpickr.Instance;
-
-    this.reminderFlatpickr.config.onClose.push(() => {
-      this.closeReminderPicker();
-    });
-
-    if (this.form.get('reminder')?.value && this.data.item.reminder) {
-      this.reminderFlatpickr.setDate(new Date(this.data.item.reminder));
-    }
-
     this.dueFlatpickr = flatpickr('#due-picker', timePickerConfig) as flatpickr.Instance;
 
     this.dueFlatpickr.config.onChange.push(val => {  
@@ -130,22 +123,17 @@ export class UpdateItemSheetComponent implements OnDestroy {
     }
   }
 
-  openReminderPicker(event: any) {
-    if (event.value === "different" && !this.reminderPickerOpen) {
-      this.reminderFlatpickr.open();
-      this.bottomSheetRef.disableClose = true;
-      this.reminderPickerOpen = true;
-    }
+  pickrOpened() {
+    this.bottomSheetRef.disableClose = true;
   }
 
-  closeReminderPicker() {
+  pickrClosed() {
     if (this.enableBottomSheetClose) {
       clearTimeout(this.enableBottomSheetClose);
       this.enableBottomSheetClose = undefined;
     }
-    if (this.reminderPickerOpen) {
-      this.reminderPickerOpen = false;
-  
+    
+    if (this.bottomSheetRef.disableClose) {
       this.enableBottomSheetClose = setTimeout(() => {
         this.bottomSheetRef.disableClose = false;
         this.enableBottomSheetClose = undefined;
@@ -161,19 +149,31 @@ export class UpdateItemSheetComponent implements OnDestroy {
     const aDayBefore = new Date(due.valueOf());
     aDayBefore.setDate(due.getDate() - 1);
     if (reminder.valueOf() == aDayBefore.valueOf()) {
-      return "1d";
+      return ReminderOptions.D_1;
     }
 
     const anHourBefore = new Date(due.valueOf());
     anHourBefore.setHours(due.getHours() - 1);
     if (reminder.valueOf() == anHourBefore.valueOf()) {
-      return "1h";
+      return ReminderOptions.H_1;
     }
 
     const thirtyMinBefore = new Date(due.valueOf());
     thirtyMinBefore.setMinutes(due.getMinutes() - 30);
     if (reminder.valueOf() == thirtyMinBefore.valueOf()) {
-      return "30min";
+      return ReminderOptions.MIN_30;
+    }
+
+    const tenMinBefore = new Date(due.valueOf());
+    tenMinBefore.setMinutes(due.getMinutes() - 10);
+    if (reminder.valueOf() == tenMinBefore.valueOf()) {
+      return ReminderOptions.MIN_10;
+    }
+
+    const noMinBefore = new Date(due.valueOf());
+    noMinBefore.setMinutes(due.getMinutes() - 10);
+    if (reminder.valueOf() == noMinBefore.valueOf()) {
+      return ReminderOptions.MIN_0;
     }
 
     return "different";
@@ -181,7 +181,10 @@ export class UpdateItemSheetComponent implements OnDestroy {
 
   parseDateTime(date: Date | null) {
     if (date) {
-      return date.toISOString().slice(0, 16);
+      return this.datePipe.transform(
+        date.toISOString().slice(0, 16),
+        'short'
+      );
     }
     return '';
   }

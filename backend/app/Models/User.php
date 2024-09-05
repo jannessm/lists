@@ -40,7 +40,8 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
         'email',
         'password',
         'theme',
-        'default_list'
+        'default_list',
+        'default_reminder'
     ];
     
     /**
@@ -51,7 +52,8 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
     protected $attributes = [
         '_deleted' => false,
         'theme' => 'auto',
-        'default_list' => null
+        'default_list' => null,
+        'default_reminder' => ReminderIntervals::DUE->value
     ];
 
     /**

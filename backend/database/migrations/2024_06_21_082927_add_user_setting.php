@@ -16,6 +16,7 @@ return new class extends Migration
                 ->after('password')
                 ->default('auto');
             $table->foreignUlid('default_list')->nullable()->references('id')->on('lists');
+            $table->string('default_reminder')->default();
         });
     }
 

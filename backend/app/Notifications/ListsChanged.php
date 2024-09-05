@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 use NotificationChannels\WebPush\WebPushMessage;
@@ -29,8 +28,7 @@ class ListsChanged extends Notification implements ShouldQueue
     public function __construct(
         private ListItem $item,
         private ListChangeEvent $type,
-        private User $actor)
-    { }
+        private User $actor) { }
 
     /**
      * Get the notification's delivery channels.

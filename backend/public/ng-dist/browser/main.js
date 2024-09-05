@@ -82551,29 +82551,54 @@ var ME_SCHEMA = {
     emailVerifiedAt: {
       type: ["string", "null"]
     },
-    // lists: {
-    //     type: 'array',
-    //     items: {
-    //         type: 'string'
-    //     }
-    // },
     // settings
     theme: {
+      type: "string"
+    },
+    defaultReminder: {
       type: "string"
     }
   }, COMMON_SCHEMA),
   required: ["id", "name", "email", "emailVerifiedAt", "theme"]
 };
 
+// src/app/components/selects/reminder-select/options.ts
+var ReminderOptions;
+(function(ReminderOptions2) {
+  ReminderOptions2["NO_REMINDER"] = "no";
+  ReminderOptions2["MIN_0"] = "0 min";
+  ReminderOptions2["MIN_10"] = "10 min";
+  ReminderOptions2["MIN_30"] = "30 min";
+  ReminderOptions2["H_1"] = "1 h";
+  ReminderOptions2["D_1"] = "1 d";
+})(ReminderOptions || (ReminderOptions = {}));
+function getReminderLabel(option) {
+  switch (option) {
+    case ReminderOptions.NO_REMINDER:
+      return "Keine Erinnerung";
+    case ReminderOptions.MIN_0:
+    case ReminderOptions.MIN_10:
+    case ReminderOptions.MIN_30:
+      return option + " vorher";
+    case ReminderOptions.H_1:
+      return "1 Std vorher";
+    case ReminderOptions.D_1:
+      return "1 Tag vorher";
+    default:
+      return "MISSING REMINDER LABEL";
+  }
+}
+
 // src/app/mydb/types/list-item.ts
-function newItem(item) {
+function newItem(item, defaultReminder) {
   const newItem2 = {
     id: ulid().toLowerCase(),
     name: "",
     description: "",
     createdBy: { id: "", name: "" },
-    reminder: "",
+    reminder: defaultReminder || ReminderOptions.MIN_0,
     due: "",
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     lists: { id: "", name: "" },
     done: false,
     createdAt: (/* @__PURE__ */ new Date()).toISOString(),
@@ -82611,6 +82636,9 @@ var ITEM_SCHEMA = {
     },
     due: {
       type: ["string", "null"]
+    },
+    timezone: {
+      type: "string"
     },
     lists: {
       type: "string"
@@ -82882,6 +82910,17 @@ var MyQuery = class {
   }
   patch(patch) {
     this.subject.value.forEach((doc) => doc.patch(patch));
+  }
+  bulkPatch(patch) {
+    return __async(this, null, function* () {
+      const updates = this.subject.value.map((doc) => {
+        return {
+          key: doc.key,
+          changes: patch
+        };
+      });
+      return this.collection.table.bulkUpdate(updates);
+    });
   }
   remove() {
     this.subject.value.forEach((doc) => doc.remove());
@@ -85378,1830 +85417,92 @@ var PushFormComponent = _PushFormComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PushFormComponent, { className: "PushFormComponent", filePath: "src/app/components/settings/push-form/push-form.component.ts", lineNumber: 18 });
 })();
 
-// src/app/components/settings/settings.component.ts
-function SettingsComponent_div_0_button_1_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 10);
-    \u0275\u0275listener("click", function SettingsComponent_div_0_button_1_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r2);
-      const ctx_r2 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r2.enterEditMode());
-    });
-    \u0275\u0275elementStart(1, "mat-icon");
-    \u0275\u0275text(2, "edit");
-    \u0275\u0275elementEnd()();
-  }
-}
-function SettingsComponent_div_0_button_2_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "button", 11);
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "nameBadge");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, ctx_r2.user().name), " ");
-  }
-}
-function SettingsComponent_div_0_button_3_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "button", 11);
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "nameBadge");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, ctx_r2.userName()), " ");
-  }
-}
-function SettingsComponent_div_0_div_5_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div");
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r2.user().name);
-  }
-}
-function SettingsComponent_div_0_div_6_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div");
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r2.user().email);
-  }
-}
-function SettingsComponent_div_0_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 1);
-    \u0275\u0275template(1, SettingsComponent_div_0_button_1_Template, 3, 0, "button", 2)(2, SettingsComponent_div_0_button_2_Template, 3, 3, "button", 3)(3, SettingsComponent_div_0_button_3_Template, 3, 3, "button", 3);
-    \u0275\u0275elementStart(4, "div", 4);
-    \u0275\u0275template(5, SettingsComponent_div_0_div_5_Template, 2, 1, "div", 5)(6, SettingsComponent_div_0_div_6_Template, 2, 1, "div", 5);
-    \u0275\u0275elementStart(7, "app-settings-edit-form", 6);
-    \u0275\u0275listener("name", function SettingsComponent_div_0_Template_app_settings_edit_form_name_7_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.userName.set($event));
-    });
-    \u0275\u0275elementEnd();
-    \u0275\u0275element(8, "hr")(9, "app-settings-theme-form", 7)(10, "hr")(11, "app-settings-push-form", 7);
-    \u0275\u0275elementStart(12, "button", 8);
-    \u0275\u0275listener("click", function SettingsComponent_div_0_Template_button_click_12_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.logout());
-    });
-    \u0275\u0275text(13, "Logout");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(14, "div", 9);
-    \u0275\u0275text(15);
-    \u0275\u0275elementEnd()()();
-  }
-  if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", !ctx_r2.editMode());
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", !ctx_r2.editMode() && ctx_r2.user() && !!ctx_r2.user().name);
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx_r2.editMode());
-    \u0275\u0275advance(2);
-    \u0275\u0275property("ngIf", ctx_r2.user() && !ctx_r2.editMode());
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx_r2.user() && !ctx_r2.editMode());
-    \u0275\u0275advance();
-    \u0275\u0275property("editMode", ctx_r2.editMode)("disabled", ctx_r2.editFormDisabled);
-    \u0275\u0275advance(8);
-    \u0275\u0275textInterpolate1("v", ctx_r2.version, "");
-  }
-}
-var _SettingsComponent = class _SettingsComponent {
-  constructor(authService, fb, pusher) {
-    this.authService = authService;
-    this.fb = fb;
-    this.pusher = pusher;
-    this.userName = signal("");
-    this.version = environment.version;
-    this.editMode = signal(false);
-    this.editFormDisabled = signal(false);
-    this.user = this.authService.me;
-    this.pusherSub = this.pusher.online.subscribe((isOnline) => {
-      this.editFormDisabled.set(!isOnline);
-    });
-  }
-  ngOnDestroy() {
-    this.pusherSub.unsubscribe();
-  }
-  logout() {
-    this.authService.logout();
-  }
-  enterEditMode() {
-    if (this.user()) {
-      this.editMode.set(true);
-    } else {
-      this.editMode.set(false);
-    }
-  }
-};
-_SettingsComponent.\u0275fac = function SettingsComponent_Factory(\u0275t) {
-  return new (\u0275t || _SettingsComponent)(\u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(PusherService));
-};
-_SettingsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsComponent, selectors: [["app-settings"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 1, vars: 1, consts: [["class", "container", 4, "ngIf"], [1, "container"], ["mat-icon-button", "", "class", "edit-buttons", 3, "click", 4, "ngIf"], ["disabled", "", "mat-fab", "", "class", "user-fab-0", 4, "ngIf"], [1, "inner-container"], [4, "ngIf"], [1, "forms", 3, "name", "editMode", "disabled"], [1, "forms"], ["mat-stroked-button", "", 3, "click"], ["id", "version"], ["mat-icon-button", "", 1, "edit-buttons", 3, "click"], ["disabled", "", "mat-fab", "", 1, "user-fab-0"]], template: function SettingsComponent_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275template(0, SettingsComponent_div_0_Template, 16, 8, "div", 0);
-  }
-  if (rf & 2) {
-    \u0275\u0275property("ngIf", ctx.user());
-  }
-}, dependencies: [
-  ReactiveFormsModule,
-  FormsModule,
-  CommonModule,
-  NgIf,
-  MaterialModule,
-  MatButton,
-  MatIconButton,
-  MatFabButton,
-  MatIcon,
-  NameBadgePipe,
-  EditFormComponent,
-  ThemeFormComponent,
-  PushFormComponent
-], styles: ["\n\n.container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  height: 100%;\n}\n.container[_ngcontent-%COMP%]   button.user-fab-0[_ngcontent-%COMP%] {\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   button.edit-buttons[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 32px;\n  right: 0;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%] {\n  overflow: hidden auto;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   div[_ngcontent-%COMP%]:first-child {\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   #version[_ngcontent-%COMP%] {\n  color: grey;\n  font-size: 12px;\n  margin-top: 48px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   .forms[_ngcontent-%COMP%] {\n  width: 100%;\n}\n/*# sourceMappingURL=settings.component.css.map */"] });
-var SettingsComponent = _SettingsComponent;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsComponent, { className: "SettingsComponent", filePath: "src/app/components/settings/settings.component.ts", lineNumber: 32 });
-})();
+// src/models/reminder.ts
+var REMINDER_INTERVAL;
+(function(REMINDER_INTERVAL2) {
+  REMINDER_INTERVAL2["DUE"] = "0 min";
+  REMINDER_INTERVAL2["MIN_10"] = "10 min";
+  REMINDER_INTERVAL2["MIN_30"] = "30 min";
+  REMINDER_INTERVAL2["H_1"] = "1 h";
+  REMINDER_INTERVAL2["D_1"] = "1 d";
+})(REMINDER_INTERVAL || (REMINDER_INTERVAL = {}));
 
-// src/app/components/forgot-password/forgot-password.component.ts
-function ForgotPasswordComponent_mat_error_6_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-error");
-    \u0275\u0275text(1, " Email muss angegeben werden! ");
-    \u0275\u0275elementEnd();
-  }
-}
-function ForgotPasswordComponent_mat_error_7_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-error");
-    \u0275\u0275text(1, " Bitte eine g\xFCltige Email Adresse angeben! ");
-    \u0275\u0275elementEnd();
-  }
-}
-var _ForgotPasswordComponent = class _ForgotPasswordComponent {
-  constructor(fb, authService, snackBar) {
-    this.fb = fb;
-    this.authService = authService;
-    this.snackBar = snackBar;
-    this.form = this.fb.group({
-      email: ["", [Validators.required, Validators.email]]
-    });
-  }
-  resetPwd() {
-    if (this.form.invalid) {
-      return;
-    }
-    this.authService.forgotPwd(this.form.get("email")?.value).subscribe((success) => {
-      if (success) {
-        this.snackBar.open("Existiert ein Nutzer mit dieser Email, wurde eine Email zum Zur\xFCcksetzen versendet.", "Ok");
-      } else {
-        this.snackBar.open("Es ist ein Fehler aufgetreten.", "Ok");
-      }
-    });
-  }
-};
-_ForgotPasswordComponent.\u0275fac = function ForgotPasswordComponent_Factory(\u0275t) {
-  return new (\u0275t || _ForgotPasswordComponent)(\u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(MatSnackBar));
-};
-_ForgotPasswordComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ForgotPasswordComponent, selectors: [["app-forgot-pwd"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 15, vars: 4, consts: [[3, "formGroup"], ["appearance", "outline"], ["matInput", "", "placeholder", "Email", "formControlName", "email", "type", "email"], [4, "ngIf"], ["mat-flat-button", "", "color", "primary", 3, "click", "disabled"], [1, "container"], ["mat-stroked-button", "", "routerLink", "/login", "type", "button"]], template: function ForgotPasswordComponent_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div")(1, "form", 0)(2, "mat-form-field", 1)(3, "mat-label");
-    \u0275\u0275text(4, "email");
-    \u0275\u0275elementEnd();
-    \u0275\u0275element(5, "input", 2);
-    \u0275\u0275template(6, ForgotPasswordComponent_mat_error_6_Template, 2, 0, "mat-error", 3)(7, ForgotPasswordComponent_mat_error_7_Template, 2, 0, "mat-error", 3);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "button", 4);
-    \u0275\u0275listener("click", function ForgotPasswordComponent_Template_button_click_8_listener() {
-      return ctx.resetPwd();
-    });
-    \u0275\u0275text(9, "Passwort zur\xFCcksetzen");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "div", 5)(11, "button", 6);
-    \u0275\u0275text(12, "Login");
-    \u0275\u0275elementStart(13, "mat-icon");
-    \u0275\u0275text(14, "chevron_left");
-    \u0275\u0275elementEnd()()()()();
-  }
-  if (rf & 2) {
-    let tmp_1_0;
-    let tmp_2_0;
-    \u0275\u0275advance();
-    \u0275\u0275property("formGroup", ctx.form);
-    \u0275\u0275advance(5);
-    \u0275\u0275property("ngIf", (tmp_1_0 = ctx.form.get("email")) == null ? null : tmp_1_0.hasError("required"));
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", (tmp_2_0 = ctx.form.get("email")) == null ? null : tmp_2_0.hasError("email"));
-    \u0275\u0275advance();
-    \u0275\u0275property("disabled", ctx.form.invalid || ctx.form.disabled);
-  }
-}, dependencies: [CommonModule, NgIf, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, MatButtonModule, MatButton, MatFormFieldModule, MatFormField, MatLabel, MatError, MatIconModule, MatIcon, MatInputModule, MatInput, RouterModule, RouterLink], styles: ["\n\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin: 12px 0;\n}\ndiv[_ngcontent-%COMP%]   .container[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  justify-content: space-between;\n  margin: 0;\n}\n/*# sourceMappingURL=forgot-password.component.css.map */"] });
-var ForgotPasswordComponent = _ForgotPasswordComponent;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ForgotPasswordComponent, { className: "ForgotPasswordComponent", filePath: "src/app/components/forgot-password/forgot-password.component.ts", lineNumber: 29 });
-})();
-
-// src/app/components/reset-password/reset-password.component.ts
-function ResetPasswordComponent_mat_error_6_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-error");
-    \u0275\u0275text(1, " Passwort muss angegeben werden! ");
-    \u0275\u0275elementEnd();
-  }
-}
-function ResetPasswordComponent_mat_error_11_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-error");
-    \u0275\u0275text(1, " Passw\xF6rter stimmen nicht \xFCberein! ");
-    \u0275\u0275elementEnd();
-  }
-}
-function ResetPasswordComponent_mat_error_12_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-error");
-    \u0275\u0275text(1, "Link ist ung\xFCltig.");
-    \u0275\u0275elementEnd();
-  }
-}
-function ResetPasswordComponent_mat_error_13_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-error");
-    \u0275\u0275text(1, "Link ist abgelaufen.");
-    \u0275\u0275elementEnd();
-  }
-}
-var _ResetPasswordComponent = class _ResetPasswordComponent {
-  constructor(route, authService, router, fb) {
-    this.route = route;
-    this.authService = authService;
-    this.router = router;
-    this.fb = fb;
-    route.queryParams.subscribe((params) => {
-      this.token = params["token"];
-      this.email = params["email"];
-      if (!this.token || !this.email) {
-        const interval = setInterval(() => {
-          if (!!this.form) {
-            this.form.disable();
-            this.form.setErrors({ invalidLink: true });
-            clearInterval(interval);
-          }
-        }, 100);
-      }
-    });
-    this.form = fb.group({
-      "pwd": ["", Validators.required],
-      "pwd_confirmation": ["", Validators.required]
-    }, {
-      validators: MatchValidator("pwd", "pwd_confirmation")
-    });
-    this.formSub = this.form.valueChanges.subscribe(() => {
-      this.form.setErrors(null);
-    });
-  }
-  ngOnDestroy() {
-    this.formSub.unsubscribe();
-  }
-  resetPwd() {
-    if (this.form.invalid) {
-      return;
-    }
-    if (!this.token || !this.email) {
-      this.form.setErrors({ "invalidLink": true });
-    } else {
-      const pwd = md5(this.form.get("pwd")?.value);
-      const pwd_confirmation = md5(this.form.get("pwd_confirmation")?.value);
-      this.authService.resetPwd(this.token, this.email, pwd, pwd_confirmation).subscribe((success) => {
-        if (success) {
-          this.router.navigateByUrl("/login");
-        } else {
-          this.form.setErrors({ invalidToken: true });
-        }
-      });
-    }
-  }
-};
-_ResetPasswordComponent.\u0275fac = function ResetPasswordComponent_Factory(\u0275t) {
-  return new (\u0275t || _ResetPasswordComponent)(\u0275\u0275directiveInject(ActivatedRoute), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(Router), \u0275\u0275directiveInject(FormBuilder));
-};
-_ResetPasswordComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ResetPasswordComponent, selectors: [["app-reset-password"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 21, vars: 6, consts: [[3, "formGroup"], ["appearance", "outline"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "pwd"], [4, "ngIf"], ["matInput", "", "type", "password", "placeholder", "Passwort wiederholen", "formControlName", "pwd_confirmation"], ["mat-flat-button", "", "color", "primary", 3, "click", "disabled"], [1, "container"], ["mat-stroked-button", "", "type", "button", "routerLink", "/login"]], template: function ResetPasswordComponent_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div")(1, "form", 0)(2, "mat-form-field", 1)(3, "mat-label");
-    \u0275\u0275text(4, "Passwort");
-    \u0275\u0275elementEnd();
-    \u0275\u0275element(5, "input", 2);
-    \u0275\u0275template(6, ResetPasswordComponent_mat_error_6_Template, 2, 0, "mat-error", 3);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "mat-form-field", 1)(8, "mat-label");
-    \u0275\u0275text(9, "Passwort wiederholen");
-    \u0275\u0275elementEnd();
-    \u0275\u0275element(10, "input", 4);
-    \u0275\u0275template(11, ResetPasswordComponent_mat_error_11_Template, 2, 0, "mat-error", 3);
-    \u0275\u0275elementEnd();
-    \u0275\u0275template(12, ResetPasswordComponent_mat_error_12_Template, 2, 0, "mat-error", 3)(13, ResetPasswordComponent_mat_error_13_Template, 2, 0, "mat-error", 3);
-    \u0275\u0275elementStart(14, "button", 5);
-    \u0275\u0275listener("click", function ResetPasswordComponent_Template_button_click_14_listener() {
-      return ctx.resetPwd();
-    });
-    \u0275\u0275text(15, "Passwort zur\xFCcksetzen");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(16, "div", 6)(17, "button", 7)(18, "mat-icon");
-    \u0275\u0275text(19, "chevron_left");
-    \u0275\u0275elementEnd();
-    \u0275\u0275text(20, "Login");
-    \u0275\u0275elementEnd()()()();
-  }
-  if (rf & 2) {
-    let tmp_1_0;
-    let tmp_2_0;
-    \u0275\u0275advance();
-    \u0275\u0275property("formGroup", ctx.form);
-    \u0275\u0275advance(5);
-    \u0275\u0275property("ngIf", (tmp_1_0 = ctx.form.get("pwd")) == null ? null : tmp_1_0.hasError("required"));
-    \u0275\u0275advance(5);
-    \u0275\u0275property("ngIf", ctx.form.hasError("notMatching") || ((tmp_2_0 = ctx.form.get("pwd_confirmation")) == null ? null : tmp_2_0.hasError("required")));
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx.form.hasError("invalidLink"));
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx.form.hasError("invalidToken"));
-    \u0275\u0275advance();
-    \u0275\u0275property("disabled", ctx.form.invalid || ctx.form.disabled);
-  }
-}, dependencies: [MaterialModule, MatButton, MatFormField, MatLabel, MatError, MatIcon, MatInput, CommonModule, NgIf, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, RouterModule, RouterLink], styles: ["\n\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin: 12px 0;\n}\ndiv[_ngcontent-%COMP%]   .container[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  justify-content: space-between;\n  margin: 0;\n}\n/*# sourceMappingURL=reset-password.component.css.map */"] });
-var ResetPasswordComponent = _ResetPasswordComponent;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ResetPasswordComponent, { className: "ResetPasswordComponent", filePath: "src/app/components/reset-password/reset-password.component.ts", lineNumber: 23 });
-})();
-
-// node_modules/@angular/material/fesm2022/autocomplete.mjs
-var _c014 = ["panel"];
-var _c111 = ["*"];
-function MatAutocomplete_ng_template_0_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 1, 0);
-    \u0275\u0275listener("@panelAnimation.done", function MatAutocomplete_ng_template_0_Template_div_animation_panelAnimation_done_0_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1._animationDone.next($event));
-    });
-    \u0275\u0275projection(2);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const formFieldId_r3 = ctx.id;
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275classMap(ctx_r1._classList);
-    \u0275\u0275classProp("mat-mdc-autocomplete-visible", ctx_r1.showPanel)("mat-mdc-autocomplete-hidden", !ctx_r1.showPanel)("mat-primary", ctx_r1._color === "primary")("mat-accent", ctx_r1._color === "accent")("mat-warn", ctx_r1._color === "warn");
-    \u0275\u0275property("id", ctx_r1.id)("@panelAnimation", ctx_r1.isOpen ? "visible" : "hidden");
-    \u0275\u0275attribute("aria-label", ctx_r1.ariaLabel || null)("aria-labelledby", ctx_r1._getPanelAriaLabelledby(formFieldId_r3));
-  }
-}
-var panelAnimation = trigger("panelAnimation", [state("void, hidden", style({
-  opacity: 0,
-  transform: "scaleY(0.8)"
-})), transition(":enter, hidden => visible", [group([animate("0.03s linear", style({
-  opacity: 1
-})), animate("0.12s cubic-bezier(0, 0, 0.2, 1)", style({
-  transform: "scaleY(1)"
-}))])]), transition(":leave, visible => hidden", [animate("0.075s linear", style({
-  opacity: 0
-}))])]);
-var _uniqueAutocompleteIdCounter = 0;
-var MatAutocompleteSelectedEvent = class {
-  constructor(source, option) {
-    this.source = source;
-    this.option = option;
-  }
-};
-var MAT_AUTOCOMPLETE_DEFAULT_OPTIONS = new InjectionToken("mat-autocomplete-default-options", {
-  providedIn: "root",
-  factory: MAT_AUTOCOMPLETE_DEFAULT_OPTIONS_FACTORY
-});
-function MAT_AUTOCOMPLETE_DEFAULT_OPTIONS_FACTORY() {
-  return {
-    autoActiveFirstOption: false,
-    autoSelectActiveOption: false,
-    hideSingleSelectionIndicator: false,
-    requireSelection: false
-  };
-}
-var _MatAutocomplete = class _MatAutocomplete {
-  /** Whether the autocomplete panel is open. */
-  get isOpen() {
-    return this._isOpen && this.showPanel;
-  }
-  /** @docs-private Sets the theme color of the panel. */
-  _setColor(value) {
-    this._color = value;
-    this._changeDetectorRef.markForCheck();
-  }
-  /**
-   * Takes classes set on the host mat-autocomplete element and applies them to the panel
-   * inside the overlay container to allow for easy styling.
-   */
-  set classList(value) {
-    this._classList = value;
-    this._elementRef.nativeElement.className = "";
-  }
-  /** Whether checkmark indicator for single-selection options is hidden. */
-  get hideSingleSelectionIndicator() {
-    return this._hideSingleSelectionIndicator;
-  }
-  set hideSingleSelectionIndicator(value) {
-    this._hideSingleSelectionIndicator = value;
-    this._syncParentProperties();
-  }
-  /** Syncs the parent state with the individual options. */
-  _syncParentProperties() {
-    if (this.options) {
-      for (const option of this.options) {
-        option._changeDetectorRef.markForCheck();
-      }
-    }
-  }
-  constructor(_changeDetectorRef, _elementRef, _defaults, platform) {
-    this._changeDetectorRef = _changeDetectorRef;
-    this._elementRef = _elementRef;
-    this._defaults = _defaults;
-    this._activeOptionChanges = Subscription.EMPTY;
-    this._animationDone = new EventEmitter();
-    this.showPanel = false;
-    this._isOpen = false;
-    this.displayWith = null;
-    this.optionSelected = new EventEmitter();
-    this.opened = new EventEmitter();
-    this.closed = new EventEmitter();
-    this.optionActivated = new EventEmitter();
-    this.id = `mat-autocomplete-${_uniqueAutocompleteIdCounter++}`;
-    this.inertGroups = platform?.SAFARI || false;
-    this.autoActiveFirstOption = !!_defaults.autoActiveFirstOption;
-    this.autoSelectActiveOption = !!_defaults.autoSelectActiveOption;
-    this.requireSelection = !!_defaults.requireSelection;
-    this._hideSingleSelectionIndicator = this._defaults.hideSingleSelectionIndicator ?? false;
-  }
-  ngAfterContentInit() {
-    this._keyManager = new ActiveDescendantKeyManager(this.options).withWrap().skipPredicate(this._skipPredicate);
-    this._activeOptionChanges = this._keyManager.change.subscribe((index) => {
-      if (this.isOpen) {
-        this.optionActivated.emit({
-          source: this,
-          option: this.options.toArray()[index] || null
-        });
-      }
-    });
-    this._setVisibility();
-  }
-  ngOnDestroy() {
-    this._keyManager?.destroy();
-    this._activeOptionChanges.unsubscribe();
-    this._animationDone.complete();
-  }
-  /**
-   * Sets the panel scrollTop. This allows us to manually scroll to display options
-   * above or below the fold, as they are not actually being focused when active.
-   */
-  _setScrollTop(scrollTop) {
-    if (this.panel) {
-      this.panel.nativeElement.scrollTop = scrollTop;
-    }
-  }
-  /** Returns the panel's scrollTop. */
-  _getScrollTop() {
-    return this.panel ? this.panel.nativeElement.scrollTop : 0;
-  }
-  /** Panel should hide itself when the option list is empty. */
-  _setVisibility() {
-    this.showPanel = !!this.options.length;
-    this._changeDetectorRef.markForCheck();
-  }
-  /** Emits the `select` event. */
-  _emitSelectEvent(option) {
-    const event = new MatAutocompleteSelectedEvent(this, option);
-    this.optionSelected.emit(event);
-  }
-  /** Gets the aria-labelledby for the autocomplete panel. */
-  _getPanelAriaLabelledby(labelId) {
-    if (this.ariaLabel) {
-      return null;
-    }
-    const labelExpression = labelId ? labelId + " " : "";
-    return this.ariaLabelledby ? labelExpression + this.ariaLabelledby : labelId;
-  }
-  // `skipPredicate` determines if key manager should avoid putting a given option in the tab
-  // order. Allow disabled list items to receive focus via keyboard to align with WAI ARIA
-  // recommendation.
-  //
-  // Normally WAI ARIA's instructions are to exclude disabled items from the tab order, but it
-  // makes a few exceptions for compound widgets.
-  //
-  // From [Developing a Keyboard Interface](
-  // https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/):
-  //   "For the following composite widget elements, keep them focusable when disabled: Options in a
-  //   Listbox..."
-  //
-  // The user can focus disabled options using the keyboard, but the user cannot click disabled
-  // options.
-  _skipPredicate() {
-    return false;
-  }
-};
-_MatAutocomplete.\u0275fac = function MatAutocomplete_Factory(\u0275t) {
-  return new (\u0275t || _MatAutocomplete)(\u0275\u0275directiveInject(ChangeDetectorRef), \u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(MAT_AUTOCOMPLETE_DEFAULT_OPTIONS), \u0275\u0275directiveInject(Platform));
-};
-_MatAutocomplete.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
-  type: _MatAutocomplete,
-  selectors: [["mat-autocomplete"]],
-  contentQueries: function MatAutocomplete_ContentQueries(rf, ctx, dirIndex) {
-    if (rf & 1) {
-      \u0275\u0275contentQuery(dirIndex, MatOption, 5);
-      \u0275\u0275contentQuery(dirIndex, MAT_OPTGROUP, 5);
-    }
-    if (rf & 2) {
-      let _t;
-      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.options = _t);
-      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.optionGroups = _t);
-    }
-  },
-  viewQuery: function MatAutocomplete_Query(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275viewQuery(TemplateRef, 7);
-      \u0275\u0275viewQuery(_c014, 5);
-    }
-    if (rf & 2) {
-      let _t;
-      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.template = _t.first);
-      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.panel = _t.first);
-    }
-  },
-  hostAttrs: [1, "mat-mdc-autocomplete"],
-  inputs: {
-    ariaLabel: [0, "aria-label", "ariaLabel"],
-    ariaLabelledby: [0, "aria-labelledby", "ariaLabelledby"],
-    displayWith: "displayWith",
-    autoActiveFirstOption: [2, "autoActiveFirstOption", "autoActiveFirstOption", booleanAttribute],
-    autoSelectActiveOption: [2, "autoSelectActiveOption", "autoSelectActiveOption", booleanAttribute],
-    requireSelection: [2, "requireSelection", "requireSelection", booleanAttribute],
-    panelWidth: "panelWidth",
-    disableRipple: [2, "disableRipple", "disableRipple", booleanAttribute],
-    classList: [0, "class", "classList"],
-    hideSingleSelectionIndicator: [2, "hideSingleSelectionIndicator", "hideSingleSelectionIndicator", booleanAttribute]
-  },
-  outputs: {
-    optionSelected: "optionSelected",
-    opened: "opened",
-    closed: "closed",
-    optionActivated: "optionActivated"
-  },
-  exportAs: ["matAutocomplete"],
-  standalone: true,
-  features: [\u0275\u0275ProvidersFeature([{
-    provide: MAT_OPTION_PARENT_COMPONENT,
-    useExisting: _MatAutocomplete
-  }]), \u0275\u0275InputTransformsFeature, \u0275\u0275StandaloneFeature],
-  ngContentSelectors: _c111,
-  decls: 1,
-  vars: 0,
-  consts: [["panel", ""], ["role", "listbox", 1, "mat-mdc-autocomplete-panel", "mdc-menu-surface", "mdc-menu-surface--open", 3, "id"]],
-  template: function MatAutocomplete_Template(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275projectionDef();
-      \u0275\u0275template(0, MatAutocomplete_ng_template_0_Template, 3, 16, "ng-template");
-    }
-  },
-  styles: ["div.mat-mdc-autocomplete-panel{width:100%;max-height:256px;visibility:hidden;transform-origin:center top;overflow:auto;padding:8px 0;box-sizing:border-box;position:static;border-radius:var(--mat-autocomplete-container-shape);box-shadow:var(--mat-autocomplete-container-elevation-shadow);background-color:var(--mat-autocomplete-background-color)}.cdk-high-contrast-active div.mat-mdc-autocomplete-panel{outline:solid 1px}.cdk-overlay-pane:not(.mat-mdc-autocomplete-panel-above) div.mat-mdc-autocomplete-panel{border-top-left-radius:0;border-top-right-radius:0}.mat-mdc-autocomplete-panel-above div.mat-mdc-autocomplete-panel{border-bottom-left-radius:0;border-bottom-right-radius:0;transform-origin:center bottom}div.mat-mdc-autocomplete-panel.mat-mdc-autocomplete-visible{visibility:visible}div.mat-mdc-autocomplete-panel.mat-mdc-autocomplete-hidden{visibility:hidden;pointer-events:none}mat-autocomplete{display:none}"],
-  encapsulation: 2,
-  data: {
-    animation: [panelAnimation]
-  },
-  changeDetection: 0
-});
-var MatAutocomplete = _MatAutocomplete;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatAutocomplete, [{
-    type: Component,
-    args: [{
-      selector: "mat-autocomplete",
-      encapsulation: ViewEncapsulation$1.None,
-      changeDetection: ChangeDetectionStrategy.OnPush,
-      exportAs: "matAutocomplete",
-      host: {
-        "class": "mat-mdc-autocomplete"
-      },
-      providers: [{
-        provide: MAT_OPTION_PARENT_COMPONENT,
-        useExisting: MatAutocomplete
-      }],
-      animations: [panelAnimation],
-      standalone: true,
-      template: `<ng-template let-formFieldId="id">
-  <div
-    class="mat-mdc-autocomplete-panel mdc-menu-surface mdc-menu-surface--open"
-    role="listbox"
-    [id]="id"
-    [class]="_classList"
-    [class.mat-mdc-autocomplete-visible]="showPanel"
-    [class.mat-mdc-autocomplete-hidden]="!showPanel"
-    [class.mat-primary]="_color === 'primary'"
-    [class.mat-accent]="_color === 'accent'"
-    [class.mat-warn]="_color === 'warn'"
-    [attr.aria-label]="ariaLabel || null"
-    [attr.aria-labelledby]="_getPanelAriaLabelledby(formFieldId)"
-    [@panelAnimation]="isOpen ? 'visible' : 'hidden'"
-    (@panelAnimation.done)="_animationDone.next($event)"
-    #panel>
-    <ng-content></ng-content>
-  </div>
-</ng-template>
-`,
-      styles: ["div.mat-mdc-autocomplete-panel{width:100%;max-height:256px;visibility:hidden;transform-origin:center top;overflow:auto;padding:8px 0;box-sizing:border-box;position:static;border-radius:var(--mat-autocomplete-container-shape);box-shadow:var(--mat-autocomplete-container-elevation-shadow);background-color:var(--mat-autocomplete-background-color)}.cdk-high-contrast-active div.mat-mdc-autocomplete-panel{outline:solid 1px}.cdk-overlay-pane:not(.mat-mdc-autocomplete-panel-above) div.mat-mdc-autocomplete-panel{border-top-left-radius:0;border-top-right-radius:0}.mat-mdc-autocomplete-panel-above div.mat-mdc-autocomplete-panel{border-bottom-left-radius:0;border-bottom-right-radius:0;transform-origin:center bottom}div.mat-mdc-autocomplete-panel.mat-mdc-autocomplete-visible{visibility:visible}div.mat-mdc-autocomplete-panel.mat-mdc-autocomplete-hidden{visibility:hidden;pointer-events:none}mat-autocomplete{display:none}"]
-    }]
-  }], () => [{
-    type: ChangeDetectorRef
-  }, {
-    type: ElementRef
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Inject,
-      args: [MAT_AUTOCOMPLETE_DEFAULT_OPTIONS]
-    }]
-  }, {
-    type: Platform
-  }], {
-    template: [{
-      type: ViewChild,
-      args: [TemplateRef, {
-        static: true
-      }]
-    }],
-    panel: [{
-      type: ViewChild,
-      args: ["panel"]
-    }],
-    options: [{
-      type: ContentChildren,
-      args: [MatOption, {
-        descendants: true
-      }]
-    }],
-    optionGroups: [{
-      type: ContentChildren,
-      args: [MAT_OPTGROUP, {
-        descendants: true
-      }]
-    }],
-    ariaLabel: [{
-      type: Input,
-      args: ["aria-label"]
-    }],
-    ariaLabelledby: [{
-      type: Input,
-      args: ["aria-labelledby"]
-    }],
-    displayWith: [{
-      type: Input
-    }],
-    autoActiveFirstOption: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    autoSelectActiveOption: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    requireSelection: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    panelWidth: [{
-      type: Input
-    }],
-    disableRipple: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    optionSelected: [{
-      type: Output
-    }],
-    opened: [{
-      type: Output
-    }],
-    closed: [{
-      type: Output
-    }],
-    optionActivated: [{
-      type: Output
-    }],
-    classList: [{
-      type: Input,
-      args: ["class"]
-    }],
-    hideSingleSelectionIndicator: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }]
-  });
-})();
-var _MatAutocompleteOrigin = class _MatAutocompleteOrigin {
-  constructor(elementRef) {
-    this.elementRef = elementRef;
-  }
-};
-_MatAutocompleteOrigin.\u0275fac = function MatAutocompleteOrigin_Factory(\u0275t) {
-  return new (\u0275t || _MatAutocompleteOrigin)(\u0275\u0275directiveInject(ElementRef));
-};
-_MatAutocompleteOrigin.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-  type: _MatAutocompleteOrigin,
-  selectors: [["", "matAutocompleteOrigin", ""]],
-  exportAs: ["matAutocompleteOrigin"],
-  standalone: true
-});
-var MatAutocompleteOrigin = _MatAutocompleteOrigin;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatAutocompleteOrigin, [{
-    type: Directive,
-    args: [{
-      selector: "[matAutocompleteOrigin]",
-      exportAs: "matAutocompleteOrigin",
-      standalone: true
-    }]
-  }], () => [{
-    type: ElementRef
-  }], null);
-})();
-var MAT_AUTOCOMPLETE_VALUE_ACCESSOR = {
-  provide: NG_VALUE_ACCESSOR,
-  useExisting: forwardRef(() => MatAutocompleteTrigger),
-  multi: true
-};
-function getMatAutocompleteMissingPanelError() {
-  return Error("Attempting to open an undefined instance of `mat-autocomplete`. Make sure that the id passed to the `matAutocomplete` is correct and that you're attempting to open it after the ngAfterContentInit hook.");
-}
-var MAT_AUTOCOMPLETE_SCROLL_STRATEGY = new InjectionToken("mat-autocomplete-scroll-strategy", {
-  providedIn: "root",
-  factory: () => {
-    const overlay = inject(Overlay);
-    return () => overlay.scrollStrategies.reposition();
-  }
-});
-function MAT_AUTOCOMPLETE_SCROLL_STRATEGY_FACTORY(overlay) {
-  return () => overlay.scrollStrategies.reposition();
-}
-var MAT_AUTOCOMPLETE_SCROLL_STRATEGY_FACTORY_PROVIDER = {
-  provide: MAT_AUTOCOMPLETE_SCROLL_STRATEGY,
-  deps: [Overlay],
-  useFactory: MAT_AUTOCOMPLETE_SCROLL_STRATEGY_FACTORY
-};
-var _MatAutocompleteTrigger = class _MatAutocompleteTrigger {
-  constructor(_element, _overlay, _viewContainerRef, _zone, _changeDetectorRef, scrollStrategy, _dir, _formField, _document2, _viewportRuler, _defaults) {
-    this._element = _element;
-    this._overlay = _overlay;
-    this._viewContainerRef = _viewContainerRef;
-    this._zone = _zone;
-    this._changeDetectorRef = _changeDetectorRef;
-    this._dir = _dir;
-    this._formField = _formField;
-    this._document = _document2;
-    this._viewportRuler = _viewportRuler;
-    this._defaults = _defaults;
-    this._componentDestroyed = false;
-    this._manuallyFloatingLabel = false;
-    this._viewportSubscription = Subscription.EMPTY;
-    this._breakpointObserver = inject(BreakpointObserver);
-    this._handsetLandscapeSubscription = Subscription.EMPTY;
-    this._canOpenOnNextFocus = true;
-    this._closeKeyEventStream = new Subject();
-    this._windowBlurHandler = () => {
-      this._canOpenOnNextFocus = this._document.activeElement !== this._element.nativeElement || this.panelOpen;
+// src/app/components/selects/due-select/due-select.component.ts
+var _DueSelectComponent = class _DueSelectComponent {
+  constructor() {
+    this.due = "";
+    this.onChange = () => {
     };
-    this._onChange = () => {
+    this.onTouched = () => {
     };
-    this._onTouched = () => {
-    };
-    this.position = "auto";
-    this.autocompleteAttribute = "off";
-    this._initialized = new Subject();
-    this._injector = inject(Injector);
-    this._aboveClass = "mat-mdc-autocomplete-panel-above";
-    this._overlayAttached = false;
-    this.optionSelections = defer(() => {
-      const options = this.autocomplete ? this.autocomplete.options : null;
-      if (options) {
-        return options.changes.pipe(startWith(options), switchMap(() => merge(...options.map((option) => option.onSelectionChange))));
-      }
-      return this._initialized.pipe(switchMap(() => this.optionSelections));
-    });
-    this._handlePanelKeydown = (event) => {
-      if (event.keyCode === ESCAPE && !hasModifierKey(event) || event.keyCode === UP_ARROW && hasModifierKey(event, "altKey")) {
-        if (this._pendingAutoselectedOption) {
-          this._updateNativeInputValue(this._valueBeforeAutoSelection ?? "");
-          this._pendingAutoselectedOption = null;
-        }
-        this._closeKeyEventStream.next();
-        this._resetActiveItem();
-        event.stopPropagation();
-        event.preventDefault();
-      }
-    };
-    this._trackedModal = null;
-    this._scrollStrategy = scrollStrategy;
+    this.disabled = false;
   }
-  ngAfterViewInit() {
-    this._initialized.next();
-    this._initialized.complete();
-    const window2 = this._getWindow();
-    if (typeof window2 !== "undefined") {
-      this._zone.runOutsideAngular(() => window2.addEventListener("blur", this._windowBlurHandler));
-    }
+  writeValue(obj) {
+    this.due = obj;
   }
-  ngOnChanges(changes) {
-    if (changes["position"] && this._positionStrategy) {
-      this._setStrategyPositions(this._positionStrategy);
-      if (this.panelOpen) {
-        this._overlayRef.updatePosition();
-      }
-    }
-  }
-  ngOnDestroy() {
-    const window2 = this._getWindow();
-    if (typeof window2 !== "undefined") {
-      window2.removeEventListener("blur", this._windowBlurHandler);
-    }
-    this._handsetLandscapeSubscription.unsubscribe();
-    this._viewportSubscription.unsubscribe();
-    this._componentDestroyed = true;
-    this._destroyPanel();
-    this._closeKeyEventStream.complete();
-    this._clearFromModal();
-  }
-  /** Whether or not the autocomplete panel is open. */
-  get panelOpen() {
-    return this._overlayAttached && this.autocomplete.showPanel;
-  }
-  /** Opens the autocomplete suggestion panel. */
-  openPanel() {
-    this._openPanelInternal();
-  }
-  /** Closes the autocomplete suggestion panel. */
-  closePanel() {
-    this._resetLabel();
-    if (!this._overlayAttached) {
-      return;
-    }
-    if (this.panelOpen) {
-      this._zone.run(() => {
-        this.autocomplete.closed.emit();
-      });
-    }
-    if (this.autocomplete._latestOpeningTrigger === this) {
-      this.autocomplete._isOpen = false;
-      this.autocomplete._latestOpeningTrigger = null;
-    }
-    this._overlayAttached = false;
-    this._pendingAutoselectedOption = null;
-    if (this._overlayRef && this._overlayRef.hasAttached()) {
-      this._overlayRef.detach();
-      this._closingActionsSubscription.unsubscribe();
-    }
-    this._updatePanelState();
-    if (!this._componentDestroyed) {
-      this._changeDetectorRef.detectChanges();
-    }
-    if (this._trackedModal) {
-      removeAriaReferencedId(this._trackedModal, "aria-owns", this.autocomplete.id);
-    }
-  }
-  /**
-   * Updates the position of the autocomplete suggestion panel to ensure that it fits all options
-   * within the viewport.
-   */
-  updatePosition() {
-    if (this._overlayAttached) {
-      this._overlayRef.updatePosition();
-    }
-  }
-  /**
-   * A stream of actions that should close the autocomplete panel, including
-   * when an option is selected, on blur, and when TAB is pressed.
-   */
-  get panelClosingActions() {
-    return merge(this.optionSelections, this.autocomplete._keyManager.tabOut.pipe(filter(() => this._overlayAttached)), this._closeKeyEventStream, this._getOutsideClickStream(), this._overlayRef ? this._overlayRef.detachments().pipe(filter(() => this._overlayAttached)) : of()).pipe(
-      // Normalize the output so we return a consistent type.
-      map((event) => event instanceof MatOptionSelectionChange ? event : null)
-    );
-  }
-  /** The currently active option, coerced to MatOption type. */
-  get activeOption() {
-    if (this.autocomplete && this.autocomplete._keyManager) {
-      return this.autocomplete._keyManager.activeItem;
-    }
-    return null;
-  }
-  /** Stream of clicks outside of the autocomplete panel. */
-  _getOutsideClickStream() {
-    return merge(fromEvent(this._document, "click"), fromEvent(this._document, "auxclick"), fromEvent(this._document, "touchend")).pipe(filter((event) => {
-      const clickTarget = _getEventTarget(event);
-      const formField = this._formField ? this._formField.getConnectedOverlayOrigin().nativeElement : null;
-      const customOrigin = this.connectedTo ? this.connectedTo.elementRef.nativeElement : null;
-      return this._overlayAttached && clickTarget !== this._element.nativeElement && // Normally focus moves inside `mousedown` so this condition will almost always be
-      // true. Its main purpose is to handle the case where the input is focused from an
-      // outside click which propagates up to the `body` listener within the same sequence
-      // and causes the panel to close immediately (see #3106).
-      this._document.activeElement !== this._element.nativeElement && (!formField || !formField.contains(clickTarget)) && (!customOrigin || !customOrigin.contains(clickTarget)) && !!this._overlayRef && !this._overlayRef.overlayElement.contains(clickTarget);
-    }));
-  }
-  // Implemented as part of ControlValueAccessor.
-  writeValue(value) {
-    Promise.resolve(null).then(() => this._assignOptionValue(value));
-  }
-  // Implemented as part of ControlValueAccessor.
   registerOnChange(fn) {
-    this._onChange = fn;
+    this.onChange = fn;
   }
-  // Implemented as part of ControlValueAccessor.
   registerOnTouched(fn) {
-    this._onTouched = fn;
+    this.onTouched = fn;
   }
-  // Implemented as part of ControlValueAccessor.
   setDisabledState(isDisabled) {
-    this._element.nativeElement.disabled = isDisabled;
-  }
-  _handleKeydown(event) {
-    const keyCode = event.keyCode;
-    const hasModifier = hasModifierKey(event);
-    if (keyCode === ESCAPE && !hasModifier) {
-      event.preventDefault();
-    }
-    this._valueOnLastKeydown = this._element.nativeElement.value;
-    if (this.activeOption && keyCode === ENTER2 && this.panelOpen && !hasModifier) {
-      this.activeOption._selectViaInteraction();
-      this._resetActiveItem();
-      event.preventDefault();
-    } else if (this.autocomplete) {
-      const prevActiveItem = this.autocomplete._keyManager.activeItem;
-      const isArrowKey = keyCode === UP_ARROW || keyCode === DOWN_ARROW;
-      if (keyCode === TAB || isArrowKey && !hasModifier && this.panelOpen) {
-        this.autocomplete._keyManager.onKeydown(event);
-      } else if (isArrowKey && this._canOpen()) {
-        this._openPanelInternal(this._valueOnLastKeydown);
-      }
-      if (isArrowKey || this.autocomplete._keyManager.activeItem !== prevActiveItem) {
-        this._scrollToOption(this.autocomplete._keyManager.activeItemIndex || 0);
-        if (this.autocomplete.autoSelectActiveOption && this.activeOption) {
-          if (!this._pendingAutoselectedOption) {
-            this._valueBeforeAutoSelection = this._valueOnLastKeydown;
-          }
-          this._pendingAutoselectedOption = this.activeOption;
-          this._assignOptionValue(this.activeOption.value);
-        }
-      }
-    }
-  }
-  _handleInput(event) {
-    let target = event.target;
-    let value = target.value;
-    if (target.type === "number") {
-      value = value == "" ? null : parseFloat(value);
-    }
-    if (this._previousValue !== value) {
-      this._previousValue = value;
-      this._pendingAutoselectedOption = null;
-      if (!this.autocomplete || !this.autocomplete.requireSelection) {
-        this._onChange(value);
-      }
-      if (!value) {
-        this._clearPreviousSelectedOption(null, false);
-      } else if (this.panelOpen && !this.autocomplete.requireSelection) {
-        const selectedOption = this.autocomplete.options?.find((option) => option.selected);
-        if (selectedOption) {
-          const display = this._getDisplayValue(selectedOption.value);
-          if (value !== display) {
-            selectedOption.deselect(false);
-          }
-        }
-      }
-      if (this._canOpen() && this._document.activeElement === event.target) {
-        const valueOnAttach = this._valueOnLastKeydown ?? this._element.nativeElement.value;
-        this._valueOnLastKeydown = null;
-        this._openPanelInternal(valueOnAttach);
-      }
-    }
-  }
-  _handleFocus() {
-    if (!this._canOpenOnNextFocus) {
-      this._canOpenOnNextFocus = true;
-    } else if (this._canOpen()) {
-      this._previousValue = this._element.nativeElement.value;
-      this._attachOverlay(this._previousValue);
-      this._floatLabel(true);
-    }
-  }
-  _handleClick() {
-    if (this._canOpen() && !this.panelOpen) {
-      this._openPanelInternal();
-    }
-  }
-  /**
-   * In "auto" mode, the label will animate down as soon as focus is lost.
-   * This causes the value to jump when selecting an option with the mouse.
-   * This method manually floats the label until the panel can be closed.
-   * @param shouldAnimate Whether the label should be animated when it is floated.
-   */
-  _floatLabel(shouldAnimate = false) {
-    if (this._formField && this._formField.floatLabel === "auto") {
-      if (shouldAnimate) {
-        this._formField._animateAndLockLabel();
-      } else {
-        this._formField.floatLabel = "always";
-      }
-      this._manuallyFloatingLabel = true;
-    }
-  }
-  /** If the label has been manually elevated, return it to its normal state. */
-  _resetLabel() {
-    if (this._manuallyFloatingLabel) {
-      if (this._formField) {
-        this._formField.floatLabel = "auto";
-      }
-      this._manuallyFloatingLabel = false;
-    }
-  }
-  /**
-   * This method listens to a stream of panel closing actions and resets the
-   * stream every time the option list changes.
-   */
-  _subscribeToClosingActions() {
-    const initialRender = new Observable((subscriber) => {
-      afterNextRender(() => {
-        subscriber.next();
-      }, {
-        injector: this._injector
-      });
-    });
-    const optionChanges = this.autocomplete.options.changes.pipe(
-      tap(() => this._positionStrategy.reapplyLastPosition()),
-      // Defer emitting to the stream until the next tick, because changing
-      // bindings in here will cause "changed after checked" errors.
-      delay(0)
-    );
-    return merge(initialRender, optionChanges).pipe(
-      // create a new stream of panelClosingActions, replacing any previous streams
-      // that were created, and flatten it so our stream only emits closing events...
-      switchMap(() => this._zone.run(() => {
-        const wasOpen = this.panelOpen;
-        this._resetActiveItem();
-        this._updatePanelState();
-        this._changeDetectorRef.detectChanges();
-        if (this.panelOpen) {
-          this._overlayRef.updatePosition();
-        }
-        if (wasOpen !== this.panelOpen) {
-          if (this.panelOpen) {
-            this._emitOpened();
-          } else {
-            this.autocomplete.closed.emit();
-          }
-        }
-        return this.panelClosingActions;
-      })),
-      // when the first closing event occurs...
-      take(1)
-    ).subscribe((event) => this._setValueAndClose(event));
-  }
-  /**
-   * Emits the opened event once it's known that the panel will be shown and stores
-   * the state of the trigger right before the opening sequence was finished.
-   */
-  _emitOpened() {
-    this.autocomplete.opened.emit();
-  }
-  /** Destroys the autocomplete suggestion panel. */
-  _destroyPanel() {
-    if (this._overlayRef) {
-      this.closePanel();
-      this._overlayRef.dispose();
-      this._overlayRef = null;
-    }
-  }
-  /** Given a value, returns the string that should be shown within the input. */
-  _getDisplayValue(value) {
-    const autocomplete = this.autocomplete;
-    return autocomplete && autocomplete.displayWith ? autocomplete.displayWith(value) : value;
-  }
-  _assignOptionValue(value) {
-    const toDisplay = this._getDisplayValue(value);
-    if (value == null) {
-      this._clearPreviousSelectedOption(null, false);
-    }
-    this._updateNativeInputValue(toDisplay != null ? toDisplay : "");
-  }
-  _updateNativeInputValue(value) {
-    if (this._formField) {
-      this._formField._control.value = value;
-    } else {
-      this._element.nativeElement.value = value;
-    }
-    this._previousValue = value;
-  }
-  /**
-   * This method closes the panel, and if a value is specified, also sets the associated
-   * control to that value. It will also mark the control as dirty if this interaction
-   * stemmed from the user.
-   */
-  _setValueAndClose(event) {
-    const panel = this.autocomplete;
-    const toSelect = event ? event.source : this._pendingAutoselectedOption;
-    if (toSelect) {
-      this._clearPreviousSelectedOption(toSelect);
-      this._assignOptionValue(toSelect.value);
-      this._onChange(toSelect.value);
-      panel._emitSelectEvent(toSelect);
-      this._element.nativeElement.focus();
-    } else if (panel.requireSelection && this._element.nativeElement.value !== this._valueOnAttach) {
-      this._clearPreviousSelectedOption(null);
-      this._assignOptionValue(null);
-      if (panel._animationDone) {
-        panel._animationDone.pipe(take(1)).subscribe(() => this._onChange(null));
-      } else {
-        this._onChange(null);
-      }
-    }
-    this.closePanel();
-  }
-  /**
-   * Clear any previous selected option and emit a selection change event for this option
-   */
-  _clearPreviousSelectedOption(skip2, emitEvent) {
-    this.autocomplete?.options?.forEach((option) => {
-      if (option !== skip2 && option.selected) {
-        option.deselect(emitEvent);
-      }
-    });
-  }
-  _openPanelInternal(valueOnAttach = this._element.nativeElement.value) {
-    this._attachOverlay(valueOnAttach);
-    this._floatLabel();
-    if (this._trackedModal) {
-      const panelId = this.autocomplete.id;
-      addAriaReferencedId(this._trackedModal, "aria-owns", panelId);
-    }
-  }
-  _attachOverlay(valueOnAttach) {
-    if (!this.autocomplete && (typeof ngDevMode === "undefined" || ngDevMode)) {
-      throw getMatAutocompleteMissingPanelError();
-    }
-    let overlayRef = this._overlayRef;
-    if (!overlayRef) {
-      this._portal = new TemplatePortal(this.autocomplete.template, this._viewContainerRef, {
-        id: this._formField?.getLabelId()
-      });
-      overlayRef = this._overlay.create(this._getOverlayConfig());
-      this._overlayRef = overlayRef;
-      this._viewportSubscription = this._viewportRuler.change().subscribe(() => {
-        if (this.panelOpen && overlayRef) {
-          overlayRef.updateSize({
-            width: this._getPanelWidth()
-          });
-        }
-      });
-      this._handsetLandscapeSubscription = this._breakpointObserver.observe(Breakpoints.HandsetLandscape).subscribe((result) => {
-        const isHandsetLandscape = result.matches;
-        if (isHandsetLandscape) {
-          this._positionStrategy.withFlexibleDimensions(true).withGrowAfterOpen(true).withViewportMargin(8);
-        } else {
-          this._positionStrategy.withFlexibleDimensions(false).withGrowAfterOpen(false).withViewportMargin(0);
-        }
-      });
-    } else {
-      this._positionStrategy.setOrigin(this._getConnectedElement());
-      overlayRef.updateSize({
-        width: this._getPanelWidth()
-      });
-    }
-    if (overlayRef && !overlayRef.hasAttached()) {
-      overlayRef.attach(this._portal);
-      this._valueOnAttach = valueOnAttach;
-      this._valueOnLastKeydown = null;
-      this._closingActionsSubscription = this._subscribeToClosingActions();
-    }
-    const wasOpen = this.panelOpen;
-    this.autocomplete._isOpen = this._overlayAttached = true;
-    this.autocomplete._latestOpeningTrigger = this;
-    this.autocomplete._setColor(this._formField?.color);
-    this._updatePanelState();
-    this._applyModalPanelOwnership();
-    if (this.panelOpen && wasOpen !== this.panelOpen) {
-      this._emitOpened();
-    }
-  }
-  /** Updates the panel's visibility state and any trigger state tied to id. */
-  _updatePanelState() {
-    this.autocomplete._setVisibility();
-    if (this.panelOpen) {
-      const overlayRef = this._overlayRef;
-      if (!this._keydownSubscription) {
-        this._keydownSubscription = overlayRef.keydownEvents().subscribe(this._handlePanelKeydown);
-      }
-      if (!this._outsideClickSubscription) {
-        this._outsideClickSubscription = overlayRef.outsidePointerEvents().subscribe();
-      }
-    } else {
-      this._keydownSubscription?.unsubscribe();
-      this._outsideClickSubscription?.unsubscribe();
-      this._keydownSubscription = this._outsideClickSubscription = null;
-    }
-  }
-  _getOverlayConfig() {
-    return new OverlayConfig({
-      positionStrategy: this._getOverlayPosition(),
-      scrollStrategy: this._scrollStrategy(),
-      width: this._getPanelWidth(),
-      direction: this._dir ?? void 0,
-      panelClass: this._defaults?.overlayPanelClass
-    });
-  }
-  _getOverlayPosition() {
-    const strategy = this._overlay.position().flexibleConnectedTo(this._getConnectedElement()).withFlexibleDimensions(false).withPush(false);
-    this._setStrategyPositions(strategy);
-    this._positionStrategy = strategy;
-    return strategy;
-  }
-  /** Sets the positions on a position strategy based on the directive's input state. */
-  _setStrategyPositions(positionStrategy) {
-    const belowPositions = [{
-      originX: "start",
-      originY: "bottom",
-      overlayX: "start",
-      overlayY: "top"
-    }, {
-      originX: "end",
-      originY: "bottom",
-      overlayX: "end",
-      overlayY: "top"
-    }];
-    const panelClass = this._aboveClass;
-    const abovePositions = [{
-      originX: "start",
-      originY: "top",
-      overlayX: "start",
-      overlayY: "bottom",
-      panelClass
-    }, {
-      originX: "end",
-      originY: "top",
-      overlayX: "end",
-      overlayY: "bottom",
-      panelClass
-    }];
-    let positions;
-    if (this.position === "above") {
-      positions = abovePositions;
-    } else if (this.position === "below") {
-      positions = belowPositions;
-    } else {
-      positions = [...belowPositions, ...abovePositions];
-    }
-    positionStrategy.withPositions(positions);
-  }
-  _getConnectedElement() {
-    if (this.connectedTo) {
-      return this.connectedTo.elementRef;
-    }
-    return this._formField ? this._formField.getConnectedOverlayOrigin() : this._element;
-  }
-  _getPanelWidth() {
-    return this.autocomplete.panelWidth || this._getHostWidth();
-  }
-  /** Returns the width of the input element, so the panel width can match it. */
-  _getHostWidth() {
-    return this._getConnectedElement().nativeElement.getBoundingClientRect().width;
-  }
-  /**
-   * Reset the active item to -1. This is so that pressing arrow keys will activate the correct
-   * option.
-   *
-   * If the consumer opted-in to automatically activatating the first option, activate the first
-   * *enabled* option.
-   */
-  _resetActiveItem() {
-    const autocomplete = this.autocomplete;
-    if (autocomplete.autoActiveFirstOption) {
-      let firstEnabledOptionIndex = -1;
-      for (let index = 0; index < autocomplete.options.length; index++) {
-        const option = autocomplete.options.get(index);
-        if (!option.disabled) {
-          firstEnabledOptionIndex = index;
-          break;
-        }
-      }
-      autocomplete._keyManager.setActiveItem(firstEnabledOptionIndex);
-    } else {
-      autocomplete._keyManager.setActiveItem(-1);
-    }
-  }
-  /** Determines whether the panel can be opened. */
-  _canOpen() {
-    const element = this._element.nativeElement;
-    return !element.readOnly && !element.disabled && !this.autocompleteDisabled;
-  }
-  /** Use defaultView of injected document if available or fallback to global window reference */
-  _getWindow() {
-    return this._document?.defaultView || window;
-  }
-  /** Scrolls to a particular option in the list. */
-  _scrollToOption(index) {
-    const autocomplete = this.autocomplete;
-    const labelCount = _countGroupLabelsBeforeOption(index, autocomplete.options, autocomplete.optionGroups);
-    if (index === 0 && labelCount === 1) {
-      autocomplete._setScrollTop(0);
-    } else if (autocomplete.panel) {
-      const option = autocomplete.options.toArray()[index];
-      if (option) {
-        const element = option._getHostElement();
-        const newScrollPosition = _getOptionScrollPosition(element.offsetTop, element.offsetHeight, autocomplete._getScrollTop(), autocomplete.panel.nativeElement.offsetHeight);
-        autocomplete._setScrollTop(newScrollPosition);
-      }
-    }
-  }
-  /**
-   * If the autocomplete trigger is inside of an `aria-modal` element, connect
-   * that modal to the options panel with `aria-owns`.
-   *
-   * For some browser + screen reader combinations, when navigation is inside
-   * of an `aria-modal` element, the screen reader treats everything outside
-   * of that modal as hidden or invisible.
-   *
-   * This causes a problem when the combobox trigger is _inside_ of a modal, because the
-   * options panel is rendered _outside_ of that modal, preventing screen reader navigation
-   * from reaching the panel.
-   *
-   * We can work around this issue by applying `aria-owns` to the modal with the `id` of
-   * the options panel. This effectively communicates to assistive technology that the
-   * options panel is part of the same interaction as the modal.
-   *
-   * At time of this writing, this issue is present in VoiceOver.
-   * See https://github.com/angular/components/issues/20694
-   */
-  _applyModalPanelOwnership() {
-    const modal = this._element.nativeElement.closest('body > .cdk-overlay-container [aria-modal="true"]');
-    if (!modal) {
-      return;
-    }
-    const panelId = this.autocomplete.id;
-    if (this._trackedModal) {
-      removeAriaReferencedId(this._trackedModal, "aria-owns", panelId);
-    }
-    addAriaReferencedId(modal, "aria-owns", panelId);
-    this._trackedModal = modal;
-  }
-  /** Clears the references to the listbox overlay element from the modal it was added to. */
-  _clearFromModal() {
-    if (this._trackedModal) {
-      const panelId = this.autocomplete.id;
-      removeAriaReferencedId(this._trackedModal, "aria-owns", panelId);
-      this._trackedModal = null;
-    }
+    this.disabled = isDisabled;
   }
 };
-_MatAutocompleteTrigger.\u0275fac = function MatAutocompleteTrigger_Factory(\u0275t) {
-  return new (\u0275t || _MatAutocompleteTrigger)(\u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(Overlay), \u0275\u0275directiveInject(ViewContainerRef), \u0275\u0275directiveInject(NgZone), \u0275\u0275directiveInject(ChangeDetectorRef), \u0275\u0275directiveInject(MAT_AUTOCOMPLETE_SCROLL_STRATEGY), \u0275\u0275directiveInject(Directionality, 8), \u0275\u0275directiveInject(MAT_FORM_FIELD, 9), \u0275\u0275directiveInject(DOCUMENT2, 8), \u0275\u0275directiveInject(ViewportRuler), \u0275\u0275directiveInject(MAT_AUTOCOMPLETE_DEFAULT_OPTIONS, 8));
+_DueSelectComponent.\u0275fac = function DueSelectComponent_Factory(\u0275t) {
+  return new (\u0275t || _DueSelectComponent)();
 };
-_MatAutocompleteTrigger.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-  type: _MatAutocompleteTrigger,
-  selectors: [["input", "matAutocomplete", ""], ["textarea", "matAutocomplete", ""]],
-  hostAttrs: [1, "mat-mdc-autocomplete-trigger"],
-  hostVars: 7,
-  hostBindings: function MatAutocompleteTrigger_HostBindings(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275listener("focusin", function MatAutocompleteTrigger_focusin_HostBindingHandler() {
-        return ctx._handleFocus();
-      })("blur", function MatAutocompleteTrigger_blur_HostBindingHandler() {
-        return ctx._onTouched();
-      })("input", function MatAutocompleteTrigger_input_HostBindingHandler($event) {
-        return ctx._handleInput($event);
-      })("keydown", function MatAutocompleteTrigger_keydown_HostBindingHandler($event) {
-        return ctx._handleKeydown($event);
-      })("click", function MatAutocompleteTrigger_click_HostBindingHandler() {
-        return ctx._handleClick();
-      });
-    }
-    if (rf & 2) {
-      \u0275\u0275attribute("autocomplete", ctx.autocompleteAttribute)("role", ctx.autocompleteDisabled ? null : "combobox")("aria-autocomplete", ctx.autocompleteDisabled ? null : "list")("aria-activedescendant", ctx.panelOpen && ctx.activeOption ? ctx.activeOption.id : null)("aria-expanded", ctx.autocompleteDisabled ? null : ctx.panelOpen.toString())("aria-controls", ctx.autocompleteDisabled || !ctx.panelOpen ? null : ctx.autocomplete == null ? null : ctx.autocomplete.id)("aria-haspopup", ctx.autocompleteDisabled ? null : "listbox");
-    }
-  },
-  inputs: {
-    autocomplete: [0, "matAutocomplete", "autocomplete"],
-    position: [0, "matAutocompletePosition", "position"],
-    connectedTo: [0, "matAutocompleteConnectedTo", "connectedTo"],
-    autocompleteAttribute: [0, "autocomplete", "autocompleteAttribute"],
-    autocompleteDisabled: [2, "matAutocompleteDisabled", "autocompleteDisabled", booleanAttribute]
-  },
-  exportAs: ["matAutocompleteTrigger"],
-  standalone: true,
-  features: [\u0275\u0275ProvidersFeature([MAT_AUTOCOMPLETE_VALUE_ACCESSOR]), \u0275\u0275InputTransformsFeature, \u0275\u0275NgOnChangesFeature]
-});
-var MatAutocompleteTrigger = _MatAutocompleteTrigger;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatAutocompleteTrigger, [{
-    type: Directive,
-    args: [{
-      selector: `input[matAutocomplete], textarea[matAutocomplete]`,
-      host: {
-        "class": "mat-mdc-autocomplete-trigger",
-        "[attr.autocomplete]": "autocompleteAttribute",
-        "[attr.role]": 'autocompleteDisabled ? null : "combobox"',
-        "[attr.aria-autocomplete]": 'autocompleteDisabled ? null : "list"',
-        "[attr.aria-activedescendant]": "(panelOpen && activeOption) ? activeOption.id : null",
-        "[attr.aria-expanded]": "autocompleteDisabled ? null : panelOpen.toString()",
-        "[attr.aria-controls]": "(autocompleteDisabled || !panelOpen) ? null : autocomplete?.id",
-        "[attr.aria-haspopup]": 'autocompleteDisabled ? null : "listbox"',
-        // Note: we use `focusin`, as opposed to `focus`, in order to open the panel
-        // a little earlier. This avoids issues where IE delays the focusing of the input.
-        "(focusin)": "_handleFocus()",
-        "(blur)": "_onTouched()",
-        "(input)": "_handleInput($event)",
-        "(keydown)": "_handleKeydown($event)",
-        "(click)": "_handleClick()"
-      },
-      exportAs: "matAutocompleteTrigger",
-      providers: [MAT_AUTOCOMPLETE_VALUE_ACCESSOR],
-      standalone: true
-    }]
-  }], () => [{
-    type: ElementRef
-  }, {
-    type: Overlay
-  }, {
-    type: ViewContainerRef
-  }, {
-    type: NgZone
-  }, {
-    type: ChangeDetectorRef
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Inject,
-      args: [MAT_AUTOCOMPLETE_SCROLL_STRATEGY]
-    }]
-  }, {
-    type: Directionality,
-    decorators: [{
-      type: Optional
-    }]
-  }, {
-    type: MatFormField,
-    decorators: [{
-      type: Optional
-    }, {
-      type: Inject,
-      args: [MAT_FORM_FIELD]
-    }, {
-      type: Host
-    }]
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Optional
-    }, {
-      type: Inject,
-      args: [DOCUMENT2]
-    }]
-  }, {
-    type: ViewportRuler
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Optional
-    }, {
-      type: Inject,
-      args: [MAT_AUTOCOMPLETE_DEFAULT_OPTIONS]
-    }]
-  }], {
-    autocomplete: [{
-      type: Input,
-      args: ["matAutocomplete"]
-    }],
-    position: [{
-      type: Input,
-      args: ["matAutocompletePosition"]
-    }],
-    connectedTo: [{
-      type: Input,
-      args: ["matAutocompleteConnectedTo"]
-    }],
-    autocompleteAttribute: [{
-      type: Input,
-      args: ["autocomplete"]
-    }],
-    autocompleteDisabled: [{
-      type: Input,
-      args: [{
-        alias: "matAutocompleteDisabled",
-        transform: booleanAttribute
-      }]
-    }]
-  });
-})();
-var _MatAutocompleteModule = class _MatAutocompleteModule {
-};
-_MatAutocompleteModule.\u0275fac = function MatAutocompleteModule_Factory(\u0275t) {
-  return new (\u0275t || _MatAutocompleteModule)();
-};
-_MatAutocompleteModule.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
-  type: _MatAutocompleteModule
-});
-_MatAutocompleteModule.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
-  providers: [MAT_AUTOCOMPLETE_SCROLL_STRATEGY_FACTORY_PROVIDER],
-  imports: [OverlayModule, MatOptionModule, MatCommonModule, CommonModule, CdkScrollableModule, MatOptionModule, MatCommonModule]
-});
-var MatAutocompleteModule = _MatAutocompleteModule;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatAutocompleteModule, [{
-    type: NgModule,
-    args: [{
-      imports: [OverlayModule, MatOptionModule, MatCommonModule, CommonModule, MatAutocomplete, MatAutocompleteTrigger, MatAutocompleteOrigin],
-      exports: [CdkScrollableModule, MatAutocomplete, MatOptionModule, MatCommonModule, MatAutocompleteTrigger, MatAutocompleteOrigin],
-      providers: [MAT_AUTOCOMPLETE_SCROLL_STRATEGY_FACTORY_PROVIDER]
-    }]
-  }], null, null);
-})();
-
-// src/app/components/bottom-sheets/share-list-sheet/share-list-sheet.component.ts
-function ShareListSheetComponent_div_0_span_9_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 11);
-    \u0275\u0275text(1, "Admin");
-    \u0275\u0275elementEnd();
+_DueSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DueSelectComponent, selectors: [["app-due-select"]], standalone: true, features: [\u0275\u0275ProvidersFeature([
+  {
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => _DueSelectComponent),
+    multi: true
   }
-}
-function ShareListSheetComponent_div_0_button_10_Template(rf, ctx) {
+]), \u0275\u0275StandaloneFeature], decls: 13, vars: 1, consts: [[3, "ngModelChange", "ngModel"], ["value", "0 min"], ["value", "10 min"], ["value", "30 min"], ["value", "1 h"], ["value", "1 d"]], template: function DueSelectComponent_Template(rf, ctx) {
   if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 12);
-    \u0275\u0275listener("click", function ShareListSheetComponent_div_0_button_10_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r1);
-      const user_r2 = \u0275\u0275nextContext().$implicit;
-      const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.removeSharedWith(user_r2.id));
+    \u0275\u0275elementStart(0, "mat-label");
+    \u0275\u0275text(1, "Erinnerungen");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(2, "mat-chip-listbox", 0);
+    \u0275\u0275twoWayListener("ngModelChange", function DueSelectComponent_Template_mat_chip_listbox_ngModelChange_2_listener($event) {
+      \u0275\u0275twoWayBindingSet(ctx.due, $event) || (ctx.due = $event);
+      return $event;
     });
-    \u0275\u0275elementStart(1, "mat-icon");
-    \u0275\u0275text(2, "close");
-    \u0275\u0275elementEnd()();
-  }
-}
-function ShareListSheetComponent_div_0_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 5)(1, "div", 6)(2, "button", 7);
-    \u0275\u0275text(3);
-    \u0275\u0275pipe(4, "nameBadge");
+    \u0275\u0275elementStart(3, "mat-chip-option", 1);
+    \u0275\u0275text(4, "0 Minuten vorher");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "span");
-    \u0275\u0275text(6);
+    \u0275\u0275elementStart(5, "mat-chip-option", 2);
+    \u0275\u0275text(6, "10 Minuten vorher");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "span", 8);
-    \u0275\u0275text(8);
-    \u0275\u0275elementEnd()();
-    \u0275\u0275template(9, ShareListSheetComponent_div_0_span_9_Template, 2, 0, "span", 9)(10, ShareListSheetComponent_div_0_button_10_Template, 3, 0, "button", 10);
+    \u0275\u0275elementStart(7, "mat-chip-option", 3);
+    \u0275\u0275text(8, "30 Minuten vorher");
     \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const user_r2 = ctx.$implicit;
-    const i_r4 = ctx.index;
-    const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275advance(2);
-    \u0275\u0275classMap("badge user-fab-" + i_r4 % 12);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 7, user_r2 == null ? null : user_r2.name));
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(user_r2.name);
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(user_r2.email);
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", user_r2.id === ctx_r2.lists().createdBy);
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx_r2.isAdmin && user_r2.id !== ctx_r2.lists().createdBy);
-  }
-}
-function ShareListSheetComponent_h4_1_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "h4");
-    \u0275\u0275text(1, "Hinzuf\xFCgen");
+    \u0275\u0275elementStart(9, "mat-chip-option", 4);
+    \u0275\u0275text(10, "1 Stunde vorher");
     \u0275\u0275elementEnd();
-  }
-}
-function ShareListSheetComponent_form_2_mat_option_5_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-option", 19)(1, "div", 6)(2, "span");
-    \u0275\u0275text(3);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "span", 8);
-    \u0275\u0275text(5);
-    \u0275\u0275elementEnd()()();
-  }
-  if (rf & 2) {
-    const user_r6 = ctx.$implicit;
-    \u0275\u0275property("value", user_r6.email);
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(user_r6.name);
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(user_r6.email);
-  }
-}
-function ShareListSheetComponent_form_2_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "form", 13)(1, "mat-form-field", 14);
-    \u0275\u0275element(2, "input", 15);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-autocomplete", null, 0);
-    \u0275\u0275template(5, ShareListSheetComponent_form_2_mat_option_5_Template, 6, 3, "mat-option", 16);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "button", 17);
-    \u0275\u0275listener("click", function ShareListSheetComponent_form_2_Template_button_click_6_listener() {
-      \u0275\u0275restoreView(_r5);
-      const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.returnFormContent());
-    });
-    \u0275\u0275text(7);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "button", 18);
-    \u0275\u0275listener("click", function ShareListSheetComponent_form_2_Template_button_click_8_listener() {
-      \u0275\u0275restoreView(_r5);
-      const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.bottomSheetRef.dismiss());
-    });
-    \u0275\u0275text(9, "Abbrechen");
+    \u0275\u0275elementStart(11, "mat-chip-option", 5);
+    \u0275\u0275text(12, "1 Tag vorher");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const auto_r7 = \u0275\u0275reference(4);
-    const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275property("formGroup", ctx_r2.form);
     \u0275\u0275advance(2);
-    \u0275\u0275property("matAutocomplete", auto_r7);
-    \u0275\u0275advance(3);
-    \u0275\u0275property("ngForOf", ctx_r2.filteredUsers());
-    \u0275\u0275advance();
-    \u0275\u0275property("disabled", !ctx_r2.form.valid);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate("Speichern");
-  }
-}
-function ShareListSheetComponent_button_3_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 18);
-    \u0275\u0275listener("click", function ShareListSheetComponent_button_3_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r8);
-      const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.bottomSheetRef.dismiss());
-    });
-    \u0275\u0275text(1, "Schlie\xDFen");
-    \u0275\u0275elementEnd();
-  }
-}
-var _ShareListSheetComponent = class _ShareListSheetComponent {
-  constructor(bottomSheetRef, data, fb, dataService) {
-    this.bottomSheetRef = bottomSheetRef;
-    this.data = data;
-    this.fb = fb;
-    this.dataService = dataService;
-    this.allUsers = signal([]);
-    this.filteredUsers = signal([]);
-    this.subscriptions = [];
-    this.lists = data.lists;
-    this.isAdmin = data.isAdmin;
-    this.users = data.users;
-    this.form = fb.group({
-      "email": ["", Validators.required]
-    });
-    effect(() => {
-      this.allUsers$ = this.dataService.db.users.find({
-        neqSelector: {
-          id: this.users().map((u3) => u3.id)
-        }
-      }).$;
-      this.allUsersSub?.unsubscribe();
-      this.allUsersSub = this.allUsers$.subscribe((user) => {
-        setTimeout(() => {
-          this.allUsers.set(user);
-          this.filteredUsers.set(user.filter((u3) => u3.email.includes(this.form.get("email")?.value)));
-        }, 1);
-      });
-    });
-    const sub = this.form.get("email")?.valueChanges.subscribe((val) => {
-      this.filteredUsers.set(this.allUsers().filter((u3) => u3.email.includes(val)));
-    });
-    if (sub) {
-      this.subscriptions.push(sub);
-    }
-  }
-  ngOnDestroy() {
-    this.unsubscribe();
-  }
-  usersSubscription(user) {
-  }
-  unsubscribe() {
-    this.subscriptions.forEach((s) => s.unsubscribe());
-    this.allUsersSub?.unsubscribe();
-  }
-  returnFormContent() {
-    let resp;
-    if (this.isAdmin) {
-      resp = {
-        "email": this.form.controls["email"].value.toLowerCase().trim()
-      };
-    }
-    this.bottomSheetRef.dismiss(resp);
-  }
-  removeSharedWith(userId) {
-    let resp;
-    if (this.isAdmin) {
-      resp = {
-        "remove": userId
-      };
-    }
-    this.bottomSheetRef.dismiss(resp);
-  }
-};
-_ShareListSheetComponent.\u0275fac = function ShareListSheetComponent_Factory(\u0275t) {
-  return new (\u0275t || _ShareListSheetComponent)(\u0275\u0275directiveInject(MatBottomSheetRef), \u0275\u0275directiveInject(MAT_BOTTOM_SHEET_DATA), \u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(DataService));
-};
-_ShareListSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ShareListSheetComponent, selectors: [["app-share-list-sheet"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 4, vars: 4, consts: [["auto", ""], ["class", "shared-user", 4, "ngFor", "ngForOf"], [4, "ngIf"], ["autocomplete", "off", 3, "formGroup", 4, "ngIf"], ["mat-flat-button", "", "color", "primary", 3, "click", 4, "ngIf"], [1, "shared-user"], [1, "user-info"], ["mat-mini-fab", "", "disabled", ""], [1, "email"], ["class", "admin", 4, "ngIf"], ["mat-icon-button", "", 3, "click", 4, "ngIf"], [1, "admin"], ["mat-icon-button", "", 3, "click"], ["autocomplete", "off", 3, "formGroup"], ["appearance", "outline"], ["matInput", "", "formControlName", "email", "placeholder", "Email", 3, "matAutocomplete"], [3, "value", 4, "ngFor", "ngForOf"], ["mat-stroked-button", "", 3, "click", "disabled"], ["mat-flat-button", "", "color", "primary", 3, "click"], [3, "value"]], template: function ShareListSheetComponent_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275template(0, ShareListSheetComponent_div_0_Template, 11, 9, "div", 1)(1, ShareListSheetComponent_h4_1_Template, 2, 0, "h4", 2)(2, ShareListSheetComponent_form_2_Template, 10, 5, "form", 3)(3, ShareListSheetComponent_button_3_Template, 2, 0, "button", 4);
-  }
-  if (rf & 2) {
-    \u0275\u0275property("ngForOf", ctx.users());
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx.isAdmin);
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx.isAdmin);
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", !ctx.isAdmin);
+    \u0275\u0275twoWayProperty("ngModel", ctx.due);
   }
 }, dependencies: [
   FormsModule,
-  \u0275NgNoValidate,
-  DefaultValueAccessor,
   NgControlStatus,
-  NgControlStatusGroup,
+  NgModel,
   ReactiveFormsModule,
-  FormGroupDirective,
-  FormControlName,
-  CommonModule,
-  NgForOf,
-  NgIf,
   MaterialModule,
-  MatButton,
-  MatIconButton,
-  MatMiniFabButton,
-  MatFormField,
-  MatIcon,
-  MatInput,
-  MatOption,
-  NameBadgePipe,
-  MatAutocompleteModule,
-  MatAutocomplete,
-  MatAutocompleteTrigger
-], styles: ["\n\n.shared-user[_ngcontent-%COMP%] {\n  width: calc(100% - 24px);\n  padding: 6px 12px;\n  border-radius: 5px;\n  border: solid 1px grey;\n  display: flex;\n  justify-content: space-between;\n  margin-bottom: 8px;\n}\n.shared-user[_ngcontent-%COMP%]   .admin[_ngcontent-%COMP%] {\n  color: grey;\n  margin: auto 0;\n}\n.shared-user[_ngcontent-%COMP%]   .badge[_ngcontent-%COMP%] {\n  width: 48px;\n  height: 48px;\n  margin-left: 0 !important;\n  margin-right: 12px;\n}\n.shared-user[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin-top: 0 !important;\n  margin-bottom: 0 !important;\n}\n.shared-user[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  line-height: 42px;\n}\n.user-info[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 4px;\n  align-items: center;\n}\n.user-info[_ngcontent-%COMP%]   .email[_ngcontent-%COMP%] {\n  color: grey;\n}\n/*# sourceMappingURL=share-list-sheet.component.css.map */", "\n\nbutton[_ngcontent-%COMP%] {\n  width: 100%;\n  margin: 6px 0;\n}\nbutton[_ngcontent-%COMP%]:last-child {\n  margin-bottom: 38pt;\n}\nform[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  margin: 24px 0;\n}\nform[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  margin: 24px 0;\n}\n/*# sourceMappingURL=styles.css.map */"] });
-var ShareListSheetComponent = _ShareListSheetComponent;
+  MatChipListbox,
+  MatChipOption,
+  MatLabel,
+  CommonModule
+] });
+var DueSelectComponent = _DueSelectComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ShareListSheetComponent, { className: "ShareListSheetComponent", filePath: "src/app/components/bottom-sheets/share-list-sheet/share-list-sheet.component.ts", lineNumber: 27 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DueSelectComponent, { className: "DueSelectComponent", filePath: "src/app/components/selects/due-select/due-select.component.ts", lineNumber: 25 });
 })();
 
 // node_modules/flatpickr/dist/esm/types/options.js
@@ -89322,6 +87623,2101 @@ if (typeof window !== "undefined") {
 }
 var esm_default = flatpickr;
 
+// src/models/time-picker.ts
+var timePickerConfig = {
+  enableTime: true,
+  minuteIncrement: 5,
+  disableMobile: false,
+  time_24hr: true
+};
+
+// src/app/components/selects/reminder-select/reminder-select.component.ts
+var _c014 = ["pickr"];
+function ReminderSelectComponent_mat_chip_option_3_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "mat-chip-option", 5);
+    \u0275\u0275listener("click", function ReminderSelectComponent_mat_chip_option_3_Template_mat_chip_option_click_0_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r2 = \u0275\u0275nextContext();
+      ctx_r2.onChange(ctx_r2.value);
+      return \u0275\u0275resetView(ctx_r2.onTouched());
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const val_r4 = ctx.$implicit;
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275property("value", val_r4);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r2.getLabel(val_r4));
+  }
+}
+function ReminderSelectComponent_mat_chip_option_4_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "mat-chip-option", 6);
+    \u0275\u0275listener("click", function ReminderSelectComponent_mat_chip_option_4_Template_mat_chip_option_click_0_listener() {
+      \u0275\u0275restoreView(_r5);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.openFlatpickr());
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "date");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(2, 1, ctx_r2.reminderDate, "short") || "Andere");
+  }
+}
+var _ReminderSelectComponent = class _ReminderSelectComponent {
+  set showOthers(showOthers) {
+    this._showOthers = showOthers;
+  }
+  get showOthers() {
+    return this._showOthers;
+  }
+  constructor(datePipe) {
+    this.datePipe = datePipe;
+    this._showOthers = true;
+    this.pickrOpened = new EventEmitter();
+    this.pickrClosed = new EventEmitter();
+    this.onChange = () => {
+    };
+    this.onTouched = () => {
+    };
+    this.disabled = false;
+    this.options = Object.values(ReminderOptions);
+    this.reminder = "";
+    this.reminderDate = "";
+    this.pickrIsOpen = false;
+    this.timezone = (/* @__PURE__ */ new Date()).toISOString().slice(16);
+  }
+  ngAfterViewInit() {
+    this.initFlatpickr();
+  }
+  get value() {
+    switch (this.reminder) {
+      case "different":
+        if (typeof this.reminderDate === "string") {
+          this.reminderDate = new Date(this.reminderDate);
+        }
+        return this.reminderDate.toISOString().slice(0, 16) + this.timezone;
+      default:
+        return this.reminder;
+    }
+  }
+  writeValue(reminder) {
+    if (this.showOthers) {
+      let date = "";
+      try {
+        date = new Date(reminder) || "";
+        if (isNaN(date.getTime())) {
+          date = "";
+        }
+      } catch {
+      }
+      this.reminderDate = date;
+      if (!!this.reminderDate) {
+        this.flatpickr?.setDate(this.reminderDate);
+      }
+    }
+    this.reminder = reminder || "0 min";
+  }
+  registerOnChange(fn) {
+    this.onChange = fn;
+  }
+  registerOnTouched(fn) {
+    this.onTouched = fn;
+  }
+  setDisabledState(isDisabled) {
+    this.disabled = isDisabled;
+  }
+  getLabel(option) {
+    return getReminderLabel(option);
+  }
+  initFlatpickr() {
+    this.flatpickr = esm_default(this.picker.nativeElement, timePickerConfig);
+    this.flatpickr.config.onClose.push(() => {
+      this.closePickr();
+    });
+  }
+  openFlatpickr() {
+    if (!this.pickrIsOpen && !!this.flatpickr) {
+      this.flatpickr.open();
+      this.pickrIsOpen = true;
+      this.pickrOpened.emit();
+    }
+  }
+  closePickr() {
+    if (this.pickrIsOpen) {
+      console.log(this.value);
+      this.pickrIsOpen = false;
+      this.pickrClosed.emit();
+      this.onChange(this.value);
+      this.onTouched();
+    }
+  }
+  parseDateTime(date) {
+    if (date) {
+      return this.datePipe.transform(date.toISOString().slice(0, 16), "short");
+    }
+    return "";
+  }
+};
+_ReminderSelectComponent.\u0275fac = function ReminderSelectComponent_Factory(\u0275t) {
+  return new (\u0275t || _ReminderSelectComponent)(\u0275\u0275directiveInject(DatePipe));
+};
+_ReminderSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ReminderSelectComponent, selectors: [["app-reminder-select"]], viewQuery: function ReminderSelectComponent_Query(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275viewQuery(_c014, 5);
+  }
+  if (rf & 2) {
+    let _t;
+    \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.picker = _t.first);
+  }
+}, inputs: { showOthers: "showOthers" }, outputs: { pickrOpened: "pickrOpened", pickrClosed: "pickrClosed" }, standalone: true, features: [\u0275\u0275ProvidersFeature([
+  {
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => _ReminderSelectComponent),
+    multi: true
+  },
+  DatePipe
+]), \u0275\u0275StandaloneFeature], decls: 7, vars: 5, consts: [["pickr", ""], [3, "ngModelChange", "ngModel", "disabled"], [3, "value", "click", 4, "ngFor", "ngForOf"], ["value", "different", 3, "click", 4, "ngIf"], ["type", "datetime-local", 3, "ngModelChange", "ngModel"], [3, "click", "value"], ["value", "different", 3, "click"]], template: function ReminderSelectComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "mat-label");
+    \u0275\u0275text(1, "Erinnerungen");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(2, "mat-chip-listbox", 1);
+    \u0275\u0275twoWayListener("ngModelChange", function ReminderSelectComponent_Template_mat_chip_listbox_ngModelChange_2_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      \u0275\u0275twoWayBindingSet(ctx.reminder, $event) || (ctx.reminder = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275template(3, ReminderSelectComponent_mat_chip_option_3_Template, 2, 2, "mat-chip-option", 2)(4, ReminderSelectComponent_mat_chip_option_4_Template, 3, 4, "mat-chip-option", 3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "input", 4, 0);
+    \u0275\u0275twoWayListener("ngModelChange", function ReminderSelectComponent_Template_input_ngModelChange_5_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      \u0275\u0275twoWayBindingSet(ctx.reminderDate, $event) || (ctx.reminderDate = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(2);
+    \u0275\u0275twoWayProperty("ngModel", ctx.reminder);
+    \u0275\u0275property("disabled", ctx.disabled);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngForOf", ctx.options);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx.showOthers);
+    \u0275\u0275advance();
+    \u0275\u0275twoWayProperty("ngModel", ctx.reminderDate);
+  }
+}, dependencies: [
+  FormsModule,
+  DefaultValueAccessor,
+  NgControlStatus,
+  NgModel,
+  ReactiveFormsModule,
+  MaterialModule,
+  MatChipListbox,
+  MatChipOption,
+  MatLabel,
+  CommonModule,
+  NgForOf,
+  NgIf,
+  DatePipe
+], styles: ["\n\ninput[_ngcontent-%COMP%] {\n  display: none;\n}\n/*# sourceMappingURL=reminder-select.component.css.map */"] });
+var ReminderSelectComponent = _ReminderSelectComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ReminderSelectComponent, { className: "ReminderSelectComponent", filePath: "src/app/components/selects/reminder-select/reminder-select.component.ts", lineNumber: 30 });
+})();
+
+// src/app/components/settings/others-form/others-form.component.ts
+var _OthersFormComponent = class _OthersFormComponent {
+  constructor(authService, fb) {
+    this.authService = authService;
+    this.fb = fb;
+    this.user = this.authService.me;
+    const reminder = this.authService.me().defaultReminder || REMINDER_INTERVAL.DUE;
+    this.form = fb.group({
+      "reminder": [reminder]
+    });
+    this.formSub = this.form.valueChanges.subscribe(() => {
+      if (this.user() && this.form.get("reminder")?.value) {
+        this.user().patch({
+          defaultReminder: this.form.get("reminder")?.value
+        });
+      }
+    });
+  }
+  ngOnDestroy() {
+    this.formSub.unsubscribe();
+  }
+};
+_OthersFormComponent.\u0275fac = function OthersFormComponent_Factory(\u0275t) {
+  return new (\u0275t || _OthersFormComponent)(\u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(FormBuilder));
+};
+_OthersFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _OthersFormComponent, selectors: [["app-settings-others-form"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 3, vars: 2, consts: [[3, "formGroup"], ["formControlName", "reminder", 3, "showOthers"]], template: function OthersFormComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div")(1, "form", 0);
+    \u0275\u0275element(2, "app-reminder-select", 1);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275property("formGroup", ctx.form);
+    \u0275\u0275advance();
+    \u0275\u0275property("showOthers", false);
+  }
+}, dependencies: [
+  ReactiveFormsModule,
+  \u0275NgNoValidate,
+  NgControlStatus,
+  NgControlStatusGroup,
+  FormGroupDirective,
+  FormControlName,
+  MaterialModule,
+  ReminderSelectComponent
+], styles: ["\n\ndiv[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-form-field[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  width: 100%;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\ndiv[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n/*# sourceMappingURL=form.css.map */"] });
+var OthersFormComponent = _OthersFormComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(OthersFormComponent, { className: "OthersFormComponent", filePath: "src/app/components/settings/others-form/others-form.component.ts", lineNumber: 23 });
+})();
+
+// src/app/components/settings/settings.component.ts
+function SettingsComponent_div_0_button_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 10);
+    \u0275\u0275listener("click", function SettingsComponent_div_0_button_1_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.enterEditMode());
+    });
+    \u0275\u0275elementStart(1, "mat-icon");
+    \u0275\u0275text(2, "edit");
+    \u0275\u0275elementEnd()();
+  }
+}
+function SettingsComponent_div_0_button_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "button", 11);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "nameBadge");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, ctx_r2.user().name), " ");
+  }
+}
+function SettingsComponent_div_0_button_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "button", 11);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "nameBadge");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, ctx_r2.userName()), " ");
+  }
+}
+function SettingsComponent_div_0_div_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div");
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r2.user().name);
+  }
+}
+function SettingsComponent_div_0_div_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div");
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r2.user().email);
+  }
+}
+function SettingsComponent_div_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 1);
+    \u0275\u0275template(1, SettingsComponent_div_0_button_1_Template, 3, 0, "button", 2)(2, SettingsComponent_div_0_button_2_Template, 3, 3, "button", 3)(3, SettingsComponent_div_0_button_3_Template, 3, 3, "button", 3);
+    \u0275\u0275elementStart(4, "div", 4);
+    \u0275\u0275template(5, SettingsComponent_div_0_div_5_Template, 2, 1, "div", 5)(6, SettingsComponent_div_0_div_6_Template, 2, 1, "div", 5);
+    \u0275\u0275elementStart(7, "app-settings-edit-form", 6);
+    \u0275\u0275listener("name", function SettingsComponent_div_0_Template_app_settings_edit_form_name_7_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.userName.set($event));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(8, "hr")(9, "app-settings-theme-form", 7)(10, "app-settings-others-form", 7)(11, "hr")(12, "app-settings-push-form", 7);
+    \u0275\u0275elementStart(13, "button", 8);
+    \u0275\u0275listener("click", function SettingsComponent_div_0_Template_button_click_13_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.logout());
+    });
+    \u0275\u0275text(14, "Logout");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(15, "div", 9);
+    \u0275\u0275text(16);
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", !ctx_r2.editMode());
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", !ctx_r2.editMode() && ctx_r2.user() && !!ctx_r2.user().name);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.editMode());
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngIf", ctx_r2.user() && !ctx_r2.editMode());
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.user() && !ctx_r2.editMode());
+    \u0275\u0275advance();
+    \u0275\u0275property("editMode", ctx_r2.editMode)("disabled", ctx_r2.editFormDisabled);
+    \u0275\u0275advance(9);
+    \u0275\u0275textInterpolate1("v", ctx_r2.version, "");
+  }
+}
+var _SettingsComponent = class _SettingsComponent {
+  constructor(authService, fb, pusher) {
+    this.authService = authService;
+    this.fb = fb;
+    this.pusher = pusher;
+    this.userName = signal("");
+    this.version = environment.version;
+    this.editMode = signal(false);
+    this.editFormDisabled = signal(false);
+    this.user = this.authService.me;
+    this.pusherSub = this.pusher.online.subscribe((isOnline) => {
+      this.editFormDisabled.set(!isOnline);
+    });
+  }
+  ngOnDestroy() {
+    this.pusherSub.unsubscribe();
+  }
+  logout() {
+    this.authService.logout();
+  }
+  enterEditMode() {
+    if (this.user()) {
+      this.editMode.set(true);
+    } else {
+      this.editMode.set(false);
+    }
+  }
+};
+_SettingsComponent.\u0275fac = function SettingsComponent_Factory(\u0275t) {
+  return new (\u0275t || _SettingsComponent)(\u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(PusherService));
+};
+_SettingsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsComponent, selectors: [["app-settings"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 1, vars: 1, consts: [["class", "container", 4, "ngIf"], [1, "container"], ["mat-icon-button", "", "class", "edit-buttons", 3, "click", 4, "ngIf"], ["disabled", "", "mat-fab", "", "class", "user-fab-0", 4, "ngIf"], [1, "inner-container"], [4, "ngIf"], [1, "forms", 3, "name", "editMode", "disabled"], [1, "forms"], ["mat-stroked-button", "", 3, "click"], ["id", "version"], ["mat-icon-button", "", 1, "edit-buttons", 3, "click"], ["disabled", "", "mat-fab", "", 1, "user-fab-0"]], template: function SettingsComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, SettingsComponent_div_0_Template, 17, 8, "div", 0);
+  }
+  if (rf & 2) {
+    \u0275\u0275property("ngIf", ctx.user());
+  }
+}, dependencies: [
+  ReactiveFormsModule,
+  FormsModule,
+  CommonModule,
+  NgIf,
+  MaterialModule,
+  MatButton,
+  MatIconButton,
+  MatFabButton,
+  MatIcon,
+  NameBadgePipe,
+  EditFormComponent,
+  ThemeFormComponent,
+  PushFormComponent,
+  OthersFormComponent
+], styles: ["\n\n.container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  height: 100%;\n}\n.container[_ngcontent-%COMP%]   button.user-fab-0[_ngcontent-%COMP%] {\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   button.edit-buttons[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 32px;\n  right: 0;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%] {\n  overflow: hidden auto;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   div[_ngcontent-%COMP%]:first-child {\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   #version[_ngcontent-%COMP%] {\n  color: grey;\n  font-size: 12px;\n  margin-top: 48px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   .forms[_ngcontent-%COMP%] {\n  width: 100%;\n}\n/*# sourceMappingURL=settings.component.css.map */"] });
+var SettingsComponent = _SettingsComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsComponent, { className: "SettingsComponent", filePath: "src/app/components/settings/settings.component.ts", lineNumber: 33 });
+})();
+
+// src/app/components/forgot-password/forgot-password.component.ts
+function ForgotPasswordComponent_mat_error_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-error");
+    \u0275\u0275text(1, " Email muss angegeben werden! ");
+    \u0275\u0275elementEnd();
+  }
+}
+function ForgotPasswordComponent_mat_error_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-error");
+    \u0275\u0275text(1, " Bitte eine g\xFCltige Email Adresse angeben! ");
+    \u0275\u0275elementEnd();
+  }
+}
+var _ForgotPasswordComponent = class _ForgotPasswordComponent {
+  constructor(fb, authService, snackBar) {
+    this.fb = fb;
+    this.authService = authService;
+    this.snackBar = snackBar;
+    this.form = this.fb.group({
+      email: ["", [Validators.required, Validators.email]]
+    });
+  }
+  resetPwd() {
+    if (this.form.invalid) {
+      return;
+    }
+    this.authService.forgotPwd(this.form.get("email")?.value).subscribe((success) => {
+      if (success) {
+        this.snackBar.open("Existiert ein Nutzer mit dieser Email, wurde eine Email zum Zur\xFCcksetzen versendet.", "Ok");
+      } else {
+        this.snackBar.open("Es ist ein Fehler aufgetreten.", "Ok");
+      }
+    });
+  }
+};
+_ForgotPasswordComponent.\u0275fac = function ForgotPasswordComponent_Factory(\u0275t) {
+  return new (\u0275t || _ForgotPasswordComponent)(\u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(MatSnackBar));
+};
+_ForgotPasswordComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ForgotPasswordComponent, selectors: [["app-forgot-pwd"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 15, vars: 4, consts: [[3, "formGroup"], ["appearance", "outline"], ["matInput", "", "placeholder", "Email", "formControlName", "email", "type", "email"], [4, "ngIf"], ["mat-flat-button", "", "color", "primary", 3, "click", "disabled"], [1, "container"], ["mat-stroked-button", "", "routerLink", "/login", "type", "button"]], template: function ForgotPasswordComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div")(1, "form", 0)(2, "mat-form-field", 1)(3, "mat-label");
+    \u0275\u0275text(4, "email");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(5, "input", 2);
+    \u0275\u0275template(6, ForgotPasswordComponent_mat_error_6_Template, 2, 0, "mat-error", 3)(7, ForgotPasswordComponent_mat_error_7_Template, 2, 0, "mat-error", 3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(8, "button", 4);
+    \u0275\u0275listener("click", function ForgotPasswordComponent_Template_button_click_8_listener() {
+      return ctx.resetPwd();
+    });
+    \u0275\u0275text(9, "Passwort zur\xFCcksetzen");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(10, "div", 5)(11, "button", 6);
+    \u0275\u0275text(12, "Login");
+    \u0275\u0275elementStart(13, "mat-icon");
+    \u0275\u0275text(14, "chevron_left");
+    \u0275\u0275elementEnd()()()()();
+  }
+  if (rf & 2) {
+    let tmp_1_0;
+    let tmp_2_0;
+    \u0275\u0275advance();
+    \u0275\u0275property("formGroup", ctx.form);
+    \u0275\u0275advance(5);
+    \u0275\u0275property("ngIf", (tmp_1_0 = ctx.form.get("email")) == null ? null : tmp_1_0.hasError("required"));
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", (tmp_2_0 = ctx.form.get("email")) == null ? null : tmp_2_0.hasError("email"));
+    \u0275\u0275advance();
+    \u0275\u0275property("disabled", ctx.form.invalid || ctx.form.disabled);
+  }
+}, dependencies: [CommonModule, NgIf, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, MatButtonModule, MatButton, MatFormFieldModule, MatFormField, MatLabel, MatError, MatIconModule, MatIcon, MatInputModule, MatInput, RouterModule, RouterLink], styles: ["\n\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin: 12px 0;\n}\ndiv[_ngcontent-%COMP%]   .container[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  justify-content: space-between;\n  margin: 0;\n}\n/*# sourceMappingURL=forgot-password.component.css.map */"] });
+var ForgotPasswordComponent = _ForgotPasswordComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ForgotPasswordComponent, { className: "ForgotPasswordComponent", filePath: "src/app/components/forgot-password/forgot-password.component.ts", lineNumber: 29 });
+})();
+
+// src/app/components/reset-password/reset-password.component.ts
+function ResetPasswordComponent_mat_error_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-error");
+    \u0275\u0275text(1, " Passwort muss angegeben werden! ");
+    \u0275\u0275elementEnd();
+  }
+}
+function ResetPasswordComponent_mat_error_11_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-error");
+    \u0275\u0275text(1, " Passw\xF6rter stimmen nicht \xFCberein! ");
+    \u0275\u0275elementEnd();
+  }
+}
+function ResetPasswordComponent_mat_error_12_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-error");
+    \u0275\u0275text(1, "Link ist ung\xFCltig.");
+    \u0275\u0275elementEnd();
+  }
+}
+function ResetPasswordComponent_mat_error_13_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-error");
+    \u0275\u0275text(1, "Link ist abgelaufen.");
+    \u0275\u0275elementEnd();
+  }
+}
+var _ResetPasswordComponent = class _ResetPasswordComponent {
+  constructor(route, authService, router, fb) {
+    this.route = route;
+    this.authService = authService;
+    this.router = router;
+    this.fb = fb;
+    route.queryParams.subscribe((params) => {
+      this.token = params["token"];
+      this.email = params["email"];
+      if (!this.token || !this.email) {
+        const interval = setInterval(() => {
+          if (!!this.form) {
+            this.form.disable();
+            this.form.setErrors({ invalidLink: true });
+            clearInterval(interval);
+          }
+        }, 100);
+      }
+    });
+    this.form = fb.group({
+      "pwd": ["", Validators.required],
+      "pwd_confirmation": ["", Validators.required]
+    }, {
+      validators: MatchValidator("pwd", "pwd_confirmation")
+    });
+    this.formSub = this.form.valueChanges.subscribe(() => {
+      this.form.setErrors(null);
+    });
+  }
+  ngOnDestroy() {
+    this.formSub.unsubscribe();
+  }
+  resetPwd() {
+    if (this.form.invalid) {
+      return;
+    }
+    if (!this.token || !this.email) {
+      this.form.setErrors({ "invalidLink": true });
+    } else {
+      const pwd = md5(this.form.get("pwd")?.value);
+      const pwd_confirmation = md5(this.form.get("pwd_confirmation")?.value);
+      this.authService.resetPwd(this.token, this.email, pwd, pwd_confirmation).subscribe((success) => {
+        if (success) {
+          this.router.navigateByUrl("/login");
+        } else {
+          this.form.setErrors({ invalidToken: true });
+        }
+      });
+    }
+  }
+};
+_ResetPasswordComponent.\u0275fac = function ResetPasswordComponent_Factory(\u0275t) {
+  return new (\u0275t || _ResetPasswordComponent)(\u0275\u0275directiveInject(ActivatedRoute), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(Router), \u0275\u0275directiveInject(FormBuilder));
+};
+_ResetPasswordComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ResetPasswordComponent, selectors: [["app-reset-password"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 21, vars: 6, consts: [[3, "formGroup"], ["appearance", "outline"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "pwd"], [4, "ngIf"], ["matInput", "", "type", "password", "placeholder", "Passwort wiederholen", "formControlName", "pwd_confirmation"], ["mat-flat-button", "", "color", "primary", 3, "click", "disabled"], [1, "container"], ["mat-stroked-button", "", "type", "button", "routerLink", "/login"]], template: function ResetPasswordComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div")(1, "form", 0)(2, "mat-form-field", 1)(3, "mat-label");
+    \u0275\u0275text(4, "Passwort");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(5, "input", 2);
+    \u0275\u0275template(6, ResetPasswordComponent_mat_error_6_Template, 2, 0, "mat-error", 3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "mat-form-field", 1)(8, "mat-label");
+    \u0275\u0275text(9, "Passwort wiederholen");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(10, "input", 4);
+    \u0275\u0275template(11, ResetPasswordComponent_mat_error_11_Template, 2, 0, "mat-error", 3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(12, ResetPasswordComponent_mat_error_12_Template, 2, 0, "mat-error", 3)(13, ResetPasswordComponent_mat_error_13_Template, 2, 0, "mat-error", 3);
+    \u0275\u0275elementStart(14, "button", 5);
+    \u0275\u0275listener("click", function ResetPasswordComponent_Template_button_click_14_listener() {
+      return ctx.resetPwd();
+    });
+    \u0275\u0275text(15, "Passwort zur\xFCcksetzen");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(16, "div", 6)(17, "button", 7)(18, "mat-icon");
+    \u0275\u0275text(19, "chevron_left");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(20, "Login");
+    \u0275\u0275elementEnd()()()();
+  }
+  if (rf & 2) {
+    let tmp_1_0;
+    let tmp_2_0;
+    \u0275\u0275advance();
+    \u0275\u0275property("formGroup", ctx.form);
+    \u0275\u0275advance(5);
+    \u0275\u0275property("ngIf", (tmp_1_0 = ctx.form.get("pwd")) == null ? null : tmp_1_0.hasError("required"));
+    \u0275\u0275advance(5);
+    \u0275\u0275property("ngIf", ctx.form.hasError("notMatching") || ((tmp_2_0 = ctx.form.get("pwd_confirmation")) == null ? null : tmp_2_0.hasError("required")));
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx.form.hasError("invalidLink"));
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx.form.hasError("invalidToken"));
+    \u0275\u0275advance();
+    \u0275\u0275property("disabled", ctx.form.invalid || ctx.form.disabled);
+  }
+}, dependencies: [MaterialModule, MatButton, MatFormField, MatLabel, MatError, MatIcon, MatInput, CommonModule, NgIf, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, RouterModule, RouterLink], styles: ["\n\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin: 12px 0;\n}\ndiv[_ngcontent-%COMP%]   .container[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  justify-content: space-between;\n  margin: 0;\n}\n/*# sourceMappingURL=reset-password.component.css.map */"] });
+var ResetPasswordComponent = _ResetPasswordComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ResetPasswordComponent, { className: "ResetPasswordComponent", filePath: "src/app/components/reset-password/reset-password.component.ts", lineNumber: 23 });
+})();
+
+// node_modules/@angular/material/fesm2022/autocomplete.mjs
+var _c015 = ["panel"];
+var _c111 = ["*"];
+function MatAutocomplete_ng_template_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 1, 0);
+    \u0275\u0275listener("@panelAnimation.done", function MatAutocomplete_ng_template_0_Template_div_animation_panelAnimation_done_0_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1._animationDone.next($event));
+    });
+    \u0275\u0275projection(2);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const formFieldId_r3 = ctx.id;
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275classMap(ctx_r1._classList);
+    \u0275\u0275classProp("mat-mdc-autocomplete-visible", ctx_r1.showPanel)("mat-mdc-autocomplete-hidden", !ctx_r1.showPanel)("mat-primary", ctx_r1._color === "primary")("mat-accent", ctx_r1._color === "accent")("mat-warn", ctx_r1._color === "warn");
+    \u0275\u0275property("id", ctx_r1.id)("@panelAnimation", ctx_r1.isOpen ? "visible" : "hidden");
+    \u0275\u0275attribute("aria-label", ctx_r1.ariaLabel || null)("aria-labelledby", ctx_r1._getPanelAriaLabelledby(formFieldId_r3));
+  }
+}
+var panelAnimation = trigger("panelAnimation", [state("void, hidden", style({
+  opacity: 0,
+  transform: "scaleY(0.8)"
+})), transition(":enter, hidden => visible", [group([animate("0.03s linear", style({
+  opacity: 1
+})), animate("0.12s cubic-bezier(0, 0, 0.2, 1)", style({
+  transform: "scaleY(1)"
+}))])]), transition(":leave, visible => hidden", [animate("0.075s linear", style({
+  opacity: 0
+}))])]);
+var _uniqueAutocompleteIdCounter = 0;
+var MatAutocompleteSelectedEvent = class {
+  constructor(source, option) {
+    this.source = source;
+    this.option = option;
+  }
+};
+var MAT_AUTOCOMPLETE_DEFAULT_OPTIONS = new InjectionToken("mat-autocomplete-default-options", {
+  providedIn: "root",
+  factory: MAT_AUTOCOMPLETE_DEFAULT_OPTIONS_FACTORY
+});
+function MAT_AUTOCOMPLETE_DEFAULT_OPTIONS_FACTORY() {
+  return {
+    autoActiveFirstOption: false,
+    autoSelectActiveOption: false,
+    hideSingleSelectionIndicator: false,
+    requireSelection: false
+  };
+}
+var _MatAutocomplete = class _MatAutocomplete {
+  /** Whether the autocomplete panel is open. */
+  get isOpen() {
+    return this._isOpen && this.showPanel;
+  }
+  /** @docs-private Sets the theme color of the panel. */
+  _setColor(value) {
+    this._color = value;
+    this._changeDetectorRef.markForCheck();
+  }
+  /**
+   * Takes classes set on the host mat-autocomplete element and applies them to the panel
+   * inside the overlay container to allow for easy styling.
+   */
+  set classList(value) {
+    this._classList = value;
+    this._elementRef.nativeElement.className = "";
+  }
+  /** Whether checkmark indicator for single-selection options is hidden. */
+  get hideSingleSelectionIndicator() {
+    return this._hideSingleSelectionIndicator;
+  }
+  set hideSingleSelectionIndicator(value) {
+    this._hideSingleSelectionIndicator = value;
+    this._syncParentProperties();
+  }
+  /** Syncs the parent state with the individual options. */
+  _syncParentProperties() {
+    if (this.options) {
+      for (const option of this.options) {
+        option._changeDetectorRef.markForCheck();
+      }
+    }
+  }
+  constructor(_changeDetectorRef, _elementRef, _defaults, platform) {
+    this._changeDetectorRef = _changeDetectorRef;
+    this._elementRef = _elementRef;
+    this._defaults = _defaults;
+    this._activeOptionChanges = Subscription.EMPTY;
+    this._animationDone = new EventEmitter();
+    this.showPanel = false;
+    this._isOpen = false;
+    this.displayWith = null;
+    this.optionSelected = new EventEmitter();
+    this.opened = new EventEmitter();
+    this.closed = new EventEmitter();
+    this.optionActivated = new EventEmitter();
+    this.id = `mat-autocomplete-${_uniqueAutocompleteIdCounter++}`;
+    this.inertGroups = platform?.SAFARI || false;
+    this.autoActiveFirstOption = !!_defaults.autoActiveFirstOption;
+    this.autoSelectActiveOption = !!_defaults.autoSelectActiveOption;
+    this.requireSelection = !!_defaults.requireSelection;
+    this._hideSingleSelectionIndicator = this._defaults.hideSingleSelectionIndicator ?? false;
+  }
+  ngAfterContentInit() {
+    this._keyManager = new ActiveDescendantKeyManager(this.options).withWrap().skipPredicate(this._skipPredicate);
+    this._activeOptionChanges = this._keyManager.change.subscribe((index) => {
+      if (this.isOpen) {
+        this.optionActivated.emit({
+          source: this,
+          option: this.options.toArray()[index] || null
+        });
+      }
+    });
+    this._setVisibility();
+  }
+  ngOnDestroy() {
+    this._keyManager?.destroy();
+    this._activeOptionChanges.unsubscribe();
+    this._animationDone.complete();
+  }
+  /**
+   * Sets the panel scrollTop. This allows us to manually scroll to display options
+   * above or below the fold, as they are not actually being focused when active.
+   */
+  _setScrollTop(scrollTop) {
+    if (this.panel) {
+      this.panel.nativeElement.scrollTop = scrollTop;
+    }
+  }
+  /** Returns the panel's scrollTop. */
+  _getScrollTop() {
+    return this.panel ? this.panel.nativeElement.scrollTop : 0;
+  }
+  /** Panel should hide itself when the option list is empty. */
+  _setVisibility() {
+    this.showPanel = !!this.options.length;
+    this._changeDetectorRef.markForCheck();
+  }
+  /** Emits the `select` event. */
+  _emitSelectEvent(option) {
+    const event = new MatAutocompleteSelectedEvent(this, option);
+    this.optionSelected.emit(event);
+  }
+  /** Gets the aria-labelledby for the autocomplete panel. */
+  _getPanelAriaLabelledby(labelId) {
+    if (this.ariaLabel) {
+      return null;
+    }
+    const labelExpression = labelId ? labelId + " " : "";
+    return this.ariaLabelledby ? labelExpression + this.ariaLabelledby : labelId;
+  }
+  // `skipPredicate` determines if key manager should avoid putting a given option in the tab
+  // order. Allow disabled list items to receive focus via keyboard to align with WAI ARIA
+  // recommendation.
+  //
+  // Normally WAI ARIA's instructions are to exclude disabled items from the tab order, but it
+  // makes a few exceptions for compound widgets.
+  //
+  // From [Developing a Keyboard Interface](
+  // https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/):
+  //   "For the following composite widget elements, keep them focusable when disabled: Options in a
+  //   Listbox..."
+  //
+  // The user can focus disabled options using the keyboard, but the user cannot click disabled
+  // options.
+  _skipPredicate() {
+    return false;
+  }
+};
+_MatAutocomplete.\u0275fac = function MatAutocomplete_Factory(\u0275t) {
+  return new (\u0275t || _MatAutocomplete)(\u0275\u0275directiveInject(ChangeDetectorRef), \u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(MAT_AUTOCOMPLETE_DEFAULT_OPTIONS), \u0275\u0275directiveInject(Platform));
+};
+_MatAutocomplete.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
+  type: _MatAutocomplete,
+  selectors: [["mat-autocomplete"]],
+  contentQueries: function MatAutocomplete_ContentQueries(rf, ctx, dirIndex) {
+    if (rf & 1) {
+      \u0275\u0275contentQuery(dirIndex, MatOption, 5);
+      \u0275\u0275contentQuery(dirIndex, MAT_OPTGROUP, 5);
+    }
+    if (rf & 2) {
+      let _t;
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.options = _t);
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.optionGroups = _t);
+    }
+  },
+  viewQuery: function MatAutocomplete_Query(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275viewQuery(TemplateRef, 7);
+      \u0275\u0275viewQuery(_c015, 5);
+    }
+    if (rf & 2) {
+      let _t;
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.template = _t.first);
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.panel = _t.first);
+    }
+  },
+  hostAttrs: [1, "mat-mdc-autocomplete"],
+  inputs: {
+    ariaLabel: [0, "aria-label", "ariaLabel"],
+    ariaLabelledby: [0, "aria-labelledby", "ariaLabelledby"],
+    displayWith: "displayWith",
+    autoActiveFirstOption: [2, "autoActiveFirstOption", "autoActiveFirstOption", booleanAttribute],
+    autoSelectActiveOption: [2, "autoSelectActiveOption", "autoSelectActiveOption", booleanAttribute],
+    requireSelection: [2, "requireSelection", "requireSelection", booleanAttribute],
+    panelWidth: "panelWidth",
+    disableRipple: [2, "disableRipple", "disableRipple", booleanAttribute],
+    classList: [0, "class", "classList"],
+    hideSingleSelectionIndicator: [2, "hideSingleSelectionIndicator", "hideSingleSelectionIndicator", booleanAttribute]
+  },
+  outputs: {
+    optionSelected: "optionSelected",
+    opened: "opened",
+    closed: "closed",
+    optionActivated: "optionActivated"
+  },
+  exportAs: ["matAutocomplete"],
+  standalone: true,
+  features: [\u0275\u0275ProvidersFeature([{
+    provide: MAT_OPTION_PARENT_COMPONENT,
+    useExisting: _MatAutocomplete
+  }]), \u0275\u0275InputTransformsFeature, \u0275\u0275StandaloneFeature],
+  ngContentSelectors: _c111,
+  decls: 1,
+  vars: 0,
+  consts: [["panel", ""], ["role", "listbox", 1, "mat-mdc-autocomplete-panel", "mdc-menu-surface", "mdc-menu-surface--open", 3, "id"]],
+  template: function MatAutocomplete_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275projectionDef();
+      \u0275\u0275template(0, MatAutocomplete_ng_template_0_Template, 3, 16, "ng-template");
+    }
+  },
+  styles: ["div.mat-mdc-autocomplete-panel{width:100%;max-height:256px;visibility:hidden;transform-origin:center top;overflow:auto;padding:8px 0;box-sizing:border-box;position:static;border-radius:var(--mat-autocomplete-container-shape);box-shadow:var(--mat-autocomplete-container-elevation-shadow);background-color:var(--mat-autocomplete-background-color)}.cdk-high-contrast-active div.mat-mdc-autocomplete-panel{outline:solid 1px}.cdk-overlay-pane:not(.mat-mdc-autocomplete-panel-above) div.mat-mdc-autocomplete-panel{border-top-left-radius:0;border-top-right-radius:0}.mat-mdc-autocomplete-panel-above div.mat-mdc-autocomplete-panel{border-bottom-left-radius:0;border-bottom-right-radius:0;transform-origin:center bottom}div.mat-mdc-autocomplete-panel.mat-mdc-autocomplete-visible{visibility:visible}div.mat-mdc-autocomplete-panel.mat-mdc-autocomplete-hidden{visibility:hidden;pointer-events:none}mat-autocomplete{display:none}"],
+  encapsulation: 2,
+  data: {
+    animation: [panelAnimation]
+  },
+  changeDetection: 0
+});
+var MatAutocomplete = _MatAutocomplete;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatAutocomplete, [{
+    type: Component,
+    args: [{
+      selector: "mat-autocomplete",
+      encapsulation: ViewEncapsulation$1.None,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+      exportAs: "matAutocomplete",
+      host: {
+        "class": "mat-mdc-autocomplete"
+      },
+      providers: [{
+        provide: MAT_OPTION_PARENT_COMPONENT,
+        useExisting: MatAutocomplete
+      }],
+      animations: [panelAnimation],
+      standalone: true,
+      template: `<ng-template let-formFieldId="id">
+  <div
+    class="mat-mdc-autocomplete-panel mdc-menu-surface mdc-menu-surface--open"
+    role="listbox"
+    [id]="id"
+    [class]="_classList"
+    [class.mat-mdc-autocomplete-visible]="showPanel"
+    [class.mat-mdc-autocomplete-hidden]="!showPanel"
+    [class.mat-primary]="_color === 'primary'"
+    [class.mat-accent]="_color === 'accent'"
+    [class.mat-warn]="_color === 'warn'"
+    [attr.aria-label]="ariaLabel || null"
+    [attr.aria-labelledby]="_getPanelAriaLabelledby(formFieldId)"
+    [@panelAnimation]="isOpen ? 'visible' : 'hidden'"
+    (@panelAnimation.done)="_animationDone.next($event)"
+    #panel>
+    <ng-content></ng-content>
+  </div>
+</ng-template>
+`,
+      styles: ["div.mat-mdc-autocomplete-panel{width:100%;max-height:256px;visibility:hidden;transform-origin:center top;overflow:auto;padding:8px 0;box-sizing:border-box;position:static;border-radius:var(--mat-autocomplete-container-shape);box-shadow:var(--mat-autocomplete-container-elevation-shadow);background-color:var(--mat-autocomplete-background-color)}.cdk-high-contrast-active div.mat-mdc-autocomplete-panel{outline:solid 1px}.cdk-overlay-pane:not(.mat-mdc-autocomplete-panel-above) div.mat-mdc-autocomplete-panel{border-top-left-radius:0;border-top-right-radius:0}.mat-mdc-autocomplete-panel-above div.mat-mdc-autocomplete-panel{border-bottom-left-radius:0;border-bottom-right-radius:0;transform-origin:center bottom}div.mat-mdc-autocomplete-panel.mat-mdc-autocomplete-visible{visibility:visible}div.mat-mdc-autocomplete-panel.mat-mdc-autocomplete-hidden{visibility:hidden;pointer-events:none}mat-autocomplete{display:none}"]
+    }]
+  }], () => [{
+    type: ChangeDetectorRef
+  }, {
+    type: ElementRef
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Inject,
+      args: [MAT_AUTOCOMPLETE_DEFAULT_OPTIONS]
+    }]
+  }, {
+    type: Platform
+  }], {
+    template: [{
+      type: ViewChild,
+      args: [TemplateRef, {
+        static: true
+      }]
+    }],
+    panel: [{
+      type: ViewChild,
+      args: ["panel"]
+    }],
+    options: [{
+      type: ContentChildren,
+      args: [MatOption, {
+        descendants: true
+      }]
+    }],
+    optionGroups: [{
+      type: ContentChildren,
+      args: [MAT_OPTGROUP, {
+        descendants: true
+      }]
+    }],
+    ariaLabel: [{
+      type: Input,
+      args: ["aria-label"]
+    }],
+    ariaLabelledby: [{
+      type: Input,
+      args: ["aria-labelledby"]
+    }],
+    displayWith: [{
+      type: Input
+    }],
+    autoActiveFirstOption: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    autoSelectActiveOption: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    requireSelection: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    panelWidth: [{
+      type: Input
+    }],
+    disableRipple: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    optionSelected: [{
+      type: Output
+    }],
+    opened: [{
+      type: Output
+    }],
+    closed: [{
+      type: Output
+    }],
+    optionActivated: [{
+      type: Output
+    }],
+    classList: [{
+      type: Input,
+      args: ["class"]
+    }],
+    hideSingleSelectionIndicator: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }]
+  });
+})();
+var _MatAutocompleteOrigin = class _MatAutocompleteOrigin {
+  constructor(elementRef) {
+    this.elementRef = elementRef;
+  }
+};
+_MatAutocompleteOrigin.\u0275fac = function MatAutocompleteOrigin_Factory(\u0275t) {
+  return new (\u0275t || _MatAutocompleteOrigin)(\u0275\u0275directiveInject(ElementRef));
+};
+_MatAutocompleteOrigin.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+  type: _MatAutocompleteOrigin,
+  selectors: [["", "matAutocompleteOrigin", ""]],
+  exportAs: ["matAutocompleteOrigin"],
+  standalone: true
+});
+var MatAutocompleteOrigin = _MatAutocompleteOrigin;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatAutocompleteOrigin, [{
+    type: Directive,
+    args: [{
+      selector: "[matAutocompleteOrigin]",
+      exportAs: "matAutocompleteOrigin",
+      standalone: true
+    }]
+  }], () => [{
+    type: ElementRef
+  }], null);
+})();
+var MAT_AUTOCOMPLETE_VALUE_ACCESSOR = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => MatAutocompleteTrigger),
+  multi: true
+};
+function getMatAutocompleteMissingPanelError() {
+  return Error("Attempting to open an undefined instance of `mat-autocomplete`. Make sure that the id passed to the `matAutocomplete` is correct and that you're attempting to open it after the ngAfterContentInit hook.");
+}
+var MAT_AUTOCOMPLETE_SCROLL_STRATEGY = new InjectionToken("mat-autocomplete-scroll-strategy", {
+  providedIn: "root",
+  factory: () => {
+    const overlay = inject(Overlay);
+    return () => overlay.scrollStrategies.reposition();
+  }
+});
+function MAT_AUTOCOMPLETE_SCROLL_STRATEGY_FACTORY(overlay) {
+  return () => overlay.scrollStrategies.reposition();
+}
+var MAT_AUTOCOMPLETE_SCROLL_STRATEGY_FACTORY_PROVIDER = {
+  provide: MAT_AUTOCOMPLETE_SCROLL_STRATEGY,
+  deps: [Overlay],
+  useFactory: MAT_AUTOCOMPLETE_SCROLL_STRATEGY_FACTORY
+};
+var _MatAutocompleteTrigger = class _MatAutocompleteTrigger {
+  constructor(_element, _overlay, _viewContainerRef, _zone, _changeDetectorRef, scrollStrategy, _dir, _formField, _document2, _viewportRuler, _defaults) {
+    this._element = _element;
+    this._overlay = _overlay;
+    this._viewContainerRef = _viewContainerRef;
+    this._zone = _zone;
+    this._changeDetectorRef = _changeDetectorRef;
+    this._dir = _dir;
+    this._formField = _formField;
+    this._document = _document2;
+    this._viewportRuler = _viewportRuler;
+    this._defaults = _defaults;
+    this._componentDestroyed = false;
+    this._manuallyFloatingLabel = false;
+    this._viewportSubscription = Subscription.EMPTY;
+    this._breakpointObserver = inject(BreakpointObserver);
+    this._handsetLandscapeSubscription = Subscription.EMPTY;
+    this._canOpenOnNextFocus = true;
+    this._closeKeyEventStream = new Subject();
+    this._windowBlurHandler = () => {
+      this._canOpenOnNextFocus = this._document.activeElement !== this._element.nativeElement || this.panelOpen;
+    };
+    this._onChange = () => {
+    };
+    this._onTouched = () => {
+    };
+    this.position = "auto";
+    this.autocompleteAttribute = "off";
+    this._initialized = new Subject();
+    this._injector = inject(Injector);
+    this._aboveClass = "mat-mdc-autocomplete-panel-above";
+    this._overlayAttached = false;
+    this.optionSelections = defer(() => {
+      const options = this.autocomplete ? this.autocomplete.options : null;
+      if (options) {
+        return options.changes.pipe(startWith(options), switchMap(() => merge(...options.map((option) => option.onSelectionChange))));
+      }
+      return this._initialized.pipe(switchMap(() => this.optionSelections));
+    });
+    this._handlePanelKeydown = (event) => {
+      if (event.keyCode === ESCAPE && !hasModifierKey(event) || event.keyCode === UP_ARROW && hasModifierKey(event, "altKey")) {
+        if (this._pendingAutoselectedOption) {
+          this._updateNativeInputValue(this._valueBeforeAutoSelection ?? "");
+          this._pendingAutoselectedOption = null;
+        }
+        this._closeKeyEventStream.next();
+        this._resetActiveItem();
+        event.stopPropagation();
+        event.preventDefault();
+      }
+    };
+    this._trackedModal = null;
+    this._scrollStrategy = scrollStrategy;
+  }
+  ngAfterViewInit() {
+    this._initialized.next();
+    this._initialized.complete();
+    const window2 = this._getWindow();
+    if (typeof window2 !== "undefined") {
+      this._zone.runOutsideAngular(() => window2.addEventListener("blur", this._windowBlurHandler));
+    }
+  }
+  ngOnChanges(changes) {
+    if (changes["position"] && this._positionStrategy) {
+      this._setStrategyPositions(this._positionStrategy);
+      if (this.panelOpen) {
+        this._overlayRef.updatePosition();
+      }
+    }
+  }
+  ngOnDestroy() {
+    const window2 = this._getWindow();
+    if (typeof window2 !== "undefined") {
+      window2.removeEventListener("blur", this._windowBlurHandler);
+    }
+    this._handsetLandscapeSubscription.unsubscribe();
+    this._viewportSubscription.unsubscribe();
+    this._componentDestroyed = true;
+    this._destroyPanel();
+    this._closeKeyEventStream.complete();
+    this._clearFromModal();
+  }
+  /** Whether or not the autocomplete panel is open. */
+  get panelOpen() {
+    return this._overlayAttached && this.autocomplete.showPanel;
+  }
+  /** Opens the autocomplete suggestion panel. */
+  openPanel() {
+    this._openPanelInternal();
+  }
+  /** Closes the autocomplete suggestion panel. */
+  closePanel() {
+    this._resetLabel();
+    if (!this._overlayAttached) {
+      return;
+    }
+    if (this.panelOpen) {
+      this._zone.run(() => {
+        this.autocomplete.closed.emit();
+      });
+    }
+    if (this.autocomplete._latestOpeningTrigger === this) {
+      this.autocomplete._isOpen = false;
+      this.autocomplete._latestOpeningTrigger = null;
+    }
+    this._overlayAttached = false;
+    this._pendingAutoselectedOption = null;
+    if (this._overlayRef && this._overlayRef.hasAttached()) {
+      this._overlayRef.detach();
+      this._closingActionsSubscription.unsubscribe();
+    }
+    this._updatePanelState();
+    if (!this._componentDestroyed) {
+      this._changeDetectorRef.detectChanges();
+    }
+    if (this._trackedModal) {
+      removeAriaReferencedId(this._trackedModal, "aria-owns", this.autocomplete.id);
+    }
+  }
+  /**
+   * Updates the position of the autocomplete suggestion panel to ensure that it fits all options
+   * within the viewport.
+   */
+  updatePosition() {
+    if (this._overlayAttached) {
+      this._overlayRef.updatePosition();
+    }
+  }
+  /**
+   * A stream of actions that should close the autocomplete panel, including
+   * when an option is selected, on blur, and when TAB is pressed.
+   */
+  get panelClosingActions() {
+    return merge(this.optionSelections, this.autocomplete._keyManager.tabOut.pipe(filter(() => this._overlayAttached)), this._closeKeyEventStream, this._getOutsideClickStream(), this._overlayRef ? this._overlayRef.detachments().pipe(filter(() => this._overlayAttached)) : of()).pipe(
+      // Normalize the output so we return a consistent type.
+      map((event) => event instanceof MatOptionSelectionChange ? event : null)
+    );
+  }
+  /** The currently active option, coerced to MatOption type. */
+  get activeOption() {
+    if (this.autocomplete && this.autocomplete._keyManager) {
+      return this.autocomplete._keyManager.activeItem;
+    }
+    return null;
+  }
+  /** Stream of clicks outside of the autocomplete panel. */
+  _getOutsideClickStream() {
+    return merge(fromEvent(this._document, "click"), fromEvent(this._document, "auxclick"), fromEvent(this._document, "touchend")).pipe(filter((event) => {
+      const clickTarget = _getEventTarget(event);
+      const formField = this._formField ? this._formField.getConnectedOverlayOrigin().nativeElement : null;
+      const customOrigin = this.connectedTo ? this.connectedTo.elementRef.nativeElement : null;
+      return this._overlayAttached && clickTarget !== this._element.nativeElement && // Normally focus moves inside `mousedown` so this condition will almost always be
+      // true. Its main purpose is to handle the case where the input is focused from an
+      // outside click which propagates up to the `body` listener within the same sequence
+      // and causes the panel to close immediately (see #3106).
+      this._document.activeElement !== this._element.nativeElement && (!formField || !formField.contains(clickTarget)) && (!customOrigin || !customOrigin.contains(clickTarget)) && !!this._overlayRef && !this._overlayRef.overlayElement.contains(clickTarget);
+    }));
+  }
+  // Implemented as part of ControlValueAccessor.
+  writeValue(value) {
+    Promise.resolve(null).then(() => this._assignOptionValue(value));
+  }
+  // Implemented as part of ControlValueAccessor.
+  registerOnChange(fn) {
+    this._onChange = fn;
+  }
+  // Implemented as part of ControlValueAccessor.
+  registerOnTouched(fn) {
+    this._onTouched = fn;
+  }
+  // Implemented as part of ControlValueAccessor.
+  setDisabledState(isDisabled) {
+    this._element.nativeElement.disabled = isDisabled;
+  }
+  _handleKeydown(event) {
+    const keyCode = event.keyCode;
+    const hasModifier = hasModifierKey(event);
+    if (keyCode === ESCAPE && !hasModifier) {
+      event.preventDefault();
+    }
+    this._valueOnLastKeydown = this._element.nativeElement.value;
+    if (this.activeOption && keyCode === ENTER2 && this.panelOpen && !hasModifier) {
+      this.activeOption._selectViaInteraction();
+      this._resetActiveItem();
+      event.preventDefault();
+    } else if (this.autocomplete) {
+      const prevActiveItem = this.autocomplete._keyManager.activeItem;
+      const isArrowKey = keyCode === UP_ARROW || keyCode === DOWN_ARROW;
+      if (keyCode === TAB || isArrowKey && !hasModifier && this.panelOpen) {
+        this.autocomplete._keyManager.onKeydown(event);
+      } else if (isArrowKey && this._canOpen()) {
+        this._openPanelInternal(this._valueOnLastKeydown);
+      }
+      if (isArrowKey || this.autocomplete._keyManager.activeItem !== prevActiveItem) {
+        this._scrollToOption(this.autocomplete._keyManager.activeItemIndex || 0);
+        if (this.autocomplete.autoSelectActiveOption && this.activeOption) {
+          if (!this._pendingAutoselectedOption) {
+            this._valueBeforeAutoSelection = this._valueOnLastKeydown;
+          }
+          this._pendingAutoselectedOption = this.activeOption;
+          this._assignOptionValue(this.activeOption.value);
+        }
+      }
+    }
+  }
+  _handleInput(event) {
+    let target = event.target;
+    let value = target.value;
+    if (target.type === "number") {
+      value = value == "" ? null : parseFloat(value);
+    }
+    if (this._previousValue !== value) {
+      this._previousValue = value;
+      this._pendingAutoselectedOption = null;
+      if (!this.autocomplete || !this.autocomplete.requireSelection) {
+        this._onChange(value);
+      }
+      if (!value) {
+        this._clearPreviousSelectedOption(null, false);
+      } else if (this.panelOpen && !this.autocomplete.requireSelection) {
+        const selectedOption = this.autocomplete.options?.find((option) => option.selected);
+        if (selectedOption) {
+          const display = this._getDisplayValue(selectedOption.value);
+          if (value !== display) {
+            selectedOption.deselect(false);
+          }
+        }
+      }
+      if (this._canOpen() && this._document.activeElement === event.target) {
+        const valueOnAttach = this._valueOnLastKeydown ?? this._element.nativeElement.value;
+        this._valueOnLastKeydown = null;
+        this._openPanelInternal(valueOnAttach);
+      }
+    }
+  }
+  _handleFocus() {
+    if (!this._canOpenOnNextFocus) {
+      this._canOpenOnNextFocus = true;
+    } else if (this._canOpen()) {
+      this._previousValue = this._element.nativeElement.value;
+      this._attachOverlay(this._previousValue);
+      this._floatLabel(true);
+    }
+  }
+  _handleClick() {
+    if (this._canOpen() && !this.panelOpen) {
+      this._openPanelInternal();
+    }
+  }
+  /**
+   * In "auto" mode, the label will animate down as soon as focus is lost.
+   * This causes the value to jump when selecting an option with the mouse.
+   * This method manually floats the label until the panel can be closed.
+   * @param shouldAnimate Whether the label should be animated when it is floated.
+   */
+  _floatLabel(shouldAnimate = false) {
+    if (this._formField && this._formField.floatLabel === "auto") {
+      if (shouldAnimate) {
+        this._formField._animateAndLockLabel();
+      } else {
+        this._formField.floatLabel = "always";
+      }
+      this._manuallyFloatingLabel = true;
+    }
+  }
+  /** If the label has been manually elevated, return it to its normal state. */
+  _resetLabel() {
+    if (this._manuallyFloatingLabel) {
+      if (this._formField) {
+        this._formField.floatLabel = "auto";
+      }
+      this._manuallyFloatingLabel = false;
+    }
+  }
+  /**
+   * This method listens to a stream of panel closing actions and resets the
+   * stream every time the option list changes.
+   */
+  _subscribeToClosingActions() {
+    const initialRender = new Observable((subscriber) => {
+      afterNextRender(() => {
+        subscriber.next();
+      }, {
+        injector: this._injector
+      });
+    });
+    const optionChanges = this.autocomplete.options.changes.pipe(
+      tap(() => this._positionStrategy.reapplyLastPosition()),
+      // Defer emitting to the stream until the next tick, because changing
+      // bindings in here will cause "changed after checked" errors.
+      delay(0)
+    );
+    return merge(initialRender, optionChanges).pipe(
+      // create a new stream of panelClosingActions, replacing any previous streams
+      // that were created, and flatten it so our stream only emits closing events...
+      switchMap(() => this._zone.run(() => {
+        const wasOpen = this.panelOpen;
+        this._resetActiveItem();
+        this._updatePanelState();
+        this._changeDetectorRef.detectChanges();
+        if (this.panelOpen) {
+          this._overlayRef.updatePosition();
+        }
+        if (wasOpen !== this.panelOpen) {
+          if (this.panelOpen) {
+            this._emitOpened();
+          } else {
+            this.autocomplete.closed.emit();
+          }
+        }
+        return this.panelClosingActions;
+      })),
+      // when the first closing event occurs...
+      take(1)
+    ).subscribe((event) => this._setValueAndClose(event));
+  }
+  /**
+   * Emits the opened event once it's known that the panel will be shown and stores
+   * the state of the trigger right before the opening sequence was finished.
+   */
+  _emitOpened() {
+    this.autocomplete.opened.emit();
+  }
+  /** Destroys the autocomplete suggestion panel. */
+  _destroyPanel() {
+    if (this._overlayRef) {
+      this.closePanel();
+      this._overlayRef.dispose();
+      this._overlayRef = null;
+    }
+  }
+  /** Given a value, returns the string that should be shown within the input. */
+  _getDisplayValue(value) {
+    const autocomplete = this.autocomplete;
+    return autocomplete && autocomplete.displayWith ? autocomplete.displayWith(value) : value;
+  }
+  _assignOptionValue(value) {
+    const toDisplay = this._getDisplayValue(value);
+    if (value == null) {
+      this._clearPreviousSelectedOption(null, false);
+    }
+    this._updateNativeInputValue(toDisplay != null ? toDisplay : "");
+  }
+  _updateNativeInputValue(value) {
+    if (this._formField) {
+      this._formField._control.value = value;
+    } else {
+      this._element.nativeElement.value = value;
+    }
+    this._previousValue = value;
+  }
+  /**
+   * This method closes the panel, and if a value is specified, also sets the associated
+   * control to that value. It will also mark the control as dirty if this interaction
+   * stemmed from the user.
+   */
+  _setValueAndClose(event) {
+    const panel = this.autocomplete;
+    const toSelect = event ? event.source : this._pendingAutoselectedOption;
+    if (toSelect) {
+      this._clearPreviousSelectedOption(toSelect);
+      this._assignOptionValue(toSelect.value);
+      this._onChange(toSelect.value);
+      panel._emitSelectEvent(toSelect);
+      this._element.nativeElement.focus();
+    } else if (panel.requireSelection && this._element.nativeElement.value !== this._valueOnAttach) {
+      this._clearPreviousSelectedOption(null);
+      this._assignOptionValue(null);
+      if (panel._animationDone) {
+        panel._animationDone.pipe(take(1)).subscribe(() => this._onChange(null));
+      } else {
+        this._onChange(null);
+      }
+    }
+    this.closePanel();
+  }
+  /**
+   * Clear any previous selected option and emit a selection change event for this option
+   */
+  _clearPreviousSelectedOption(skip2, emitEvent) {
+    this.autocomplete?.options?.forEach((option) => {
+      if (option !== skip2 && option.selected) {
+        option.deselect(emitEvent);
+      }
+    });
+  }
+  _openPanelInternal(valueOnAttach = this._element.nativeElement.value) {
+    this._attachOverlay(valueOnAttach);
+    this._floatLabel();
+    if (this._trackedModal) {
+      const panelId = this.autocomplete.id;
+      addAriaReferencedId(this._trackedModal, "aria-owns", panelId);
+    }
+  }
+  _attachOverlay(valueOnAttach) {
+    if (!this.autocomplete && (typeof ngDevMode === "undefined" || ngDevMode)) {
+      throw getMatAutocompleteMissingPanelError();
+    }
+    let overlayRef = this._overlayRef;
+    if (!overlayRef) {
+      this._portal = new TemplatePortal(this.autocomplete.template, this._viewContainerRef, {
+        id: this._formField?.getLabelId()
+      });
+      overlayRef = this._overlay.create(this._getOverlayConfig());
+      this._overlayRef = overlayRef;
+      this._viewportSubscription = this._viewportRuler.change().subscribe(() => {
+        if (this.panelOpen && overlayRef) {
+          overlayRef.updateSize({
+            width: this._getPanelWidth()
+          });
+        }
+      });
+      this._handsetLandscapeSubscription = this._breakpointObserver.observe(Breakpoints.HandsetLandscape).subscribe((result) => {
+        const isHandsetLandscape = result.matches;
+        if (isHandsetLandscape) {
+          this._positionStrategy.withFlexibleDimensions(true).withGrowAfterOpen(true).withViewportMargin(8);
+        } else {
+          this._positionStrategy.withFlexibleDimensions(false).withGrowAfterOpen(false).withViewportMargin(0);
+        }
+      });
+    } else {
+      this._positionStrategy.setOrigin(this._getConnectedElement());
+      overlayRef.updateSize({
+        width: this._getPanelWidth()
+      });
+    }
+    if (overlayRef && !overlayRef.hasAttached()) {
+      overlayRef.attach(this._portal);
+      this._valueOnAttach = valueOnAttach;
+      this._valueOnLastKeydown = null;
+      this._closingActionsSubscription = this._subscribeToClosingActions();
+    }
+    const wasOpen = this.panelOpen;
+    this.autocomplete._isOpen = this._overlayAttached = true;
+    this.autocomplete._latestOpeningTrigger = this;
+    this.autocomplete._setColor(this._formField?.color);
+    this._updatePanelState();
+    this._applyModalPanelOwnership();
+    if (this.panelOpen && wasOpen !== this.panelOpen) {
+      this._emitOpened();
+    }
+  }
+  /** Updates the panel's visibility state and any trigger state tied to id. */
+  _updatePanelState() {
+    this.autocomplete._setVisibility();
+    if (this.panelOpen) {
+      const overlayRef = this._overlayRef;
+      if (!this._keydownSubscription) {
+        this._keydownSubscription = overlayRef.keydownEvents().subscribe(this._handlePanelKeydown);
+      }
+      if (!this._outsideClickSubscription) {
+        this._outsideClickSubscription = overlayRef.outsidePointerEvents().subscribe();
+      }
+    } else {
+      this._keydownSubscription?.unsubscribe();
+      this._outsideClickSubscription?.unsubscribe();
+      this._keydownSubscription = this._outsideClickSubscription = null;
+    }
+  }
+  _getOverlayConfig() {
+    return new OverlayConfig({
+      positionStrategy: this._getOverlayPosition(),
+      scrollStrategy: this._scrollStrategy(),
+      width: this._getPanelWidth(),
+      direction: this._dir ?? void 0,
+      panelClass: this._defaults?.overlayPanelClass
+    });
+  }
+  _getOverlayPosition() {
+    const strategy = this._overlay.position().flexibleConnectedTo(this._getConnectedElement()).withFlexibleDimensions(false).withPush(false);
+    this._setStrategyPositions(strategy);
+    this._positionStrategy = strategy;
+    return strategy;
+  }
+  /** Sets the positions on a position strategy based on the directive's input state. */
+  _setStrategyPositions(positionStrategy) {
+    const belowPositions = [{
+      originX: "start",
+      originY: "bottom",
+      overlayX: "start",
+      overlayY: "top"
+    }, {
+      originX: "end",
+      originY: "bottom",
+      overlayX: "end",
+      overlayY: "top"
+    }];
+    const panelClass = this._aboveClass;
+    const abovePositions = [{
+      originX: "start",
+      originY: "top",
+      overlayX: "start",
+      overlayY: "bottom",
+      panelClass
+    }, {
+      originX: "end",
+      originY: "top",
+      overlayX: "end",
+      overlayY: "bottom",
+      panelClass
+    }];
+    let positions;
+    if (this.position === "above") {
+      positions = abovePositions;
+    } else if (this.position === "below") {
+      positions = belowPositions;
+    } else {
+      positions = [...belowPositions, ...abovePositions];
+    }
+    positionStrategy.withPositions(positions);
+  }
+  _getConnectedElement() {
+    if (this.connectedTo) {
+      return this.connectedTo.elementRef;
+    }
+    return this._formField ? this._formField.getConnectedOverlayOrigin() : this._element;
+  }
+  _getPanelWidth() {
+    return this.autocomplete.panelWidth || this._getHostWidth();
+  }
+  /** Returns the width of the input element, so the panel width can match it. */
+  _getHostWidth() {
+    return this._getConnectedElement().nativeElement.getBoundingClientRect().width;
+  }
+  /**
+   * Reset the active item to -1. This is so that pressing arrow keys will activate the correct
+   * option.
+   *
+   * If the consumer opted-in to automatically activatating the first option, activate the first
+   * *enabled* option.
+   */
+  _resetActiveItem() {
+    const autocomplete = this.autocomplete;
+    if (autocomplete.autoActiveFirstOption) {
+      let firstEnabledOptionIndex = -1;
+      for (let index = 0; index < autocomplete.options.length; index++) {
+        const option = autocomplete.options.get(index);
+        if (!option.disabled) {
+          firstEnabledOptionIndex = index;
+          break;
+        }
+      }
+      autocomplete._keyManager.setActiveItem(firstEnabledOptionIndex);
+    } else {
+      autocomplete._keyManager.setActiveItem(-1);
+    }
+  }
+  /** Determines whether the panel can be opened. */
+  _canOpen() {
+    const element = this._element.nativeElement;
+    return !element.readOnly && !element.disabled && !this.autocompleteDisabled;
+  }
+  /** Use defaultView of injected document if available or fallback to global window reference */
+  _getWindow() {
+    return this._document?.defaultView || window;
+  }
+  /** Scrolls to a particular option in the list. */
+  _scrollToOption(index) {
+    const autocomplete = this.autocomplete;
+    const labelCount = _countGroupLabelsBeforeOption(index, autocomplete.options, autocomplete.optionGroups);
+    if (index === 0 && labelCount === 1) {
+      autocomplete._setScrollTop(0);
+    } else if (autocomplete.panel) {
+      const option = autocomplete.options.toArray()[index];
+      if (option) {
+        const element = option._getHostElement();
+        const newScrollPosition = _getOptionScrollPosition(element.offsetTop, element.offsetHeight, autocomplete._getScrollTop(), autocomplete.panel.nativeElement.offsetHeight);
+        autocomplete._setScrollTop(newScrollPosition);
+      }
+    }
+  }
+  /**
+   * If the autocomplete trigger is inside of an `aria-modal` element, connect
+   * that modal to the options panel with `aria-owns`.
+   *
+   * For some browser + screen reader combinations, when navigation is inside
+   * of an `aria-modal` element, the screen reader treats everything outside
+   * of that modal as hidden or invisible.
+   *
+   * This causes a problem when the combobox trigger is _inside_ of a modal, because the
+   * options panel is rendered _outside_ of that modal, preventing screen reader navigation
+   * from reaching the panel.
+   *
+   * We can work around this issue by applying `aria-owns` to the modal with the `id` of
+   * the options panel. This effectively communicates to assistive technology that the
+   * options panel is part of the same interaction as the modal.
+   *
+   * At time of this writing, this issue is present in VoiceOver.
+   * See https://github.com/angular/components/issues/20694
+   */
+  _applyModalPanelOwnership() {
+    const modal = this._element.nativeElement.closest('body > .cdk-overlay-container [aria-modal="true"]');
+    if (!modal) {
+      return;
+    }
+    const panelId = this.autocomplete.id;
+    if (this._trackedModal) {
+      removeAriaReferencedId(this._trackedModal, "aria-owns", panelId);
+    }
+    addAriaReferencedId(modal, "aria-owns", panelId);
+    this._trackedModal = modal;
+  }
+  /** Clears the references to the listbox overlay element from the modal it was added to. */
+  _clearFromModal() {
+    if (this._trackedModal) {
+      const panelId = this.autocomplete.id;
+      removeAriaReferencedId(this._trackedModal, "aria-owns", panelId);
+      this._trackedModal = null;
+    }
+  }
+};
+_MatAutocompleteTrigger.\u0275fac = function MatAutocompleteTrigger_Factory(\u0275t) {
+  return new (\u0275t || _MatAutocompleteTrigger)(\u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(Overlay), \u0275\u0275directiveInject(ViewContainerRef), \u0275\u0275directiveInject(NgZone), \u0275\u0275directiveInject(ChangeDetectorRef), \u0275\u0275directiveInject(MAT_AUTOCOMPLETE_SCROLL_STRATEGY), \u0275\u0275directiveInject(Directionality, 8), \u0275\u0275directiveInject(MAT_FORM_FIELD, 9), \u0275\u0275directiveInject(DOCUMENT2, 8), \u0275\u0275directiveInject(ViewportRuler), \u0275\u0275directiveInject(MAT_AUTOCOMPLETE_DEFAULT_OPTIONS, 8));
+};
+_MatAutocompleteTrigger.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+  type: _MatAutocompleteTrigger,
+  selectors: [["input", "matAutocomplete", ""], ["textarea", "matAutocomplete", ""]],
+  hostAttrs: [1, "mat-mdc-autocomplete-trigger"],
+  hostVars: 7,
+  hostBindings: function MatAutocompleteTrigger_HostBindings(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275listener("focusin", function MatAutocompleteTrigger_focusin_HostBindingHandler() {
+        return ctx._handleFocus();
+      })("blur", function MatAutocompleteTrigger_blur_HostBindingHandler() {
+        return ctx._onTouched();
+      })("input", function MatAutocompleteTrigger_input_HostBindingHandler($event) {
+        return ctx._handleInput($event);
+      })("keydown", function MatAutocompleteTrigger_keydown_HostBindingHandler($event) {
+        return ctx._handleKeydown($event);
+      })("click", function MatAutocompleteTrigger_click_HostBindingHandler() {
+        return ctx._handleClick();
+      });
+    }
+    if (rf & 2) {
+      \u0275\u0275attribute("autocomplete", ctx.autocompleteAttribute)("role", ctx.autocompleteDisabled ? null : "combobox")("aria-autocomplete", ctx.autocompleteDisabled ? null : "list")("aria-activedescendant", ctx.panelOpen && ctx.activeOption ? ctx.activeOption.id : null)("aria-expanded", ctx.autocompleteDisabled ? null : ctx.panelOpen.toString())("aria-controls", ctx.autocompleteDisabled || !ctx.panelOpen ? null : ctx.autocomplete == null ? null : ctx.autocomplete.id)("aria-haspopup", ctx.autocompleteDisabled ? null : "listbox");
+    }
+  },
+  inputs: {
+    autocomplete: [0, "matAutocomplete", "autocomplete"],
+    position: [0, "matAutocompletePosition", "position"],
+    connectedTo: [0, "matAutocompleteConnectedTo", "connectedTo"],
+    autocompleteAttribute: [0, "autocomplete", "autocompleteAttribute"],
+    autocompleteDisabled: [2, "matAutocompleteDisabled", "autocompleteDisabled", booleanAttribute]
+  },
+  exportAs: ["matAutocompleteTrigger"],
+  standalone: true,
+  features: [\u0275\u0275ProvidersFeature([MAT_AUTOCOMPLETE_VALUE_ACCESSOR]), \u0275\u0275InputTransformsFeature, \u0275\u0275NgOnChangesFeature]
+});
+var MatAutocompleteTrigger = _MatAutocompleteTrigger;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatAutocompleteTrigger, [{
+    type: Directive,
+    args: [{
+      selector: `input[matAutocomplete], textarea[matAutocomplete]`,
+      host: {
+        "class": "mat-mdc-autocomplete-trigger",
+        "[attr.autocomplete]": "autocompleteAttribute",
+        "[attr.role]": 'autocompleteDisabled ? null : "combobox"',
+        "[attr.aria-autocomplete]": 'autocompleteDisabled ? null : "list"',
+        "[attr.aria-activedescendant]": "(panelOpen && activeOption) ? activeOption.id : null",
+        "[attr.aria-expanded]": "autocompleteDisabled ? null : panelOpen.toString()",
+        "[attr.aria-controls]": "(autocompleteDisabled || !panelOpen) ? null : autocomplete?.id",
+        "[attr.aria-haspopup]": 'autocompleteDisabled ? null : "listbox"',
+        // Note: we use `focusin`, as opposed to `focus`, in order to open the panel
+        // a little earlier. This avoids issues where IE delays the focusing of the input.
+        "(focusin)": "_handleFocus()",
+        "(blur)": "_onTouched()",
+        "(input)": "_handleInput($event)",
+        "(keydown)": "_handleKeydown($event)",
+        "(click)": "_handleClick()"
+      },
+      exportAs: "matAutocompleteTrigger",
+      providers: [MAT_AUTOCOMPLETE_VALUE_ACCESSOR],
+      standalone: true
+    }]
+  }], () => [{
+    type: ElementRef
+  }, {
+    type: Overlay
+  }, {
+    type: ViewContainerRef
+  }, {
+    type: NgZone
+  }, {
+    type: ChangeDetectorRef
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Inject,
+      args: [MAT_AUTOCOMPLETE_SCROLL_STRATEGY]
+    }]
+  }, {
+    type: Directionality,
+    decorators: [{
+      type: Optional
+    }]
+  }, {
+    type: MatFormField,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [MAT_FORM_FIELD]
+    }, {
+      type: Host
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [DOCUMENT2]
+    }]
+  }, {
+    type: ViewportRuler
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [MAT_AUTOCOMPLETE_DEFAULT_OPTIONS]
+    }]
+  }], {
+    autocomplete: [{
+      type: Input,
+      args: ["matAutocomplete"]
+    }],
+    position: [{
+      type: Input,
+      args: ["matAutocompletePosition"]
+    }],
+    connectedTo: [{
+      type: Input,
+      args: ["matAutocompleteConnectedTo"]
+    }],
+    autocompleteAttribute: [{
+      type: Input,
+      args: ["autocomplete"]
+    }],
+    autocompleteDisabled: [{
+      type: Input,
+      args: [{
+        alias: "matAutocompleteDisabled",
+        transform: booleanAttribute
+      }]
+    }]
+  });
+})();
+var _MatAutocompleteModule = class _MatAutocompleteModule {
+};
+_MatAutocompleteModule.\u0275fac = function MatAutocompleteModule_Factory(\u0275t) {
+  return new (\u0275t || _MatAutocompleteModule)();
+};
+_MatAutocompleteModule.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+  type: _MatAutocompleteModule
+});
+_MatAutocompleteModule.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
+  providers: [MAT_AUTOCOMPLETE_SCROLL_STRATEGY_FACTORY_PROVIDER],
+  imports: [OverlayModule, MatOptionModule, MatCommonModule, CommonModule, CdkScrollableModule, MatOptionModule, MatCommonModule]
+});
+var MatAutocompleteModule = _MatAutocompleteModule;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatAutocompleteModule, [{
+    type: NgModule,
+    args: [{
+      imports: [OverlayModule, MatOptionModule, MatCommonModule, CommonModule, MatAutocomplete, MatAutocompleteTrigger, MatAutocompleteOrigin],
+      exports: [CdkScrollableModule, MatAutocomplete, MatOptionModule, MatCommonModule, MatAutocompleteTrigger, MatAutocompleteOrigin],
+      providers: [MAT_AUTOCOMPLETE_SCROLL_STRATEGY_FACTORY_PROVIDER]
+    }]
+  }], null, null);
+})();
+
+// src/app/components/bottom-sheets/share-list-sheet/share-list-sheet.component.ts
+function ShareListSheetComponent_div_0_span_9_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 11);
+    \u0275\u0275text(1, "Admin");
+    \u0275\u0275elementEnd();
+  }
+}
+function ShareListSheetComponent_div_0_button_10_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 12);
+    \u0275\u0275listener("click", function ShareListSheetComponent_div_0_button_10_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r1);
+      const user_r2 = \u0275\u0275nextContext().$implicit;
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.removeSharedWith(user_r2.id));
+    });
+    \u0275\u0275elementStart(1, "mat-icon");
+    \u0275\u0275text(2, "close");
+    \u0275\u0275elementEnd()();
+  }
+}
+function ShareListSheetComponent_div_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 5)(1, "div", 6)(2, "button", 7);
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "nameBadge");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "span");
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "span", 8);
+    \u0275\u0275text(8);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275template(9, ShareListSheetComponent_div_0_span_9_Template, 2, 0, "span", 9)(10, ShareListSheetComponent_div_0_button_10_Template, 3, 0, "button", 10);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const user_r2 = ctx.$implicit;
+    const i_r4 = ctx.index;
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275classMap("badge user-fab-" + i_r4 % 12);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 7, user_r2 == null ? null : user_r2.name));
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(user_r2.name);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(user_r2.email);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", user_r2.id === ctx_r2.lists().createdBy);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.isAdmin && user_r2.id !== ctx_r2.lists().createdBy);
+  }
+}
+function ShareListSheetComponent_h4_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "h4");
+    \u0275\u0275text(1, "Hinzuf\xFCgen");
+    \u0275\u0275elementEnd();
+  }
+}
+function ShareListSheetComponent_form_2_mat_option_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-option", 19)(1, "div", 6)(2, "span");
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "span", 8);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const user_r6 = ctx.$implicit;
+    \u0275\u0275property("value", user_r6.email);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(user_r6.name);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(user_r6.email);
+  }
+}
+function ShareListSheetComponent_form_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "form", 13)(1, "mat-form-field", 14);
+    \u0275\u0275element(2, "input", 15);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "mat-autocomplete", null, 0);
+    \u0275\u0275template(5, ShareListSheetComponent_form_2_mat_option_5_Template, 6, 3, "mat-option", 16);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "button", 17);
+    \u0275\u0275listener("click", function ShareListSheetComponent_form_2_Template_button_click_6_listener() {
+      \u0275\u0275restoreView(_r5);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.returnFormContent());
+    });
+    \u0275\u0275text(7);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(8, "button", 18);
+    \u0275\u0275listener("click", function ShareListSheetComponent_form_2_Template_button_click_8_listener() {
+      \u0275\u0275restoreView(_r5);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.bottomSheetRef.dismiss());
+    });
+    \u0275\u0275text(9, "Abbrechen");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const auto_r7 = \u0275\u0275reference(4);
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275property("formGroup", ctx_r2.form);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("matAutocomplete", auto_r7);
+    \u0275\u0275advance(3);
+    \u0275\u0275property("ngForOf", ctx_r2.filteredUsers());
+    \u0275\u0275advance();
+    \u0275\u0275property("disabled", !ctx_r2.form.valid);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate("Speichern");
+  }
+}
+function ShareListSheetComponent_button_3_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r8 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 18);
+    \u0275\u0275listener("click", function ShareListSheetComponent_button_3_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r8);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.bottomSheetRef.dismiss());
+    });
+    \u0275\u0275text(1, "Schlie\xDFen");
+    \u0275\u0275elementEnd();
+  }
+}
+var _ShareListSheetComponent = class _ShareListSheetComponent {
+  constructor(bottomSheetRef, data, fb, dataService) {
+    this.bottomSheetRef = bottomSheetRef;
+    this.data = data;
+    this.fb = fb;
+    this.dataService = dataService;
+    this.allUsers = signal([]);
+    this.filteredUsers = signal([]);
+    this.subscriptions = [];
+    this.lists = data.lists;
+    this.isAdmin = data.isAdmin;
+    this.users = data.users;
+    this.form = fb.group({
+      "email": ["", Validators.required]
+    });
+    effect(() => {
+      this.allUsers$ = this.dataService.db.users.find({
+        neqSelector: {
+          id: this.users().map((u3) => u3.id)
+        }
+      }).$;
+      this.allUsersSub?.unsubscribe();
+      this.allUsersSub = this.allUsers$.subscribe((user) => {
+        setTimeout(() => {
+          this.allUsers.set(user);
+          this.filteredUsers.set(user.filter((u3) => u3.email.includes(this.form.get("email")?.value)));
+        }, 1);
+      });
+    });
+    const sub = this.form.get("email")?.valueChanges.subscribe((val) => {
+      this.filteredUsers.set(this.allUsers().filter((u3) => u3.email.includes(val)));
+    });
+    if (sub) {
+      this.subscriptions.push(sub);
+    }
+  }
+  ngOnDestroy() {
+    this.unsubscribe();
+  }
+  usersSubscription(user) {
+  }
+  unsubscribe() {
+    this.subscriptions.forEach((s) => s.unsubscribe());
+    this.allUsersSub?.unsubscribe();
+  }
+  returnFormContent() {
+    let resp;
+    if (this.isAdmin) {
+      resp = {
+        "email": this.form.controls["email"].value.toLowerCase().trim()
+      };
+    }
+    this.bottomSheetRef.dismiss(resp);
+  }
+  removeSharedWith(userId) {
+    let resp;
+    if (this.isAdmin) {
+      resp = {
+        "remove": userId
+      };
+    }
+    this.bottomSheetRef.dismiss(resp);
+  }
+};
+_ShareListSheetComponent.\u0275fac = function ShareListSheetComponent_Factory(\u0275t) {
+  return new (\u0275t || _ShareListSheetComponent)(\u0275\u0275directiveInject(MatBottomSheetRef), \u0275\u0275directiveInject(MAT_BOTTOM_SHEET_DATA), \u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(DataService));
+};
+_ShareListSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ShareListSheetComponent, selectors: [["app-share-list-sheet"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 4, vars: 4, consts: [["auto", ""], ["class", "shared-user", 4, "ngFor", "ngForOf"], [4, "ngIf"], ["autocomplete", "off", 3, "formGroup", 4, "ngIf"], ["mat-flat-button", "", "color", "primary", 3, "click", 4, "ngIf"], [1, "shared-user"], [1, "user-info"], ["mat-mini-fab", "", "disabled", ""], [1, "email"], ["class", "admin", 4, "ngIf"], ["mat-icon-button", "", 3, "click", 4, "ngIf"], [1, "admin"], ["mat-icon-button", "", 3, "click"], ["autocomplete", "off", 3, "formGroup"], ["appearance", "outline"], ["matInput", "", "formControlName", "email", "placeholder", "Email", 3, "matAutocomplete"], [3, "value", 4, "ngFor", "ngForOf"], ["mat-stroked-button", "", 3, "click", "disabled"], ["mat-flat-button", "", "color", "primary", 3, "click"], [3, "value"]], template: function ShareListSheetComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, ShareListSheetComponent_div_0_Template, 11, 9, "div", 1)(1, ShareListSheetComponent_h4_1_Template, 2, 0, "h4", 2)(2, ShareListSheetComponent_form_2_Template, 10, 5, "form", 3)(3, ShareListSheetComponent_button_3_Template, 2, 0, "button", 4);
+  }
+  if (rf & 2) {
+    \u0275\u0275property("ngForOf", ctx.users());
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx.isAdmin);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx.isAdmin);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", !ctx.isAdmin);
+  }
+}, dependencies: [
+  FormsModule,
+  \u0275NgNoValidate,
+  DefaultValueAccessor,
+  NgControlStatus,
+  NgControlStatusGroup,
+  ReactiveFormsModule,
+  FormGroupDirective,
+  FormControlName,
+  CommonModule,
+  NgForOf,
+  NgIf,
+  MaterialModule,
+  MatButton,
+  MatIconButton,
+  MatMiniFabButton,
+  MatFormField,
+  MatIcon,
+  MatInput,
+  MatOption,
+  NameBadgePipe,
+  MatAutocompleteModule,
+  MatAutocomplete,
+  MatAutocompleteTrigger
+], styles: ["\n\n.shared-user[_ngcontent-%COMP%] {\n  width: calc(100% - 24px);\n  padding: 6px 12px;\n  border-radius: 5px;\n  border: solid 1px grey;\n  display: flex;\n  justify-content: space-between;\n  margin-bottom: 8px;\n}\n.shared-user[_ngcontent-%COMP%]   .admin[_ngcontent-%COMP%] {\n  color: grey;\n  margin: auto 0;\n}\n.shared-user[_ngcontent-%COMP%]   .badge[_ngcontent-%COMP%] {\n  width: 48px;\n  height: 48px;\n  margin-left: 0 !important;\n  margin-right: 12px;\n}\n.shared-user[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin-top: 0 !important;\n  margin-bottom: 0 !important;\n}\n.shared-user[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  line-height: 42px;\n}\n.user-info[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 4px;\n  align-items: center;\n}\n.user-info[_ngcontent-%COMP%]   .email[_ngcontent-%COMP%] {\n  color: grey;\n}\n/*# sourceMappingURL=share-list-sheet.component.css.map */", "\n\nbutton[_ngcontent-%COMP%] {\n  width: 100%;\n  margin: 6px 0;\n}\nbutton[_ngcontent-%COMP%]:last-child {\n  margin-bottom: 38pt;\n}\nform[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  margin: 24px 0;\n}\nform[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  margin: 24px 0;\n}\n/*# sourceMappingURL=styles.css.map */"] });
+var ShareListSheetComponent = _ShareListSheetComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ShareListSheetComponent, { className: "ShareListSheetComponent", filePath: "src/app/components/bottom-sheets/share-list-sheet/share-list-sheet.component.ts", lineNumber: 27 });
+})();
+
 // src/app/components/bottom-sheets/confirm-sheet/confirm-sheet.component.ts
 var _ConfirmSheetComponent = class _ConfirmSheetComponent {
   constructor(bottomSheetRef, data) {
@@ -89525,28 +89921,20 @@ function groupItems(items, isGroceries, groceryCategories = void 0) {
   return slots;
 }
 
-// src/models/time-picker.ts
-var timePickerConfig = {
-  enableTime: true,
-  minuteIncrement: 5,
-  disableMobile: false,
-  time_24hr: true
-};
-
 // src/app/components/bottom-sheets/update-item-sheet/update-item-sheet.component.ts
-var _c015 = ["autosize"];
+var _c016 = ["autosize"];
 function UpdateItemSheetComponent_mat_form_field_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-form-field", 2)(1, "mat-label");
     \u0275\u0275text(2, "Beschreibung");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(3, "textarea", 11, 0);
+    \u0275\u0275element(3, "textarea", 10, 0);
     \u0275\u0275elementEnd();
   }
 }
 function UpdateItemSheetComponent_mat_slide_toggle_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-slide-toggle", 12);
+    \u0275\u0275elementStart(0, "mat-slide-toggle", 11);
     \u0275\u0275text(1, "F\xE4llig am");
     \u0275\u0275elementEnd();
   }
@@ -89554,8 +89942,7 @@ function UpdateItemSheetComponent_mat_slide_toggle_8_Template(rf, ctx) {
 function UpdateItemSheetComponent_mat_form_field_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 2)(1, "input", 13);
-    \u0275\u0275pipe(2, "date");
+    \u0275\u0275elementStart(0, "mat-form-field", 2)(1, "input", 12);
     \u0275\u0275listener("focus", function UpdateItemSheetComponent_mat_form_field_9_Template_input_focus_1_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
@@ -89563,53 +89950,30 @@ function UpdateItemSheetComponent_mat_form_field_9_Template(rf, ctx) {
     });
     \u0275\u0275elementEnd()();
   }
-  if (rf & 2) {
-    let tmp_1_0;
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("value", \u0275\u0275pipeBind2(2, 1, (tmp_1_0 = ctx_r1.form.get("due")) == null ? null : tmp_1_0.value, "short"));
-  }
 }
 function UpdateItemSheetComponent_div_11_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div")(1, "mat-label");
-    \u0275\u0275text(2, "Erinnerung");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-chip-listbox", 14);
-    \u0275\u0275listener("change", function UpdateItemSheetComponent_div_11_Template_mat_chip_listbox_change_3_listener($event) {
+    \u0275\u0275elementStart(0, "div")(1, "app-reminder-select", 13);
+    \u0275\u0275listener("pickrOpened", function UpdateItemSheetComponent_div_11_Template_app_reminder_select_pickrOpened_1_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.openReminderPicker($event));
+      return \u0275\u0275resetView(ctx_r1.pickrOpened());
+    })("pickrClosed", function UpdateItemSheetComponent_div_11_Template_app_reminder_select_pickrClosed_1_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.pickrClosed());
     });
-    \u0275\u0275elementStart(4, "mat-chip-option", 15);
-    \u0275\u0275text(5, "1 Tag vorher");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "mat-chip-option", 16);
-    \u0275\u0275text(7, "1 Stunde vorher");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "mat-chip-option", 17);
-    \u0275\u0275text(9, "30 Minuten vorher");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "mat-chip-option", 18);
-    \u0275\u0275text(11);
-    \u0275\u0275pipe(12, "date");
-    \u0275\u0275elementEnd()()();
-  }
-  if (rf & 2) {
-    let tmp_1_0;
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance(11);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(12, 1, (tmp_1_0 = ctx_r1.form.get("reminder")) == null ? null : tmp_1_0.value, "short") || "Andere");
+    \u0275\u0275elementEnd()();
   }
 }
 var _UpdateItemSheetComponent = class _UpdateItemSheetComponent {
-  constructor(bottomSheetRef, data, fb) {
+  constructor(bottomSheetRef, data, fb, datePipe) {
     this.bottomSheetRef = bottomSheetRef;
     this.data = data;
     this.fb = fb;
+    this.datePipe = datePipe;
     this.duePickerOpen = false;
-    this.reminderPickerOpen = false;
     this.subscriptions = [];
     this.list = data.list;
     const due = !!data.item.due ? new Date(data.item.due) : null;
@@ -89635,13 +89999,6 @@ var _UpdateItemSheetComponent = class _UpdateItemSheetComponent {
     this.timezone = (/* @__PURE__ */ new Date("2020-01-01T10:00")).toISOString().slice(16);
   }
   ngAfterViewInit() {
-    this.reminderFlatpickr = esm_default("#reminder-picker", timePickerConfig);
-    this.reminderFlatpickr.config.onClose.push(() => {
-      this.closeReminderPicker();
-    });
-    if (this.form.get("reminder")?.value && this.data.item.reminder) {
-      this.reminderFlatpickr.setDate(new Date(this.data.item.reminder));
-    }
     this.dueFlatpickr = esm_default("#due-picker", timePickerConfig);
     this.dueFlatpickr.config.onChange.push((val) => {
       if (val.length > 0 && !!this.form.get("due")) {
@@ -89680,20 +90037,15 @@ var _UpdateItemSheetComponent = class _UpdateItemSheetComponent {
       }, 1e3);
     }
   }
-  openReminderPicker(event) {
-    if (event.value === "different" && !this.reminderPickerOpen) {
-      this.reminderFlatpickr.open();
-      this.bottomSheetRef.disableClose = true;
-      this.reminderPickerOpen = true;
-    }
+  pickrOpened() {
+    this.bottomSheetRef.disableClose = true;
   }
-  closeReminderPicker() {
+  pickrClosed() {
     if (this.enableBottomSheetClose) {
       clearTimeout(this.enableBottomSheetClose);
       this.enableBottomSheetClose = void 0;
     }
-    if (this.reminderPickerOpen) {
-      this.reminderPickerOpen = false;
+    if (this.bottomSheetRef.disableClose) {
       this.enableBottomSheetClose = setTimeout(() => {
         this.bottomSheetRef.disableClose = false;
         this.enableBottomSheetClose = void 0;
@@ -89707,23 +90059,33 @@ var _UpdateItemSheetComponent = class _UpdateItemSheetComponent {
     const aDayBefore = new Date(due.valueOf());
     aDayBefore.setDate(due.getDate() - 1);
     if (reminder.valueOf() == aDayBefore.valueOf()) {
-      return "1d";
+      return ReminderOptions.D_1;
     }
     const anHourBefore = new Date(due.valueOf());
     anHourBefore.setHours(due.getHours() - 1);
     if (reminder.valueOf() == anHourBefore.valueOf()) {
-      return "1h";
+      return ReminderOptions.H_1;
     }
     const thirtyMinBefore = new Date(due.valueOf());
     thirtyMinBefore.setMinutes(due.getMinutes() - 30);
     if (reminder.valueOf() == thirtyMinBefore.valueOf()) {
-      return "30min";
+      return ReminderOptions.MIN_30;
+    }
+    const tenMinBefore = new Date(due.valueOf());
+    tenMinBefore.setMinutes(due.getMinutes() - 10);
+    if (reminder.valueOf() == tenMinBefore.valueOf()) {
+      return ReminderOptions.MIN_10;
+    }
+    const noMinBefore = new Date(due.valueOf());
+    noMinBefore.setMinutes(due.getMinutes() - 10);
+    if (reminder.valueOf() == noMinBefore.valueOf()) {
+      return ReminderOptions.MIN_0;
     }
     return "different";
   }
   parseDateTime(date) {
     if (date) {
-      return date.toISOString().slice(0, 16);
+      return this.datePipe.transform(date.toISOString().slice(0, 16), "short");
     }
     return "";
   }
@@ -89780,17 +90142,17 @@ var _UpdateItemSheetComponent = class _UpdateItemSheetComponent {
   }
 };
 _UpdateItemSheetComponent.\u0275fac = function UpdateItemSheetComponent_Factory(\u0275t) {
-  return new (\u0275t || _UpdateItemSheetComponent)(\u0275\u0275directiveInject(MatBottomSheetRef), \u0275\u0275directiveInject(MAT_BOTTOM_SHEET_DATA), \u0275\u0275directiveInject(FormBuilder));
+  return new (\u0275t || _UpdateItemSheetComponent)(\u0275\u0275directiveInject(MatBottomSheetRef), \u0275\u0275directiveInject(MAT_BOTTOM_SHEET_DATA), \u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(DatePipe));
 };
 _UpdateItemSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UpdateItemSheetComponent, selectors: [["app-update-item-sheet"]], viewQuery: function UpdateItemSheetComponent_Query(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275viewQuery(_c015, 5);
+    \u0275\u0275viewQuery(_c016, 5);
   }
   if (rf & 2) {
     let _t;
     \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.autosize = _t.first);
   }
-}, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 17, vars: 7, consts: [["autosize", "cdkTextareaAutosize"], ["autocomplete", "off", 3, "formGroup"], ["appearance", "outline"], ["matInput", "", "formControlName", "name", "placeholder", "Name"], ["appearance", "outline", 4, "ngIf"], ["color", "primary", "formControlName", "due-toggle", 4, "ngIf"], ["type", "datetime-local", "id", "due-picker"], [4, "ngIf"], ["type", "datetime-local", "id", "reminder-picker", "formControlName", "reminder"], ["mat-stroked-button", "", 3, "click", "disabled"], ["mat-flat-button", "", "color", "primary", 3, "click"], ["matInput", "", "formControlName", "description", "placeholder", "Beschreibung", "cdkTextareaAutosize", "", "cdkAutosizeMinRows", "5"], ["color", "primary", "formControlName", "due-toggle"], ["matInput", "", "type", "text", "placeholder", "F\xE4llig am", 3, "focus", "value"], ["formControlName", "reminder-chips", 3, "change"], ["value", "1d"], ["value", "1h"], ["value", "30min"], ["value", "different"]], template: function UpdateItemSheetComponent_Template(rf, ctx) {
+}, standalone: true, features: [\u0275\u0275ProvidersFeature([DatePipe]), \u0275\u0275StandaloneFeature], decls: 16, vars: 7, consts: [["autosize", "cdkTextareaAutosize"], ["autocomplete", "off", 3, "formGroup"], ["appearance", "outline"], ["matInput", "", "formControlName", "name", "placeholder", "Name"], ["appearance", "outline", 4, "ngIf"], ["color", "primary", "formControlName", "due-toggle", 4, "ngIf"], ["type", "datetime-local", "id", "due-picker"], [4, "ngIf"], ["mat-stroked-button", "", 3, "click", "disabled"], ["mat-flat-button", "", "color", "primary", 3, "click"], ["matInput", "", "formControlName", "description", "placeholder", "Beschreibung", "cdkTextareaAutosize", "", "cdkAutosizeMinRows", "5"], ["color", "primary", "formControlName", "due-toggle"], ["matInput", "", "type", "text", "formControlName", "due", "placeholder", "F\xE4llig am", 3, "focus"], ["formControlName", "reminder", 3, "pickrOpened", "pickrClosed"]], template: function UpdateItemSheetComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "h2");
     \u0275\u0275text(1, "Element Bearbeiten");
@@ -89800,21 +90162,20 @@ _UpdateItemSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     \u0275\u0275elementEnd();
     \u0275\u0275element(6, "input", 3);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(7, UpdateItemSheetComponent_mat_form_field_7_Template, 5, 0, "mat-form-field", 4)(8, UpdateItemSheetComponent_mat_slide_toggle_8_Template, 2, 0, "mat-slide-toggle", 5)(9, UpdateItemSheetComponent_mat_form_field_9_Template, 3, 4, "mat-form-field", 4);
+    \u0275\u0275template(7, UpdateItemSheetComponent_mat_form_field_7_Template, 5, 0, "mat-form-field", 4)(8, UpdateItemSheetComponent_mat_slide_toggle_8_Template, 2, 0, "mat-slide-toggle", 5)(9, UpdateItemSheetComponent_mat_form_field_9_Template, 2, 0, "mat-form-field", 4);
     \u0275\u0275element(10, "input", 6);
-    \u0275\u0275template(11, UpdateItemSheetComponent_div_11_Template, 13, 4, "div", 7);
-    \u0275\u0275element(12, "input", 8);
-    \u0275\u0275elementStart(13, "button", 9);
-    \u0275\u0275listener("click", function UpdateItemSheetComponent_Template_button_click_13_listener() {
+    \u0275\u0275template(11, UpdateItemSheetComponent_div_11_Template, 2, 0, "div", 7);
+    \u0275\u0275elementStart(12, "button", 8);
+    \u0275\u0275listener("click", function UpdateItemSheetComponent_Template_button_click_12_listener() {
       return ctx.returnFormContent();
     });
-    \u0275\u0275text(14);
+    \u0275\u0275text(13);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(15, "button", 10);
-    \u0275\u0275listener("click", function UpdateItemSheetComponent_Template_button_click_15_listener() {
+    \u0275\u0275elementStart(14, "button", 9);
+    \u0275\u0275listener("click", function UpdateItemSheetComponent_Template_button_click_14_listener() {
       return ctx.bottomSheetRef.dismiss();
     });
-    \u0275\u0275text(16, "Abbrechen");
+    \u0275\u0275text(15, "Abbrechen");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -89829,15 +90190,15 @@ _UpdateItemSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     \u0275\u0275property("ngIf", !ctx.list.isShoppingList);
     \u0275\u0275advance(2);
     \u0275\u0275property("ngIf", (tmp_4_0 = ctx.form.get("due-toggle")) == null ? null : tmp_4_0.value);
-    \u0275\u0275advance(2);
+    \u0275\u0275advance();
     \u0275\u0275property("disabled", !ctx.form.valid);
     \u0275\u0275advance();
     \u0275\u0275textInterpolate("Speichern");
   }
-}, dependencies: [FormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, ReactiveFormsModule, FormGroupDirective, FormControlName, CommonModule, NgIf, DatePipe, MaterialModule, MatButton, MatChipListbox, MatChipOption, MatFormField, MatLabel, MatInput, CdkTextareaAutosize, MatSlideToggle], styles: ["\n\n#reminder-picker[_ngcontent-%COMP%], \n#due-picker[_ngcontent-%COMP%] {\n  opacity: 0;\n  height: 0;\n  width: 0;\n  z-index: -100;\n}\n/*# sourceMappingURL=update-item-sheet.component.css.map */", "\n\nbutton[_ngcontent-%COMP%] {\n  width: 100%;\n  margin: 6px 0;\n}\nbutton[_ngcontent-%COMP%]:last-child {\n  margin-bottom: 38pt;\n}\nform[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  margin: 24px 0;\n}\nform[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  margin: 24px 0;\n}\n/*# sourceMappingURL=styles.css.map */"] });
+}, dependencies: [FormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, ReactiveFormsModule, FormGroupDirective, FormControlName, CommonModule, NgIf, MaterialModule, MatButton, MatFormField, MatLabel, MatInput, CdkTextareaAutosize, MatSlideToggle, ReminderSelectComponent], styles: ["\n\n#reminder-picker[_ngcontent-%COMP%], \n#due-picker[_ngcontent-%COMP%] {\n  opacity: 0;\n  height: 0;\n  width: 0;\n  z-index: -100;\n}\n/*# sourceMappingURL=update-item-sheet.component.css.map */", "\n\nbutton[_ngcontent-%COMP%] {\n  width: 100%;\n  margin: 6px 0;\n}\nbutton[_ngcontent-%COMP%]:last-child {\n  margin-bottom: 38pt;\n}\nform[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  margin: 24px 0;\n}\nform[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  margin: 24px 0;\n}\n/*# sourceMappingURL=styles.css.map */"] });
 var UpdateItemSheetComponent = _UpdateItemSheetComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UpdateItemSheetComponent, { className: "UpdateItemSheetComponent", filePath: "src/app/components/bottom-sheets/update-item-sheet/update-item-sheet.component.ts", lineNumber: 25 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UpdateItemSheetComponent, { className: "UpdateItemSheetComponent", filePath: "src/app/components/bottom-sheets/update-item-sheet/update-item-sheet.component.ts", lineNumber: 29 });
 })();
 
 // src/app/services/users/users.service.ts
@@ -90122,7 +90483,7 @@ var ListItemComponent = _ListItemComponent;
 })();
 
 // src/app/components/list/list.component.ts
-var _c016 = ["picker"];
+var _c017 = ["picker"];
 var _c112 = ["addInput"];
 function ListComponent_h2_21_Template(rf, ctx) {
   if (rf & 1) {
@@ -90446,7 +90807,7 @@ var _ListComponent = class _ListComponent {
         createdBy: { id: this.me().id, name: this.me.name },
         lists: this.list().id
       };
-      this.dataService.db.items.insert(newItem(item)).then(() => {
+      this.dataService.db.items.insert(newItem(item, this.me().defaultReminder)).then(() => {
         this.newItem.reset();
         this.timePickerDate = void 0;
         this.timePicker.clear();
@@ -90561,7 +90922,7 @@ _ListComponent.\u0275fac = function ListComponent_Factory(\u0275t) {
 };
 _ListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ListComponent, selectors: [["app-list"]], viewQuery: function ListComponent_Query(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275viewQuery(_c016, 5);
+    \u0275\u0275viewQuery(_c017, 5);
     \u0275\u0275viewQuery(_c112, 5);
   }
   if (rf & 2) {
