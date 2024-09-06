@@ -4,8 +4,6 @@ import { COMMON_SCHEMA } from "./common";
 import { Signal } from "@angular/core";
 import { MyDocument } from './classes';
 import { MyCollection } from '../collection';
-import { ReminderOption } from '../../components/selects/date-chip-select/options';
-
 
 export function newItem(item: any, defaultReminder?: string): any {
     const newItem = {
@@ -13,8 +11,8 @@ export function newItem(item: any, defaultReminder?: string): any {
         name: '',
         description: '',
         createdBy: {id: '', name: ''},
-        reminder: defaultReminder || ReminderOption.MIN_0,
-        due: '',
+        reminder: null,
+        due: null,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         lists: {id: '', name: ''},
         done: false,

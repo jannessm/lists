@@ -16,14 +16,19 @@
     
     <!-- Due -->
     <mat-slide-toggle  *ngIf="!list.isShoppingList" color="primary" formControlName="due-toggle">Fällig am</mat-slide-toggle>
-    
-    <mat-form-field appearance="outline" *ngIf="!list.isShoppingList">
-        <input matInput type="text" (focus)="openPicker()" formControlName="due" placeholder="Fällig am">
-    </mat-form-field>
-    <input type="datetime-local" id="due-picker">
+
+    <app-date-input-select
+        formControlName="due"
+        (pickrOpened)="pickrOpened()"
+        (pickrClosed)="pickrClosed()"
+        [options]="dueOptions"
+        [getChipValue]="getDueValue"
+        [getChipDate]="getDueDate"
+    ></app-date-input-select>
     
     <!-- Reminder -->
     <div *ngIf="form.get('due-toggle')?.value">
+        <mat-label>Erinnerung</mat-label>
         <app-date-chip-select
             formControlName="reminder"
             (pickrOpened)="pickrOpened()"

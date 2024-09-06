@@ -3,7 +3,7 @@ type ListItem {
   id: String!
   name: String!
   description: String
-  reminder: String
+  reminder: DateTimeUtc
   due: DateTimeUtc
   createdBy: User! @belongsTo
   lists: Lists! @belongsTo

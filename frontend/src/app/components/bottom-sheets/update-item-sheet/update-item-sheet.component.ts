@@ -9,8 +9,9 @@ import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { Subscription } from 'rxjs';
 import { MyListsDocument } from '../../../mydb/types/lists';
 import { MyItemDocument } from '../../../mydb/types/list-item';
-import { ReminderOptionLabels, getReminderDate, getReminderValue } from '../../selects/date-chip-select/options';
+import { DueOptionLabels, ReminderOptionLabels, getDueDate, getDueValue, getReminderDate, getReminderValue } from '../../selects/date-chip-select/options';
 import { DateChipSelectComponent } from '../../selects/date-chip-select/date-chip-select.component';
+import { DateInputSelectComponent } from '../../selects/date-input-select/date-input-select.component';
 
 @Component({
   selector: 'app-update-item-sheet',
@@ -20,7 +21,8 @@ import { DateChipSelectComponent } from '../../selects/date-chip-select/date-chi
     ReactiveFormsModule,
     CommonModule,
     MaterialModule,
-    DateChipSelectComponent
+    DateChipSelectComponent,
+    DateInputSelectComponent
   ],
   providers: [DatePipe],
   templateUrl: './update-item-sheet.component.html',
@@ -29,11 +31,8 @@ import { DateChipSelectComponent } from '../../selects/date-chip-select/date-chi
 export class UpdateItemSheetComponent implements OnDestroy {
   form: FormGroup;
   list: MyListsDocument;
-  timezone: string;
 
-  dueFlatpickr!: flatpickr.Instance;
-  duePickerOpen = false;
-
+  dueOptions = DueOptionLabels.slice(0, 2);
   reminderOptions = ReminderOptionLabels;
 
   enableBottomSheetClose?: ReturnType<typeof setTimeout>;
@@ -45,8 +44,7 @@ export class UpdateItemSheetComponent implements OnDestroy {
   constructor(
     public bottomSheetRef: MatBottomSheetRef<UpdateItemSheetComponent>,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: {list: MyListsDocument, item: MyItemDocument},
-    private fb: FormBuilder,
-    private datePipe: DatePipe
+    private fb: FormBuilder
   ) {
     this.list = data.list;
     const due = !!data.item.due ? new Date(data.item.due) : null;
@@ -56,7 +54,7 @@ export class UpdateItemSheetComponent implements OnDestroy {
       'name': [data.item.name, Validators.required],
       'description': [data.item.description],
       'due-toggle': [!!data.item.due],
-      'due': [{value: this.parseDateTime(due), disabled: !data.item.due}],
+      'due': [due],
       'reminder': [getReminderValue(due, reminder)],
     });
 
@@ -72,56 +70,10 @@ export class UpdateItemSheetComponent implements OnDestroy {
     if (formSub) {
       this.subscriptions.push(formSub);
     }
-
-    this.timezone = new Date('2020-01-01T10:00').toISOString().slice(16);
-  }
-
-  ngAfterViewInit() {
-    this.dueFlatpickr = flatpickr('#due-picker', timePickerConfig) as flatpickr.Instance;
-
-    this.dueFlatpickr.config.onChange.push(val => {  
-      if (val.length > 0 && !!this.form.get('due')) {
-        this.form.get('due')?.setValue(this.parseDateTime(val[0]));
-      } else {
-        this.form.get('due')?.reset();
-      }
-    });
-    
-    this.dueFlatpickr.config.onClose.push(() => {
-      this.closePicker();
-    });
-
-    
-    if (this.form.get('due')?.value && this.data.item.due) {
-      this.dueFlatpickr.setDate(new Date(this.data.item.due));
-    }
   }
 
   ngOnDestroy() {
     this.subscriptions.forEach(sub => sub.unsubscribe());
-  }
-
-  openPicker() {
-    if (!this.duePickerOpen) {
-      this.dueFlatpickr.open();
-      this.bottomSheetRef.disableClose = true;
-      this.duePickerOpen = true;
-    }
-  }
-
-  closePicker() {
-    if (this.enableBottomSheetClose) {
-      clearTimeout(this.enableBottomSheetClose);
-      this.enableBottomSheetClose = undefined;
-    }
-    if (this.duePickerOpen) {
-      this.duePickerOpen = false;
-  
-      this.enableBottomSheetClose = setTimeout(() => {
-        this.bottomSheetRef.disableClose = false;
-        this.enableBottomSheetClose = undefined;
-      }, 1000);
-    }
   }
 
   pickrOpened() {
@@ -142,25 +94,17 @@ export class UpdateItemSheetComponent implements OnDestroy {
     }
   }
 
-  parseDateTime(date: Date | null) {
-    if (date) {
-      return this.datePipe.transform(
-        date.toISOString().slice(0, 16),
-        'short'
-      );
-    }
-    return '';
+  getDueValue(due: Date | null) {
+    return getDueValue(due);
   }
-
-  parseFormDateTime(_date: string) {
-    const date = new Date(_date + this.timezone);
-    return date.toISOString();
+  getDueDate(option: string) {
+    return getDueDate(option);
   }
 
   returnFormContent() {
     const patch = {};
     const dueToggle = !!this.form.get('due-toggle')?.value;
-    const due = this.form.get('due')?.value + this.timezone;
+    const due = this.form.get('due')?.value;
 
     if (this.form.get('name')?.value != this.data.item.name) {
       Object.assign(patch, {

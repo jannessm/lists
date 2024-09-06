@@ -97,6 +97,7 @@ export function getReminderDate(
     default:
       break
   }
+
   return date.toISOString();
 }
 

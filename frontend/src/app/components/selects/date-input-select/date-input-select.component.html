@@ -1,0 +1,7 @@
+<mat-chip-listbox [(ngModel)]="chipOption" [disabled]="disabled" (click)="updateTime()">
+    <mat-chip-option *ngFor="let item of options" [value]="item[0]">{{item[1]}}</mat-chip-option>
+</mat-chip-listbox>
+
+<mat-form-field appearance="outline">
+    <input matInput type="datetime-local" #pickr (change)="updateChips()" [(ngModel)]="dateString" [disabled]="disabled">
+</mat-form-field>

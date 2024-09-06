@@ -82562,89 +82562,6 @@ var ME_SCHEMA = {
   required: ["id", "name", "email", "emailVerifiedAt", "theme"]
 };
 
-// src/app/components/selects/date-chip-select/options.ts
-var ReminderOption;
-(function(ReminderOption2) {
-  ReminderOption2["NO_REMINDER"] = "no";
-  ReminderOption2["MIN_0"] = "0 min";
-  ReminderOption2["MIN_30"] = "30 min";
-  ReminderOption2["H_1"] = "1 h";
-  ReminderOption2["D_1"] = "1 d";
-})(ReminderOption || (ReminderOption = {}));
-var DueOption;
-(function(DueOption2) {
-  DueOption2["TODAY"] = "today";
-  DueOption2["TOMORROW"] = "tomorrow";
-  DueOption2["SOMETIME"] = "somtime";
-})(DueOption || (DueOption = {}));
-var ReminderOptionLabels = [
-  [ReminderOption.MIN_0, "0 Min vorher"],
-  [ReminderOption.MIN_30, "30 Min vorher"],
-  [ReminderOption.H_1, "1 Std vorher"],
-  [ReminderOption.D_1, "1 Tag vorher"],
-  [ReminderOption.NO_REMINDER, "Keine Erinnerung"]
-];
-var DueOptionLabels = [
-  [DueOption.TODAY, "Heute"],
-  [DueOption.TOMORROW, "Morgen"],
-  [DueOption.SOMETIME, "Irgendwann"]
-];
-function getReminderValue(due, reminder) {
-  if (!due || !reminder) {
-    return ReminderOption.NO_REMINDER;
-  }
-  const diff = Math.abs(due.valueOf() - reminder.valueOf());
-  const minute = 60 * 1e3;
-  const hour = 60 * minute;
-  switch (diff) {
-    case 0:
-      return ReminderOption.MIN_0;
-    case 30 * minute:
-      return ReminderOption.MIN_30;
-    case hour:
-      return ReminderOption.H_1;
-    case 24 * hour:
-      return ReminderOption.D_1;
-    default:
-      return reminder.toISOString();
-  }
-}
-function getReminderDate(due, reminder) {
-  const date = new Date(due.valueOf());
-  switch (reminder) {
-    case ReminderOption.NO_REMINDER:
-      return null;
-    case ReminderOption.MIN_30:
-      date.setMinutes(due.getMinutes() - 30);
-      break;
-    case ReminderOption.H_1:
-      date.setHours(due.getHours() - 1);
-      break;
-    case ReminderOption.D_1:
-      date.setHours(due.getHours() - 24);
-      break;
-    case ReminderOption.MIN_0:
-    default:
-      break;
-  }
-  return date.toISOString();
-}
-function getDueDate(due) {
-  switch (due) {
-    case DueOption.TODAY:
-      const today = /* @__PURE__ */ new Date();
-      today.setHours(9, 0, 0, 0);
-      return today.toISOString();
-    case DueOption.TOMORROW:
-      const tomorrow = /* @__PURE__ */ new Date();
-      tomorrow.setHours(9 + 24, 0, 0, 0);
-      return tomorrow.toISOString();
-    case DueOption.SOMETIME:
-    default:
-      return null;
-  }
-}
-
 // src/app/mydb/types/list-item.ts
 function newItem(item, defaultReminder) {
   const newItem2 = {
@@ -82652,8 +82569,8 @@ function newItem(item, defaultReminder) {
     name: "",
     description: "",
     createdBy: { id: "", name: "" },
-    reminder: defaultReminder || ReminderOption.MIN_0,
-    due: "",
+    reminder: null,
+    due: null,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     lists: { id: "", name: "" },
     done: false,
@@ -85473,84 +85390,6 @@ var PushFormComponent = _PushFormComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PushFormComponent, { className: "PushFormComponent", filePath: "src/app/components/settings/push-form/push-form.component.ts", lineNumber: 18 });
 })();
 
-// src/app/components/selects/due-select/due-select.component.ts
-var _DueSelectComponent = class _DueSelectComponent {
-  constructor() {
-    this.due = "";
-    this.onChange = () => {
-    };
-    this.onTouched = () => {
-    };
-    this.disabled = false;
-  }
-  writeValue(obj) {
-    this.due = obj;
-  }
-  registerOnChange(fn) {
-    this.onChange = fn;
-  }
-  registerOnTouched(fn) {
-    this.onTouched = fn;
-  }
-  setDisabledState(isDisabled) {
-    this.disabled = isDisabled;
-  }
-};
-_DueSelectComponent.\u0275fac = function DueSelectComponent_Factory(\u0275t) {
-  return new (\u0275t || _DueSelectComponent)();
-};
-_DueSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DueSelectComponent, selectors: [["app-due-select"]], standalone: true, features: [\u0275\u0275ProvidersFeature([
-  {
-    provide: NG_VALUE_ACCESSOR,
-    useExisting: forwardRef(() => _DueSelectComponent),
-    multi: true
-  }
-]), \u0275\u0275StandaloneFeature], decls: 13, vars: 1, consts: [[3, "ngModelChange", "ngModel"], ["value", "0 min"], ["value", "10 min"], ["value", "30 min"], ["value", "1 h"], ["value", "1 d"]], template: function DueSelectComponent_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-label");
-    \u0275\u0275text(1, "Erinnerungen");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(2, "mat-chip-listbox", 0);
-    \u0275\u0275twoWayListener("ngModelChange", function DueSelectComponent_Template_mat_chip_listbox_ngModelChange_2_listener($event) {
-      \u0275\u0275twoWayBindingSet(ctx.due, $event) || (ctx.due = $event);
-      return $event;
-    });
-    \u0275\u0275elementStart(3, "mat-chip-option", 1);
-    \u0275\u0275text(4, "0 Minuten vorher");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "mat-chip-option", 2);
-    \u0275\u0275text(6, "10 Minuten vorher");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "mat-chip-option", 3);
-    \u0275\u0275text(8, "30 Minuten vorher");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(9, "mat-chip-option", 4);
-    \u0275\u0275text(10, "1 Stunde vorher");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(11, "mat-chip-option", 5);
-    \u0275\u0275text(12, "1 Tag vorher");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    \u0275\u0275advance(2);
-    \u0275\u0275twoWayProperty("ngModel", ctx.due);
-  }
-}, dependencies: [
-  FormsModule,
-  NgControlStatus,
-  NgModel,
-  ReactiveFormsModule,
-  MaterialModule,
-  MatChipListbox,
-  MatChipOption,
-  MatLabel,
-  CommonModule
-] });
-var DueSelectComponent = _DueSelectComponent;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DueSelectComponent, { className: "DueSelectComponent", filePath: "src/app/components/selects/due-select/due-select.component.ts", lineNumber: 25 });
-})();
-
 // node_modules/flatpickr/dist/esm/types/options.js
 var HOOKS = ["onChange", "onClose", "onDayCreate", "onDestroy", "onKeyDown", "onMonthChange", "onOpen", "onParseConfig", "onReady", "onValueUpdate", "onYearChange", "onPreCalendarPosition"];
 var defaults3 = {
@@ -87876,6 +87715,105 @@ var DateChipSelectComponent = _DateChipSelectComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DateChipSelectComponent, { className: "DateChipSelectComponent", filePath: "src/app/components/selects/date-chip-select/date-chip-select.component.ts", lineNumber: 29 });
 })();
 
+// src/app/components/selects/date-chip-select/options.ts
+var ReminderOption;
+(function(ReminderOption2) {
+  ReminderOption2["NO_REMINDER"] = "no";
+  ReminderOption2["MIN_0"] = "0 min";
+  ReminderOption2["MIN_30"] = "30 min";
+  ReminderOption2["H_1"] = "1 h";
+  ReminderOption2["D_1"] = "1 d";
+})(ReminderOption || (ReminderOption = {}));
+var DueOption;
+(function(DueOption2) {
+  DueOption2["TODAY"] = "today";
+  DueOption2["TOMORROW"] = "tomorrow";
+  DueOption2["SOMETIME"] = "somtime";
+})(DueOption || (DueOption = {}));
+var ReminderOptionLabels = [
+  [ReminderOption.MIN_0, "0 Min vorher"],
+  [ReminderOption.MIN_30, "30 Min vorher"],
+  [ReminderOption.H_1, "1 Std vorher"],
+  [ReminderOption.D_1, "1 Tag vorher"],
+  [ReminderOption.NO_REMINDER, "Keine Erinnerung"]
+];
+var DueOptionLabels = [
+  [DueOption.TODAY, "Heute"],
+  [DueOption.TOMORROW, "Morgen"],
+  [DueOption.SOMETIME, "Irgendwann"]
+];
+function getReminderValue(due, reminder) {
+  if (!due || !reminder) {
+    return ReminderOption.NO_REMINDER;
+  }
+  const diff = Math.abs(due.valueOf() - reminder.valueOf());
+  const minute = 60 * 1e3;
+  const hour = 60 * minute;
+  switch (diff) {
+    case 0:
+      return ReminderOption.MIN_0;
+    case 30 * minute:
+      return ReminderOption.MIN_30;
+    case hour:
+      return ReminderOption.H_1;
+    case 24 * hour:
+      return ReminderOption.D_1;
+    default:
+      return reminder.toISOString();
+  }
+}
+function getDueValue(due) {
+  if (!due) {
+    return DueOption.SOMETIME;
+  }
+  const today = /* @__PURE__ */ new Date();
+  today.setHours(9, 0, 0, 0);
+  const tomorrow = new Date(today.valueOf());
+  tomorrow.setHours(today.getHours() + 24);
+  if (due.valueOf() === today.valueOf()) {
+    return DueOption.TODAY;
+  } else if (due.valueOf() === tomorrow.valueOf()) {
+    return DueOption.TOMORROW;
+  } else {
+    return due.toISOString();
+  }
+}
+function getReminderDate(due, reminder) {
+  const date = new Date(due.valueOf());
+  switch (reminder) {
+    case ReminderOption.NO_REMINDER:
+      return null;
+    case ReminderOption.MIN_30:
+      date.setMinutes(due.getMinutes() - 30);
+      break;
+    case ReminderOption.H_1:
+      date.setHours(due.getHours() - 1);
+      break;
+    case ReminderOption.D_1:
+      date.setHours(due.getHours() - 24);
+      break;
+    case ReminderOption.MIN_0:
+    default:
+      break;
+  }
+  return date.toISOString();
+}
+function getDueDate(due) {
+  switch (due) {
+    case DueOption.TODAY:
+      const today = /* @__PURE__ */ new Date();
+      today.setHours(9, 0, 0, 0);
+      return today.toISOString();
+    case DueOption.TOMORROW:
+      const tomorrow = /* @__PURE__ */ new Date();
+      tomorrow.setHours(9 + 24, 0, 0, 0);
+      return tomorrow.toISOString();
+    case DueOption.SOMETIME:
+    default:
+      return null;
+  }
+}
+
 // src/app/components/settings/others-form/others-form.component.ts
 var _OthersFormComponent = class _OthersFormComponent {
   constructor(authService, fb) {
@@ -87919,7 +87857,7 @@ _OthersFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ t
 }, dependencies: [ReactiveFormsModule, \u0275NgNoValidate, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, MaterialModule, MatLabel, DateChipSelectComponent], styles: ["\n\ndiv[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-form-field[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  width: 100%;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\ndiv[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n/*# sourceMappingURL=form.css.map */"] });
 var OthersFormComponent = _OthersFormComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(OthersFormComponent, { className: "OthersFormComponent", filePath: "src/app/components/settings/others-form/others-form.component.ts", lineNumber: 23 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(OthersFormComponent, { className: "OthersFormComponent", filePath: "src/app/components/settings/others-form/others-form.component.ts", lineNumber: 21 });
 })();
 
 // src/app/components/settings/settings.component.ts
@@ -88462,8 +88400,198 @@ function groupItems(items, isGroceries, groceryCategories = void 0) {
   return slots;
 }
 
+// src/app/components/selects/date-input-select/date-input-select.component.ts
+var _c015 = ["pickr"];
+function DateInputSelectComponent_mat_chip_option_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-chip-option", 5);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r2 = ctx.$implicit;
+    \u0275\u0275property("value", item_r2[0]);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(item_r2[1]);
+  }
+}
+var _DateInputSelectComponent = class _DateInputSelectComponent {
+  constructor(datePipe) {
+    this.datePipe = datePipe;
+    this.options = [];
+    this.getChipValue = () => "";
+    this.getChipDate = () => null;
+    this.pickrOpened = new EventEmitter();
+    this.pickrClosed = new EventEmitter();
+    this.onChange = () => {
+    };
+    this.onTouched = () => {
+    };
+    this.disabled = false;
+    this.chipOption = "";
+    this.dateString = "";
+    this.date = null;
+    this.pickrIsOpen = false;
+    this.timezone = (/* @__PURE__ */ new Date()).toISOString().slice(16);
+  }
+  ngAfterViewInit() {
+    this.initFlatpickr();
+  }
+  get value() {
+    if (this.date) {
+      return this.date.toISOString();
+    } else {
+      return "";
+    }
+  }
+  writeValue(date) {
+    if (!!date) {
+      this.date = date;
+      this.dateString = this.getDateString(date);
+      this.chipOption = this.getChipValue(date);
+    }
+  }
+  updateTime() {
+    if (this.chipOption) {
+      const date = this.getChipDate(this.chipOption) || "";
+      this.date = new Date(date);
+      if (!!date) {
+        this.dateString = this.getDateString(this.date);
+      }
+      this.onChange(this.value);
+      this.onTouched();
+    }
+  }
+  updateChips() {
+    if (this.flatpickr) {
+      this.date = this.flatpickr.selectedDates[0];
+      this.chipOption = this.getChipValue(this.date);
+      this.onChange(this.value);
+      this.onTouched();
+    }
+  }
+  registerOnChange(fn) {
+    this.onChange = fn;
+  }
+  registerOnTouched(fn) {
+    this.onTouched = fn;
+  }
+  setDisabledState(isDisabled) {
+    this.disabled = isDisabled;
+  }
+  initFlatpickr() {
+    const config2 = JSON.parse(JSON.stringify(timePickerConfig));
+    Object.assign(config2, {
+      formatDate: (date) => this.getDateString(date)
+    });
+    this.flatpickr = esm_default(this.picker.nativeElement, config2);
+    this.flatpickr.config.onClose.push(() => {
+      this.closePickr();
+    });
+    this.flatpickr.config.onChange.push(() => {
+      this.updateChips();
+    });
+  }
+  openFlatpickr() {
+    if (!this.pickrIsOpen && !!this.flatpickr) {
+      this.flatpickr.open();
+      this.pickrIsOpen = true;
+      this.pickrOpened.emit();
+    }
+  }
+  closePickr() {
+    if (this.pickrIsOpen) {
+      this.pickrIsOpen = false;
+      this.pickrClosed.emit();
+      this.onChange(this.value);
+      this.onTouched();
+    }
+  }
+  parseDateTime(date) {
+    if (date) {
+      return this.datePipe.transform(date.toISOString().slice(0, 16), "short");
+    }
+    return "";
+  }
+  getDateString(date) {
+    return this.datePipe.transform(date, "short") || "";
+  }
+};
+_DateInputSelectComponent.\u0275fac = function DateInputSelectComponent_Factory(\u0275t) {
+  return new (\u0275t || _DateInputSelectComponent)(\u0275\u0275directiveInject(DatePipe));
+};
+_DateInputSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DateInputSelectComponent, selectors: [["app-date-input-select"]], viewQuery: function DateInputSelectComponent_Query(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275viewQuery(_c015, 5);
+  }
+  if (rf & 2) {
+    let _t;
+    \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.picker = _t.first);
+  }
+}, inputs: { options: "options", getChipValue: "getChipValue", getChipDate: "getChipDate" }, outputs: { pickrOpened: "pickrOpened", pickrClosed: "pickrClosed" }, standalone: true, features: [\u0275\u0275ProvidersFeature([
+  {
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => _DateInputSelectComponent),
+    multi: true
+  },
+  DatePipe
+]), \u0275\u0275StandaloneFeature], decls: 5, vars: 5, consts: [["pickr", ""], [3, "ngModelChange", "click", "ngModel", "disabled"], [3, "value", 4, "ngFor", "ngForOf"], ["appearance", "outline"], ["matInput", "", "type", "datetime-local", 3, "change", "ngModelChange", "ngModel", "disabled"], [3, "value"]], template: function DateInputSelectComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "mat-chip-listbox", 1);
+    \u0275\u0275twoWayListener("ngModelChange", function DateInputSelectComponent_Template_mat_chip_listbox_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      \u0275\u0275twoWayBindingSet(ctx.chipOption, $event) || (ctx.chipOption = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("click", function DateInputSelectComponent_Template_mat_chip_listbox_click_0_listener() {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.updateTime());
+    });
+    \u0275\u0275template(1, DateInputSelectComponent_mat_chip_option_1_Template, 2, 2, "mat-chip-option", 2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(2, "mat-form-field", 3)(3, "input", 4, 0);
+    \u0275\u0275listener("change", function DateInputSelectComponent_Template_input_change_3_listener() {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.updateChips());
+    });
+    \u0275\u0275twoWayListener("ngModelChange", function DateInputSelectComponent_Template_input_ngModelChange_3_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      \u0275\u0275twoWayBindingSet(ctx.dateString, $event) || (ctx.dateString = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275twoWayProperty("ngModel", ctx.chipOption);
+    \u0275\u0275property("disabled", ctx.disabled);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngForOf", ctx.options);
+    \u0275\u0275advance(2);
+    \u0275\u0275twoWayProperty("ngModel", ctx.dateString);
+    \u0275\u0275property("disabled", ctx.disabled);
+  }
+}, dependencies: [
+  CommonModule,
+  NgForOf,
+  FormsModule,
+  DefaultValueAccessor,
+  NgControlStatus,
+  NgModel,
+  ReactiveFormsModule,
+  MaterialModule,
+  MatChipListbox,
+  MatChipOption,
+  MatFormField,
+  MatInput
+], styles: ["\n\nmat-chip-list[_ngcontent-%COMP%], \nmat-form-field[_ngcontent-%COMP%] {\n  width: 100%;\n}\n/*# sourceMappingURL=date-input-select.component.css.map */"] });
+var DateInputSelectComponent = _DateInputSelectComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DateInputSelectComponent, { className: "DateInputSelectComponent", filePath: "src/app/components/selects/date-input-select/date-input-select.component.ts", lineNumber: 28 });
+})();
+
 // src/app/components/bottom-sheets/update-item-sheet/update-item-sheet.component.ts
-var _c015 = ["autosize"];
+var _c016 = ["autosize"];
 function UpdateItemSheetComponent_mat_form_field_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-form-field", 2)(1, "mat-label");
@@ -88480,28 +88608,19 @@ function UpdateItemSheetComponent_mat_slide_toggle_8_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
 }
-function UpdateItemSheetComponent_mat_form_field_9_Template(rf, ctx) {
+function UpdateItemSheetComponent_div_10_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 2)(1, "input", 12);
-    \u0275\u0275listener("focus", function UpdateItemSheetComponent_mat_form_field_9_Template_input_focus_1_listener() {
+    \u0275\u0275elementStart(0, "div")(1, "mat-label");
+    \u0275\u0275text(2, "Erinnerung");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "app-date-chip-select", 12);
+    \u0275\u0275listener("pickrOpened", function UpdateItemSheetComponent_div_10_Template_app_date_chip_select_pickrOpened_3_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.openPicker());
-    });
-    \u0275\u0275elementEnd()();
-  }
-}
-function UpdateItemSheetComponent_div_11_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div")(1, "app-date-chip-select", 13);
-    \u0275\u0275listener("pickrOpened", function UpdateItemSheetComponent_div_11_Template_app_date_chip_select_pickrOpened_1_listener() {
-      \u0275\u0275restoreView(_r3);
-      const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.pickrOpened());
-    })("pickrClosed", function UpdateItemSheetComponent_div_11_Template_app_date_chip_select_pickrClosed_1_listener() {
-      \u0275\u0275restoreView(_r3);
+    })("pickrClosed", function UpdateItemSheetComponent_div_10_Template_app_date_chip_select_pickrClosed_3_listener() {
+      \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.pickrClosed());
     });
@@ -88509,17 +88628,16 @@ function UpdateItemSheetComponent_div_11_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
+    \u0275\u0275advance(3);
     \u0275\u0275property("options", ctx_r1.reminderOptions);
   }
 }
 var _UpdateItemSheetComponent = class _UpdateItemSheetComponent {
-  constructor(bottomSheetRef, data, fb, datePipe) {
+  constructor(bottomSheetRef, data, fb) {
     this.bottomSheetRef = bottomSheetRef;
     this.data = data;
     this.fb = fb;
-    this.datePipe = datePipe;
-    this.duePickerOpen = false;
+    this.dueOptions = DueOptionLabels.slice(0, 2);
     this.reminderOptions = ReminderOptionLabels;
     this.subscriptions = [];
     this.list = data.list;
@@ -88529,7 +88647,7 @@ var _UpdateItemSheetComponent = class _UpdateItemSheetComponent {
       "name": [data.item.name, Validators.required],
       "description": [data.item.description],
       "due-toggle": [!!data.item.due],
-      "due": [{ value: this.parseDateTime(due), disabled: !data.item.due }],
+      "due": [due],
       "reminder": [getReminderValue(due, reminder)]
     });
     const formSub = this.form.get("due-toggle")?.valueChanges.subscribe((dueEnabled) => {
@@ -88542,46 +88660,9 @@ var _UpdateItemSheetComponent = class _UpdateItemSheetComponent {
     if (formSub) {
       this.subscriptions.push(formSub);
     }
-    this.timezone = (/* @__PURE__ */ new Date("2020-01-01T10:00")).toISOString().slice(16);
-  }
-  ngAfterViewInit() {
-    this.dueFlatpickr = esm_default("#due-picker", timePickerConfig);
-    this.dueFlatpickr.config.onChange.push((val) => {
-      if (val.length > 0 && !!this.form.get("due")) {
-        this.form.get("due")?.setValue(this.parseDateTime(val[0]));
-      } else {
-        this.form.get("due")?.reset();
-      }
-    });
-    this.dueFlatpickr.config.onClose.push(() => {
-      this.closePicker();
-    });
-    if (this.form.get("due")?.value && this.data.item.due) {
-      this.dueFlatpickr.setDate(new Date(this.data.item.due));
-    }
   }
   ngOnDestroy() {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
-  }
-  openPicker() {
-    if (!this.duePickerOpen) {
-      this.dueFlatpickr.open();
-      this.bottomSheetRef.disableClose = true;
-      this.duePickerOpen = true;
-    }
-  }
-  closePicker() {
-    if (this.enableBottomSheetClose) {
-      clearTimeout(this.enableBottomSheetClose);
-      this.enableBottomSheetClose = void 0;
-    }
-    if (this.duePickerOpen) {
-      this.duePickerOpen = false;
-      this.enableBottomSheetClose = setTimeout(() => {
-        this.bottomSheetRef.disableClose = false;
-        this.enableBottomSheetClose = void 0;
-      }, 1e3);
-    }
   }
   pickrOpened() {
     this.bottomSheetRef.disableClose = true;
@@ -88598,20 +88679,16 @@ var _UpdateItemSheetComponent = class _UpdateItemSheetComponent {
       }, 1e3);
     }
   }
-  parseDateTime(date) {
-    if (date) {
-      return this.datePipe.transform(date.toISOString().slice(0, 16), "short");
-    }
-    return "";
+  getDueValue(due) {
+    return getDueValue(due);
   }
-  parseFormDateTime(_date) {
-    const date = new Date(_date + this.timezone);
-    return date.toISOString();
+  getDueDate(option) {
+    return getDueDate(option);
   }
   returnFormContent() {
     const patch = {};
     const dueToggle = !!this.form.get("due-toggle")?.value;
-    const due = this.form.get("due")?.value + this.timezone;
+    const due = this.form.get("due")?.value;
     if (this.form.get("name")?.value != this.data.item.name) {
       Object.assign(patch, {
         name: this.form.get("name")?.value.trim()
@@ -88644,17 +88721,17 @@ var _UpdateItemSheetComponent = class _UpdateItemSheetComponent {
   }
 };
 _UpdateItemSheetComponent.\u0275fac = function UpdateItemSheetComponent_Factory(\u0275t) {
-  return new (\u0275t || _UpdateItemSheetComponent)(\u0275\u0275directiveInject(MatBottomSheetRef), \u0275\u0275directiveInject(MAT_BOTTOM_SHEET_DATA), \u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(DatePipe));
+  return new (\u0275t || _UpdateItemSheetComponent)(\u0275\u0275directiveInject(MatBottomSheetRef), \u0275\u0275directiveInject(MAT_BOTTOM_SHEET_DATA), \u0275\u0275directiveInject(FormBuilder));
 };
 _UpdateItemSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UpdateItemSheetComponent, selectors: [["app-update-item-sheet"]], viewQuery: function UpdateItemSheetComponent_Query(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275viewQuery(_c015, 5);
+    \u0275\u0275viewQuery(_c016, 5);
   }
   if (rf & 2) {
     let _t;
     \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.autosize = _t.first);
   }
-}, standalone: true, features: [\u0275\u0275ProvidersFeature([DatePipe]), \u0275\u0275StandaloneFeature], decls: 16, vars: 7, consts: [["autosize", "cdkTextareaAutosize"], ["autocomplete", "off", 3, "formGroup"], ["appearance", "outline"], ["matInput", "", "formControlName", "name", "placeholder", "Name"], ["appearance", "outline", 4, "ngIf"], ["color", "primary", "formControlName", "due-toggle", 4, "ngIf"], ["type", "datetime-local", "id", "due-picker"], [4, "ngIf"], ["mat-stroked-button", "", 3, "click", "disabled"], ["mat-flat-button", "", "color", "primary", 3, "click"], ["matInput", "", "formControlName", "description", "placeholder", "Beschreibung", "cdkTextareaAutosize", "", "cdkAutosizeMinRows", "5"], ["color", "primary", "formControlName", "due-toggle"], ["matInput", "", "type", "text", "formControlName", "due", "placeholder", "F\xE4llig am", 3, "focus"], ["formControlName", "reminder", 3, "pickrOpened", "pickrClosed", "options"]], template: function UpdateItemSheetComponent_Template(rf, ctx) {
+}, standalone: true, features: [\u0275\u0275ProvidersFeature([DatePipe]), \u0275\u0275StandaloneFeature], decls: 15, vars: 9, consts: [["autosize", "cdkTextareaAutosize"], ["autocomplete", "off", 3, "formGroup"], ["appearance", "outline"], ["matInput", "", "formControlName", "name", "placeholder", "Name"], ["appearance", "outline", 4, "ngIf"], ["color", "primary", "formControlName", "due-toggle", 4, "ngIf"], ["formControlName", "due", 3, "pickrOpened", "pickrClosed", "options", "getChipValue", "getChipDate"], [4, "ngIf"], ["mat-stroked-button", "", 3, "click", "disabled"], ["mat-flat-button", "", "color", "primary", 3, "click"], ["matInput", "", "formControlName", "description", "placeholder", "Beschreibung", "cdkTextareaAutosize", "", "cdkAutosizeMinRows", "5"], ["color", "primary", "formControlName", "due-toggle"], ["formControlName", "reminder", 3, "pickrOpened", "pickrClosed", "options"]], template: function UpdateItemSheetComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "h2");
     \u0275\u0275text(1, "Element Bearbeiten");
@@ -88664,24 +88741,30 @@ _UpdateItemSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     \u0275\u0275elementEnd();
     \u0275\u0275element(6, "input", 3);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(7, UpdateItemSheetComponent_mat_form_field_7_Template, 5, 0, "mat-form-field", 4)(8, UpdateItemSheetComponent_mat_slide_toggle_8_Template, 2, 0, "mat-slide-toggle", 5)(9, UpdateItemSheetComponent_mat_form_field_9_Template, 2, 0, "mat-form-field", 4);
-    \u0275\u0275element(10, "input", 6);
-    \u0275\u0275template(11, UpdateItemSheetComponent_div_11_Template, 2, 1, "div", 7);
-    \u0275\u0275elementStart(12, "button", 8);
-    \u0275\u0275listener("click", function UpdateItemSheetComponent_Template_button_click_12_listener() {
+    \u0275\u0275template(7, UpdateItemSheetComponent_mat_form_field_7_Template, 5, 0, "mat-form-field", 4)(8, UpdateItemSheetComponent_mat_slide_toggle_8_Template, 2, 0, "mat-slide-toggle", 5);
+    \u0275\u0275elementStart(9, "app-date-input-select", 6);
+    \u0275\u0275listener("pickrOpened", function UpdateItemSheetComponent_Template_app_date_input_select_pickrOpened_9_listener() {
+      return ctx.pickrOpened();
+    })("pickrClosed", function UpdateItemSheetComponent_Template_app_date_input_select_pickrClosed_9_listener() {
+      return ctx.pickrClosed();
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(10, UpdateItemSheetComponent_div_10_Template, 4, 1, "div", 7);
+    \u0275\u0275elementStart(11, "button", 8);
+    \u0275\u0275listener("click", function UpdateItemSheetComponent_Template_button_click_11_listener() {
       return ctx.returnFormContent();
     });
-    \u0275\u0275text(13);
+    \u0275\u0275text(12);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(14, "button", 9);
-    \u0275\u0275listener("click", function UpdateItemSheetComponent_Template_button_click_14_listener() {
+    \u0275\u0275elementStart(13, "button", 9);
+    \u0275\u0275listener("click", function UpdateItemSheetComponent_Template_button_click_13_listener() {
       return ctx.bottomSheetRef.dismiss();
     });
-    \u0275\u0275text(15, "Abbrechen");
+    \u0275\u0275text(14, "Abbrechen");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    let tmp_4_0;
+    let tmp_6_0;
     \u0275\u0275advance(2);
     \u0275\u0275property("formGroup", ctx.form);
     \u0275\u0275advance(5);
@@ -88689,18 +88772,38 @@ _UpdateItemSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     \u0275\u0275advance();
     \u0275\u0275property("ngIf", !ctx.list.isShoppingList);
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", !ctx.list.isShoppingList);
-    \u0275\u0275advance(2);
-    \u0275\u0275property("ngIf", (tmp_4_0 = ctx.form.get("due-toggle")) == null ? null : tmp_4_0.value);
+    \u0275\u0275property("options", ctx.dueOptions)("getChipValue", ctx.getDueValue)("getChipDate", ctx.getDueDate);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", (tmp_6_0 = ctx.form.get("due-toggle")) == null ? null : tmp_6_0.value);
     \u0275\u0275advance();
     \u0275\u0275property("disabled", !ctx.form.valid);
     \u0275\u0275advance();
     \u0275\u0275textInterpolate("Speichern");
   }
-}, dependencies: [FormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, ReactiveFormsModule, FormGroupDirective, FormControlName, CommonModule, NgIf, MaterialModule, MatButton, MatFormField, MatLabel, MatInput, CdkTextareaAutosize, MatSlideToggle, DateChipSelectComponent], styles: ["\n\n#reminder-picker[_ngcontent-%COMP%], \n#due-picker[_ngcontent-%COMP%] {\n  opacity: 0;\n  height: 0;\n  width: 0;\n  z-index: -100;\n}\n/*# sourceMappingURL=update-item-sheet.component.css.map */", "\n\nbutton[_ngcontent-%COMP%] {\n  width: 100%;\n  margin: 6px 0;\n}\nbutton[_ngcontent-%COMP%]:last-child {\n  margin-bottom: 38pt;\n}\nform[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  margin: 24px 0;\n}\nform[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  margin: 24px 0;\n}\n/*# sourceMappingURL=styles.css.map */"] });
+}, dependencies: [
+  FormsModule,
+  \u0275NgNoValidate,
+  DefaultValueAccessor,
+  NgControlStatus,
+  NgControlStatusGroup,
+  ReactiveFormsModule,
+  FormGroupDirective,
+  FormControlName,
+  CommonModule,
+  NgIf,
+  MaterialModule,
+  MatButton,
+  MatFormField,
+  MatLabel,
+  MatInput,
+  CdkTextareaAutosize,
+  MatSlideToggle,
+  DateChipSelectComponent,
+  DateInputSelectComponent
+], styles: ["\n\n#reminder-picker[_ngcontent-%COMP%], \n#due-picker[_ngcontent-%COMP%] {\n  opacity: 0;\n  height: 0;\n  width: 0;\n  z-index: -100;\n}\n/*# sourceMappingURL=update-item-sheet.component.css.map */", "\n\nbutton[_ngcontent-%COMP%] {\n  width: 100%;\n  margin: 6px 0;\n}\nbutton[_ngcontent-%COMP%]:last-child {\n  margin-bottom: 38pt;\n}\nform[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  margin: 24px 0;\n}\nform[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  margin: 24px 0;\n}\n/*# sourceMappingURL=styles.css.map */"] });
 var UpdateItemSheetComponent = _UpdateItemSheetComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UpdateItemSheetComponent, { className: "UpdateItemSheetComponent", filePath: "src/app/components/bottom-sheets/update-item-sheet/update-item-sheet.component.ts", lineNumber: 29 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UpdateItemSheetComponent, { className: "UpdateItemSheetComponent", filePath: "src/app/components/bottom-sheets/update-item-sheet/update-item-sheet.component.ts", lineNumber: 31 });
 })();
 
 // src/app/components/bottom-sheets/confirm-sheet/confirm-sheet.component.ts
@@ -89027,7 +89130,7 @@ var ListItemComponent = _ListItemComponent;
 })();
 
 // node_modules/@angular/material/fesm2022/autocomplete.mjs
-var _c016 = ["panel"];
+var _c017 = ["panel"];
 var _c111 = ["*"];
 function MatAutocomplete_ng_template_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -89219,7 +89322,7 @@ _MatAutocomplete.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   viewQuery: function MatAutocomplete_Query(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275viewQuery(TemplateRef, 7);
-      \u0275\u0275viewQuery(_c016, 5);
+      \u0275\u0275viewQuery(_c017, 5);
     }
     if (rf & 2) {
       let _t;
@@ -90730,7 +90833,7 @@ var ListHeaderComponent = _ListHeaderComponent;
 })();
 
 // src/app/components/list/list.component.ts
-var _c017 = ["addInput"];
+var _c018 = ["addInput"];
 function ListComponent_div_4_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
@@ -90964,7 +91067,7 @@ _ListComponent.\u0275fac = function ListComponent_Factory(\u0275t) {
 };
 _ListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ListComponent, selectors: [["app-list"]], viewQuery: function ListComponent_Query(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275viewQuery(_c017, 5);
+    \u0275\u0275viewQuery(_c018, 5);
   }
   if (rf & 2) {
     let _t;

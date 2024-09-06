@@ -4,7 +4,6 @@ import { AuthService } from '../../../services/auth/auth.service';
 import { Subscription } from 'rxjs';
 import { MyMeDocument } from '../../../mydb/types/me';
 import { MaterialModule } from '../../../material.module';
-import { DueSelectComponent } from '../../selects/due-select/due-select.component';
 import { DateChipSelectComponent } from '../../selects/date-chip-select/date-chip-select.component';
 import { ReminderOptionLabels, ReminderOption } from '../../selects/date-chip-select/options';
 
@@ -14,7 +13,6 @@ import { ReminderOptionLabels, ReminderOption } from '../../selects/date-chip-se
   imports: [
     ReactiveFormsModule,
     MaterialModule,
-    DueSelectComponent,
     DateChipSelectComponent,
   ],
   templateUrl: './others-form.component.html',
