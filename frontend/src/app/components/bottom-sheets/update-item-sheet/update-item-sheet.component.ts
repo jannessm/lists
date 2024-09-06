@@ -9,8 +9,8 @@ import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { Subscription } from 'rxjs';
 import { MyListsDocument } from '../../../mydb/types/lists';
 import { MyItemDocument } from '../../../mydb/types/list-item';
-import { ReminderSelectComponent } from '../../selects/reminder-select/reminder-select.component';
-import { ReminderOptions } from '../../selects/reminder-select/options';
+import { ReminderOptionLabels, getReminderDate, getReminderValue } from '../../selects/date-chip-select/options';
+import { DateChipSelectComponent } from '../../selects/date-chip-select/date-chip-select.component';
 
 @Component({
   selector: 'app-update-item-sheet',
@@ -20,7 +20,7 @@ import { ReminderOptions } from '../../selects/reminder-select/options';
     ReactiveFormsModule,
     CommonModule,
     MaterialModule,
-    ReminderSelectComponent
+    DateChipSelectComponent
   ],
   providers: [DatePipe],
   templateUrl: './update-item-sheet.component.html',
@@ -33,6 +33,8 @@ export class UpdateItemSheetComponent implements OnDestroy {
 
   dueFlatpickr!: flatpickr.Instance;
   duePickerOpen = false;
+
+  reminderOptions = ReminderOptionLabels;
 
   enableBottomSheetClose?: ReturnType<typeof setTimeout>;
 
@@ -55,8 +57,7 @@ export class UpdateItemSheetComponent implements OnDestroy {
       'description': [data.item.description],
       'due-toggle': [!!data.item.due],
       'due': [{value: this.parseDateTime(due), disabled: !data.item.due}],
-      'reminder-chips': [this.getReminderChipValue(due, reminder)],
-      'reminder': [this.parseDateTime(reminder)],
+      'reminder': [getReminderValue(due, reminder)],
     });
 
     const formSub = this.form.get('due-toggle')?.valueChanges.subscribe(dueEnabled => {
@@ -141,44 +142,6 @@ export class UpdateItemSheetComponent implements OnDestroy {
     }
   }
 
-  getReminderChipValue(due: Date | null, reminder: Date | null) {
-    if (!due || !reminder) {
-      return null;
-    }
-    
-    const aDayBefore = new Date(due.valueOf());
-    aDayBefore.setDate(due.getDate() - 1);
-    if (reminder.valueOf() == aDayBefore.valueOf()) {
-      return ReminderOptions.D_1;
-    }
-
-    const anHourBefore = new Date(due.valueOf());
-    anHourBefore.setHours(due.getHours() - 1);
-    if (reminder.valueOf() == anHourBefore.valueOf()) {
-      return ReminderOptions.H_1;
-    }
-
-    const thirtyMinBefore = new Date(due.valueOf());
-    thirtyMinBefore.setMinutes(due.getMinutes() - 30);
-    if (reminder.valueOf() == thirtyMinBefore.valueOf()) {
-      return ReminderOptions.MIN_30;
-    }
-
-    const tenMinBefore = new Date(due.valueOf());
-    tenMinBefore.setMinutes(due.getMinutes() - 10);
-    if (reminder.valueOf() == tenMinBefore.valueOf()) {
-      return ReminderOptions.MIN_10;
-    }
-
-    const noMinBefore = new Date(due.valueOf());
-    noMinBefore.setMinutes(due.getMinutes() - 10);
-    if (reminder.valueOf() == noMinBefore.valueOf()) {
-      return ReminderOptions.MIN_0;
-    }
-
-    return "different";
-  }
-
   parseDateTime(date: Date | null) {
     if (date) {
       return this.datePipe.transform(
@@ -222,28 +185,17 @@ export class UpdateItemSheetComponent implements OnDestroy {
       Object.assign(patch, {due: null});
     }
 
-    if (dueToggle && due && this.form.get('reminder-chips')?.value &&
+    if (dueToggle && due && this.form.get('reminder')?.value &&
       !this.list.isShoppingList) {
-      let reminder = new Date(due);
-  
-      switch (this.form.get('reminder-chips')?.value) {
-        case '1d':
-          reminder.setDate(reminder.getDate() - 1);
-          break;
-        case '1h':
-          reminder.setHours(reminder.getHours() - 1);
-          break;
-        case '30min':
-          reminder.setMinutes(reminder.getMinutes() - 30);
-          break;
-        case 'different':
-          reminder = new Date(this.form.get('reminder')?.value + this.timezone);
-          break;
-      }
+      const reminder = getReminderDate(
+        new Date(due),
+        this.form.get('reminder')?.value
+      );
 
-      if (reminder.toISOString() != this.data.item.reminder) {
+      if (reminder != this.data.item.reminder) {
+        console.log(reminder);
         Object.assign(patch, {
-          reminder: reminder.toISOString()
+          reminder: reminder
         });
       }
     } else if (this.data.item.reminder != null) {

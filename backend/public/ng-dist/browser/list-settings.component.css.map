@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/list/list-settings/list-settings.component.scss"],
+  "sourcesContent": [".content-header {\n    grid-area: contentHeader;\n    position: relative;\n\n    .menu {\n        position: absolute;\n        top: -4px;\n        right: 0;\n    }\n    \n    h2 {\n        margin-top: 0;\n    }\n    \n    .users {\n        margin-bottom: 12px;\n        margin-top: -12px;\n    }\n}"],
+  "mappings": ";AAAA,CAAA;AACI,aAAA;AACA,YAAA;;AAEA,CAJJ,eAII,CAAA;AACI,YAAA;AACA,OAAA;AACA,SAAA;;AAGJ,CAVJ,eAUI;AACI,cAAA;;AAGJ,CAdJ,eAcI,CAAA;AACI,iBAAA;AACA,cAAA;;",
+  "names": []
+}

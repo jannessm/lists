@@ -4,9 +4,9 @@ import { AuthService } from '../../../services/auth/auth.service';
 import { Subscription } from 'rxjs';
 import { MyMeDocument } from '../../../mydb/types/me';
 import { MaterialModule } from '../../../material.module';
-import { REMINDER_INTERVAL } from '../../../../models/reminder';
 import { DueSelectComponent } from '../../selects/due-select/due-select.component';
-import { ReminderSelectComponent } from '../../selects/reminder-select/reminder-select.component';
+import { DateChipSelectComponent } from '../../selects/date-chip-select/date-chip-select.component';
+import { ReminderOptionLabels, ReminderOption } from '../../selects/date-chip-select/options';
 
 @Component({
   selector: 'app-settings-others-form',
@@ -15,7 +15,7 @@ import { ReminderSelectComponent } from '../../selects/reminder-select/reminder-
     ReactiveFormsModule,
     MaterialModule,
     DueSelectComponent,
-    ReminderSelectComponent,
+    DateChipSelectComponent,
   ],
   templateUrl: './others-form.component.html',
   styleUrls: ['./others-form.component.scss', '../form.scss']
@@ -26,12 +26,14 @@ export class OthersFormComponent implements OnDestroy {
   form: FormGroup;
   formSub: Subscription;
 
+  reminderOptions = ReminderOptionLabels;
+
   constructor(
     private authService: AuthService,
     private fb: FormBuilder
   ) {
     this.user = this.authService.me;
-    const reminder = this.authService.me().defaultReminder || REMINDER_INTERVAL.DUE;
+    const reminder = this.authService.me().defaultReminder || ReminderOption.MIN_0;
 
     this.form = fb.group({
       'reminder': [reminder]

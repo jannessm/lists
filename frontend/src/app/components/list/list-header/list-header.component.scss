@@ -1,0 +1,19 @@
+.content-header {
+    grid-area: contentHeader;
+    position: relative;
+
+    .menu {
+        position: absolute;
+        top: -4px;
+        right: 0;
+    }
+    
+    h2 {
+        margin-top: 0;
+    }
+    
+    .users {
+        margin-bottom: 12px;
+        margin-top: -12px;
+    }
+}

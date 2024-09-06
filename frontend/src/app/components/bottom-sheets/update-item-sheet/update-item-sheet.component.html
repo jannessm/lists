@@ -24,11 +24,12 @@
     
     <!-- Reminder -->
     <div *ngIf="form.get('due-toggle')?.value">
-        <app-reminder-select
+        <app-date-chip-select
             formControlName="reminder"
             (pickrOpened)="pickrOpened()"
             (pickrClosed)="pickrClosed()"
-        ></app-reminder-select>
+            [options]="reminderOptions"
+        ></app-date-chip-select>
     </div>
 
     <button mat-stroked-button [disabled]="!form.valid" (click)="returnFormContent()">{{'Speichern'}}</button>

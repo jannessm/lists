@@ -1,5 +1,9 @@
 <div>
     <form [formGroup]="form">
-        <app-reminder-select formControlName="reminder" [showOthers]="false"></app-reminder-select>
+        <mat-label>Erinnerungen</mat-label>
+        <app-date-chip-select
+            formControlName="reminder"
+            [showOthers]="false"
+            [options]="reminderOptions"></app-date-chip-select>
     </form>
 </div>

@@ -69,7 +69,7 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
                 query: async () => {
                     const table = await this.table.toArray();
                     return table.map(doc => {
-                        new MyDocument<DocType, DocMethods>(this, doc);
+                        return new MyDocument<DocType, DocMethods>(this, doc);
                     });
                 }
             }

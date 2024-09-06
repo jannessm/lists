@@ -1,0 +1,50 @@
+.item-done {
+    .item-content, mat-chip {
+        color: grey;
+        text-decoration: line-through;
+        user-select: none;
+    }
+}
+.item {
+    background: #EEE;
+    border-radius: 8px;
+    margin: 6px 0;
+    width: 100%;
+    
+    button {
+        color: grey;
+    }
+    
+    mat-checkbox {
+        margin: 8px;
+        position: relative;
+        width: calc(100% - 20px);
+
+        .item-content {
+            white-space: pre-wrap;
+            margin-right: 36px;
+            margin-bottom: 0 !important;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button.mini-user-fab {
+            margin-left: 6px !important;
+            float: none;
+            z-index: 0;
+        }
+
+        button:not(.mini-user-fab) {
+            top: calc(50% - 24px);
+            position: absolute;
+            right: 0;
+        }
+    }
+
+    mat-chip-listbox, mat-chip-option {
+        display: inline-block;
+        user-select: none;
+    }
+}

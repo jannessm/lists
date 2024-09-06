@@ -82562,30 +82562,86 @@ var ME_SCHEMA = {
   required: ["id", "name", "email", "emailVerifiedAt", "theme"]
 };
 
-// src/app/components/selects/reminder-select/options.ts
-var ReminderOptions;
-(function(ReminderOptions2) {
-  ReminderOptions2["NO_REMINDER"] = "no";
-  ReminderOptions2["MIN_0"] = "0 min";
-  ReminderOptions2["MIN_10"] = "10 min";
-  ReminderOptions2["MIN_30"] = "30 min";
-  ReminderOptions2["H_1"] = "1 h";
-  ReminderOptions2["D_1"] = "1 d";
-})(ReminderOptions || (ReminderOptions = {}));
-function getReminderLabel(option) {
-  switch (option) {
-    case ReminderOptions.NO_REMINDER:
-      return "Keine Erinnerung";
-    case ReminderOptions.MIN_0:
-    case ReminderOptions.MIN_10:
-    case ReminderOptions.MIN_30:
-      return option + " vorher";
-    case ReminderOptions.H_1:
-      return "1 Std vorher";
-    case ReminderOptions.D_1:
-      return "1 Tag vorher";
+// src/app/components/selects/date-chip-select/options.ts
+var ReminderOption;
+(function(ReminderOption2) {
+  ReminderOption2["NO_REMINDER"] = "no";
+  ReminderOption2["MIN_0"] = "0 min";
+  ReminderOption2["MIN_30"] = "30 min";
+  ReminderOption2["H_1"] = "1 h";
+  ReminderOption2["D_1"] = "1 d";
+})(ReminderOption || (ReminderOption = {}));
+var DueOption;
+(function(DueOption2) {
+  DueOption2["TODAY"] = "today";
+  DueOption2["TOMORROW"] = "tomorrow";
+  DueOption2["SOMETIME"] = "somtime";
+})(DueOption || (DueOption = {}));
+var ReminderOptionLabels = [
+  [ReminderOption.MIN_0, "0 Min vorher"],
+  [ReminderOption.MIN_30, "30 Min vorher"],
+  [ReminderOption.H_1, "1 Std vorher"],
+  [ReminderOption.D_1, "1 Tag vorher"],
+  [ReminderOption.NO_REMINDER, "Keine Erinnerung"]
+];
+var DueOptionLabels = [
+  [DueOption.TODAY, "Heute"],
+  [DueOption.TOMORROW, "Morgen"],
+  [DueOption.SOMETIME, "Irgendwann"]
+];
+function getReminderValue(due, reminder) {
+  if (!due || !reminder) {
+    return ReminderOption.NO_REMINDER;
+  }
+  const diff = Math.abs(due.valueOf() - reminder.valueOf());
+  const minute = 60 * 1e3;
+  const hour = 60 * minute;
+  switch (diff) {
+    case 0:
+      return ReminderOption.MIN_0;
+    case 30 * minute:
+      return ReminderOption.MIN_30;
+    case hour:
+      return ReminderOption.H_1;
+    case 24 * hour:
+      return ReminderOption.D_1;
     default:
-      return "MISSING REMINDER LABEL";
+      return reminder.toISOString();
+  }
+}
+function getReminderDate(due, reminder) {
+  const date = new Date(due.valueOf());
+  switch (reminder) {
+    case ReminderOption.NO_REMINDER:
+      return null;
+    case ReminderOption.MIN_30:
+      date.setMinutes(due.getMinutes() - 30);
+      break;
+    case ReminderOption.H_1:
+      date.setHours(due.getHours() - 1);
+      break;
+    case ReminderOption.D_1:
+      date.setHours(due.getHours() - 24);
+      break;
+    case ReminderOption.MIN_0:
+    default:
+      break;
+  }
+  return date.toISOString();
+}
+function getDueDate(due) {
+  switch (due) {
+    case DueOption.TODAY:
+      const today = /* @__PURE__ */ new Date();
+      today.setHours(9, 0, 0, 0);
+      return today.toISOString();
+    case DueOption.TOMORROW:
+      const tomorrow = /* @__PURE__ */ new Date();
+      tomorrow.setHours(9 + 24, 0, 0, 0);
+      return tomorrow.toISOString();
+    case DueOption.SOMETIME:
+    default:
+      return null;
   }
 }
 
@@ -82596,7 +82652,7 @@ function newItem(item, defaultReminder) {
     name: "",
     description: "",
     createdBy: { id: "", name: "" },
-    reminder: defaultReminder || ReminderOptions.MIN_0,
+    reminder: defaultReminder || ReminderOption.MIN_0,
     due: "",
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     lists: { id: "", name: "" },
@@ -82977,7 +83033,7 @@ var MyCollection = class {
         query: () => __async(this, null, function* () {
           const table = yield this.table.toArray();
           return table.map((doc) => {
-            new MyDocument(this, doc);
+            return new MyDocument(this, doc);
           });
         })
       };
@@ -85417,16 +85473,6 @@ var PushFormComponent = _PushFormComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PushFormComponent, { className: "PushFormComponent", filePath: "src/app/components/settings/push-form/push-form.component.ts", lineNumber: 18 });
 })();
 
-// src/models/reminder.ts
-var REMINDER_INTERVAL;
-(function(REMINDER_INTERVAL2) {
-  REMINDER_INTERVAL2["DUE"] = "0 min";
-  REMINDER_INTERVAL2["MIN_10"] = "10 min";
-  REMINDER_INTERVAL2["MIN_30"] = "30 min";
-  REMINDER_INTERVAL2["H_1"] = "1 h";
-  REMINDER_INTERVAL2["D_1"] = "1 d";
-})(REMINDER_INTERVAL || (REMINDER_INTERVAL = {}));
-
 // src/app/components/selects/due-select/due-select.component.ts
 var _DueSelectComponent = class _DueSelectComponent {
   constructor() {
@@ -87631,49 +87677,48 @@ var timePickerConfig = {
   time_24hr: true
 };
 
-// src/app/components/selects/reminder-select/reminder-select.component.ts
+// src/app/components/selects/date-chip-select/date-chip-select.component.ts
 var _c014 = ["pickr"];
-function ReminderSelectComponent_mat_chip_option_3_Template(rf, ctx) {
+function DateChipSelectComponent_mat_chip_option_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-chip-option", 5);
-    \u0275\u0275listener("click", function ReminderSelectComponent_mat_chip_option_3_Template_mat_chip_option_click_0_listener() {
-      \u0275\u0275restoreView(_r2);
-      const ctx_r2 = \u0275\u0275nextContext();
-      ctx_r2.onChange(ctx_r2.value);
-      return \u0275\u0275resetView(ctx_r2.onTouched());
+    \u0275\u0275listener("click", function DateChipSelectComponent_mat_chip_option_1_Template_mat_chip_option_click_0_listener() {
+      const item_r3 = \u0275\u0275restoreView(_r2).$implicit;
+      const ctx_r3 = \u0275\u0275nextContext();
+      ctx_r3.onChange(item_r3[0]);
+      return \u0275\u0275resetView(ctx_r3.onTouched());
     });
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const val_r4 = ctx.$implicit;
-    const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275property("value", val_r4);
+    const item_r3 = ctx.$implicit;
+    \u0275\u0275property("value", item_r3[0]);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r2.getLabel(val_r4));
+    \u0275\u0275textInterpolate(item_r3[1]);
   }
 }
-function ReminderSelectComponent_mat_chip_option_4_Template(rf, ctx) {
+function DateChipSelectComponent_mat_chip_option_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-chip-option", 6);
-    \u0275\u0275listener("click", function ReminderSelectComponent_mat_chip_option_4_Template_mat_chip_option_click_0_listener() {
+    \u0275\u0275listener("click", function DateChipSelectComponent_mat_chip_option_2_Template_mat_chip_option_click_0_listener() {
       \u0275\u0275restoreView(_r5);
-      const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.openFlatpickr());
+      const ctx_r3 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r3.openFlatpickr());
     });
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "date");
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext();
+    const ctx_r3 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(2, 1, ctx_r2.reminderDate, "short") || "Andere");
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(2, 1, ctx_r3.date, "short") || "Andere");
   }
 }
-var _ReminderSelectComponent = class _ReminderSelectComponent {
+var _DateChipSelectComponent = class _DateChipSelectComponent {
   set showOthers(showOthers) {
     this._showOthers = showOthers;
   }
@@ -87683,6 +87728,7 @@ var _ReminderSelectComponent = class _ReminderSelectComponent {
   constructor(datePipe) {
     this.datePipe = datePipe;
     this._showOthers = true;
+    this.options = [];
     this.pickrOpened = new EventEmitter();
     this.pickrClosed = new EventEmitter();
     this.onChange = () => {
@@ -87690,9 +87736,8 @@ var _ReminderSelectComponent = class _ReminderSelectComponent {
     this.onTouched = () => {
     };
     this.disabled = false;
-    this.options = Object.values(ReminderOptions);
-    this.reminder = "";
-    this.reminderDate = "";
+    this.chipOption = "";
+    this.date = "";
     this.pickrIsOpen = false;
     this.timezone = (/* @__PURE__ */ new Date()).toISOString().slice(16);
   }
@@ -87700,32 +87745,33 @@ var _ReminderSelectComponent = class _ReminderSelectComponent {
     this.initFlatpickr();
   }
   get value() {
-    switch (this.reminder) {
+    switch (this.chipOption) {
       case "different":
-        if (typeof this.reminderDate === "string") {
-          this.reminderDate = new Date(this.reminderDate);
+        if (typeof this.date === "string") {
+          this.date = new Date(this.date);
         }
-        return this.reminderDate.toISOString().slice(0, 16) + this.timezone;
+        return this.date.toISOString().slice(0, 16) + this.timezone;
       default:
-        return this.reminder;
+        return this.chipOption;
     }
   }
-  writeValue(reminder) {
+  writeValue(chipOption) {
     if (this.showOthers) {
       let date = "";
       try {
-        date = new Date(reminder) || "";
-        if (isNaN(date.getTime())) {
+        date = new Date(chipOption) || "";
+        if (isNaN(date.valueOf())) {
           date = "";
         }
       } catch {
       }
-      this.reminderDate = date;
-      if (!!this.reminderDate) {
-        this.flatpickr?.setDate(this.reminderDate);
+      this.date = date;
+      if (!!this.date) {
+        this.flatpickr?.setDate(this.date);
+        chipOption = "different";
       }
     }
-    this.reminder = reminder || "0 min";
+    this.chipOption = chipOption || "0 min";
   }
   registerOnChange(fn) {
     this.onChange = fn;
@@ -87735,9 +87781,6 @@ var _ReminderSelectComponent = class _ReminderSelectComponent {
   }
   setDisabledState(isDisabled) {
     this.disabled = isDisabled;
-  }
-  getLabel(option) {
-    return getReminderLabel(option);
   }
   initFlatpickr() {
     this.flatpickr = esm_default(this.picker.nativeElement, timePickerConfig);
@@ -87754,7 +87797,6 @@ var _ReminderSelectComponent = class _ReminderSelectComponent {
   }
   closePickr() {
     if (this.pickrIsOpen) {
-      console.log(this.value);
       this.pickrIsOpen = false;
       this.pickrClosed.emit();
       this.onChange(this.value);
@@ -87768,10 +87810,10 @@ var _ReminderSelectComponent = class _ReminderSelectComponent {
     return "";
   }
 };
-_ReminderSelectComponent.\u0275fac = function ReminderSelectComponent_Factory(\u0275t) {
-  return new (\u0275t || _ReminderSelectComponent)(\u0275\u0275directiveInject(DatePipe));
+_DateChipSelectComponent.\u0275fac = function DateChipSelectComponent_Factory(\u0275t) {
+  return new (\u0275t || _DateChipSelectComponent)(\u0275\u0275directiveInject(DatePipe));
 };
-_ReminderSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ReminderSelectComponent, selectors: [["app-reminder-select"]], viewQuery: function ReminderSelectComponent_Query(rf, ctx) {
+_DateChipSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DateChipSelectComponent, selectors: [["app-date-chip-select"]], viewQuery: function DateChipSelectComponent_Query(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275viewQuery(_c014, 5);
   }
@@ -87779,45 +87821,41 @@ _ReminderSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
     let _t;
     \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.picker = _t.first);
   }
-}, inputs: { showOthers: "showOthers" }, outputs: { pickrOpened: "pickrOpened", pickrClosed: "pickrClosed" }, standalone: true, features: [\u0275\u0275ProvidersFeature([
+}, inputs: { showOthers: "showOthers", options: "options" }, outputs: { pickrOpened: "pickrOpened", pickrClosed: "pickrClosed" }, standalone: true, features: [\u0275\u0275ProvidersFeature([
   {
     provide: NG_VALUE_ACCESSOR,
-    useExisting: forwardRef(() => _ReminderSelectComponent),
+    useExisting: forwardRef(() => _DateChipSelectComponent),
     multi: true
   },
   DatePipe
-]), \u0275\u0275StandaloneFeature], decls: 7, vars: 5, consts: [["pickr", ""], [3, "ngModelChange", "ngModel", "disabled"], [3, "value", "click", 4, "ngFor", "ngForOf"], ["value", "different", 3, "click", 4, "ngIf"], ["type", "datetime-local", 3, "ngModelChange", "ngModel"], [3, "click", "value"], ["value", "different", 3, "click"]], template: function ReminderSelectComponent_Template(rf, ctx) {
+]), \u0275\u0275StandaloneFeature], decls: 5, vars: 5, consts: [["pickr", ""], [3, "ngModelChange", "ngModel", "disabled"], [3, "value", "click", 4, "ngFor", "ngForOf"], ["value", "different", 3, "click", 4, "ngIf"], ["type", "datetime-local", 3, "ngModelChange", "ngModel"], [3, "click", "value"], ["value", "different", 3, "click"]], template: function DateChipSelectComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-label");
-    \u0275\u0275text(1, "Erinnerungen");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(2, "mat-chip-listbox", 1);
-    \u0275\u0275twoWayListener("ngModelChange", function ReminderSelectComponent_Template_mat_chip_listbox_ngModelChange_2_listener($event) {
+    \u0275\u0275elementStart(0, "mat-chip-listbox", 1);
+    \u0275\u0275twoWayListener("ngModelChange", function DateChipSelectComponent_Template_mat_chip_listbox_ngModelChange_0_listener($event) {
       \u0275\u0275restoreView(_r1);
-      \u0275\u0275twoWayBindingSet(ctx.reminder, $event) || (ctx.reminder = $event);
+      \u0275\u0275twoWayBindingSet(ctx.chipOption, $event) || (ctx.chipOption = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275template(3, ReminderSelectComponent_mat_chip_option_3_Template, 2, 2, "mat-chip-option", 2)(4, ReminderSelectComponent_mat_chip_option_4_Template, 3, 4, "mat-chip-option", 3);
+    \u0275\u0275template(1, DateChipSelectComponent_mat_chip_option_1_Template, 2, 2, "mat-chip-option", 2)(2, DateChipSelectComponent_mat_chip_option_2_Template, 3, 4, "mat-chip-option", 3);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "input", 4, 0);
-    \u0275\u0275twoWayListener("ngModelChange", function ReminderSelectComponent_Template_input_ngModelChange_5_listener($event) {
+    \u0275\u0275elementStart(3, "input", 4, 0);
+    \u0275\u0275twoWayListener("ngModelChange", function DateChipSelectComponent_Template_input_ngModelChange_3_listener($event) {
       \u0275\u0275restoreView(_r1);
-      \u0275\u0275twoWayBindingSet(ctx.reminderDate, $event) || (ctx.reminderDate = $event);
+      \u0275\u0275twoWayBindingSet(ctx.date, $event) || (ctx.date = $event);
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    \u0275\u0275advance(2);
-    \u0275\u0275twoWayProperty("ngModel", ctx.reminder);
+    \u0275\u0275twoWayProperty("ngModel", ctx.chipOption);
     \u0275\u0275property("disabled", ctx.disabled);
     \u0275\u0275advance();
     \u0275\u0275property("ngForOf", ctx.options);
     \u0275\u0275advance();
     \u0275\u0275property("ngIf", ctx.showOthers);
     \u0275\u0275advance();
-    \u0275\u0275twoWayProperty("ngModel", ctx.reminderDate);
+    \u0275\u0275twoWayProperty("ngModel", ctx.date);
   }
 }, dependencies: [
   FormsModule,
@@ -87828,15 +87866,14 @@ _ReminderSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
   MaterialModule,
   MatChipListbox,
   MatChipOption,
-  MatLabel,
   CommonModule,
   NgForOf,
   NgIf,
   DatePipe
-], styles: ["\n\ninput[_ngcontent-%COMP%] {\n  display: none;\n}\n/*# sourceMappingURL=reminder-select.component.css.map */"] });
-var ReminderSelectComponent = _ReminderSelectComponent;
+], styles: ["\n\ninput[_ngcontent-%COMP%] {\n  display: none;\n}\n/*# sourceMappingURL=date-chip-select.component.css.map */"] });
+var DateChipSelectComponent = _DateChipSelectComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ReminderSelectComponent, { className: "ReminderSelectComponent", filePath: "src/app/components/selects/reminder-select/reminder-select.component.ts", lineNumber: 30 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DateChipSelectComponent, { className: "DateChipSelectComponent", filePath: "src/app/components/selects/date-chip-select/date-chip-select.component.ts", lineNumber: 29 });
 })();
 
 // src/app/components/settings/others-form/others-form.component.ts
@@ -87844,8 +87881,9 @@ var _OthersFormComponent = class _OthersFormComponent {
   constructor(authService, fb) {
     this.authService = authService;
     this.fb = fb;
+    this.reminderOptions = ReminderOptionLabels;
     this.user = this.authService.me;
-    const reminder = this.authService.me().defaultReminder || REMINDER_INTERVAL.DUE;
+    const reminder = this.authService.me().defaultReminder || ReminderOption.MIN_0;
     this.form = fb.group({
       "reminder": [reminder]
     });
@@ -87864,28 +87902,21 @@ var _OthersFormComponent = class _OthersFormComponent {
 _OthersFormComponent.\u0275fac = function OthersFormComponent_Factory(\u0275t) {
   return new (\u0275t || _OthersFormComponent)(\u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(FormBuilder));
 };
-_OthersFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _OthersFormComponent, selectors: [["app-settings-others-form"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 3, vars: 2, consts: [[3, "formGroup"], ["formControlName", "reminder", 3, "showOthers"]], template: function OthersFormComponent_Template(rf, ctx) {
+_OthersFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _OthersFormComponent, selectors: [["app-settings-others-form"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 5, vars: 3, consts: [[3, "formGroup"], ["formControlName", "reminder", 3, "showOthers", "options"]], template: function OthersFormComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div")(1, "form", 0);
-    \u0275\u0275element(2, "app-reminder-select", 1);
+    \u0275\u0275elementStart(0, "div")(1, "form", 0)(2, "mat-label");
+    \u0275\u0275text(3, "Erinnerungen");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(4, "app-date-chip-select", 1);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     \u0275\u0275advance();
     \u0275\u0275property("formGroup", ctx.form);
-    \u0275\u0275advance();
-    \u0275\u0275property("showOthers", false);
+    \u0275\u0275advance(3);
+    \u0275\u0275property("showOthers", false)("options", ctx.reminderOptions);
   }
-}, dependencies: [
-  ReactiveFormsModule,
-  \u0275NgNoValidate,
-  NgControlStatus,
-  NgControlStatusGroup,
-  FormGroupDirective,
-  FormControlName,
-  MaterialModule,
-  ReminderSelectComponent
-], styles: ["\n\ndiv[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-form-field[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  width: 100%;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\ndiv[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n/*# sourceMappingURL=form.css.map */"] });
+}, dependencies: [ReactiveFormsModule, \u0275NgNoValidate, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, MaterialModule, MatLabel, DateChipSelectComponent], styles: ["\n\ndiv[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-form-field[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  width: 100%;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\ndiv[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n/*# sourceMappingURL=form.css.map */"] });
 var OthersFormComponent = _OthersFormComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(OthersFormComponent, { className: "OthersFormComponent", filePath: "src/app/components/settings/others-form/others-form.component.ts", lineNumber: 23 });
@@ -88270,8 +88301,733 @@ var ResetPasswordComponent = _ResetPasswordComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ResetPasswordComponent, { className: "ResetPasswordComponent", filePath: "src/app/components/reset-password/reset-password.component.ts", lineNumber: 23 });
 })();
 
+// src/models/categories_groceries.ts
+var GROCERY_OTHERS = "Sonstige";
+
+// src/models/categories_timeslots.ts
+var TIMESLOTS;
+(function(TIMESLOTS2) {
+  TIMESLOTS2["TODAY"] = "Heute";
+  TIMESLOTS2["TOMORROW"] = "Morgen";
+  TIMESLOTS2["SOON"] = "In K\xFCrze";
+  TIMESLOTS2["SOMETIME"] = "Irgendwann";
+  TIMESLOTS2["NONE"] = "";
+})(TIMESLOTS || (TIMESLOTS = {}));
+var TIMESLOT_KEYS;
+(function(TIMESLOT_KEYS2) {
+  TIMESLOT_KEYS2["TODAY"] = "TODAY";
+  TIMESLOT_KEYS2["TOMORROW"] = "TOMORROW";
+  TIMESLOT_KEYS2["SOON"] = "SOON";
+  TIMESLOT_KEYS2["SOMETIME"] = "SOMETIME";
+})(TIMESLOT_KEYS || (TIMESLOT_KEYS = {}));
+function is_past(item, _due = void 0) {
+  if (!!item.due) {
+    const now = /* @__PURE__ */ new Date();
+    const due = !_due ? new Date(item.due) : _due;
+    return due.getTime() - now.getTime() < 0 ? 1 : 0;
+  }
+  return 0;
+}
+function is_today(item, _due = void 0) {
+  if (!!item.due) {
+    const now = /* @__PURE__ */ new Date();
+    const due = !_due ? new Date(item.due) : _due;
+    return due.getDate() === now.getDate() && due.getFullYear() === now.getFullYear() && due.getMonth() === now.getMonth() ? 1 : 0;
+  }
+  return 0;
+}
+function is_tomorrow(item, _due = void 0) {
+  if (!!item.due) {
+    const now = /* @__PURE__ */ new Date();
+    const due = !_due ? new Date(item.due) : _due;
+    return due.getDate() === now.getDate() + 1 && due.getFullYear() === now.getFullYear() && due.getMonth() === now.getMonth() ? 1 : 0;
+  }
+  return 0;
+}
+function is_soon(item, _due = void 0) {
+  if (!!item.due) {
+    const now = /* @__PURE__ */ new Date();
+    const due = !_due ? new Date(item.due) : _due;
+    return !is_past(item) && !is_today(item) && !is_tomorrow(item) ? 1 : 0;
+  }
+  return 0;
+}
+function is_sometime(item) {
+  return !item.due ? 1 : 0;
+}
+
+// src/models/categories.ts
+function sortItems(items) {
+  items.sort((a, b) => {
+    const c = a.done ? 1 : 0;
+    const d = b.done ? 1 : 0;
+    if (c === 1 && d !== 1 || d === 1 && c !== 1) {
+      return c - d;
+    }
+    if (a.due && b.due) {
+      return new Date(a.due).valueOf() - new Date(b.due).valueOf();
+    }
+    if (c - d == 0) {
+      return a.name.localeCompare(b.name);
+    }
+    return c - d;
+  });
+}
+function voteForGroceryCategory(categoryItems) {
+  return (item) => {
+    let votes = 0;
+    categoryItems.forEach((catItem) => {
+      item.name.split(" ").forEach((itemWord) => {
+        itemWord = itemWord.toLowerCase();
+        itemWord = itemWord.normalize("NFD").replace(new RegExp("\\p{Diacritic}", "gu"), "");
+        itemWord = itemWord.replace(/\(.*\)/, "");
+        const offset = itemWord.indexOf(catItem) + 1;
+        const weight = offset > 0 ? catItem.length : 0;
+        votes += weight + offset;
+      });
+    });
+    return votes;
+  };
+}
+function compareSlots(categoryNames) {
+  return (a, b) => {
+    let id_a = categoryNames.findIndex((c) => c === a.name);
+    let id_b = categoryNames.findIndex((c) => c === b.name);
+    if (id_a < 0) {
+      id_a = 999999999;
+    }
+    if (id_b < 0) {
+      id_b = 999999999;
+    }
+    return id_a - id_b;
+  };
+}
+function groupItems(items, isGroceries, groceryCategories = void 0) {
+  const slots = [];
+  let categories = [];
+  if (isGroceries && groceryCategories) {
+    categories = Object.entries(groceryCategories).map((entry) => {
+      return {
+        calcVotes: voteForGroceryCategory(entry[1]),
+        name: entry[0]
+      };
+    });
+  } else {
+    categories = [
+      { calcVotes: [is_today, is_past], name: TIMESLOTS.TODAY },
+      { calcVotes: is_tomorrow, name: TIMESLOTS.TOMORROW },
+      { calcVotes: is_soon, name: TIMESLOTS.SOON },
+      { calcVotes: is_sometime, name: TIMESLOTS.SOMETIME }
+    ];
+  }
+  const catItemAssignment = items.map((i) => {
+    const votes = categories.map((cat) => {
+      if (Array.isArray(cat.calcVotes)) {
+        return {
+          votes: cat.calcVotes.reduce((votes2, fn) => fn(i) + votes2, 0),
+          name: cat.name,
+          item: i
+        };
+      } else {
+        return {
+          votes: cat.calcVotes(i),
+          name: cat.name,
+          item: i
+        };
+      }
+    });
+    return votes.reduce((vote, cat) => {
+      if (cat.votes > vote.votes) {
+        return cat;
+      } else {
+        return vote;
+      }
+    }, { votes: 0, name: GROCERY_OTHERS, item: i });
+  });
+  catItemAssignment.forEach((highestVotes) => {
+    let slot = slots.find((val) => highestVotes.name === val.name);
+    if (!slot) {
+      slot = { name: highestVotes.name, items: [], nDone: 0 };
+      slots.push(slot);
+    }
+    slot.items.push(highestVotes.item);
+    slot.nDone += highestVotes.item.done ? 1 : 0;
+  });
+  slots.forEach((cat) => sortItems(cat.items));
+  if (isGroceries && groceryCategories) {
+    slots.sort(compareSlots(Object.keys(groceryCategories)));
+  } else {
+    slots.sort(compareSlots(categories.map((c) => c.name)));
+  }
+  return slots;
+}
+
+// src/app/components/bottom-sheets/update-item-sheet/update-item-sheet.component.ts
+var _c015 = ["autosize"];
+function UpdateItemSheetComponent_mat_form_field_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-form-field", 2)(1, "mat-label");
+    \u0275\u0275text(2, "Beschreibung");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(3, "textarea", 10, 0);
+    \u0275\u0275elementEnd();
+  }
+}
+function UpdateItemSheetComponent_mat_slide_toggle_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-slide-toggle", 11);
+    \u0275\u0275text(1, "F\xE4llig am");
+    \u0275\u0275elementEnd();
+  }
+}
+function UpdateItemSheetComponent_mat_form_field_9_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "mat-form-field", 2)(1, "input", 12);
+    \u0275\u0275listener("focus", function UpdateItemSheetComponent_mat_form_field_9_Template_input_focus_1_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.openPicker());
+    });
+    \u0275\u0275elementEnd()();
+  }
+}
+function UpdateItemSheetComponent_div_11_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div")(1, "app-date-chip-select", 13);
+    \u0275\u0275listener("pickrOpened", function UpdateItemSheetComponent_div_11_Template_app_date_chip_select_pickrOpened_1_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.pickrOpened());
+    })("pickrClosed", function UpdateItemSheetComponent_div_11_Template_app_date_chip_select_pickrClosed_1_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.pickrClosed());
+    });
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275property("options", ctx_r1.reminderOptions);
+  }
+}
+var _UpdateItemSheetComponent = class _UpdateItemSheetComponent {
+  constructor(bottomSheetRef, data, fb, datePipe) {
+    this.bottomSheetRef = bottomSheetRef;
+    this.data = data;
+    this.fb = fb;
+    this.datePipe = datePipe;
+    this.duePickerOpen = false;
+    this.reminderOptions = ReminderOptionLabels;
+    this.subscriptions = [];
+    this.list = data.list;
+    const due = !!data.item.due ? new Date(data.item.due) : null;
+    const reminder = !!data.item.reminder ? new Date(data.item.reminder) : null;
+    this.form = fb.group({
+      "name": [data.item.name, Validators.required],
+      "description": [data.item.description],
+      "due-toggle": [!!data.item.due],
+      "due": [{ value: this.parseDateTime(due), disabled: !data.item.due }],
+      "reminder": [getReminderValue(due, reminder)]
+    });
+    const formSub = this.form.get("due-toggle")?.valueChanges.subscribe((dueEnabled) => {
+      if (dueEnabled) {
+        this.form.get("due")?.enable();
+      } else {
+        this.form.get("due")?.disable();
+      }
+    });
+    if (formSub) {
+      this.subscriptions.push(formSub);
+    }
+    this.timezone = (/* @__PURE__ */ new Date("2020-01-01T10:00")).toISOString().slice(16);
+  }
+  ngAfterViewInit() {
+    this.dueFlatpickr = esm_default("#due-picker", timePickerConfig);
+    this.dueFlatpickr.config.onChange.push((val) => {
+      if (val.length > 0 && !!this.form.get("due")) {
+        this.form.get("due")?.setValue(this.parseDateTime(val[0]));
+      } else {
+        this.form.get("due")?.reset();
+      }
+    });
+    this.dueFlatpickr.config.onClose.push(() => {
+      this.closePicker();
+    });
+    if (this.form.get("due")?.value && this.data.item.due) {
+      this.dueFlatpickr.setDate(new Date(this.data.item.due));
+    }
+  }
+  ngOnDestroy() {
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
+  }
+  openPicker() {
+    if (!this.duePickerOpen) {
+      this.dueFlatpickr.open();
+      this.bottomSheetRef.disableClose = true;
+      this.duePickerOpen = true;
+    }
+  }
+  closePicker() {
+    if (this.enableBottomSheetClose) {
+      clearTimeout(this.enableBottomSheetClose);
+      this.enableBottomSheetClose = void 0;
+    }
+    if (this.duePickerOpen) {
+      this.duePickerOpen = false;
+      this.enableBottomSheetClose = setTimeout(() => {
+        this.bottomSheetRef.disableClose = false;
+        this.enableBottomSheetClose = void 0;
+      }, 1e3);
+    }
+  }
+  pickrOpened() {
+    this.bottomSheetRef.disableClose = true;
+  }
+  pickrClosed() {
+    if (this.enableBottomSheetClose) {
+      clearTimeout(this.enableBottomSheetClose);
+      this.enableBottomSheetClose = void 0;
+    }
+    if (this.bottomSheetRef.disableClose) {
+      this.enableBottomSheetClose = setTimeout(() => {
+        this.bottomSheetRef.disableClose = false;
+        this.enableBottomSheetClose = void 0;
+      }, 1e3);
+    }
+  }
+  parseDateTime(date) {
+    if (date) {
+      return this.datePipe.transform(date.toISOString().slice(0, 16), "short");
+    }
+    return "";
+  }
+  parseFormDateTime(_date) {
+    const date = new Date(_date + this.timezone);
+    return date.toISOString();
+  }
+  returnFormContent() {
+    const patch = {};
+    const dueToggle = !!this.form.get("due-toggle")?.value;
+    const due = this.form.get("due")?.value + this.timezone;
+    if (this.form.get("name")?.value != this.data.item.name) {
+      Object.assign(patch, {
+        name: this.form.get("name")?.value.trim()
+      });
+    }
+    if (this.form.get("description")?.value != this.data.item.description && !this.list.isShoppingList) {
+      Object.assign(patch, {
+        description: this.form.get("description")?.value.trim()
+      });
+    }
+    if (dueToggle && due && due != this.data.item.due && !this.list.isShoppingList) {
+      Object.assign(patch, {
+        due
+      });
+    } else if (this.data.item.due != null && !dueToggle) {
+      Object.assign(patch, { due: null });
+    }
+    if (dueToggle && due && this.form.get("reminder")?.value && !this.list.isShoppingList) {
+      const reminder = getReminderDate(new Date(due), this.form.get("reminder")?.value);
+      if (reminder != this.data.item.reminder) {
+        console.log(reminder);
+        Object.assign(patch, {
+          reminder
+        });
+      }
+    } else if (this.data.item.reminder != null) {
+      Object.assign(patch, { reminder: null });
+    }
+    this.bottomSheetRef.dismiss(patch);
+  }
+};
+_UpdateItemSheetComponent.\u0275fac = function UpdateItemSheetComponent_Factory(\u0275t) {
+  return new (\u0275t || _UpdateItemSheetComponent)(\u0275\u0275directiveInject(MatBottomSheetRef), \u0275\u0275directiveInject(MAT_BOTTOM_SHEET_DATA), \u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(DatePipe));
+};
+_UpdateItemSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UpdateItemSheetComponent, selectors: [["app-update-item-sheet"]], viewQuery: function UpdateItemSheetComponent_Query(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275viewQuery(_c015, 5);
+  }
+  if (rf & 2) {
+    let _t;
+    \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.autosize = _t.first);
+  }
+}, standalone: true, features: [\u0275\u0275ProvidersFeature([DatePipe]), \u0275\u0275StandaloneFeature], decls: 16, vars: 7, consts: [["autosize", "cdkTextareaAutosize"], ["autocomplete", "off", 3, "formGroup"], ["appearance", "outline"], ["matInput", "", "formControlName", "name", "placeholder", "Name"], ["appearance", "outline", 4, "ngIf"], ["color", "primary", "formControlName", "due-toggle", 4, "ngIf"], ["type", "datetime-local", "id", "due-picker"], [4, "ngIf"], ["mat-stroked-button", "", 3, "click", "disabled"], ["mat-flat-button", "", "color", "primary", 3, "click"], ["matInput", "", "formControlName", "description", "placeholder", "Beschreibung", "cdkTextareaAutosize", "", "cdkAutosizeMinRows", "5"], ["color", "primary", "formControlName", "due-toggle"], ["matInput", "", "type", "text", "formControlName", "due", "placeholder", "F\xE4llig am", 3, "focus"], ["formControlName", "reminder", 3, "pickrOpened", "pickrClosed", "options"]], template: function UpdateItemSheetComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "h2");
+    \u0275\u0275text(1, "Element Bearbeiten");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(2, "form", 1)(3, "mat-form-field", 2)(4, "mat-label");
+    \u0275\u0275text(5, "Name");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(6, "input", 3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(7, UpdateItemSheetComponent_mat_form_field_7_Template, 5, 0, "mat-form-field", 4)(8, UpdateItemSheetComponent_mat_slide_toggle_8_Template, 2, 0, "mat-slide-toggle", 5)(9, UpdateItemSheetComponent_mat_form_field_9_Template, 2, 0, "mat-form-field", 4);
+    \u0275\u0275element(10, "input", 6);
+    \u0275\u0275template(11, UpdateItemSheetComponent_div_11_Template, 2, 1, "div", 7);
+    \u0275\u0275elementStart(12, "button", 8);
+    \u0275\u0275listener("click", function UpdateItemSheetComponent_Template_button_click_12_listener() {
+      return ctx.returnFormContent();
+    });
+    \u0275\u0275text(13);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(14, "button", 9);
+    \u0275\u0275listener("click", function UpdateItemSheetComponent_Template_button_click_14_listener() {
+      return ctx.bottomSheetRef.dismiss();
+    });
+    \u0275\u0275text(15, "Abbrechen");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    let tmp_4_0;
+    \u0275\u0275advance(2);
+    \u0275\u0275property("formGroup", ctx.form);
+    \u0275\u0275advance(5);
+    \u0275\u0275property("ngIf", !ctx.list.isShoppingList);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", !ctx.list.isShoppingList);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", !ctx.list.isShoppingList);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngIf", (tmp_4_0 = ctx.form.get("due-toggle")) == null ? null : tmp_4_0.value);
+    \u0275\u0275advance();
+    \u0275\u0275property("disabled", !ctx.form.valid);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate("Speichern");
+  }
+}, dependencies: [FormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, ReactiveFormsModule, FormGroupDirective, FormControlName, CommonModule, NgIf, MaterialModule, MatButton, MatFormField, MatLabel, MatInput, CdkTextareaAutosize, MatSlideToggle, DateChipSelectComponent], styles: ["\n\n#reminder-picker[_ngcontent-%COMP%], \n#due-picker[_ngcontent-%COMP%] {\n  opacity: 0;\n  height: 0;\n  width: 0;\n  z-index: -100;\n}\n/*# sourceMappingURL=update-item-sheet.component.css.map */", "\n\nbutton[_ngcontent-%COMP%] {\n  width: 100%;\n  margin: 6px 0;\n}\nbutton[_ngcontent-%COMP%]:last-child {\n  margin-bottom: 38pt;\n}\nform[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  margin: 24px 0;\n}\nform[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  margin: 24px 0;\n}\n/*# sourceMappingURL=styles.css.map */"] });
+var UpdateItemSheetComponent = _UpdateItemSheetComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UpdateItemSheetComponent, { className: "UpdateItemSheetComponent", filePath: "src/app/components/bottom-sheets/update-item-sheet/update-item-sheet.component.ts", lineNumber: 29 });
+})();
+
+// src/app/components/bottom-sheets/confirm-sheet/confirm-sheet.component.ts
+var _ConfirmSheetComponent = class _ConfirmSheetComponent {
+  constructor(bottomSheetRef, data) {
+    this.bottomSheetRef = bottomSheetRef;
+    this.data = data;
+  }
+};
+_ConfirmSheetComponent.\u0275fac = function ConfirmSheetComponent_Factory(\u0275t) {
+  return new (\u0275t || _ConfirmSheetComponent)(\u0275\u0275directiveInject(MatBottomSheetRef), \u0275\u0275directiveInject(MAT_BOTTOM_SHEET_DATA));
+};
+_ConfirmSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ConfirmSheetComponent, selectors: [["app-confirm-sheet"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 6, vars: 1, consts: [["mat-stroked-button", "", 3, "click"], ["mat-flat-button", "", "color", "primary", 3, "click"]], template: function ConfirmSheetComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "h4");
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(2, "button", 0);
+    \u0275\u0275listener("click", function ConfirmSheetComponent_Template_button_click_2_listener() {
+      return ctx.bottomSheetRef.dismiss(true);
+    });
+    \u0275\u0275text(3, "Best\xE4tigen");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "button", 1);
+    \u0275\u0275listener("click", function ConfirmSheetComponent_Template_button_click_4_listener() {
+      return ctx.bottomSheetRef.dismiss(false);
+    });
+    \u0275\u0275text(5, "Abbrechen");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx.data);
+  }
+}, dependencies: [
+  CommonModule,
+  MaterialModule,
+  MatButton
+], styles: ["\n\nbutton[_ngcontent-%COMP%] {\n  width: 100%;\n  margin: 6px 0;\n}\nbutton[_ngcontent-%COMP%]:last-child {\n  margin-bottom: 38pt;\n}\nform[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  margin: 24px 0;\n}\nform[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  margin: 24px 0;\n}\n/*# sourceMappingURL=styles.css.map */"] });
+var ConfirmSheetComponent = _ConfirmSheetComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ConfirmSheetComponent, { className: "ConfirmSheetComponent", filePath: "src/app/components/bottom-sheets/confirm-sheet/confirm-sheet.component.ts", lineNumber: 16 });
+})();
+
+// src/app/services/users/users.service.ts
+var _UsersService = class _UsersService {
+  constructor(data) {
+    this.data = data;
+  }
+  get(id) {
+    const query2 = this.data.db.users.find().$;
+    const meQuery = this.data.db.me.findOne().$;
+    const users = combineLatest([query2, meQuery]);
+    return users.pipe(map(([q, me]) => {
+      if (me && me.id === id) {
+        return me;
+      } else if (!!q) {
+        return q.find((doc) => id === doc.id);
+      }
+      return void 0;
+    }), filter((doc) => !!doc));
+  }
+  getMany(ids) {
+    const query2 = this.data.db.users.find().$;
+    const meQuery = this.data.db.me.findOne().$;
+    const users = combineLatest([query2, meQuery]);
+    return users.pipe(map(([q, me]) => {
+      if (!!q && !!me) {
+        return [...q, me].filter((doc) => !!doc && !!ids.find((i) => i === doc.id)).sort(byIds(ids));
+      } else if (!!q) {
+        return q.filter((doc) => !!ids.find((i) => i === doc.id)).sort(byIds(ids));
+      } else if (!!me) {
+        return [me].filter((doc) => !!ids.find((i) => i === doc.id)).sort(byIds(ids));
+      } else {
+        return [];
+      }
+    }), filter((doc) => doc.length > 0));
+  }
+};
+_UsersService.\u0275fac = function UsersService_Factory(\u0275t) {
+  return new (\u0275t || _UsersService)(\u0275\u0275inject(DataService));
+};
+_UsersService.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _UsersService, factory: _UsersService.\u0275fac, providedIn: "root" });
+var UsersService = _UsersService;
+function byIds(ids) {
+  return (a, b) => {
+    return ids.findIndex((i) => a.id === i) - ids.findIndex((i) => b.id === i);
+  };
+}
+
+// src/app/components/list/list-item/list-item.component.ts
+function ListItemComponent_div_0_mat_chip_set_6_mat_chip_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-chip", 9);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "date");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275property("highlighted", !!ctx_r1.item.reminder);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(2, 2, ctx_r1.item.due, "h:mm"));
+  }
+}
+function ListItemComponent_div_0_mat_chip_set_6_mat_chip_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-chip", 9);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "date");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275property("highlighted", !!ctx_r1.item.reminder);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(2, 2, ctx_r1.item.due, "short"));
+  }
+}
+function ListItemComponent_div_0_mat_chip_set_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-chip-set", 7);
+    \u0275\u0275template(1, ListItemComponent_div_0_mat_chip_set_6_mat_chip_1_Template, 3, 5, "mat-chip", 8)(2, ListItemComponent_div_0_mat_chip_set_6_mat_chip_2_Template, 3, 5, "mat-chip", 8);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r1.item && ctx_r1.item.due && ctx_r1.is_today(ctx_r1.item));
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r1.item && ctx_r1.item.due && !ctx_r1.is_today(ctx_r1.item));
+  }
+}
+function ListItemComponent_div_0_button_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "button", 10);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "nameBadge");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    let tmp_3_0;
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275classMap("mini-user-fab user-fab-" + ctx_r1.userFab(ctx_r1.item) % 12);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 3, (tmp_3_0 = ctx_r1.createdBy()) == null ? null : tmp_3_0.name));
+  }
+}
+function ListItemComponent_div_0_button_8_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 11);
+    \u0275\u0275listener("click", function ListItemComponent_div_0_button_8_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.deleteItem(ctx_r1.item));
+    });
+    \u0275\u0275elementStart(1, "mat-icon");
+    \u0275\u0275text(2, "close");
+    \u0275\u0275elementEnd()();
+  }
+}
+function ListItemComponent_div_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 1);
+    \u0275\u0275listener("pointerdown", function ListItemComponent_div_0_Template_div_pointerdown_0_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.openUpdateSheet($event, ctx_r1.item));
+    })("pointerup", function ListItemComponent_div_0_Template_div_pointerup_0_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.cancelUpdateSheet());
+    });
+    \u0275\u0275elementStart(1, "div")(2, "mat-checkbox", 2);
+    \u0275\u0275listener("change", function ListItemComponent_div_0_Template_mat_checkbox_change_2_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.toggleDone());
+    });
+    \u0275\u0275elementStart(3, "div", 3)(4, "span");
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(6, ListItemComponent_div_0_mat_chip_set_6_Template, 3, 2, "mat-chip-set", 4)(7, ListItemComponent_div_0_button_7_Template, 3, 5, "button", 5);
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(8, ListItemComponent_div_0_button_8_Template, 3, 0, "button", 6);
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    let tmp_6_0;
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275classProp("item-done", ctx_r1.item.done);
+    \u0275\u0275property("id", "id-" + ctx_r1.item.id);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("checked", ctx_r1.item.done);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(ctx_r1.item.name);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", !ctx_r1.list().isShoppingList);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r1.createdBy() && ctx_r1.item && ctx_r1.me().id !== ((tmp_6_0 = ctx_r1.createdBy()) == null ? null : tmp_6_0.id));
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r1.item && ctx_r1.item.done);
+  }
+}
+var _ListItemComponent = class _ListItemComponent {
+  onMousemove(event) {
+    this.pointerPosY = event.clientY;
+  }
+  onTouchMove(event) {
+    this.pointerPosY = event.changedTouches[0].clientY;
+  }
+  constructor(bottomSheet, users) {
+    this.bottomSheet = bottomSheet;
+    this.users = users;
+    this.createdBy = signal(void 0);
+    this.pointerDown = false;
+    effect(() => {
+      if (this.item && this.list()) {
+        this.createdBy$ = this.users.get(this.item.createdBy);
+        this.createdBySub?.unsubscribe();
+        this.createdBySub = this.createdBy$.subscribe((u3) => this.createdBy.set(u3));
+      }
+    });
+  }
+  ngOnDestroy() {
+    this.createdBySub?.unsubscribe();
+  }
+  toggleDone() {
+    if (this.item) {
+      this.item.patch({
+        done: !this.item.done
+      });
+    }
+  }
+  deleteItem(item) {
+    const confirm = this.bottomSheet.open(ConfirmSheetComponent, { data: "L\xF6sche " + item.name });
+    confirm.afterDismissed().subscribe((del) => {
+      if (this.item && del) {
+        this.item.remove();
+      }
+    });
+  }
+  userFab(item) {
+    if (this.list) {
+      const index = this.list().users().findIndex((i) => i === item.createdBy);
+      if (index) {
+        return index;
+      }
+    }
+    return 0;
+  }
+  is_today(item) {
+    return !!is_today(item);
+  }
+  openUpdateSheet(event, item) {
+    if (!this.pointerDown && item) {
+      this.pointerDown = true;
+      const currScrollPos = event.clientY;
+      this.pointerPosY = currScrollPos;
+      setTimeout(() => {
+        if (this.pointerPosY != void 0 && this.pointerDown && !this.updateSheetRef && Math.abs(currScrollPos - this.pointerPosY) < 50) {
+          this.updateSheetRef = this.bottomSheet.open(UpdateItemSheetComponent, {
+            data: {
+              list: this.list,
+              item
+            }
+          });
+          this.updateSheetRef.afterDismissed().subscribe((patch) => {
+            if (this.item && patch) {
+              this.item.patch(patch);
+            }
+            setTimeout(() => {
+              this.cancelUpdateSheet();
+            }, 500);
+          });
+        } else {
+          this.cancelUpdateSheet();
+        }
+      }, 500);
+    }
+  }
+  cancelUpdateSheet() {
+    this.pointerDown = false;
+    this.updateSheetRef = void 0;
+  }
+};
+_ListItemComponent.\u0275fac = function ListItemComponent_Factory(\u0275t) {
+  return new (\u0275t || _ListItemComponent)(\u0275\u0275directiveInject(MatBottomSheet), \u0275\u0275directiveInject(UsersService));
+};
+_ListItemComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ListItemComponent, selectors: [["app-list-item"]], hostBindings: function ListItemComponent_HostBindings(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275listener("mousemove", function ListItemComponent_mousemove_HostBindingHandler($event) {
+      return ctx.onMousemove($event);
+    })("touchmove", function ListItemComponent_touchmove_HostBindingHandler($event) {
+      return ctx.onTouchMove($event);
+    });
+  }
+}, inputs: { me: "me", list: "list", item: "item" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 1, vars: 1, consts: [["class", "item", 3, "item-done", "id", "pointerdown", "pointerup", 4, "ngIf"], [1, "item", 3, "pointerdown", "pointerup", "id"], ["color", "primary", 3, "change", "checked"], [1, "item-content"], ["disabled", "", 4, "ngIf"], ["mat-mini-fab", "", "disabled", "", 3, "class", 4, "ngIf"], ["mat-icon-button", "", 3, "click", 4, "ngIf"], ["disabled", ""], [3, "highlighted", 4, "ngIf"], [3, "highlighted"], ["mat-mini-fab", "", "disabled", ""], ["mat-icon-button", "", 3, "click"]], template: function ListItemComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, ListItemComponent_div_0_Template, 9, 8, "div", 0);
+  }
+  if (rf & 2) {
+    \u0275\u0275property("ngIf", ctx.item && ctx.list);
+  }
+}, dependencies: [
+  CommonModule,
+  NgIf,
+  DatePipe,
+  MaterialModule,
+  MatIconButton,
+  MatMiniFabButton,
+  MatCheckbox,
+  MatChip,
+  MatChipSet,
+  MatIcon,
+  NameBadgePipe,
+  FormsModule
+], styles: ["\n\n.item-done[_ngcontent-%COMP%]   .item-content[_ngcontent-%COMP%], \n.item-done[_ngcontent-%COMP%]   mat-chip[_ngcontent-%COMP%] {\n  color: grey;\n  text-decoration: line-through;\n  -webkit-user-select: none;\n  user-select: none;\n}\n.item[_ngcontent-%COMP%] {\n  background: #EEE;\n  border-radius: 8px;\n  margin: 6px 0;\n  width: 100%;\n}\n.item[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  color: grey;\n}\n.item[_ngcontent-%COMP%]   mat-checkbox[_ngcontent-%COMP%] {\n  margin: 8px;\n  position: relative;\n  width: calc(100% - 20px);\n}\n.item[_ngcontent-%COMP%]   mat-checkbox[_ngcontent-%COMP%]   .item-content[_ngcontent-%COMP%] {\n  white-space: pre-wrap;\n  margin-right: 36px;\n  margin-bottom: 0 !important;\n  -webkit-user-select: none;\n  user-select: none;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n.item[_ngcontent-%COMP%]   mat-checkbox[_ngcontent-%COMP%]   button.mini-user-fab[_ngcontent-%COMP%] {\n  margin-left: 6px !important;\n  float: none;\n  z-index: 0;\n}\n.item[_ngcontent-%COMP%]   mat-checkbox[_ngcontent-%COMP%]   button[_ngcontent-%COMP%]:not(.mini-user-fab) {\n  top: calc(50% - 24px);\n  position: absolute;\n  right: 0;\n}\n.item[_ngcontent-%COMP%]   mat-chip-listbox[_ngcontent-%COMP%], \n.item[_ngcontent-%COMP%]   mat-chip-option[_ngcontent-%COMP%] {\n  display: inline-block;\n  -webkit-user-select: none;\n  user-select: none;\n}\n/*# sourceMappingURL=list-item.component.css.map */"] });
+var ListItemComponent = _ListItemComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ListItemComponent, { className: "ListItemComponent", filePath: "src/app/components/list/list-item/list-item.component.ts", lineNumber: 29 });
+})();
+
 // node_modules/@angular/material/fesm2022/autocomplete.mjs
-var _c015 = ["panel"];
+var _c016 = ["panel"];
 var _c111 = ["*"];
 function MatAutocomplete_ng_template_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -88463,7 +89219,7 @@ _MatAutocomplete.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   viewQuery: function MatAutocomplete_Query(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275viewQuery(TemplateRef, 7);
-      \u0275\u0275viewQuery(_c015, 5);
+      \u0275\u0275viewQuery(_c016, 5);
     }
     if (rf & 2) {
       let _t;
@@ -89718,774 +90474,8 @@ var ShareListSheetComponent = _ShareListSheetComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ShareListSheetComponent, { className: "ShareListSheetComponent", filePath: "src/app/components/bottom-sheets/share-list-sheet/share-list-sheet.component.ts", lineNumber: 27 });
 })();
 
-// src/app/components/bottom-sheets/confirm-sheet/confirm-sheet.component.ts
-var _ConfirmSheetComponent = class _ConfirmSheetComponent {
-  constructor(bottomSheetRef, data) {
-    this.bottomSheetRef = bottomSheetRef;
-    this.data = data;
-  }
-};
-_ConfirmSheetComponent.\u0275fac = function ConfirmSheetComponent_Factory(\u0275t) {
-  return new (\u0275t || _ConfirmSheetComponent)(\u0275\u0275directiveInject(MatBottomSheetRef), \u0275\u0275directiveInject(MAT_BOTTOM_SHEET_DATA));
-};
-_ConfirmSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ConfirmSheetComponent, selectors: [["app-confirm-sheet"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 6, vars: 1, consts: [["mat-stroked-button", "", 3, "click"], ["mat-flat-button", "", "color", "primary", 3, "click"]], template: function ConfirmSheetComponent_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "h4");
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(2, "button", 0);
-    \u0275\u0275listener("click", function ConfirmSheetComponent_Template_button_click_2_listener() {
-      return ctx.bottomSheetRef.dismiss(true);
-    });
-    \u0275\u0275text(3, "Best\xE4tigen");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "button", 1);
-    \u0275\u0275listener("click", function ConfirmSheetComponent_Template_button_click_4_listener() {
-      return ctx.bottomSheetRef.dismiss(false);
-    });
-    \u0275\u0275text(5, "Abbrechen");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx.data);
-  }
-}, dependencies: [
-  CommonModule,
-  MaterialModule,
-  MatButton
-], styles: ["\n\nbutton[_ngcontent-%COMP%] {\n  width: 100%;\n  margin: 6px 0;\n}\nbutton[_ngcontent-%COMP%]:last-child {\n  margin-bottom: 38pt;\n}\nform[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  margin: 24px 0;\n}\nform[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  margin: 24px 0;\n}\n/*# sourceMappingURL=styles.css.map */"] });
-var ConfirmSheetComponent = _ConfirmSheetComponent;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ConfirmSheetComponent, { className: "ConfirmSheetComponent", filePath: "src/app/components/bottom-sheets/confirm-sheet/confirm-sheet.component.ts", lineNumber: 16 });
-})();
-
-// src/models/categories_groceries.ts
-var GROCERY_OTHERS = "Sonstige";
-
-// src/models/categories_timeslots.ts
-var TIMESLOTS;
-(function(TIMESLOTS2) {
-  TIMESLOTS2["TODAY"] = "Heute";
-  TIMESLOTS2["TOMORROW"] = "Morgen";
-  TIMESLOTS2["SOON"] = "In K\xFCrze";
-  TIMESLOTS2["SOMETIME"] = "Irgendwann";
-  TIMESLOTS2["NONE"] = "";
-})(TIMESLOTS || (TIMESLOTS = {}));
-var TIMESLOT_KEYS;
-(function(TIMESLOT_KEYS2) {
-  TIMESLOT_KEYS2["TODAY"] = "TODAY";
-  TIMESLOT_KEYS2["TOMORROW"] = "TOMORROW";
-  TIMESLOT_KEYS2["SOON"] = "SOON";
-  TIMESLOT_KEYS2["SOMETIME"] = "SOMETIME";
-})(TIMESLOT_KEYS || (TIMESLOT_KEYS = {}));
-function is_past(item, _due = void 0) {
-  if (!!item.due) {
-    const now = /* @__PURE__ */ new Date();
-    const due = !_due ? new Date(item.due) : _due;
-    return due.getTime() - now.getTime() < 0 ? 1 : 0;
-  }
-  return 0;
-}
-function is_today(item, _due = void 0) {
-  if (!!item.due) {
-    const now = /* @__PURE__ */ new Date();
-    const due = !_due ? new Date(item.due) : _due;
-    return due.getDate() === now.getDate() && due.getFullYear() === now.getFullYear() && due.getMonth() === now.getMonth() ? 1 : 0;
-  }
-  return 0;
-}
-function is_tomorrow(item, _due = void 0) {
-  if (!!item.due) {
-    const now = /* @__PURE__ */ new Date();
-    const due = !_due ? new Date(item.due) : _due;
-    return due.getDate() === now.getDate() + 1 && due.getFullYear() === now.getFullYear() && due.getMonth() === now.getMonth() ? 1 : 0;
-  }
-  return 0;
-}
-function is_soon(item, _due = void 0) {
-  if (!!item.due) {
-    const now = /* @__PURE__ */ new Date();
-    const due = !_due ? new Date(item.due) : _due;
-    return !is_past(item) && !is_today(item) && !is_tomorrow(item) ? 1 : 0;
-  }
-  return 0;
-}
-function is_sometime(item) {
-  return !item.due ? 1 : 0;
-}
-
-// src/models/categories.ts
-function sortItems(items) {
-  items.sort((a, b) => {
-    const c = a.done ? 1 : 0;
-    const d = b.done ? 1 : 0;
-    if (c === 1 && d !== 1 || d === 1 && c !== 1) {
-      return c - d;
-    }
-    if (a.due && b.due) {
-      return new Date(a.due).valueOf() - new Date(b.due).valueOf();
-    }
-    if (c - d == 0) {
-      return a.name.localeCompare(b.name);
-    }
-    return c - d;
-  });
-}
-function voteForGroceryCategory(categoryItems) {
-  return (item) => {
-    let votes = 0;
-    categoryItems.forEach((catItem) => {
-      item.name.split(" ").forEach((itemWord) => {
-        itemWord = itemWord.toLowerCase();
-        itemWord = itemWord.normalize("NFD").replace(new RegExp("\\p{Diacritic}", "gu"), "");
-        itemWord = itemWord.replace(/\(.*\)/, "");
-        const offset = itemWord.indexOf(catItem) + 1;
-        const weight = offset > 0 ? catItem.length : 0;
-        votes += weight + offset;
-      });
-    });
-    return votes;
-  };
-}
-function compareSlots(categoryNames) {
-  return (a, b) => {
-    let id_a = categoryNames.findIndex((c) => c === a.name);
-    let id_b = categoryNames.findIndex((c) => c === b.name);
-    if (id_a < 0) {
-      id_a = 999999999;
-    }
-    if (id_b < 0) {
-      id_b = 999999999;
-    }
-    return id_a - id_b;
-  };
-}
-function groupItems(items, isGroceries, groceryCategories = void 0) {
-  const slots = [];
-  let categories = [];
-  if (isGroceries && groceryCategories) {
-    categories = Object.entries(groceryCategories).map((entry) => {
-      return {
-        calcVotes: voteForGroceryCategory(entry[1]),
-        name: entry[0]
-      };
-    });
-  } else {
-    categories = [
-      { calcVotes: [is_today, is_past], name: TIMESLOTS.TODAY },
-      { calcVotes: is_tomorrow, name: TIMESLOTS.TOMORROW },
-      { calcVotes: is_soon, name: TIMESLOTS.SOON },
-      { calcVotes: is_sometime, name: TIMESLOTS.SOMETIME }
-    ];
-  }
-  const catItemAssignment = items.map((i) => {
-    const votes = categories.map((cat) => {
-      if (Array.isArray(cat.calcVotes)) {
-        return {
-          votes: cat.calcVotes.reduce((votes2, fn) => fn(i) + votes2, 0),
-          name: cat.name,
-          item: i
-        };
-      } else {
-        return {
-          votes: cat.calcVotes(i),
-          name: cat.name,
-          item: i
-        };
-      }
-    });
-    return votes.reduce((vote, cat) => {
-      if (cat.votes > vote.votes) {
-        return cat;
-      } else {
-        return vote;
-      }
-    }, { votes: 0, name: GROCERY_OTHERS, item: i });
-  });
-  catItemAssignment.forEach((highestVotes) => {
-    let slot = slots.find((val) => highestVotes.name === val.name);
-    if (!slot) {
-      slot = { name: highestVotes.name, items: [], nDone: 0 };
-      slots.push(slot);
-    }
-    slot.items.push(highestVotes.item);
-    slot.nDone += highestVotes.item.done ? 1 : 0;
-  });
-  slots.forEach((cat) => sortItems(cat.items));
-  if (isGroceries && groceryCategories) {
-    slots.sort(compareSlots(Object.keys(groceryCategories)));
-  } else {
-    slots.sort(compareSlots(categories.map((c) => c.name)));
-  }
-  return slots;
-}
-
-// src/app/components/bottom-sheets/update-item-sheet/update-item-sheet.component.ts
-var _c016 = ["autosize"];
-function UpdateItemSheetComponent_mat_form_field_7_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-form-field", 2)(1, "mat-label");
-    \u0275\u0275text(2, "Beschreibung");
-    \u0275\u0275elementEnd();
-    \u0275\u0275element(3, "textarea", 10, 0);
-    \u0275\u0275elementEnd();
-  }
-}
-function UpdateItemSheetComponent_mat_slide_toggle_8_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-slide-toggle", 11);
-    \u0275\u0275text(1, "F\xE4llig am");
-    \u0275\u0275elementEnd();
-  }
-}
-function UpdateItemSheetComponent_mat_form_field_9_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 2)(1, "input", 12);
-    \u0275\u0275listener("focus", function UpdateItemSheetComponent_mat_form_field_9_Template_input_focus_1_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.openPicker());
-    });
-    \u0275\u0275elementEnd()();
-  }
-}
-function UpdateItemSheetComponent_div_11_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div")(1, "app-reminder-select", 13);
-    \u0275\u0275listener("pickrOpened", function UpdateItemSheetComponent_div_11_Template_app_reminder_select_pickrOpened_1_listener() {
-      \u0275\u0275restoreView(_r3);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.pickrOpened());
-    })("pickrClosed", function UpdateItemSheetComponent_div_11_Template_app_reminder_select_pickrClosed_1_listener() {
-      \u0275\u0275restoreView(_r3);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.pickrClosed());
-    });
-    \u0275\u0275elementEnd()();
-  }
-}
-var _UpdateItemSheetComponent = class _UpdateItemSheetComponent {
-  constructor(bottomSheetRef, data, fb, datePipe) {
-    this.bottomSheetRef = bottomSheetRef;
-    this.data = data;
-    this.fb = fb;
-    this.datePipe = datePipe;
-    this.duePickerOpen = false;
-    this.subscriptions = [];
-    this.list = data.list;
-    const due = !!data.item.due ? new Date(data.item.due) : null;
-    const reminder = !!data.item.reminder ? new Date(data.item.reminder) : null;
-    this.form = fb.group({
-      "name": [data.item.name, Validators.required],
-      "description": [data.item.description],
-      "due-toggle": [!!data.item.due],
-      "due": [{ value: this.parseDateTime(due), disabled: !data.item.due }],
-      "reminder-chips": [this.getReminderChipValue(due, reminder)],
-      "reminder": [this.parseDateTime(reminder)]
-    });
-    const formSub = this.form.get("due-toggle")?.valueChanges.subscribe((dueEnabled) => {
-      if (dueEnabled) {
-        this.form.get("due")?.enable();
-      } else {
-        this.form.get("due")?.disable();
-      }
-    });
-    if (formSub) {
-      this.subscriptions.push(formSub);
-    }
-    this.timezone = (/* @__PURE__ */ new Date("2020-01-01T10:00")).toISOString().slice(16);
-  }
-  ngAfterViewInit() {
-    this.dueFlatpickr = esm_default("#due-picker", timePickerConfig);
-    this.dueFlatpickr.config.onChange.push((val) => {
-      if (val.length > 0 && !!this.form.get("due")) {
-        this.form.get("due")?.setValue(this.parseDateTime(val[0]));
-      } else {
-        this.form.get("due")?.reset();
-      }
-    });
-    this.dueFlatpickr.config.onClose.push(() => {
-      this.closePicker();
-    });
-    if (this.form.get("due")?.value && this.data.item.due) {
-      this.dueFlatpickr.setDate(new Date(this.data.item.due));
-    }
-  }
-  ngOnDestroy() {
-    this.subscriptions.forEach((sub) => sub.unsubscribe());
-  }
-  openPicker() {
-    if (!this.duePickerOpen) {
-      this.dueFlatpickr.open();
-      this.bottomSheetRef.disableClose = true;
-      this.duePickerOpen = true;
-    }
-  }
-  closePicker() {
-    if (this.enableBottomSheetClose) {
-      clearTimeout(this.enableBottomSheetClose);
-      this.enableBottomSheetClose = void 0;
-    }
-    if (this.duePickerOpen) {
-      this.duePickerOpen = false;
-      this.enableBottomSheetClose = setTimeout(() => {
-        this.bottomSheetRef.disableClose = false;
-        this.enableBottomSheetClose = void 0;
-      }, 1e3);
-    }
-  }
-  pickrOpened() {
-    this.bottomSheetRef.disableClose = true;
-  }
-  pickrClosed() {
-    if (this.enableBottomSheetClose) {
-      clearTimeout(this.enableBottomSheetClose);
-      this.enableBottomSheetClose = void 0;
-    }
-    if (this.bottomSheetRef.disableClose) {
-      this.enableBottomSheetClose = setTimeout(() => {
-        this.bottomSheetRef.disableClose = false;
-        this.enableBottomSheetClose = void 0;
-      }, 1e3);
-    }
-  }
-  getReminderChipValue(due, reminder) {
-    if (!due || !reminder) {
-      return null;
-    }
-    const aDayBefore = new Date(due.valueOf());
-    aDayBefore.setDate(due.getDate() - 1);
-    if (reminder.valueOf() == aDayBefore.valueOf()) {
-      return ReminderOptions.D_1;
-    }
-    const anHourBefore = new Date(due.valueOf());
-    anHourBefore.setHours(due.getHours() - 1);
-    if (reminder.valueOf() == anHourBefore.valueOf()) {
-      return ReminderOptions.H_1;
-    }
-    const thirtyMinBefore = new Date(due.valueOf());
-    thirtyMinBefore.setMinutes(due.getMinutes() - 30);
-    if (reminder.valueOf() == thirtyMinBefore.valueOf()) {
-      return ReminderOptions.MIN_30;
-    }
-    const tenMinBefore = new Date(due.valueOf());
-    tenMinBefore.setMinutes(due.getMinutes() - 10);
-    if (reminder.valueOf() == tenMinBefore.valueOf()) {
-      return ReminderOptions.MIN_10;
-    }
-    const noMinBefore = new Date(due.valueOf());
-    noMinBefore.setMinutes(due.getMinutes() - 10);
-    if (reminder.valueOf() == noMinBefore.valueOf()) {
-      return ReminderOptions.MIN_0;
-    }
-    return "different";
-  }
-  parseDateTime(date) {
-    if (date) {
-      return this.datePipe.transform(date.toISOString().slice(0, 16), "short");
-    }
-    return "";
-  }
-  parseFormDateTime(_date) {
-    const date = new Date(_date + this.timezone);
-    return date.toISOString();
-  }
-  returnFormContent() {
-    const patch = {};
-    const dueToggle = !!this.form.get("due-toggle")?.value;
-    const due = this.form.get("due")?.value + this.timezone;
-    if (this.form.get("name")?.value != this.data.item.name) {
-      Object.assign(patch, {
-        name: this.form.get("name")?.value.trim()
-      });
-    }
-    if (this.form.get("description")?.value != this.data.item.description && !this.list.isShoppingList) {
-      Object.assign(patch, {
-        description: this.form.get("description")?.value.trim()
-      });
-    }
-    if (dueToggle && due && due != this.data.item.due && !this.list.isShoppingList) {
-      Object.assign(patch, {
-        due
-      });
-    } else if (this.data.item.due != null && !dueToggle) {
-      Object.assign(patch, { due: null });
-    }
-    if (dueToggle && due && this.form.get("reminder-chips")?.value && !this.list.isShoppingList) {
-      let reminder = new Date(due);
-      switch (this.form.get("reminder-chips")?.value) {
-        case "1d":
-          reminder.setDate(reminder.getDate() - 1);
-          break;
-        case "1h":
-          reminder.setHours(reminder.getHours() - 1);
-          break;
-        case "30min":
-          reminder.setMinutes(reminder.getMinutes() - 30);
-          break;
-        case "different":
-          reminder = new Date(this.form.get("reminder")?.value + this.timezone);
-          break;
-      }
-      if (reminder.toISOString() != this.data.item.reminder) {
-        Object.assign(patch, {
-          reminder: reminder.toISOString()
-        });
-      }
-    } else if (this.data.item.reminder != null) {
-      Object.assign(patch, { reminder: null });
-    }
-    this.bottomSheetRef.dismiss(patch);
-  }
-};
-_UpdateItemSheetComponent.\u0275fac = function UpdateItemSheetComponent_Factory(\u0275t) {
-  return new (\u0275t || _UpdateItemSheetComponent)(\u0275\u0275directiveInject(MatBottomSheetRef), \u0275\u0275directiveInject(MAT_BOTTOM_SHEET_DATA), \u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(DatePipe));
-};
-_UpdateItemSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UpdateItemSheetComponent, selectors: [["app-update-item-sheet"]], viewQuery: function UpdateItemSheetComponent_Query(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275viewQuery(_c016, 5);
-  }
-  if (rf & 2) {
-    let _t;
-    \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.autosize = _t.first);
-  }
-}, standalone: true, features: [\u0275\u0275ProvidersFeature([DatePipe]), \u0275\u0275StandaloneFeature], decls: 16, vars: 7, consts: [["autosize", "cdkTextareaAutosize"], ["autocomplete", "off", 3, "formGroup"], ["appearance", "outline"], ["matInput", "", "formControlName", "name", "placeholder", "Name"], ["appearance", "outline", 4, "ngIf"], ["color", "primary", "formControlName", "due-toggle", 4, "ngIf"], ["type", "datetime-local", "id", "due-picker"], [4, "ngIf"], ["mat-stroked-button", "", 3, "click", "disabled"], ["mat-flat-button", "", "color", "primary", 3, "click"], ["matInput", "", "formControlName", "description", "placeholder", "Beschreibung", "cdkTextareaAutosize", "", "cdkAutosizeMinRows", "5"], ["color", "primary", "formControlName", "due-toggle"], ["matInput", "", "type", "text", "formControlName", "due", "placeholder", "F\xE4llig am", 3, "focus"], ["formControlName", "reminder", 3, "pickrOpened", "pickrClosed"]], template: function UpdateItemSheetComponent_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "h2");
-    \u0275\u0275text(1, "Element Bearbeiten");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(2, "form", 1)(3, "mat-form-field", 2)(4, "mat-label");
-    \u0275\u0275text(5, "Name");
-    \u0275\u0275elementEnd();
-    \u0275\u0275element(6, "input", 3);
-    \u0275\u0275elementEnd();
-    \u0275\u0275template(7, UpdateItemSheetComponent_mat_form_field_7_Template, 5, 0, "mat-form-field", 4)(8, UpdateItemSheetComponent_mat_slide_toggle_8_Template, 2, 0, "mat-slide-toggle", 5)(9, UpdateItemSheetComponent_mat_form_field_9_Template, 2, 0, "mat-form-field", 4);
-    \u0275\u0275element(10, "input", 6);
-    \u0275\u0275template(11, UpdateItemSheetComponent_div_11_Template, 2, 0, "div", 7);
-    \u0275\u0275elementStart(12, "button", 8);
-    \u0275\u0275listener("click", function UpdateItemSheetComponent_Template_button_click_12_listener() {
-      return ctx.returnFormContent();
-    });
-    \u0275\u0275text(13);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(14, "button", 9);
-    \u0275\u0275listener("click", function UpdateItemSheetComponent_Template_button_click_14_listener() {
-      return ctx.bottomSheetRef.dismiss();
-    });
-    \u0275\u0275text(15, "Abbrechen");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    let tmp_4_0;
-    \u0275\u0275advance(2);
-    \u0275\u0275property("formGroup", ctx.form);
-    \u0275\u0275advance(5);
-    \u0275\u0275property("ngIf", !ctx.list.isShoppingList);
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", !ctx.list.isShoppingList);
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", !ctx.list.isShoppingList);
-    \u0275\u0275advance(2);
-    \u0275\u0275property("ngIf", (tmp_4_0 = ctx.form.get("due-toggle")) == null ? null : tmp_4_0.value);
-    \u0275\u0275advance();
-    \u0275\u0275property("disabled", !ctx.form.valid);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate("Speichern");
-  }
-}, dependencies: [FormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, ReactiveFormsModule, FormGroupDirective, FormControlName, CommonModule, NgIf, MaterialModule, MatButton, MatFormField, MatLabel, MatInput, CdkTextareaAutosize, MatSlideToggle, ReminderSelectComponent], styles: ["\n\n#reminder-picker[_ngcontent-%COMP%], \n#due-picker[_ngcontent-%COMP%] {\n  opacity: 0;\n  height: 0;\n  width: 0;\n  z-index: -100;\n}\n/*# sourceMappingURL=update-item-sheet.component.css.map */", "\n\nbutton[_ngcontent-%COMP%] {\n  width: 100%;\n  margin: 6px 0;\n}\nbutton[_ngcontent-%COMP%]:last-child {\n  margin-bottom: 38pt;\n}\nform[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  margin: 24px 0;\n}\nform[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  margin: 24px 0;\n}\n/*# sourceMappingURL=styles.css.map */"] });
-var UpdateItemSheetComponent = _UpdateItemSheetComponent;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UpdateItemSheetComponent, { className: "UpdateItemSheetComponent", filePath: "src/app/components/bottom-sheets/update-item-sheet/update-item-sheet.component.ts", lineNumber: 29 });
-})();
-
-// src/app/services/users/users.service.ts
-var _UsersService = class _UsersService {
-  constructor(data) {
-    this.data = data;
-  }
-  get(id) {
-    const query2 = this.data.db.users.find().$;
-    const meQuery = this.data.db.me.findOne().$;
-    const users = combineLatest([query2, meQuery]);
-    return users.pipe(map(([q, me]) => {
-      if (me && me.id === id) {
-        return me;
-      } else if (!!q) {
-        return q.find((doc) => id === doc.id);
-      }
-      return void 0;
-    }), filter((doc) => !!doc));
-  }
-  getMany(ids) {
-    const query2 = this.data.db.users.find().$;
-    const meQuery = this.data.db.me.findOne().$;
-    const users = combineLatest([query2, meQuery]);
-    return users.pipe(map(([q, me]) => {
-      if (!!q && !!me) {
-        return [...q, me].filter((doc) => !!doc && !!ids.find((i) => i === doc.id)).sort(byIds(ids));
-      } else if (!!q) {
-        return q.filter((doc) => !!ids.find((i) => i === doc.id)).sort(byIds(ids));
-      } else if (!!me) {
-        return [me].filter((doc) => !!ids.find((i) => i === doc.id)).sort(byIds(ids));
-      } else {
-        return [];
-      }
-    }), filter((doc) => doc.length > 0));
-  }
-};
-_UsersService.\u0275fac = function UsersService_Factory(\u0275t) {
-  return new (\u0275t || _UsersService)(\u0275\u0275inject(DataService));
-};
-_UsersService.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _UsersService, factory: _UsersService.\u0275fac, providedIn: "root" });
-var UsersService = _UsersService;
-function byIds(ids) {
-  return (a, b) => {
-    return ids.findIndex((i) => a.id === i) - ids.findIndex((i) => b.id === i);
-  };
-}
-
-// src/app/components/list-item/list-item.component.ts
-function ListItemComponent_div_0_mat_chip_set_6_mat_chip_1_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-chip", 9);
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "date");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(3);
-    \u0275\u0275property("highlighted", !!ctx_r1.item.reminder);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(2, 2, ctx_r1.item.due, "h:mm"));
-  }
-}
-function ListItemComponent_div_0_mat_chip_set_6_mat_chip_2_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-chip", 9);
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "date");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(3);
-    \u0275\u0275property("highlighted", !!ctx_r1.item.reminder);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(2, 2, ctx_r1.item.due, "short"));
-  }
-}
-function ListItemComponent_div_0_mat_chip_set_6_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-chip-set", 7);
-    \u0275\u0275template(1, ListItemComponent_div_0_mat_chip_set_6_mat_chip_1_Template, 3, 5, "mat-chip", 8)(2, ListItemComponent_div_0_mat_chip_set_6_mat_chip_2_Template, 3, 5, "mat-chip", 8);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx_r1.item && ctx_r1.item.due && ctx_r1.is_today(ctx_r1.item));
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx_r1.item && ctx_r1.item.due && !ctx_r1.is_today(ctx_r1.item));
-  }
-}
-function ListItemComponent_div_0_button_7_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "button", 10);
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "nameBadge");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    let tmp_3_0;
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275classMap("mini-user-fab user-fab-" + ctx_r1.userFab(ctx_r1.item) % 12);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 3, (tmp_3_0 = ctx_r1.createdBy()) == null ? null : tmp_3_0.name));
-  }
-}
-function ListItemComponent_div_0_button_8_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 11);
-    \u0275\u0275listener("click", function ListItemComponent_div_0_button_8_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r3);
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r1.deleteItem(ctx_r1.item));
-    });
-    \u0275\u0275elementStart(1, "mat-icon");
-    \u0275\u0275text(2, "close");
-    \u0275\u0275elementEnd()();
-  }
-}
-function ListItemComponent_div_0_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 1);
-    \u0275\u0275listener("pointerdown", function ListItemComponent_div_0_Template_div_pointerdown_0_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.openUpdateSheet($event, ctx_r1.item));
-    })("pointerup", function ListItemComponent_div_0_Template_div_pointerup_0_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.cancelUpdateSheet());
-    });
-    \u0275\u0275elementStart(1, "div")(2, "mat-checkbox", 2);
-    \u0275\u0275listener("change", function ListItemComponent_div_0_Template_mat_checkbox_change_2_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.toggleDone());
-    });
-    \u0275\u0275elementStart(3, "div", 3)(4, "span");
-    \u0275\u0275text(5);
-    \u0275\u0275elementEnd();
-    \u0275\u0275template(6, ListItemComponent_div_0_mat_chip_set_6_Template, 3, 2, "mat-chip-set", 4)(7, ListItemComponent_div_0_button_7_Template, 3, 5, "button", 5);
-    \u0275\u0275elementEnd();
-    \u0275\u0275template(8, ListItemComponent_div_0_button_8_Template, 3, 0, "button", 6);
-    \u0275\u0275elementEnd()()();
-  }
-  if (rf & 2) {
-    let tmp_6_0;
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275classProp("item-done", ctx_r1.item.done);
-    \u0275\u0275property("id", "id-" + ctx_r1.item.id);
-    \u0275\u0275advance(2);
-    \u0275\u0275property("checked", ctx_r1.item.done);
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(ctx_r1.item.name);
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", !ctx_r1.list().isShoppingList);
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx_r1.createdBy() && ctx_r1.item && ctx_r1.me().id !== ((tmp_6_0 = ctx_r1.createdBy()) == null ? null : tmp_6_0.id));
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx_r1.item && ctx_r1.item.done);
-  }
-}
-var _ListItemComponent = class _ListItemComponent {
-  onMousemove(event) {
-    this.pointerPosY = event.clientY;
-  }
-  onTouchMove(event) {
-    this.pointerPosY = event.changedTouches[0].clientY;
-  }
-  constructor(bottomSheet, users) {
-    this.bottomSheet = bottomSheet;
-    this.users = users;
-    this.createdBy = signal(void 0);
-    this.pointerDown = false;
-    effect(() => {
-      if (this.item && this.list()) {
-        this.createdBy$ = this.users.get(this.item.createdBy);
-        this.createdBySub?.unsubscribe();
-        this.createdBySub = this.createdBy$.subscribe((u3) => this.createdBy.set(u3));
-      }
-    });
-  }
-  ngOnDestroy() {
-    this.createdBySub?.unsubscribe();
-  }
-  toggleDone() {
-    if (this.item) {
-      this.item.patch({
-        done: !this.item.done
-      });
-    }
-  }
-  deleteItem(item) {
-    const confirm = this.bottomSheet.open(ConfirmSheetComponent, { data: "L\xF6sche " + item.name });
-    confirm.afterDismissed().subscribe((del) => {
-      if (this.item && del) {
-        this.item.remove();
-      }
-    });
-  }
-  userFab(item) {
-    if (this.list) {
-      const index = this.list().users().findIndex((i) => i === item.createdBy);
-      if (index) {
-        return index;
-      }
-    }
-    return 0;
-  }
-  is_today(item) {
-    return !!is_today(item);
-  }
-  openUpdateSheet(event, item) {
-    if (!this.pointerDown && item) {
-      this.pointerDown = true;
-      const currScrollPos = event.clientY;
-      this.pointerPosY = currScrollPos;
-      setTimeout(() => {
-        if (this.pointerPosY != void 0 && this.pointerDown && !this.updateSheetRef && Math.abs(currScrollPos - this.pointerPosY) < 50) {
-          this.updateSheetRef = this.bottomSheet.open(UpdateItemSheetComponent, {
-            data: {
-              list: this.list,
-              item
-            }
-          });
-          this.updateSheetRef.afterDismissed().subscribe((patch) => {
-            if (this.item && patch) {
-              this.item.patch(patch);
-            }
-            setTimeout(() => {
-              this.cancelUpdateSheet();
-            }, 500);
-          });
-        } else {
-          this.cancelUpdateSheet();
-        }
-      }, 500);
-    }
-  }
-  cancelUpdateSheet() {
-    this.pointerDown = false;
-    this.updateSheetRef = void 0;
-  }
-};
-_ListItemComponent.\u0275fac = function ListItemComponent_Factory(\u0275t) {
-  return new (\u0275t || _ListItemComponent)(\u0275\u0275directiveInject(MatBottomSheet), \u0275\u0275directiveInject(UsersService));
-};
-_ListItemComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ListItemComponent, selectors: [["app-list-item"]], hostBindings: function ListItemComponent_HostBindings(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275listener("mousemove", function ListItemComponent_mousemove_HostBindingHandler($event) {
-      return ctx.onMousemove($event);
-    })("touchmove", function ListItemComponent_touchmove_HostBindingHandler($event) {
-      return ctx.onTouchMove($event);
-    });
-  }
-}, inputs: { me: "me", list: "list", item: "item" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 1, vars: 1, consts: [["class", "item", 3, "item-done", "id", "pointerdown", "pointerup", 4, "ngIf"], [1, "item", 3, "pointerdown", "pointerup", "id"], ["color", "primary", 3, "change", "checked"], [1, "item-content"], ["disabled", "", 4, "ngIf"], ["mat-mini-fab", "", "disabled", "", 3, "class", 4, "ngIf"], ["mat-icon-button", "", 3, "click", 4, "ngIf"], ["disabled", ""], [3, "highlighted", 4, "ngIf"], [3, "highlighted"], ["mat-mini-fab", "", "disabled", ""], ["mat-icon-button", "", 3, "click"]], template: function ListItemComponent_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275template(0, ListItemComponent_div_0_Template, 9, 8, "div", 0);
-  }
-  if (rf & 2) {
-    \u0275\u0275property("ngIf", ctx.item && ctx.list);
-  }
-}, dependencies: [
-  CommonModule,
-  NgIf,
-  DatePipe,
-  MaterialModule,
-  MatIconButton,
-  MatMiniFabButton,
-  MatCheckbox,
-  MatChip,
-  MatChipSet,
-  MatIcon,
-  NameBadgePipe,
-  FormsModule
-], styles: ["\n\n.item-done[_ngcontent-%COMP%]   .item-content[_ngcontent-%COMP%], \n.item-done[_ngcontent-%COMP%]   mat-chip[_ngcontent-%COMP%] {\n  color: grey;\n  text-decoration: line-through;\n  -webkit-user-select: none;\n  user-select: none;\n}\n.item[_ngcontent-%COMP%] {\n  background: #EEE;\n  border-radius: 8px;\n  margin: 6px 0;\n  width: 100%;\n}\n.item[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  color: grey;\n}\n.item[_ngcontent-%COMP%]   mat-checkbox[_ngcontent-%COMP%] {\n  margin: 8px;\n  position: relative;\n  width: calc(100% - 20px);\n}\n.item[_ngcontent-%COMP%]   mat-checkbox[_ngcontent-%COMP%]   .item-content[_ngcontent-%COMP%] {\n  white-space: pre-wrap;\n  margin-right: 36px;\n  margin-bottom: 0 !important;\n  -webkit-user-select: none;\n  user-select: none;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n.item[_ngcontent-%COMP%]   mat-checkbox[_ngcontent-%COMP%]   button.mini-user-fab[_ngcontent-%COMP%] {\n  margin-left: 6px !important;\n  float: none;\n  z-index: 0;\n}\n.item[_ngcontent-%COMP%]   mat-checkbox[_ngcontent-%COMP%]   button[_ngcontent-%COMP%]:not(.mini-user-fab) {\n  top: calc(50% - 24px);\n  position: absolute;\n  right: 0;\n}\n.item[_ngcontent-%COMP%]   mat-chip-listbox[_ngcontent-%COMP%], \n.item[_ngcontent-%COMP%]   mat-chip-option[_ngcontent-%COMP%] {\n  display: inline-block;\n  -webkit-user-select: none;\n  user-select: none;\n}\n/*# sourceMappingURL=list-item.component.css.map */"] });
-var ListItemComponent = _ListItemComponent;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ListItemComponent, { className: "ListItemComponent", filePath: "src/app/components/list-item/list-item.component.ts", lineNumber: 30 });
-})();
-
-// src/app/components/list/list.component.ts
-var _c017 = ["picker"];
-var _c112 = ["addInput"];
-function ListComponent_h2_21_Template(rf, ctx) {
+// src/app/components/list/list-header/list-header.component.ts
+function ListHeaderComponent_h2_20_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "h2");
     \u0275\u0275text(1);
@@ -90494,12 +90484,12 @@ function ListComponent_h2_21_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r1.list().name);
+    \u0275\u0275textInterpolate(ctx_r1.lists().name);
   }
 }
-function ListComponent_div_22_button_1_Template(rf, ctx) {
+function ListHeaderComponent_div_21_button_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "button", 23);
+    \u0275\u0275elementStart(0, "button", 9);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "nameBadge");
     \u0275\u0275elementEnd();
@@ -90512,16 +90502,16 @@ function ListComponent_div_22_button_1_Template(rf, ctx) {
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 3, user_r4 == null ? null : user_r4.name));
   }
 }
-function ListComponent_div_22_Template(rf, ctx) {
+function ListHeaderComponent_div_21_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 21);
-    \u0275\u0275listener("click", function ListComponent_div_22_Template_div_click_0_listener() {
+    \u0275\u0275elementStart(0, "div", 7);
+    \u0275\u0275listener("click", function ListHeaderComponent_div_21_Template_div_click_0_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.shareList());
     });
-    \u0275\u0275template(1, ListComponent_div_22_button_1_Template, 3, 5, "button", 22);
+    \u0275\u0275template(1, ListHeaderComponent_div_21_button_1_Template, 3, 5, "button", 8);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -90530,113 +90520,317 @@ function ListComponent_div_22_Template(rf, ctx) {
     \u0275\u0275property("ngForOf", ctx_r1.users());
   }
 }
-function ListComponent_div_25_Template(rf, ctx) {
+var _ListHeaderComponent = class _ListHeaderComponent {
+  constructor(bottomSheet, snackbar, authService, router, dataService) {
+    this.bottomSheet = bottomSheet;
+    this.snackbar = snackbar;
+    this.authService = authService;
+    this.router = router;
+    this.dataService = dataService;
+    this.users = signal([]);
+    this.isAdmin = false;
+    this.listToText = new EventEmitter();
+  }
+  listSettings() {
+    if (this.lists && this.lists()) {
+      const dialogRef = this.bottomSheet.open(AddSheetComponent, {
+        data: this.lists()
+      });
+      dialogRef.afterDismissed().subscribe((new_values) => {
+        if (!!new_values && new_values.name === "") {
+          this.snackbar.open("Name darf nicht leer sein.", "Ok");
+          return;
+        }
+        if (!!new_values && this.lists) {
+          const patch = {};
+          const list = this.lists();
+          if (list.name !== new_values.name) {
+            Object.assign(patch, {
+              name: new_values.name
+            });
+          }
+          if (list.isShoppingList !== new_values.isShoppingList) {
+            Object.assign(patch, {
+              isShoppingList: new_values.isShoppingList
+            });
+          }
+          if (Object.keys(patch).length > 0) {
+            this.lists().patch(patch);
+          }
+        }
+      });
+    }
+  }
+  shareList() {
+    if (this.lists && this.lists()) {
+      const dialogRef = this.bottomSheet.open(ShareListSheetComponent, {
+        data: {
+          lists: this.lists,
+          isAdmin: this.isAdmin,
+          users: this.users
+        }
+      });
+      dialogRef.afterDismissed().subscribe((data) => {
+        if (!!data && this.lists && this.lists()) {
+          if (!!data.email) {
+            this.authService.shareLists(data.email, this.lists().id).subscribe((success) => {
+              if (!success) {
+                this.snackbar.open("Einladung konnte nicht verschickt werden.", "Ok");
+              }
+              this.snackbar.open("Einladung zum Beitreten der Liste wurde verschickt.", "Ok");
+            });
+          } else if (!!data.remove) {
+            const confirm = this.bottomSheet.open(ConfirmSheetComponent, {
+              data: "L\xF6sche Nutzer " + data.remove.name + " aus dieser Liste."
+            });
+            confirm.afterDismissed().subscribe((del) => {
+              this.authService.unshareLists(data.remove, this.lists().id).subscribe((success) => {
+                if (!success) {
+                  this.snackbar.open("Nutzer " + data.remove.name + " wurde entfernt.", "Ok");
+                }
+                this.snackbar.open("Nutzer konnte nicht verschickt werden.", "Ok");
+              });
+            });
+          }
+        }
+      });
+    }
+  }
+  deleteList() {
+    if (this.lists && this.lists()) {
+      const confirm = this.bottomSheet.open(ConfirmSheetComponent, {
+        data: "L\xF6sche Liste " + this.lists().name
+      });
+      confirm.afterDismissed().subscribe((del) => {
+        if (del && this.lists && this.lists()) {
+          this.lists().remove().then(() => {
+            this.router.navigate(["/user/lists"]);
+          });
+        }
+      });
+    }
+  }
+  deleteAll() {
+    const confirm = this.bottomSheet.open(ConfirmSheetComponent, { data: "L\xF6sche alle Eintr\xE4ge" });
+    confirm.afterDismissed().subscribe((del) => {
+      if (this.lists && this.lists() && del) {
+        this.dataService.db.items.find({
+          selector: {
+            lists: this.lists().id
+          }
+        }).remove();
+      }
+    });
+  }
+  deleteAllDone() {
+    const confirm = this.bottomSheet.open(ConfirmSheetComponent, { data: "L\xF6sche alle erledigten Eintr\xE4ge" });
+    confirm.afterDismissed().subscribe((del) => {
+      if (this.lists && this.lists() && del) {
+        this.dataService.db.items.find({
+          selector: {
+            lists: this.lists().id,
+            done: true
+          }
+        }).remove();
+      }
+    });
+  }
+  markAllNotDone() {
+    if (this.lists && this.lists()) {
+      this.dataService.db.items.find({
+        selector: {
+          lists: this.lists().id
+        }
+      }).patch({
+        done: false
+      });
+    }
+  }
+};
+_ListHeaderComponent.\u0275fac = function ListHeaderComponent_Factory(\u0275t) {
+  return new (\u0275t || _ListHeaderComponent)(\u0275\u0275directiveInject(MatBottomSheet), \u0275\u0275directiveInject(MatSnackBar), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(Router), \u0275\u0275directiveInject(DataService));
+};
+_ListHeaderComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ListHeaderComponent, selectors: [["app-list-header"]], inputs: { lists: "lists", users: "users", isAdmin: "isAdmin" }, outputs: { listToText: "listToText" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 22, vars: 6, consts: [["menu", "matMenu"], [1, "content-header"], ["mat-icon-button", "", 1, "menu", 3, "matMenuTriggerFor"], ["mat-menu-item", "", 3, "click", "disabled"], ["mat-menu-item", "", 3, "click"], [4, "ngIf"], ["class", "users", 3, "click", 4, "ngIf"], [1, "users", 3, "click"], ["mat-mini-fab", "", "disabled", "", 3, "class", 4, "ngFor", "ngForOf"], ["mat-mini-fab", "", "disabled", ""]], template: function ListHeaderComponent_Template(rf, ctx) {
   if (rf & 1) {
-    const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 24);
-    \u0275\u0275listener("click", function ListComponent_div_25_Template_div_click_0_listener($event) {
-      \u0275\u0275restoreView(_r6);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.closeFocusInput($event));
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 1)(1, "button", 2)(2, "mat-icon");
+    \u0275\u0275text(3, "more_vert");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(4, "mat-menu", null, 0)(6, "button", 3);
+    \u0275\u0275listener("click", function ListHeaderComponent_Template_button_click_6_listener() {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.listSettings());
+    });
+    \u0275\u0275text(7, "Einstellungen");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(8, "button", 3);
+    \u0275\u0275listener("click", function ListHeaderComponent_Template_button_click_8_listener() {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.shareList());
+    });
+    \u0275\u0275text(9, "Teilen");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(10, "button", 4);
+    \u0275\u0275listener("click", function ListHeaderComponent_Template_button_click_10_listener() {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.listToText.emit());
+    });
+    \u0275\u0275text(11, "Verschicken");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(12, "button", 4);
+    \u0275\u0275listener("click", function ListHeaderComponent_Template_button_click_12_listener() {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.markAllNotDone());
+    });
+    \u0275\u0275text(13, "Alle Eintr\xE4ge abw\xE4hlen");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(14, "button", 4);
+    \u0275\u0275listener("click", function ListHeaderComponent_Template_button_click_14_listener() {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.deleteAll());
+    });
+    \u0275\u0275text(15, "Alle Eintr\xE4ge l\xF6schen");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(16, "button", 4);
+    \u0275\u0275listener("click", function ListHeaderComponent_Template_button_click_16_listener() {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.deleteAllDone());
+    });
+    \u0275\u0275text(17, "Alle erledigten Eintr\xE4ge l\xF6schen");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(18, "button", 3);
+    \u0275\u0275listener("click", function ListHeaderComponent_Template_button_click_18_listener() {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.deleteList());
+    });
+    \u0275\u0275text(19, "L\xF6schen");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275template(20, ListHeaderComponent_h2_20_Template, 2, 1, "h2", 5)(21, ListHeaderComponent_div_21_Template, 2, 1, "div", 6);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const menu_r6 = \u0275\u0275reference(5);
+    \u0275\u0275advance();
+    \u0275\u0275property("matMenuTriggerFor", menu_r6);
+    \u0275\u0275advance(5);
+    \u0275\u0275property("disabled", !ctx.isAdmin);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("disabled", !ctx.isAdmin);
+    \u0275\u0275advance(10);
+    \u0275\u0275property("disabled", !ctx.isAdmin);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngIf", ctx.lists());
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx.users() && ctx.users().length > 1);
+  }
+}, dependencies: [CommonModule, NgForOf, NgIf, MaterialModule, MatIconButton, MatMiniFabButton, MatIcon, MatMenu, MatMenuItem, MatMenuTrigger, NameBadgePipe], styles: ["\n\n.content-header[_ngcontent-%COMP%] {\n  grid-area: contentHeader;\n  position: relative;\n}\n.content-header[_ngcontent-%COMP%]   .menu[_ngcontent-%COMP%] {\n  position: absolute;\n  top: -4px;\n  right: 0;\n}\n.content-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  margin-top: 0;\n}\n.content-header[_ngcontent-%COMP%]   .users[_ngcontent-%COMP%] {\n  margin-bottom: 12px;\n  margin-top: -12px;\n}\n/*# sourceMappingURL=list-header.component.css.map */"] });
+var ListHeaderComponent = _ListHeaderComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ListHeaderComponent, { className: "ListHeaderComponent", filePath: "src/app/components/list/list-header/list-header.component.ts", lineNumber: 27 });
+})();
+
+// src/app/components/list/list.component.ts
+var _c017 = ["addInput"];
+function ListComponent_div_4_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 13);
+    \u0275\u0275listener("click", function ListComponent_div_4_Template_div_click_0_listener($event) {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.closeFocusInput($event));
     });
     \u0275\u0275elementEnd();
   }
 }
-function ListComponent_div_26_mat_chip_listbox_3_Template(rf, ctx) {
+function ListComponent_div_5_mat_chip_listbox_3_Template(rf, ctx) {
   if (rf & 1) {
-    const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-chip-listbox", 28)(1, "mat-chip-option", 29);
-    \u0275\u0275listener("click", function ListComponent_div_26_mat_chip_listbox_3_Template_mat_chip_option_click_1_listener() {
-      \u0275\u0275restoreView(_r7);
-      const slot_r8 = \u0275\u0275nextContext().$implicit;
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.slotCollapseStates[slot_r8.name] = !ctx_r1.slotCollapseStates[slot_r8.name]);
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "mat-chip-listbox", 17)(1, "mat-chip-option", 18);
+    \u0275\u0275listener("click", function ListComponent_div_5_mat_chip_listbox_3_Template_mat_chip_option_click_1_listener() {
+      \u0275\u0275restoreView(_r4);
+      const slot_r5 = \u0275\u0275nextContext().$implicit;
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.slotCollapseStates[slot_r5.name] = !ctx_r2.slotCollapseStates[slot_r5.name]);
     });
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const slot_r8 = \u0275\u0275nextContext().$implicit;
-    const ctx_r1 = \u0275\u0275nextContext();
+    const slot_r5 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("selected", !ctx_r1.slotCollapseStates[slot_r8.name]);
+    \u0275\u0275property("selected", !ctx_r2.slotCollapseStates[slot_r5.name]);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", slot_r8.nDone, " ");
+    \u0275\u0275textInterpolate1(" ", slot_r5.nDone, " ");
   }
 }
-function ListComponent_div_26_ng_container_4_app_list_item_1_Template(rf, ctx) {
+function ListComponent_div_5_ng_container_4_app_list_item_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "app-list-item", 31);
+    \u0275\u0275element(0, "app-list-item", 20);
   }
   if (rf & 2) {
-    const item_r9 = \u0275\u0275nextContext().$implicit;
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("me", ctx_r1.me)("list", ctx_r1.list)("item", item_r9);
+    const item_r6 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("me", ctx_r2.me)("list", ctx_r2.list)("item", item_r6);
   }
 }
-function ListComponent_div_26_ng_container_4_Template(rf, ctx) {
+function ListComponent_div_5_ng_container_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainerStart(0);
-    \u0275\u0275template(1, ListComponent_div_26_ng_container_4_app_list_item_1_Template, 1, 3, "app-list-item", 30);
+    \u0275\u0275template(1, ListComponent_div_5_ng_container_4_app_list_item_1_Template, 1, 3, "app-list-item", 19);
     \u0275\u0275elementContainerEnd();
   }
   if (rf & 2) {
-    const item_r9 = ctx.$implicit;
-    const slot_r8 = \u0275\u0275nextContext().$implicit;
-    const ctx_r1 = \u0275\u0275nextContext();
+    const item_r6 = ctx.$implicit;
+    const slot_r5 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", (!item_r9.done || !ctx_r1.slotCollapseStates[slot_r8.name]) && ctx_r1.list() && ctx_r1.me());
+    \u0275\u0275property("ngIf", (!item_r6.done || !ctx_r2.slotCollapseStates[slot_r5.name]) && ctx_r2.list() && ctx_r2.me());
   }
 }
-function ListComponent_div_26_Template(rf, ctx) {
+function ListComponent_div_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 25)(1, "h5");
+    \u0275\u0275elementStart(0, "div", 14)(1, "h5");
     \u0275\u0275text(2);
-    \u0275\u0275template(3, ListComponent_div_26_mat_chip_listbox_3_Template, 3, 2, "mat-chip-listbox", 26);
+    \u0275\u0275template(3, ListComponent_div_5_mat_chip_listbox_3_Template, 3, 2, "mat-chip-listbox", 15);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(4, ListComponent_div_26_ng_container_4_Template, 2, 1, "ng-container", 27);
+    \u0275\u0275template(4, ListComponent_div_5_ng_container_4_Template, 2, 1, "ng-container", 16);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const slot_r8 = ctx.$implicit;
+    const slot_r5 = ctx.$implicit;
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", slot_r8.name, " ");
+    \u0275\u0275textInterpolate1(" ", slot_r5.name, " ");
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", slot_r8.nDone > 0);
+    \u0275\u0275property("ngIf", slot_r5.nDone > 0);
     \u0275\u0275advance();
-    \u0275\u0275property("ngForOf", slot_r8.items);
+    \u0275\u0275property("ngForOf", slot_r5.items);
   }
 }
-function ListComponent_div_27_Template(rf, ctx) {
+function ListComponent_div_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 32);
+    \u0275\u0275elementStart(0, "div", 21);
     \u0275\u0275text(1, "Keine Eintr\xE4ge vorhanden");
     \u0275\u0275elementEnd();
   }
 }
-function ListComponent_mat_toolbar_29_Template(rf, ctx) {
+function ListComponent_mat_toolbar_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-toolbar", 33)(1, "mat-chip-listbox", 34)(2, "mat-chip-option", 35);
-    \u0275\u0275text(3, "Heute");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "mat-chip-option", 36);
-    \u0275\u0275text(5, "Morgen");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "mat-chip-option", 37);
-    \u0275\u0275text(7);
-    \u0275\u0275pipe(8, "date");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(9, "mat-chip-option", 38);
-    \u0275\u0275text(10, "Irgendwann");
-    \u0275\u0275elementEnd()()();
+    const _r7 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "mat-toolbar", 22)(1, "app-date-chip-select", 23);
+    \u0275\u0275listener("pickrOpened", function ListComponent_mat_toolbar_8_Template_app_date_chip_select_pickrOpened_1_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.pickerOpen = true);
+    });
+    \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275styleProp("display", ctx_r1.focusInput ? "block" : "none");
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275styleProp("display", ctx_r2.focusInput ? "block" : "none");
     \u0275\u0275advance();
-    \u0275\u0275property("formControl", ctx_r1.newItemTime);
-    \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(8, 4, ctx_r1.timePickerDate, "short") || "Andere");
+    \u0275\u0275property("formControl", ctx_r2.newItemDue)("options", ctx_r2.dueOptions);
   }
 }
 var _ListComponent = class _ListComponent {
@@ -90652,8 +90846,7 @@ var _ListComponent = class _ListComponent {
       this.router.navigateByUrl("/user/lists");
     }
   }
-  constructor(bottomSheet, router, authService, snackbar, dataService, usersService) {
-    this.bottomSheet = bottomSheet;
+  constructor(router, authService, snackbar, dataService, usersService) {
     this.router = router;
     this.authService = authService;
     this.snackbar = snackbar;
@@ -90662,9 +90855,10 @@ var _ListComponent = class _ListComponent {
     this.users = signal([]);
     this.newItem = new FormControl("");
     this.focusInput = false;
-    this.newItemTime = new FormControl("sometime");
-    this.pickerOpen = false;
+    this.newItemDue = new FormControl(DueOption.SOMETIME);
+    this.dueOptions = DueOptionLabels;
     this.initialized = false;
+    this.pickerOpen = false;
     this.slots = computed(() => {
       if (this.listItems() && this.list()) {
         return this.groupItems(this.list(), this.listItems());
@@ -90673,9 +90867,6 @@ var _ListComponent = class _ListComponent {
     });
     this.slotCollapseStates = {};
     this.me = this.authService.me;
-    this.newItemSub = this.newItemTime.valueChanges.subscribe((val) => {
-      this.toggleNewTimeSelected(val);
-    });
     effect(() => {
       if (this.initialized && (!this.list() || this.list()._deleted)) {
         const snackbar2 = this.snackbar.open("Liste wurde gel\xF6scht", "Ok");
@@ -90689,84 +90880,8 @@ var _ListComponent = class _ListComponent {
       }
     });
   }
-  ngAfterViewInit() {
-    this.timePicker = esm_default("#picker", timePickerConfig);
-    this.timePicker.config.onOpen.push(() => this.pickerOpen = true);
-  }
   ngOnDestroy() {
-    this.newItemSub.unsubscribe();
     this.users$?.unsubscribe();
-  }
-  listSettings() {
-    if (this.list && this.list()) {
-      const dialogRef = this.bottomSheet.open(AddSheetComponent, {
-        data: this.list()
-      });
-      dialogRef.afterDismissed().subscribe((new_values) => {
-        if (!!new_values && new_values.name === "") {
-          this.snackbar.open("Name darf nicht leer sein.", "Ok");
-          return;
-        }
-        if (!!new_values && this.list) {
-          const patch = { clientUpdatedAt: (/* @__PURE__ */ new Date()).toISOString() };
-          const list = this.list();
-          if (list.name !== new_values.name) {
-            Object.assign(patch, { name: new_values.name });
-          }
-          if (list.isShoppingList !== new_values.isShoppingList) {
-            Object.assign(patch, { isShoppingList: new_values.isShoppingList });
-          }
-          if (Object.keys(patch).length > 0) {
-            this.list().patch(patch);
-          }
-        }
-      });
-    }
-  }
-  shareList() {
-    if (this.list && this.list()) {
-      const dialogRef = this.bottomSheet.open(ShareListSheetComponent, {
-        data: { lists: this.list, isAdmin: this.userIsAdmin(), users: this.users }
-      });
-      dialogRef.afterDismissed().subscribe((data) => {
-        if (!!data && this.list && this.list()) {
-          if (!!data.email) {
-            this.authService.shareLists(data.email, this.list().id).subscribe((success) => {
-              if (!success) {
-                this.snackbar.open("Einladung konnte nicht verschickt werden.", "Ok");
-              }
-              this.snackbar.open("Einladung zum Beitreten der Liste wurde verschickt.", "Ok");
-            });
-          } else if (!!data.remove) {
-            const confirm = this.bottomSheet.open(ConfirmSheetComponent, {
-              data: "L\xF6sche Nutzer " + data.remove.name + " aus dieser Liste."
-            });
-            confirm.afterDismissed().subscribe((del) => {
-              this.authService.unshareLists(data.remove, this.list().id).subscribe((success) => {
-                if (!success) {
-                  this.snackbar.open("Nutzer " + data.remove.name + " wurde entfernt.", "Ok");
-                }
-                this.snackbar.open("Nutzer konnte nicht verschickt werden.", "Ok");
-              });
-            });
-          }
-        }
-      });
-    }
-  }
-  deleteList() {
-    if (this.list && this.list()) {
-      const confirm = this.bottomSheet.open(ConfirmSheetComponent, {
-        data: "L\xF6sche Liste " + this.list().name
-      });
-      confirm.afterDismissed().subscribe((del) => {
-        if (del && this.list && this.list()) {
-          this.list().remove().then(() => {
-            this.router.navigate(["/user/lists"]);
-          });
-        }
-      });
-    }
   }
   groupItems(list, items) {
     if (items && list) {
@@ -90782,110 +90897,37 @@ var _ListComponent = class _ListComponent {
   }
   addItem() {
     if (this.list && this.list() && this.me && this.me() && this.newItem.value !== "") {
-      let newTime = "";
-      switch (this.newItemTime.value) {
-        case "today":
-          newTime = /* @__PURE__ */ new Date();
-          newTime.setHours(9, 0);
-          newTime = newTime.toISOString();
-          break;
-        case "tomorrow":
-          newTime = /* @__PURE__ */ new Date();
-          newTime.setDate(newTime.getDate() + 1);
-          newTime.setHours(9, 0);
-          newTime = newTime.toISOString();
-          break;
-        case "different":
-          if (this.timePickerDate) {
-            newTime = this.timePickerDate;
-            newTime = newTime.toISOString();
-          }
-      }
+      const due = getDueDate(this.newItemDue.value || "");
       const item = {
         name: this.newItem.value,
-        due: newTime,
+        due,
         createdBy: { id: this.me().id, name: this.me.name },
         lists: this.list().id
       };
       this.dataService.db.items.insert(newItem(item, this.me().defaultReminder)).then(() => {
         this.newItem.reset();
-        this.timePickerDate = void 0;
-        this.timePicker.clear();
         this.focusInput = false;
-        this.newItemTime.setValue("sometime");
+        this.newItemDue.setValue(DueOption.SOMETIME);
       });
-    }
-  }
-  deleteAll() {
-    const confirm = this.bottomSheet.open(ConfirmSheetComponent, { data: "L\xF6sche alle Eintr\xE4ge" });
-    confirm.afterDismissed().subscribe((del) => {
-      if (this.list && this.list() && del) {
-        this.dataService.db.items.find({
-          selector: {
-            lists: this.list().id
-          }
-        }).remove();
-      }
-    });
-  }
-  deleteAllDone() {
-    const confirm = this.bottomSheet.open(ConfirmSheetComponent, { data: "L\xF6sche alle erledigten Eintr\xE4ge" });
-    confirm.afterDismissed().subscribe((del) => {
-      if (this.list && this.list() && del) {
-        this.dataService.db.items.find({
-          selector: {
-            lists: this.list().id,
-            done: true
-          }
-        }).remove();
-      }
-    });
-  }
-  markAllNotDone() {
-    if (this.list && this.list()) {
-      this.dataService.db.items.find({
-        selector: {
-          lists: this.list().id
-        }
-      }).patch({
-        done: false
-      });
-    }
-  }
-  toggleNewTimeSelected(value) {
-    if (value === null) {
-      this.addInput.nativeElement.focus();
-    }
-    if (value !== "different") {
-      this.timePicker.clear();
-      this.timePickerDate = void 0;
-      this.addInput.nativeElement.focus();
-    } else {
-      this.timePicker.open();
-    }
-  }
-  setTimePickerDate(event) {
-    if (event.target.value !== "") {
-      this.timePickerDate = this.timePicker.selectedDates[0];
-    } else {
-      this.timePickerDate = void 0;
     }
   }
   openFocusInput(event) {
     event.stopPropagation();
     this.focusInput = true;
+    if (!this.pickerOpen) {
+      this.addInput.nativeElement.focus();
+    }
   }
   closeFocusInput(event) {
-    if (!this.pickerOpen && this.focusInput) {
+    if (this.pickerOpen && this.focusInput) {
+      event.stopPropagation();
+      this.addInput.nativeElement.focus();
+      this.pickerOpen = false;
+    } else if (!this.pickerOpen && this.focusInput) {
+      event.stopPropagation();
       this.focusInput = false;
+    } else {
       event.stopPropagation();
-    } else if (this.pickerOpen) {
-      event.stopPropagation();
-      this.pickerOpen = this.timePicker.isOpen;
-      this.timePicker.close();
-      if (!this.timePickerDate) {
-        this.newItemTime.setValue("sometime");
-      }
       this.addInput.nativeElement.focus();
     }
   }
@@ -90918,120 +90960,53 @@ var _ListComponent = class _ListComponent {
   }
 };
 _ListComponent.\u0275fac = function ListComponent_Factory(\u0275t) {
-  return new (\u0275t || _ListComponent)(\u0275\u0275directiveInject(MatBottomSheet), \u0275\u0275directiveInject(Router), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(MatSnackBar), \u0275\u0275directiveInject(DataService), \u0275\u0275directiveInject(UsersService));
+  return new (\u0275t || _ListComponent)(\u0275\u0275directiveInject(Router), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(MatSnackBar), \u0275\u0275directiveInject(DataService), \u0275\u0275directiveInject(UsersService));
 };
 _ListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ListComponent, selectors: [["app-list"]], viewQuery: function ListComponent_Query(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275viewQuery(_c017, 5);
-    \u0275\u0275viewQuery(_c112, 5);
   }
   if (rf & 2) {
     let _t;
-    \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.picker = _t.first);
     \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.addInput = _t.first);
   }
-}, inputs: { id: "id" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 39, vars: 15, consts: [["menu", "matMenu"], ["itemsContainer", ""], ["addInput", ""], ["picker", ""], [1, "content-grid", 3, "click"], [1, "content-header"], ["mat-icon-button", "", 1, "menu", 3, "matMenuTriggerFor"], ["mat-menu-item", "", 3, "click", "disabled"], ["mat-menu-item", "", 3, "click"], [4, "ngIf"], ["class", "users", 3, "click", 4, "ngIf"], ["id", "items-container"], ["id", "overlay", 3, "click", 4, "ngIf"], ["class", "slots", 4, "ngFor", "ngForOf"], ["class", "no-lists", 4, "ngIf"], [1, "input-bar", 3, "click"], ["class", "toolbar-time", 3, "display", 4, "ngIf"], [1, "toolbar-input"], ["matInput", "", "placeholder", "Hinzuf\xFCgen", "autocomplete", "off", 1, "add-input", 3, "formControl"], ["mat-icon-button", "", 3, "click"], ["id", "picker", "type", "text", 3, "change"], [1, "users", 3, "click"], ["mat-mini-fab", "", "disabled", "", 3, "class", 4, "ngFor", "ngForOf"], ["mat-mini-fab", "", "disabled", ""], ["id", "overlay", 3, "click"], [1, "slots"], ["class", "slot-done-toggle", 4, "ngIf"], [4, "ngFor", "ngForOf"], [1, "slot-done-toggle"], [3, "click", "selected"], [3, "me", "list", "item", 4, "ngIf"], [3, "me", "list", "item"], [1, "no-lists"], [1, "toolbar-time"], [3, "formControl"], ["value", "today"], ["value", "tomorrow"], ["value", "different"], ["value", "sometime"]], template: function ListComponent_Template(rf, ctx) {
+}, inputs: { id: "id" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 16, vars: 12, consts: [["itemsContainer", ""], ["addInput", ""], [1, "content-grid", 3, "click"], [3, "listToText", "lists", "users", "isAdmin"], ["id", "items-container"], ["id", "overlay", 3, "click", 4, "ngIf"], ["class", "slots", 4, "ngFor", "ngForOf"], ["class", "no-lists", 4, "ngIf"], [1, "input-bar", 3, "click"], ["class", "toolbar-time", 3, "display", 4, "ngIf"], [1, "toolbar-input"], ["matInput", "", "placeholder", "Hinzuf\xFCgen", "autocomplete", "off", 1, "add-input", 3, "formControl"], ["mat-icon-button", "", 3, "click"], ["id", "overlay", 3, "click"], [1, "slots"], ["class", "slot-done-toggle", 4, "ngIf"], [4, "ngFor", "ngForOf"], [1, "slot-done-toggle"], [3, "click", "selected"], [3, "me", "list", "item", 4, "ngIf"], [3, "me", "list", "item"], [1, "no-lists"], [1, "toolbar-time"], [3, "pickrOpened", "formControl", "options"]], template: function ListComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 4);
+    \u0275\u0275elementStart(0, "div", 2);
     \u0275\u0275listener("click", function ListComponent_Template_div_click_0_listener($event) {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.closeFocusInput($event));
     });
-    \u0275\u0275elementStart(1, "div", 5)(2, "button", 6)(3, "mat-icon");
-    \u0275\u0275text(4, "more_vert");
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(5, "mat-menu", null, 0)(7, "button", 7);
-    \u0275\u0275listener("click", function ListComponent_Template_button_click_7_listener() {
-      \u0275\u0275restoreView(_r1);
-      return \u0275\u0275resetView(ctx.listSettings());
-    });
-    \u0275\u0275text(8, "Einstellungen");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(9, "button", 7);
-    \u0275\u0275listener("click", function ListComponent_Template_button_click_9_listener() {
-      \u0275\u0275restoreView(_r1);
-      return \u0275\u0275resetView(ctx.shareList());
-    });
-    \u0275\u0275text(10, "Teilen");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(11, "button", 8);
-    \u0275\u0275listener("click", function ListComponent_Template_button_click_11_listener() {
+    \u0275\u0275elementStart(1, "app-list-header", 3);
+    \u0275\u0275listener("listToText", function ListComponent_Template_app_list_header_listToText_1_listener() {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.listToText());
     });
-    \u0275\u0275text(12, "Verschicken");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "button", 8);
-    \u0275\u0275listener("click", function ListComponent_Template_button_click_13_listener() {
-      \u0275\u0275restoreView(_r1);
-      return \u0275\u0275resetView(ctx.markAllNotDone());
-    });
-    \u0275\u0275text(14, "Alle Eintr\xE4ge abw\xE4hlen");
+    \u0275\u0275elementStart(2, "div", 4, 0);
+    \u0275\u0275template(4, ListComponent_div_4_Template, 1, 0, "div", 5)(5, ListComponent_div_5_Template, 5, 3, "div", 6)(6, ListComponent_div_6_Template, 2, 0, "div", 7);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(15, "button", 8);
-    \u0275\u0275listener("click", function ListComponent_Template_button_click_15_listener() {
-      \u0275\u0275restoreView(_r1);
-      return \u0275\u0275resetView(ctx.deleteAll());
-    });
-    \u0275\u0275text(16, "Alle Eintr\xE4ge l\xF6schen");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(17, "button", 8);
-    \u0275\u0275listener("click", function ListComponent_Template_button_click_17_listener() {
-      \u0275\u0275restoreView(_r1);
-      return \u0275\u0275resetView(ctx.deleteAllDone());
-    });
-    \u0275\u0275text(18, "Alle erledigten Eintr\xE4ge l\xF6schen");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(19, "button", 7);
-    \u0275\u0275listener("click", function ListComponent_Template_button_click_19_listener() {
-      \u0275\u0275restoreView(_r1);
-      return \u0275\u0275resetView(ctx.deleteList());
-    });
-    \u0275\u0275text(20, "L\xF6schen");
-    \u0275\u0275elementEnd()();
-    \u0275\u0275template(21, ListComponent_h2_21_Template, 2, 1, "h2", 9)(22, ListComponent_div_22_Template, 2, 1, "div", 10);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(23, "div", 11, 1);
-    \u0275\u0275template(25, ListComponent_div_25_Template, 1, 0, "div", 12)(26, ListComponent_div_26_Template, 5, 3, "div", 13)(27, ListComponent_div_27_Template, 2, 0, "div", 14);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(28, "div", 15);
-    \u0275\u0275listener("click", function ListComponent_Template_div_click_28_listener($event) {
+    \u0275\u0275elementStart(7, "div", 8);
+    \u0275\u0275listener("click", function ListComponent_Template_div_click_7_listener($event) {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.openFocusInput($event));
     });
-    \u0275\u0275template(29, ListComponent_mat_toolbar_29_Template, 11, 7, "mat-toolbar", 16);
-    \u0275\u0275elementStart(30, "mat-toolbar", 17)(31, "form");
-    \u0275\u0275element(32, "input", 18, 2);
-    \u0275\u0275elementStart(34, "button", 19);
-    \u0275\u0275listener("click", function ListComponent_Template_button_click_34_listener() {
+    \u0275\u0275template(8, ListComponent_mat_toolbar_8_Template, 2, 4, "mat-toolbar", 9);
+    \u0275\u0275elementStart(9, "mat-toolbar", 10)(10, "form");
+    \u0275\u0275element(11, "input", 11, 1);
+    \u0275\u0275elementStart(13, "button", 12);
+    \u0275\u0275listener("click", function ListComponent_Template_button_click_13_listener() {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.addItem());
     });
-    \u0275\u0275elementStart(35, "mat-icon");
-    \u0275\u0275text(36, "add");
-    \u0275\u0275elementEnd()()()();
-    \u0275\u0275elementStart(37, "input", 20, 3);
-    \u0275\u0275listener("change", function ListComponent_Template_input_change_37_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      return \u0275\u0275resetView(ctx.setTimePickerDate($event));
-    });
-    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(14, "mat-icon");
+    \u0275\u0275text(15, "add");
+    \u0275\u0275elementEnd()()()()()();
   }
   if (rf & 2) {
-    const menu_r10 = \u0275\u0275reference(6);
-    \u0275\u0275advance(2);
-    \u0275\u0275property("matMenuTriggerFor", menu_r10);
-    \u0275\u0275advance(5);
-    \u0275\u0275property("disabled", !ctx.userIsAdmin());
-    \u0275\u0275advance(2);
-    \u0275\u0275property("disabled", !ctx.userIsAdmin());
-    \u0275\u0275advance(10);
-    \u0275\u0275property("disabled", !ctx.userIsAdmin());
-    \u0275\u0275advance(2);
-    \u0275\u0275property("ngIf", ctx.list());
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx.users() && ctx.users().length > 1);
+    \u0275\u0275property("lists", ctx.list)("users", ctx.users)("isAdmin", ctx.userIsAdmin());
     \u0275\u0275advance(3);
     \u0275\u0275property("ngIf", ctx.focusInput);
     \u0275\u0275advance();
@@ -91049,7 +91024,6 @@ _ListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _
   CommonModule,
   NgForOf,
   NgIf,
-  DatePipe,
   FormsModule,
   \u0275NgNoValidate,
   DefaultValueAccessor,
@@ -91058,24 +91032,21 @@ _ListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _
   NgForm,
   MaterialModule,
   MatIconButton,
-  MatMiniFabButton,
   MatChipListbox,
   MatChipOption,
   MatIcon,
   MatInput,
-  MatMenu,
-  MatMenuItem,
-  MatMenuTrigger,
   MatToolbar,
   RouterModule,
   ReactiveFormsModule,
   FormControlDirective,
-  NameBadgePipe,
-  ListItemComponent
-], styles: ['\n\n.content-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-rows: [contentHeader] max-content [contentArea] 1fr [inputBar] 65px;\n  width: 100%;\n  height: 100%;\n  position: relative;\n  z-index: 11;\n  justify-content: start;\n  grid-template-columns: 100%;\n  grid-template-areas: "contentHeader" "contentArea" "inputBar";\n}\n.content-grid[_ngcontent-%COMP%]:has(.focusInput) {\n  height: calc(100% + 85px);\n  grid-template-rows: [contentHeader] max-content [contentArea] 1fr [inputBar] auto;\n}\n.content-header[_ngcontent-%COMP%] {\n  grid-area: contentHeader;\n  position: relative;\n}\n.content-header[_ngcontent-%COMP%]   .menu[_ngcontent-%COMP%] {\n  position: absolute;\n  top: -4px;\n  right: 0;\n}\n.content-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  margin-top: 0;\n}\n.content-header[_ngcontent-%COMP%]   .users[_ngcontent-%COMP%] {\n  margin-bottom: 12px;\n  margin-top: -12px;\n}\n#items-container[_ngcontent-%COMP%] {\n  grid-area: contentArea;\n  height: 100%;\n  overflow-y: auto;\n  overflow-x: hidden;\n  position: relative;\n}\n#items-container[_ngcontent-%COMP%]   #overlay[_ngcontent-%COMP%] {\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  z-index: 1000;\n}\n#items-container[_ngcontent-%COMP%]   .slot-done-toggle[_ngcontent-%COMP%] {\n  float: right;\n}\n#items-container[_ngcontent-%COMP%]   .slots[_ngcontent-%COMP%]:not(:first-child) {\n  margin-top: 0.5em;\n}\n#items-container[_ngcontent-%COMP%]   .no-lists[_ngcontent-%COMP%] {\n  width: 100%;\n  color: grey;\n  text-align: center;\n  padding-top: 25%;\n}\n.slots[_ngcontent-%COMP%]   mat-chip-option[_ngcontent-%COMP%] {\n  line-height: 36px;\n  -webkit-user-select: none;\n  user-select: none;\n}\n.slots[_ngcontent-%COMP%]   mat-chip-option[_ngcontent-%COMP%]   mat-icon[_ngcontent-%COMP%] {\n  position: relative;\n  top: 6px;\n}\n.input-bar[_ngcontent-%COMP%] {\n  grid-area: inputBar;\n  width: calc(100% + 24px);\n  margin-left: -12px;\n  display: flex;\n  justify-content: space-between;\n  flex-direction: column;\n}\n.input-bar[_ngcontent-%COMP%]   mat-toolbar[_ngcontent-%COMP%] {\n  width: 100%;\n}\n.input-bar[_ngcontent-%COMP%]   mat-toolbar.toolbar-time[_ngcontent-%COMP%] {\n  display: none;\n  padding: 8px;\n  min-height: 46px;\n  height: auto;\n}\n.input-bar[_ngcontent-%COMP%]   mat-toolbar.toolbar-input[_ngcontent-%COMP%] {\n  padding: 12px;\n  height: 64px;\n}\n.input-bar[_ngcontent-%COMP%]   mat-toolbar.toolbar-input[_ngcontent-%COMP%]   form[_ngcontent-%COMP%] {\n  display: flex;\n  width: 100%;\n}\n.input-bar[_ngcontent-%COMP%]   mat-toolbar.toolbar-input[_ngcontent-%COMP%]   form[_ngcontent-%COMP%]   .add-input[_ngcontent-%COMP%] {\n  border: none;\n  border-radius: 8px;\n  padding: 8px;\n  width: 100%;\n  background-color: white;\n  line-height: 32px;\n  font-size: 20px;\n  flex-grow: 1;\n}\n.input-bar[_ngcontent-%COMP%]   mat-toolbar.toolbar-input.isShoppingList[_ngcontent-%COMP%] {\n  height: 78px;\n}\n#picker[_ngcontent-%COMP%] {\n  opacity: 0;\n  position: absolute;\n  bottom: 30px;\n  height: 0;\n  width: 0;\n  z-index: -100;\n}\n/*# sourceMappingURL=list.component.css.map */'] });
+  ListItemComponent,
+  DateChipSelectComponent,
+  ListHeaderComponent
+], styles: ['\n\n.content-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-rows: [contentHeader] max-content [contentArea] 1fr [inputBar] 65px;\n  width: 100%;\n  height: 100%;\n  position: relative;\n  z-index: 11;\n  justify-content: start;\n  grid-template-columns: 100%;\n  grid-template-areas: "contentHeader" "contentArea" "inputBar";\n}\n.content-grid[_ngcontent-%COMP%]:has(.focusInput) {\n  height: calc(100% + 85px);\n  grid-template-rows: [contentHeader] max-content [contentArea] 1fr [inputBar] auto;\n}\n#items-container[_ngcontent-%COMP%] {\n  grid-area: contentArea;\n  height: 100%;\n  overflow-y: auto;\n  overflow-x: hidden;\n  position: relative;\n}\n#items-container[_ngcontent-%COMP%]   #overlay[_ngcontent-%COMP%] {\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  z-index: 1000;\n}\n#items-container[_ngcontent-%COMP%]   .slot-done-toggle[_ngcontent-%COMP%] {\n  float: right;\n}\n#items-container[_ngcontent-%COMP%]   .slots[_ngcontent-%COMP%]:not(:first-child) {\n  margin-top: 0.5em;\n}\n#items-container[_ngcontent-%COMP%]   .no-lists[_ngcontent-%COMP%] {\n  width: 100%;\n  color: grey;\n  text-align: center;\n  padding-top: 25%;\n}\n.slots[_ngcontent-%COMP%]   mat-chip-option[_ngcontent-%COMP%] {\n  line-height: 36px;\n  -webkit-user-select: none;\n  user-select: none;\n}\n.slots[_ngcontent-%COMP%]   mat-chip-option[_ngcontent-%COMP%]   mat-icon[_ngcontent-%COMP%] {\n  position: relative;\n  top: 6px;\n}\n.input-bar[_ngcontent-%COMP%] {\n  grid-area: inputBar;\n  width: calc(100% + 24px);\n  margin-left: -12px;\n  display: flex;\n  justify-content: space-between;\n  flex-direction: column;\n}\n.input-bar[_ngcontent-%COMP%]   mat-toolbar[_ngcontent-%COMP%] {\n  width: 100%;\n}\n.input-bar[_ngcontent-%COMP%]   mat-toolbar.toolbar-time[_ngcontent-%COMP%] {\n  display: none;\n  padding: 8px;\n  min-height: 46px;\n  height: auto;\n}\n.input-bar[_ngcontent-%COMP%]   mat-toolbar.toolbar-input[_ngcontent-%COMP%] {\n  padding: 12px;\n  height: 64px;\n}\n.input-bar[_ngcontent-%COMP%]   mat-toolbar.toolbar-input[_ngcontent-%COMP%]   form[_ngcontent-%COMP%] {\n  display: flex;\n  width: 100%;\n}\n.input-bar[_ngcontent-%COMP%]   mat-toolbar.toolbar-input[_ngcontent-%COMP%]   form[_ngcontent-%COMP%]   .add-input[_ngcontent-%COMP%] {\n  border: none;\n  border-radius: 8px;\n  padding: 8px;\n  width: 100%;\n  background-color: white;\n  line-height: 32px;\n  font-size: 20px;\n  flex-grow: 1;\n}\n.input-bar[_ngcontent-%COMP%]   mat-toolbar.toolbar-input.isShoppingList[_ngcontent-%COMP%] {\n  height: 78px;\n}\n/*# sourceMappingURL=list.component.css.map */'] });
 var ListComponent = _ListComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ListComponent, { className: "ListComponent", filePath: "src/app/components/list/list.component.ts", lineNumber: 41 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ListComponent, { className: "ListComponent", filePath: "src/app/components/list/list.component.ts", lineNumber: 39 });
 })();
 
 // src/app/app.routes.ts

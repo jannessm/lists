@@ -1,27 +1,23 @@
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, Signal, ViewChild, WritableSignal, computed, effect, signal } from '@angular/core';
+import { Component, ElementRef, Input, OnDestroy, Signal, ViewChild, WritableSignal, computed, effect, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.component';
-import { ShareListSheetComponent } from '../bottom-sheets/share-list-sheet/share-list-sheet.component';
-
-import flatpickr from "flatpickr";
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ConfirmSheetComponent } from '../bottom-sheets/confirm-sheet/confirm-sheet.component';
 import { DataService } from '../../services/data/data.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { MyListsDocument } from '../../mydb/types/lists';
 import { Slot, groupItems } from '../../../models/categories';
 import { MyItemDocument, newItem } from '../../mydb/types/list-item';
-import { CommonModule, Location } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../material.module';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
-import { ListItemComponent } from '../list-item/list-item.component';
+import { ListItemComponent } from './list-item/list-item.component';
 import { MyMeDocument } from '../../mydb/types/me';
-import { timePickerConfig } from '../../../models/time-picker';
 import { Subscription } from 'rxjs';
 import { MyUsersDocument } from '../../mydb/types/users';
 import { UsersService } from '../../services/users/users.service';
+import { DueOption, DueOptionLabels, getDueDate } from '../selects/date-chip-select/options';
+import { DateChipSelectComponent } from '../selects/date-chip-select/date-chip-select.component';
+import { ListHeaderComponent } from './list-header/list-header.component';
 
 @Component({
   selector: 'app-list',
@@ -33,13 +29,14 @@ import { UsersService } from '../../services/users/users.service';
     RouterModule,
     ReactiveFormsModule,
     NameBadgePipe,
-    ListItemComponent
+    ListItemComponent,
+    DateChipSelectComponent,
+    ListHeaderComponent
   ],
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss']
 })
-export class ListComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('picker') picker!: ElementRef;
+export class ListComponent implements OnDestroy {
   @ViewChild('addInput') addInput!: ElementRef;
 
   @Input()
@@ -66,12 +63,10 @@ export class ListComponent implements AfterViewInit, OnDestroy {
 
   newItem = new FormControl('');
   focusInput: boolean = false;
-  newItemTime = new FormControl('sometime');
-  newItemSub: Subscription;
-  timePicker!: flatpickr.Instance;
-  timePickerDate: Date | undefined;
-  pickerOpen = false;
+  newItemDue = new FormControl<string>(DueOption.SOMETIME);
+  dueOptions = DueOptionLabels;
   initialized = false;
+  pickerOpen = false;
 
   slots: Signal<Slot[]> = computed(() => {
     if (this.listItems() && this.list()) {
@@ -82,7 +77,6 @@ export class ListComponent implements AfterViewInit, OnDestroy {
   slotCollapseStates: {[key: string]: boolean} = {};
 
   constructor(
-    private bottomSheet: MatBottomSheet,
     private router: Router,
     private authService: AuthService,
     private snackbar: MatSnackBar,
@@ -90,10 +84,6 @@ export class ListComponent implements AfterViewInit, OnDestroy {
     private usersService: UsersService
   ) {
     this.me = this.authService.me;
-
-    this.newItemSub = this.newItemTime.valueChanges.subscribe(val => {
-      this.toggleNewTimeSelected(val);
-    });
 
     effect(() => {
       // handle if a list gets deleted while the list is opened
@@ -112,102 +102,8 @@ export class ListComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  ngAfterViewInit(): void {
-    this.timePicker = flatpickr('#picker', timePickerConfig) as flatpickr.Instance;
-    this.timePicker.config.onOpen.push(() => this.pickerOpen = true);
-  }
-
   ngOnDestroy() {
-    this.newItemSub.unsubscribe();
     this.users$?.unsubscribe();
-  }
-
-  listSettings() {
-    if (this.list && this.list()) {
-      const dialogRef = this.bottomSheet.open(AddSheetComponent, {
-        data: this.list()
-      });
-  
-      dialogRef.afterDismissed().subscribe(new_values => {
-        if (!!new_values && new_values.name === '') {
-          this.snackbar.open('Name darf nicht leer sein.', 'Ok');
-          return;
-        }
-        
-        if (!!new_values && this.list) {
-          const patch = {clientUpdatedAt: (new Date()).toISOString()};
-          const list = this.list();
-
-          if (list.name !== new_values.name) {
-            Object.assign(patch, {name: new_values.name});
-          }
-          
-          if (list.isShoppingList !== new_values.isShoppingList) {
-            Object.assign(patch, {isShoppingList: new_values.isShoppingList});
-          }
-
-          if (Object.keys(patch).length > 0) {
-            this.list().patch(patch);
-          }
-        }
-      });
-    }
-  }
-
-  shareList() {
-    if (this.list && this.list()) {
-      const dialogRef = this.bottomSheet.open(ShareListSheetComponent, {
-        data: {lists: this.list, isAdmin: this.userIsAdmin(), users: this.users}
-      });
-
-      dialogRef.afterDismissed().subscribe(data => {
-        if (!!data && this.list && this.list()) {
-
-          // add
-          if (!!data.email) {
-            this.authService.shareLists(data.email, this.list().id)
-              .subscribe(success => {
-                if (!success) {
-                  this.snackbar.open('Einladung konnte nicht verschickt werden.', 'Ok');
-                }
-                this.snackbar.open('Einladung zum Beitreten der Liste wurde verschickt.', 'Ok');
-              });
-          
-          // remove
-          } else if (!!data.remove) {
-            const confirm = this.bottomSheet.open(ConfirmSheetComponent, {
-              data: 'Lösche Nutzer ' + data.remove.name + ' aus dieser Liste.'
-            });
-
-            confirm.afterDismissed().subscribe(del => {
-              this.authService.unshareLists(data.remove, this.list().id)
-                .subscribe(success => {
-                  if (!success) {
-                    this.snackbar.open('Nutzer ' + data.remove.name + ' wurde entfernt.', 'Ok');
-                  }
-                  this.snackbar.open('Nutzer konnte nicht verschickt werden.', 'Ok');
-                })
-            })
-          }
-        }
-      })
-    }
-  }
-
-  deleteList() {
-    if (this.list && this.list()) {
-      const confirm = this.bottomSheet.open(ConfirmSheetComponent, {
-        data: 'Lösche Liste ' + this.list().name
-      });
-      
-      confirm.afterDismissed().subscribe(del => {
-        if (del && this.list && this.list()) {
-          this.list().remove().then(() => {
-            this.router.navigate(['/user/lists']);
-          });
-        }
-      })
-    }
   }
 
   groupItems(list: MyListsDocument, items: MyItemDocument[]): Slot[] {
@@ -231,126 +127,53 @@ export class ListComponent implements AfterViewInit, OnDestroy {
         this.me && this.me() &&
         this.newItem.value !== ''
       ) {
-      let newTime: string | Date = '';
-
-      switch(this.newItemTime.value) {
-        case 'today':
-          newTime = new Date();
-          newTime.setHours(9, 0);
-          newTime = newTime.toISOString();
-          break;
-        case 'tomorrow':
-          newTime = new Date();
-          newTime.setDate(newTime.getDate() + 1);
-          newTime.setHours(9, 0);
-          newTime = newTime.toISOString();
-          break;
-        case 'different':
-          if (this.timePickerDate) {
-            newTime = this.timePickerDate;
-            newTime = newTime.toISOString();
-          }
-      }
+      const due = getDueDate(this.newItemDue.value || '');
 
       const item = {
         name: this.newItem.value,
-        due: newTime,
+        due: due,
         createdBy: {id: this.me().id, name: this.me.name},
         lists: this.list().id
       };
 
-      this.dataService.db.items.insert(newItem(item, this.me().defaultReminder))
-        .then(() => {
-          this.newItem.reset();
-          this.timePickerDate = undefined;
-          this.timePicker.clear();
-          this.focusInput = false;
-          this.newItemTime.setValue('sometime');
-        });
-    }
-  }
-
-
-  deleteAll() {
-    const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche alle Einträge'});
-    
-    confirm.afterDismissed().subscribe(del => {
-      if (this.list && this.list() && del) {
-        this.dataService.db.items.find({
-          selector: {
-            lists: this.list().id
-          }
-        }).remove();
-      }
-    });
-  }
-
-  deleteAllDone() {
-    const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche alle erledigten Einträge'});
-    
-    confirm.afterDismissed().subscribe(del => {
-      if (this.list && this.list() && del) {
-        this.dataService.db.items.find({
-          selector: {
-            lists: this.list().id,
-            done: true
-          }
-        }).remove();
-      }
-    });
-  }
-
-  markAllNotDone() {
-    if (this.list && this.list()) {
-      this.dataService.db.items.find({
-        selector: {
-          lists: this.list().id
-        }
-      }).patch({
-        done: false
+      this.dataService.db.items.insert(
+        newItem(item, this.me().defaultReminder)
+      ).then(() => {
+        this.newItem.reset();
+        this.focusInput = false;
+        this.newItemDue.setValue(DueOption.SOMETIME);
       });
-    }
-  }
-
-  toggleNewTimeSelected(value: string | null) {
-    if (value === null) {
-      this.addInput.nativeElement.focus();
-    }
-
-    if (value !== 'different') {
-      this.timePicker.clear();
-      this.timePickerDate = undefined;
-      this.addInput.nativeElement.focus();
-    } else {
-      this.timePicker.open();
-    }
-  }
-
-  setTimePickerDate(event: any) {
-    if (event.target.value !== '') {
-      this.timePickerDate = this.timePicker.selectedDates[0];
-    } else {
-      this.timePickerDate = undefined;
     }
   }
 
   openFocusInput(event: Event) {
     event.stopPropagation();
     this.focusInput = true;
+    
+    if (!this.pickerOpen) {
+      this.addInput.nativeElement.focus();
+    }
   }
 
   closeFocusInput(event: Event) {
-    if (!this.pickerOpen && this.focusInput) {
-      this.focusInput = false;
-      event.stopPropagation();
-    } else if (this.pickerOpen) {
-      event.stopPropagation();
-      this.pickerOpen = this.timePicker.isOpen;
-      this.timePicker.close();
+    // picker was open && add form is in focus
+    //    => focus input and set pickerOpen to false
+    // picker was not open && add form is in focus
+    //    => remove focus on add form
+    // some click occured on the add form
+    //    => focus add input
 
-      if (!this.timePickerDate) {
-        this.newItemTime.setValue('sometime');
-      }
+    if (this.pickerOpen && this.focusInput) {
+      event.stopPropagation();
+      this.addInput.nativeElement.focus();
+      this.pickerOpen = false;
+
+    } else if (!this.pickerOpen && this.focusInput) {
+      event.stopPropagation();
+      this.focusInput = false;
+
+    } else {
+      event.stopPropagation();
       this.addInput.nativeElement.focus();
     }
   }
