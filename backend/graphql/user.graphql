@@ -14,7 +14,8 @@ type User implements Item {
   "When the email was verified."
   emailVerifiedAt: DateTimeUtc @canRoot(ability: "viewDetails") @rename(attribute: "email_verified_at")
 
-  lists: [Lists]!
+  ""
+  lists: [Lists]! @canRoot(ability: "viewDetails") @method(name: "lists")
 
   "Theme setting: One of ['auto', 'dark', 'light']"
   theme: String @canRoot(ability: "viewDetails")

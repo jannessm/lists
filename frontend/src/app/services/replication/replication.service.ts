@@ -86,7 +86,13 @@ export class ReplicationService implements OnDestroy {
         },
         stream$: await this.initStream(collectionName, meId),
         modifier: (doc: any) => {
-          packRef(doc, ['lists', 'createdBy', 'sharedWith']);
+          packRef(doc, ['createdBy', 'sharedWith']);
+
+          if (collectionName == 'me') {
+            doc['lists'] = doc['lists'].map((d: any) => d['id']);
+          } else if ('lists' in doc) {
+            doc['lists'] = doc['lists']['id'];
+          }
 
           doc['clientUpdatedAt'] = (new Date()).toISOString();
 
@@ -109,7 +115,13 @@ export class ReplicationService implements OnDestroy {
         modifier: (doc: any) => {
           removeItems(doc, ['sharedWith', 'items']);
 
-          unpackRef(doc, ['lists', 'createdBy']);
+          unpackRef(doc, ['createdBy']);
+
+          if (collectionName == 'me') {
+            delete doc['lists'];
+          } else if ('lists' in doc) {
+            doc['lists'] = {id: doc['lists']};
+          }
 
           return doc;
         }

@@ -23,6 +23,7 @@ body {
     // @include mat.snack-bar-typography(m3-theme.$light-theme);
     // @include mat.toolbar-typography(m3-theme.$light-theme);
 
+    @include mat.autocomplete-theme(m3-theme.$light-theme);
     @include mat.badge-theme(m3-theme.$light-theme);
     @include mat.button-theme(m3-theme.$light-theme);
     @include mat.fab-theme(m3-theme.$light-theme);
@@ -42,6 +43,7 @@ body {
         color: white;
         
         @include mat.core-color(m3-theme.$dark-theme);
+        @include mat.autocomplete-color(m3-theme.$dark-theme);
         @include mat.badge-color(m3-theme.$dark-theme);
         @include mat.button-color(m3-theme.$dark-theme);
         @include mat.fab-color(m3-theme.$dark-theme);

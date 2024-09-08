@@ -58,6 +58,11 @@ export async function addCollections(db: MyDatabase): Promise<MyDatabase> {
     await db.addCollections({
         [DATA_TYPE.ME]: {
             schema: ME_SCHEMA,
+            methods: {
+                hasLists: function(listId: string) {
+                    return !!((this as any).lists.find((l: string) => l === listId));
+                }
+            }
         },
         [DATA_TYPE.USERS]: {
             schema: ME_SCHEMA,

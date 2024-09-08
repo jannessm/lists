@@ -8,11 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Notification;
 
-use Nuwave\Lighthouse\Execution\Utils\Subscription;
-
-use App\Notifications\ListsChanged;
+use App\Events\ListItemChanged;
 
 class ListItem extends Model
 {
@@ -117,22 +114,8 @@ class ListItem extends Model
             ListItem::upsert($upserts, ['id']);
             $ids = array_column($upserts, 'id');
             $updatedItems = ListItem::whereIn('id', $ids)->orderBy('updated_at')->get()->all();
-            Subscription::broadcast('streamItems', $updatedItems);
 
-            foreach($updatedItems as $updatedItem) {
-                foreach($args['rows'] as $row) {
-                    if ($updatedItem->id === $row['newDocumentState']['id']) {
-                        $users = $updatedItem->lists->users();
-                        $otherUsers = $users->whereNotIn('id', [$user->id]);
-                        
-                        $notification = ListsChanged::fromPushRow($row, $updatedItem, $user);
-                        
-                        // Notification::send($otherUsers, $notification);
-                        Notification::send($users, $notification);
-                        break;
-                    }
-                }
-            }
+            ListItemChanged::dispatch($updatedItems, $args['rows'], $user);
         }
 
         return $conflicts;

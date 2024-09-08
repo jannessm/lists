@@ -20,6 +20,7 @@ use Nuwave\Lighthouse\Execution\Utils\Subscription;
 
 use App\CanShareLists;
 use App\WebPush\HasPushSettings;
+use App\Events\UserChanged;
 
 class User extends Authenticatable implements MustVerifyEmail, CanResetPassword {
     use HasApiTokens,
@@ -134,16 +135,16 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
 
             if (!$conflict) {
                 $newState['password'] = $masterUser->password;
-                array_push($upserts, ['new' => $newState, 'master' => $masterUser]);
+                array_push($upserts, $newState);
             }
         }
 
         if (count($upserts) > 0) {
-            $newStates = array_column($upserts, 'new');
-            User::upsert($newStates, ['id']);
-            $ids = array_column($newStates, 'id');
+            User::upsert($upserts, ['id']);
+            $ids = array_column($upserts, 'id');
             $updatedMe = User::whereIn('id', $ids)->orderBy('updated_at')->get()->all();
-            Subscription::broadcast('streamMe', $updatedMe);
+
+            UserChanged::dispatch($updatedMe);
         }
 
         return $conflicts;

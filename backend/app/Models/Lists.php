@@ -118,7 +118,8 @@ class Lists extends Model
             Lists::upsert($upserts, ['id']);
             $ids = array_column($upserts, 'id');
             $updatedLists = Lists::whereIn('id', $ids)->orderBy('updated_at')->get()->all();
-            Subscription::broadcast('streamLists', $updatedLists);
+
+            ListsChanged::dispatch($updatedLists);
         }
 
         return $conflicts;

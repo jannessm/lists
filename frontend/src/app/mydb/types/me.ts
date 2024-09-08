@@ -27,6 +27,12 @@ export const ME_SCHEMA = {
         emailVerifiedAt: {
             type: ['string', 'null']
         },
+        lists: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
 
         // settings
         theme: {
@@ -42,6 +48,9 @@ export const ME_SCHEMA = {
 } as const;
 
 type MyMeDocumentType = AsTyped<typeof ME_SCHEMA>;
+type MyMeMethods = {
+    hasLists(id: string): boolean
+}
 
-export type MyMeDocument = MyDocument<MyMeDocumentType, {}>
-export type MyMeCollection = MyCollection<MyMeDocumentType, {}, Signal<MyMeDocument>>;
+export type MyMeDocument = MyDocument<MyMeDocumentType, MyMeMethods>
+export type MyMeCollection = MyCollection<MyMeDocumentType, MyMeMethods, Signal<MyMeDocument>>;

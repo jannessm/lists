@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Laravel\Fortify\Contracts\EmailVerificationNotificationSentResponse;
 
 use App\Models\Lists;
@@ -16,7 +16,7 @@ class ShareListsController extends Controller
      * @param  \Laravel\Fortify\Http\Requests\VerifyEmailRequest  $request
      * @return \Laravel\Fortify\Contracts\VerifyEmailResponse
      */
-    public function confirm(Request $request, String $id)
+    public function confirm(Request $request, String $id, Response $response)
     {
         if ($request->user()->hasAccessToLists($id) || 
             $request->user()->confirmShareLists($id)
@@ -24,13 +24,13 @@ class ShareListsController extends Controller
             return redirect()->intended('');
         }
 
-        return new JsonReponse('', 400);
+        return $response->setStatusCode(400);
     }
 
-    public function unshare(Request $request, String $lists_id) {
+    public function unshare(Request $request, String $lists_id, Response $response) {
         $request->user()->unshareLists($lists_id, $request->input('user'));
 
-        return new JsonResponse('', 201);
+        return $response->setStatusCode(201);
     }
 
     /**

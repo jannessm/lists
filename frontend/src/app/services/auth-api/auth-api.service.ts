@@ -189,9 +189,9 @@ export class AuthApiService {
   }
 
   okMapper(res: HttpResponse<any> | boolean) {
-    console.log('ok', res);
+    console.log(res);
     if (res instanceof HttpResponse) {
-      return res.status === 200;
+      return res.ok;
     }
     return res;
   }

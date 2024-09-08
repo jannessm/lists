@@ -9,10 +9,16 @@ final class StreamMe extends StreamAuthorize
 {
 
     public function hasAccess(mixed $rootItem, string $userId) {
-        return true;
+        return $rootItem->id === $userId;
     }
     public function filterRoot(mixed $root, string $userId) {
-        return;
+        foreach($root as $item) {
+            if ($item->id === $userId) {
+                return [$item];
+            }
+        }
+
+        return [];
     }
     
     /** Restructure response */

@@ -39,7 +39,6 @@ abstract class StreamAuthorize extends GraphQLSubscription {
             }
         }
 
-        // return $subscriber->socket_id !== request()->header('X-Socket-ID') && $hasAccess;
         return $hasAccess;
     }
 

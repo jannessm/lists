@@ -10,6 +10,8 @@ use App\Mail\InvitationEmail;
 use App\Mail\ShareListsEmail;
 use App\Models\User;
 use App\Models\Lists;
+use App\Events\UserChanged;
+use App\Events\ListsChanged;
 
 trait CanShareLists
 {
@@ -26,46 +28,46 @@ trait CanShareLists
         return false;
     }
 
+    /**
+     * if a list is found =>
+     *   - add current user to this list
+     *   - stream users of list to refresh their lists property
+     *   - stream list to update users at the frontend
+     *   - mark users email as verified
+     */
     public function confirmShareLists(String $lists_id) {
         $lists = Lists::where('id', $lists_id)->first();
 
-        if ($lists) {
+        if ($lists && !$this->hasAccessToLists($lists_id)) {
             $lists->sharedWith()->attach($this);
 
-            // set updated at to trigger resync
-            $lists->updated_at = $this->freshTimestamp();
-            $lists->save();
-
-            foreach($lists->items->all() as $item) {
-                $item->updated_at = $item->freshTimestamp();
-                $item->save();
-            }
-
-            if (!$this->hasVerifiedEmail()) {
-                $this->markEmailAsVerified();
-            }
-
-            Subscription::broadcast('streamLists', collect([$lists])->all());
-            Subscription::broadcast('streamItems', $lists->items->all());
-            Subscription::broadcast('streamUsers', $lists->users());
+            $this->dispatchChanges($lists);
             
             return true;
         }
         return false;
     }
 
+    /**
+     * if a list is found and the acting user is the creator of this list =>
+     *   - remove user from list
+     *   - stream list to update their users property
+     *   - stream all old users to update their lists property
+     */
     public function unshareLists(String $lists_id, String $user_id) {
         $lists = Lists::where('id', $lists_id)->first();
 
         if (!!$user_id && $this->id === $lists->createdBy->id) {
+            $old_users = $lists->users()->all();
+
+            // remove user from list
             $lists->sharedWith()->detach($user_id);
             
-            $lists->updated_at = $this->freshTimestamp();
-            $lists->save();
-            
-            Subscription::broadcast('streamLists', collect([$lists])->all());
-            Subscription::broadcast('streamUsers', $lists->users);
+            $this->dispatchChanges($lists, $old_users);
+
+            return true;
         }
+        return false;
     }
 
     public function sendShareEmailNotification(String $id, String $email) {
@@ -77,5 +79,23 @@ trait CanShareLists
             Mail::to($email)->send(new InvitationEmail);
             Mail::to($email)->send(new ShareListsEmail($id));
         }
+    }
+
+    private function dispatchChanges(Lists $lists, $old_users = null) {
+        // refresh timestamps to trigger resync
+        $lists->updated_at = $this->freshTimestamp();
+        $lists->save();
+
+        foreach($lists->users() as $user) {
+            $user->updated_at = $this->freshTimestamp();
+            $user->save();
+        }
+
+        if ($old_users !== null) {
+            UserChanged::dispatch($old_users);
+        } else {
+            UserChanged::dispatch($lists->users()->all());
+        }
+        ListsChanged::dispatch([$lists]);
     }
 }

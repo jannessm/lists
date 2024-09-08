@@ -87,15 +87,14 @@ export class ListComponent implements OnDestroy {
 
     effect(() => {
       // handle if a list gets deleted while the list is opened
-      if(this.initialized && (!this.list() || this.list()._deleted)) {
+      if(!!this.list() && !this.me().hasLists(this.list().id)) {
         const snackbar = this.snackbar.open('Liste wurde gelöscht', 'Ok');
         snackbar.afterDismissed().subscribe(() => {
           this.router.navigateByUrl('/user/lists');
         });
       
       // make sure a list was loaded before
-      } else if (!this.initialized && !!this.list()) {
-        this.initialized = true;
+      } else if (!!this.list()) {
         const users = this.usersService.getMany(this.list().users());
         this.users$ = users.subscribe(u => this.users.set(u));
       }

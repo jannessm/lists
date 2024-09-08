@@ -26,8 +26,13 @@ export function removeItems(doc: any, keys: string[]) {
 
 export function fixQuery(query: string): string {
 
-    query = query.replace('lists', 'lists { id }')
-        .replace('createdBy', 'createdBy { id }')
+    if (query.includes('Me')) {
+        query = query.replace('lists {', 'lists { id');
+    } else {
+        query = query.replace('lists', 'lists { id }');
+    }
+
+    query = query.replace('createdBy', 'createdBy { id }')
         .replace('sharedWith {\n                }', 'sharedWith { id }');
   
     return query;

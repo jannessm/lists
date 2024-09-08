@@ -41,7 +41,7 @@ export interface CollectionOptions {
 }
 
 export type CollectionMethods = {
-    [key: string]: () => any;
+    [key: string]: (...any) => any;
 }
 
 export type QueryOptions = {

@@ -82247,9 +82247,9 @@ var _AuthApiService = class _AuthApiService {
     }, { observe: "response" }).pipe(catchError(() => of(false)), map(this.okMapper));
   }
   okMapper(res) {
-    console.log("ok", res);
+    console.log(res);
     if (res instanceof HttpResponse) {
-      return res.status === 200;
+      return res.ok;
     }
     return res;
   }
@@ -82550,6 +82550,12 @@ var ME_SCHEMA = {
     },
     emailVerifiedAt: {
       type: ["string", "null"]
+    },
+    lists: {
+      type: "array",
+      items: {
+        type: "string"
+      }
     },
     // settings
     theme: {
@@ -83213,7 +83219,12 @@ function addCollections(db) {
     console.log("DatabaseService: create collections");
     yield db.addCollections({
       [DATA_TYPE.ME]: {
-        schema: ME_SCHEMA
+        schema: ME_SCHEMA,
+        methods: {
+          hasLists: function(listId) {
+            return !!this.lists.find((l) => l === listId);
+          }
+        }
       },
       [DATA_TYPE.USERS]: {
         schema: ME_SCHEMA
@@ -83491,7 +83502,12 @@ function removeItems(doc, keys) {
   });
 }
 function fixQuery(query2) {
-  query2 = query2.replace("lists", "lists { id }").replace("createdBy", "createdBy { id }").replace("sharedWith {\n                }", "sharedWith { id }");
+  if (query2.includes("Me")) {
+    query2 = query2.replace("lists {", "lists { id");
+  } else {
+    query2 = query2.replace("lists", "lists { id }");
+  }
+  query2 = query2.replace("createdBy", "createdBy { id }").replace("sharedWith {\n                }", "sharedWith { id }");
   return query2;
 }
 
@@ -83589,7 +83605,12 @@ var _ReplicationService = class _ReplicationService {
           },
           stream$: yield this.initStream(collectionName, meId),
           modifier: (doc) => {
-            packRef(doc, ["lists", "createdBy", "sharedWith"]);
+            packRef(doc, ["createdBy", "sharedWith"]);
+            if (collectionName == "me") {
+              doc["lists"] = doc["lists"].map((d) => d["id"]);
+            } else if ("lists" in doc) {
+              doc["lists"] = doc["lists"]["id"];
+            }
             doc["clientUpdatedAt"] = (/* @__PURE__ */ new Date()).toISOString();
             return doc;
           }
@@ -83608,7 +83629,12 @@ var _ReplicationService = class _ReplicationService {
           },
           modifier: (doc) => {
             removeItems(doc, ["sharedWith", "items"]);
-            unpackRef(doc, ["lists", "createdBy"]);
+            unpackRef(doc, ["createdBy"]);
+            if (collectionName == "me") {
+              delete doc["lists"];
+            } else if ("lists" in doc) {
+              doc["lists"] = { id: doc["lists"] };
+            }
             return doc;
           }
         };
@@ -90571,7 +90597,7 @@ _ShareListSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
   MatAutocompleteModule,
   MatAutocomplete,
   MatAutocompleteTrigger
-], styles: ["\n\n.shared-user[_ngcontent-%COMP%] {\n  width: calc(100% - 24px);\n  padding: 6px 12px;\n  border-radius: 5px;\n  border: solid 1px grey;\n  display: flex;\n  justify-content: space-between;\n  margin-bottom: 8px;\n}\n.shared-user[_ngcontent-%COMP%]   .admin[_ngcontent-%COMP%] {\n  color: grey;\n  margin: auto 0;\n}\n.shared-user[_ngcontent-%COMP%]   .badge[_ngcontent-%COMP%] {\n  width: 48px;\n  height: 48px;\n  margin-left: 0 !important;\n  margin-right: 12px;\n}\n.shared-user[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin-top: 0 !important;\n  margin-bottom: 0 !important;\n}\n.shared-user[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  line-height: 42px;\n}\n.user-info[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 4px;\n  align-items: center;\n}\n.user-info[_ngcontent-%COMP%]   .email[_ngcontent-%COMP%] {\n  color: grey;\n}\n/*# sourceMappingURL=share-list-sheet.component.css.map */", "\n\nbutton[_ngcontent-%COMP%] {\n  width: 100%;\n  margin: 6px 0;\n}\nbutton[_ngcontent-%COMP%]:last-child {\n  margin-bottom: 38pt;\n}\nform[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  margin: 24px 0;\n}\nform[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  margin: 24px 0;\n}\n/*# sourceMappingURL=styles.css.map */"] });
+], styles: ["\n\n.shared-user[_ngcontent-%COMP%] {\n  width: calc(100% - 24px);\n  padding: 6px 12px;\n  border-radius: 5px;\n  border: solid 1px grey;\n  display: flex;\n  justify-content: space-between;\n  margin-bottom: 8px;\n}\n.shared-user[_ngcontent-%COMP%]   .admin[_ngcontent-%COMP%] {\n  color: grey;\n  margin: auto 0;\n}\n.shared-user[_ngcontent-%COMP%]   .badge[_ngcontent-%COMP%] {\n  width: 48px;\n  height: 48px;\n  margin-left: 0 !important;\n  margin-right: 12px;\n}\n.shared-user[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin-top: 0 !important;\n  margin-bottom: 0 !important;\n  width: 48px;\n}\n.shared-user[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  line-height: 42px;\n}\n.user-info[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 4px;\n  align-items: center;\n}\n.user-info[_ngcontent-%COMP%]   .email[_ngcontent-%COMP%] {\n  color: grey;\n}\n/*# sourceMappingURL=share-list-sheet.component.css.map */", "\n\nbutton[_ngcontent-%COMP%] {\n  width: 100%;\n  margin: 6px 0;\n}\nbutton[_ngcontent-%COMP%]:last-child {\n  margin-bottom: 38pt;\n}\nform[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  margin: 24px 0;\n}\nform[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  margin: 24px 0;\n}\n/*# sourceMappingURL=styles.css.map */"] });
 var ShareListSheetComponent = _ShareListSheetComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ShareListSheetComponent, { className: "ShareListSheetComponent", filePath: "src/app/components/bottom-sheets/share-list-sheet/share-list-sheet.component.ts", lineNumber: 27 });
@@ -90683,15 +90709,23 @@ var _ListHeaderComponent = class _ListHeaderComponent {
               this.snackbar.open("Einladung zum Beitreten der Liste wurde verschickt.", "Ok");
             });
           } else if (!!data.remove) {
+            const removeUser = this.users().filter((u3) => u3.id === data.remove)[0];
+            if (!removeUser) {
+              this.snackbar.open("Nutzer konnte nicht entfernt werden.", "Ok");
+              return;
+            }
             const confirm = this.bottomSheet.open(ConfirmSheetComponent, {
-              data: "L\xF6sche Nutzer " + data.remove.name + " aus dieser Liste."
+              data: "L\xF6sche Nutzer " + removeUser.name + " aus dieser Liste."
             });
             confirm.afterDismissed().subscribe((del) => {
+              if (!del) {
+                return;
+              }
               this.authService.unshareLists(data.remove, this.lists().id).subscribe((success) => {
                 if (!success) {
-                  this.snackbar.open("Nutzer " + data.remove.name + " wurde entfernt.", "Ok");
+                  this.snackbar.open("Nutzer " + removeUser.name + " wurde entfernt.", "Ok");
                 }
-                this.snackbar.open("Nutzer konnte nicht verschickt werden.", "Ok");
+                this.snackbar.open("Nutzer konnte nicht entfernt werden.", "Ok");
               });
             });
           }
@@ -90971,13 +91005,12 @@ var _ListComponent = class _ListComponent {
     this.slotCollapseStates = {};
     this.me = this.authService.me;
     effect(() => {
-      if (this.initialized && (!this.list() || this.list()._deleted)) {
+      if (!!this.list() && !this.me().hasLists(this.list().id)) {
         const snackbar2 = this.snackbar.open("Liste wurde gel\xF6scht", "Ok");
         snackbar2.afterDismissed().subscribe(() => {
           this.router.navigateByUrl("/user/lists");
         });
-      } else if (!this.initialized && !!this.list()) {
-        this.initialized = true;
+      } else if (!!this.list()) {
         const users = this.usersService.getMany(this.list().users());
         this.users$ = users.subscribe((u3) => this.users.set(u3));
       }

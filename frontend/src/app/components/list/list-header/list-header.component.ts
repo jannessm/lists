@@ -100,17 +100,28 @@ export class ListHeaderComponent {
           
           // remove
           } else if (!!data.remove) {
+            const removeUser = this.users().filter(u => u.id === data.remove)[0];
+
+            if (!removeUser) {
+              this.snackbar.open('Nutzer konnte nicht entfernt werden.', 'Ok');
+              return;
+            }
+
             const confirm = this.bottomSheet.open(ConfirmSheetComponent, {
-              data: 'Lösche Nutzer ' + data.remove.name + ' aus dieser Liste.'
+              data: 'Lösche Nutzer ' + removeUser.name + ' aus dieser Liste.'
             });
 
             confirm.afterDismissed().subscribe(del => {
+              if (!del) {
+                return;
+              }
+
               this.authService.unshareLists(data.remove, this.lists().id)
                 .subscribe(success => {
                   if (!success) {
-                    this.snackbar.open('Nutzer ' + data.remove.name + ' wurde entfernt.', 'Ok');
+                    this.snackbar.open('Nutzer ' + removeUser.name + ' wurde entfernt.', 'Ok');
                   }
-                  this.snackbar.open('Nutzer konnte nicht verschickt werden.', 'Ok');
+                  this.snackbar.open('Nutzer konnte nicht entfernt werden.', 'Ok');
                 })
             })
           }
