@@ -9,6 +9,8 @@ import { NameBadgePipe } from '../../../pipes/name-badge.pipe';
 import { MyUsersDocument } from '../../../mydb/types/users';
 import { Observable, Subscription } from 'rxjs';
 import { DataService } from '../../../services/data/data.service';
+import { MyMeDocument } from '../../../mydb/types/me';
+import { AuthService } from '../../../services/auth/auth.service';
 
 @Component({
   selector: 'app-share-list-sheet',
@@ -26,6 +28,7 @@ import { DataService } from '../../../services/data/data.service';
 })
 export class ShareListSheetComponent implements OnDestroy {
 
+  me: Signal<MyMeDocument>;
   lists: Signal<MyListsDocument>;
   isAdmin: boolean;
   allUsers$?: Observable<MyUsersDocument[]>;
@@ -40,6 +43,7 @@ export class ShareListSheetComponent implements OnDestroy {
 
   constructor(
     public bottomSheetRef: MatBottomSheetRef<ShareListSheetComponent>,
+    private authService: AuthService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: {
       lists: Signal<MyListsDocument>,
       users: Signal<MyUsersDocument[]>,
@@ -48,6 +52,7 @@ export class ShareListSheetComponent implements OnDestroy {
     private fb: FormBuilder,
     private dataService: DataService) {
 
+    this.me = this.authService.me;
     this.lists = data.lists;
     this.isAdmin = data.isAdmin;
     this.users = data.users;

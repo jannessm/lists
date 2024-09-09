@@ -82309,10 +82309,12 @@ var _PusherService = class _PusherService {
         });
         this.online.subscribe((isOnline) => {
           this.socketID = isOnline ? connection.socket_id : "";
-          this.subscrQueue.forEach((args) => {
-            this._subscribe(args[0], args[1]);
-          });
-          this.subscrQueue = [];
+          if (!!this.socketID) {
+            this.subscrQueue.forEach((args) => {
+              this._subscribe(args[0], args[1]);
+            });
+            this.subscrQueue = [];
+          }
         });
       }
     });
@@ -82322,7 +82324,7 @@ var _PusherService = class _PusherService {
       if (!this.pusher) {
         yield this.init();
       }
-      if (!this.online.getValue()) {
+      if (!this.socketID) {
         this.subscrQueue.push([channel, callback]);
       } else {
         this._subscribe(channel, callback);
@@ -83575,17 +83577,6 @@ var _ReplicationService = class _ReplicationService {
   }
   setupReplication(collectionName, collection, meId) {
     return __async(this, null, function* () {
-      if (!(yield firstValueFrom(this.pusher.online))) {
-        yield new Promise((resolve) => {
-          const waitInterval = setInterval(() => __async(this, null, function* () {
-            const online = yield firstValueFrom(this.pusher.online);
-            if (online) {
-              clearInterval(waitInterval);
-              resolve(null);
-            }
-          }), 10);
-        });
-      }
       const that = this;
       const schema = graphQLGenerationInput[collectionName];
       const pullQuery = pullQueryBuilderFromSchema(collectionName, schema);
@@ -83678,9 +83669,10 @@ var ReplicationService = _ReplicationService;
 
 // src/app/services/data/data.service.ts
 var _DataService = class _DataService {
-  constructor(replicationService, http) {
+  constructor(replicationService, http, pusherService) {
     this.replicationService = replicationService;
     this.http = http;
+    this.pusherService = pusherService;
     this.replications = {};
     this.dbInitialized = false;
     this.http.get(BASE_API + "grocery-categories").subscribe((cats) => {
@@ -83696,6 +83688,14 @@ var _DataService = class _DataService {
   initDB(meId) {
     return __async(this, null, function* () {
       if (this.db && !this.dbInitialized) {
+        yield new Promise((resolve, rej) => {
+          const checkInterval = setInterval(() => {
+            if (this.pusherService.socketID) {
+              clearInterval(checkInterval);
+              resolve(null);
+            }
+          }, 100);
+        });
         let repl = yield this.replicationService.setupReplication(DATA_TYPE.ME, this.db.me, meId);
         this.replications[DATA_TYPE.ME] = repl;
         repl = yield this.replicationService.setupReplication(DATA_TYPE.USERS, this.db.users, meId);
@@ -83724,7 +83724,7 @@ var _DataService = class _DataService {
   }
 };
 _DataService.\u0275fac = function DataService_Factory(\u0275t) {
-  return new (\u0275t || _DataService)(\u0275\u0275inject(ReplicationService), \u0275\u0275inject(HttpClient));
+  return new (\u0275t || _DataService)(\u0275\u0275inject(ReplicationService), \u0275\u0275inject(HttpClient), \u0275\u0275inject(PusherService));
 };
 _DataService.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _DataService, factory: _DataService.\u0275fac, providedIn: "root" });
 var DataService = _DataService;
@@ -84448,7 +84448,7 @@ _ListsOverviewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
     \u0275\u0275advance();
     \u0275\u0275property("ngIf", !ctx.lists || !ctx.lists() || ctx.lists().length === 0);
   }
-}, dependencies: [CommonModule, NgForOf, NgIf, MaterialModule, MatButton, MatIconButton, MatIcon, RouterModule, RouterLink], styles: ['\n\n.content-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-rows: [contentHeader] max-content [contentArea] 1fr;\n  width: 100%;\n  height: 100%;\n  justify-content: start;\n  grid-template-columns: 100%;\n  grid-template-areas: "contentHeader" "contentArea";\n}\n.content-header[_ngcontent-%COMP%] {\n  grid-area: contentHeader;\n  position: relative;\n}\n.content-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  margin-top: 0;\n}\n.content-header[_ngcontent-%COMP%]   .add-button[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 4px;\n  right: 0;\n}\n.list-card[_ngcontent-%COMP%] {\n  padding: 12px;\n  width: calc(50% - 8px);\n  white-space: pre-line;\n  word-break: break-all;\n  position: relative;\n  height: 84px;\n  border-radius: 8px;\n  color: var(--mat-app-text-color);\n}\n.list-card[_ngcontent-%COMP%]   mat-icon[_ngcontent-%COMP%]:not(.add-list) {\n  position: absolute;\n  left: 6px;\n  top: 6px;\n  width: 12px;\n  height: 12px;\n  font-size: 12px;\n}\n.container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: space-between;\n  gap: 16px;\n  align-content: flex-start;\n  height: 100%;\n  overflow-y: auto;\n  grid-area: contentArea;\n}\n.container[_ngcontent-%COMP%]   .no-lists[_ngcontent-%COMP%] {\n  width: 100%;\n  color: grey;\n  text-align: center;\n  padding-top: 25%;\n}\n/*# sourceMappingURL=lists-overview.component.css.map */'] });
+}, dependencies: [CommonModule, NgForOf, NgIf, MaterialModule, MatButton, MatIconButton, MatIcon, RouterModule, RouterLink], styles: ['\n\n.content-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-rows: [contentHeader] max-content [contentArea] 1fr;\n  width: 100%;\n  height: 100%;\n  justify-content: start;\n  grid-template-columns: 100%;\n  grid-template-areas: "contentHeader" "contentArea";\n}\n.content-header[_ngcontent-%COMP%] {\n  grid-area: contentHeader;\n  position: relative;\n}\n.content-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  margin-top: 0;\n}\n.content-header[_ngcontent-%COMP%]   .add-button[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 4px;\n  right: 0;\n}\n.list-card[_ngcontent-%COMP%] {\n  padding: 12px;\n  width: calc(50% - 8px);\n  white-space: pre-line;\n  word-break: break-all;\n  position: relative;\n  height: 84px;\n  border-radius: 8px;\n  color: var(--mat-app-text-color);\n}\n.list-card[_ngcontent-%COMP%]   mat-icon[_ngcontent-%COMP%]:not(.add-list) {\n  position: absolute;\n  left: 12px;\n  top: 12px;\n  width: 24px;\n  height: 24px;\n  font-size: 12px;\n}\n.container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: space-between;\n  gap: 16px;\n  align-content: flex-start;\n  height: 100%;\n  overflow-y: auto;\n  grid-area: contentArea;\n}\n.container[_ngcontent-%COMP%]   .no-lists[_ngcontent-%COMP%] {\n  width: 100%;\n  color: grey;\n  text-align: center;\n  padding-top: 25%;\n}\n/*# sourceMappingURL=lists-overview.component.css.map */'] });
 var ListsOverviewComponent = _ListsOverviewComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ListsOverviewComponent, { className: "ListsOverviewComponent", filePath: "src/app/components/lists-overview/lists-overview.component.ts", lineNumber: 23 });
@@ -84713,9 +84713,9 @@ var _EditFormComponent = class _EditFormComponent {
     }
     const name = this.editForm.get("name")?.value;
     const email = this.editForm.get("email")?.value;
-    const oldPwd = md5(this.editForm.get("oldPwd")?.value);
-    const pwd = md5(this.editForm.get("pwd")?.value);
-    const pwdConfirmation = md5(this.editForm.get("pwdConfirmation")?.value);
+    const oldPwd = this.editForm.get("oldPwd")?.value;
+    const pwd = this.editForm.get("pwd")?.value;
+    const pwdConfirmation = this.editForm.get("pwdConfirmation")?.value;
     let patch = {};
     if (!!this.user && !!name && !!email && this.editForm.valid) {
       this.setName(name);
@@ -84755,7 +84755,7 @@ var _EditFormComponent = class _EditFormComponent {
   }
   setPwd(oldPwd, pwd, pwdConfirmation) {
     if (!!oldPwd && !!pwd && !!pwdConfirmation && oldPwd !== pwd) {
-      this.authService.changePwd(oldPwd, pwd, pwdConfirmation).subscribe((res) => {
+      this.authService.changePwd(md5(oldPwd), md5(pwd), md5(pwdConfirmation)).subscribe((res) => {
         if (res) {
           this.authService.logout();
         } else {
@@ -84768,7 +84768,7 @@ var _EditFormComponent = class _EditFormComponent {
 _EditFormComponent.\u0275fac = function EditFormComponent_Factory(\u0275t) {
   return new (\u0275t || _EditFormComponent)(\u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(MatSnackBar));
 };
-_EditFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _EditFormComponent, selectors: [["app-settings-edit-form"]], inputs: { editMode: "editMode", disabled: "disabled" }, outputs: { name: "name" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 4, vars: 3, consts: [[3, "formGroup", 4, "ngIf"], ["mat-stroked-button", "", "color", "primary", 3, "click", 4, "ngIf"], ["mat-stroked-button", "", 3, "disabled", "click", 4, "ngIf"], [3, "formGroup"], ["appearance", "outline"], ["matInput", "", "formControlName", "name"], [4, "ngIf"], ["matInput", "", "formControlName", "email"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "oldPwd"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "pwd"], ["matInput", "", "type", "password", "placeholder", "Passwort wiederholen", "formControlName", "pwdConfirmation"], ["mat-stroked-button", "", "color", "primary", 3, "click"], ["mat-stroked-button", "", 3, "click", "disabled"]], template: function EditFormComponent_Template(rf, ctx) {
+_EditFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _EditFormComponent, selectors: [["app-settings-edit-form"]], inputs: { editMode: "editMode", disabled: "disabled" }, outputs: { name: "name" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 4, vars: 3, consts: [[3, "formGroup", 4, "ngIf"], ["mat-flat-button", "", "color", "primary", 3, "click", 4, "ngIf"], ["mat-stroked-button", "", 3, "disabled", "click", 4, "ngIf"], [3, "formGroup"], ["appearance", "outline"], ["matInput", "", "formControlName", "name"], [4, "ngIf"], ["matInput", "", "formControlName", "email"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "oldPwd"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "pwd"], ["matInput", "", "type", "password", "placeholder", "Passwort wiederholen", "formControlName", "pwdConfirmation"], ["mat-flat-button", "", "color", "primary", 3, "click"], ["mat-stroked-button", "", 3, "click", "disabled"]], template: function EditFormComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div");
     \u0275\u0275template(1, EditFormComponent_form_1_Template, 40, 13, "form", 0)(2, EditFormComponent_button_2_Template, 2, 0, "button", 1)(3, EditFormComponent_button_3_Template, 2, 1, "button", 2);
@@ -88049,7 +88049,7 @@ _SettingsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ typ
   ThemeFormComponent,
   PushFormComponent,
   OthersFormComponent
-], styles: ["\n\n.container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  height: 100%;\n}\n.container[_ngcontent-%COMP%]   button.user-fab-0[_ngcontent-%COMP%] {\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   button.edit-buttons[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 32px;\n  right: 0;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%] {\n  overflow: hidden auto;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   div[_ngcontent-%COMP%]:first-child {\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   #version[_ngcontent-%COMP%] {\n  color: grey;\n  font-size: 12px;\n  margin-top: 48px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   .forms[_ngcontent-%COMP%] {\n  width: 100%;\n}\n/*# sourceMappingURL=settings.component.css.map */"] });
+], styles: ["\n\n.container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  height: 100%;\n}\n.container[_ngcontent-%COMP%]   button.user-fab-0[_ngcontent-%COMP%] {\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   button.edit-buttons[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 32px;\n  right: 0;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%] {\n  overflow: hidden auto;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   div[_ngcontent-%COMP%]:first-child {\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   #version[_ngcontent-%COMP%] {\n  color: grey;\n  font-size: 12px;\n  margin-top: 48px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   .forms[_ngcontent-%COMP%] {\n  width: 100%;\n}\n/*# sourceMappingURL=settings.component.css.map */"] });
 var SettingsComponent = _SettingsComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsComponent, { className: "SettingsComponent", filePath: "src/app/components/settings/settings.component.ts", lineNumber: 33 });
@@ -90412,7 +90412,7 @@ function ShareListSheetComponent_div_0_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275property("ngIf", user_r2.id === ctx_r2.lists().createdBy);
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx_r2.isAdmin && user_r2.id !== ctx_r2.lists().createdBy);
+    \u0275\u0275property("ngIf", ctx_r2.isAdmin && user_r2.id !== ctx_r2.lists().createdBy || user_r2.id === ctx_r2.me().id);
   }
 }
 function ShareListSheetComponent_h4_1_Template(rf, ctx) {
@@ -90494,14 +90494,16 @@ function ShareListSheetComponent_button_3_Template(rf, ctx) {
   }
 }
 var _ShareListSheetComponent = class _ShareListSheetComponent {
-  constructor(bottomSheetRef, data, fb, dataService) {
+  constructor(bottomSheetRef, authService, data, fb, dataService) {
     this.bottomSheetRef = bottomSheetRef;
+    this.authService = authService;
     this.data = data;
     this.fb = fb;
     this.dataService = dataService;
     this.allUsers = signal([]);
     this.filteredUsers = signal([]);
     this.subscriptions = [];
+    this.me = this.authService.me;
     this.lists = data.lists;
     this.isAdmin = data.isAdmin;
     this.users = data.users;
@@ -90558,7 +90560,7 @@ var _ShareListSheetComponent = class _ShareListSheetComponent {
   }
 };
 _ShareListSheetComponent.\u0275fac = function ShareListSheetComponent_Factory(\u0275t) {
-  return new (\u0275t || _ShareListSheetComponent)(\u0275\u0275directiveInject(MatBottomSheetRef), \u0275\u0275directiveInject(MAT_BOTTOM_SHEET_DATA), \u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(DataService));
+  return new (\u0275t || _ShareListSheetComponent)(\u0275\u0275directiveInject(MatBottomSheetRef), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(MAT_BOTTOM_SHEET_DATA), \u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(DataService));
 };
 _ShareListSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ShareListSheetComponent, selectors: [["app-share-list-sheet"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 4, vars: 4, consts: [["auto", ""], ["class", "shared-user", 4, "ngFor", "ngForOf"], [4, "ngIf"], ["autocomplete", "off", 3, "formGroup", 4, "ngIf"], ["mat-flat-button", "", "color", "primary", 3, "click", 4, "ngIf"], [1, "shared-user"], [1, "user-info"], ["mat-mini-fab", "", "disabled", ""], [1, "email"], ["class", "admin", 4, "ngIf"], ["mat-icon-button", "", 3, "click", 4, "ngIf"], [1, "admin"], ["mat-icon-button", "", 3, "click"], ["autocomplete", "off", 3, "formGroup"], ["appearance", "outline"], ["matInput", "", "formControlName", "email", "placeholder", "Email", 3, "matAutocomplete"], [3, "value", 4, "ngFor", "ngForOf"], ["mat-stroked-button", "", 3, "click", "disabled"], ["mat-flat-button", "", "color", "primary", 3, "click"], [3, "value"]], template: function ShareListSheetComponent_Template(rf, ctx) {
   if (rf & 1) {
@@ -90600,7 +90602,7 @@ _ShareListSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
 ], styles: ["\n\n.shared-user[_ngcontent-%COMP%] {\n  width: calc(100% - 24px);\n  padding: 6px 12px;\n  border-radius: 5px;\n  border: solid 1px grey;\n  display: flex;\n  justify-content: space-between;\n  margin-bottom: 8px;\n}\n.shared-user[_ngcontent-%COMP%]   .admin[_ngcontent-%COMP%] {\n  color: grey;\n  margin: auto 0;\n}\n.shared-user[_ngcontent-%COMP%]   .badge[_ngcontent-%COMP%] {\n  width: 48px;\n  height: 48px;\n  margin-left: 0 !important;\n  margin-right: 12px;\n}\n.shared-user[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  margin-top: 0 !important;\n  margin-bottom: 0 !important;\n  width: 48px;\n}\n.shared-user[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  line-height: 42px;\n}\n.user-info[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 4px;\n  align-items: center;\n}\n.user-info[_ngcontent-%COMP%]   .email[_ngcontent-%COMP%] {\n  color: grey;\n}\n/*# sourceMappingURL=share-list-sheet.component.css.map */", "\n\nbutton[_ngcontent-%COMP%] {\n  width: 100%;\n  margin: 6px 0;\n}\nbutton[_ngcontent-%COMP%]:last-child {\n  margin-bottom: 38pt;\n}\nform[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  margin: 24px 0;\n}\nform[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  margin: 24px 0;\n}\n/*# sourceMappingURL=styles.css.map */"] });
 var ShareListSheetComponent = _ShareListSheetComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ShareListSheetComponent, { className: "ShareListSheetComponent", filePath: "src/app/components/bottom-sheets/share-list-sheet/share-list-sheet.component.ts", lineNumber: 27 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ShareListSheetComponent, { className: "ShareListSheetComponent", filePath: "src/app/components/bottom-sheets/share-list-sheet/share-list-sheet.component.ts", lineNumber: 29 });
 })();
 
 // src/app/components/list/list-header/list-header.component.ts

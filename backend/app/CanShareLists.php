@@ -57,7 +57,10 @@ trait CanShareLists
     public function unshareLists(String $lists_id, String $user_id) {
         $lists = Lists::where('id', $lists_id)->first();
 
-        if (!!$user_id && $this->id === $lists->createdBy->id) {
+        if (!!$user_id &&
+            ($this->id === $lists->createdBy->id ||
+             $this->id === $user_id)
+        ) {
             $old_users = $lists->users()->all();
 
             // remove user from list

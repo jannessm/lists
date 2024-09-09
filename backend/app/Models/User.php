@@ -111,6 +111,7 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
         $conflicts = [];
 
         foreach($args['rows'] as $user) {
+            $conflict = FALSE;
             $newState = $user['newDocumentState'];
             $assumedMaster = $user['assumedMasterState'];
             $masterUser = NULL;
@@ -121,14 +122,18 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
 
             $masterUser = User::find($assumedMaster[$this->primaryKey]);
             
-            $conflict = FALSE;
             foreach ($assumedMaster as $param => $val) {
-                // compare timestamps
-                if (in_array($param, ["created_at", "updated_at"])) {
-                    $conflict = $masterUser[$param]->ne($val);
-                } else if ($masterUser[$param] != $val) {
+                switch($param) {
+                    case 'created_at':
+                    case 'updated_at':
+                        $conflict = False; // ignore timestamps since they are only set by backend
+                        break;
+                    default:
+                        $conflict = $masterUser[$param] !== $val;
+                }
+
+                if ($conflict) {
                     array_push($conflicts, $masterUser);
-                    $conflict = TRUE;
                     break;
                 }
             }

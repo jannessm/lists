@@ -5,7 +5,7 @@
         <span class="email">{{user.email}}</span>
     </div>
     <span *ngIf="user.id === lists().createdBy" class="admin">Admin</span>
-    <button mat-icon-button (click)="removeSharedWith(user.id)" *ngIf="isAdmin && user.id !== lists().createdBy"><mat-icon>close</mat-icon></button>
+    <button mat-icon-button (click)="removeSharedWith(user.id)" *ngIf="isAdmin && user.id !== lists().createdBy || user.id === me().id"><mat-icon>close</mat-icon></button>
 </div>
 
 <h4 *ngIf="isAdmin">Hinzufügen</h4>

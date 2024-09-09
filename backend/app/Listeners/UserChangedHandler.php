@@ -8,7 +8,7 @@ use Illuminate\Queue\InteractsWithQueue;
 
 use Nuwave\Lighthouse\Execution\Utils\Subscription;
 
-class StreamUserChanges implements ShouldQueue
+class UserChangedHandler implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -24,5 +24,6 @@ class StreamUserChanges implements ShouldQueue
     public function handle(UserChanged $event): void
     {
         Subscription::broadcast('streamMe', $event->updatedUsers);
+        Subscription::broadcast('streamUsers', $event->updatedUsers);
     }
 }

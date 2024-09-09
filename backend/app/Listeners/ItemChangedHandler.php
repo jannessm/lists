@@ -39,7 +39,7 @@ class ItemChangedHandler implements ShouldQueue
                     $otherUsers = $users->whereNotIn('id', [$event->actor->id]);
                     
                     $notification = ListsChangedNotification::fromPushRow($row, $updatedItem, $event->actor);
-                    
+
                     // Notification::send($otherUsers, $notification);
                     Notification::send($users, $notification);
                     break;

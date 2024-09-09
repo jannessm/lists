@@ -60,10 +60,12 @@ export class PusherService implements OnDestroy {
 
       this.online.subscribe(isOnline => {
         this.socketID = isOnline ? connection.socket_id : '';
-        this.subscrQueue.forEach(args => {
-          this._subscribe(args[0], args[1]);
-        });
-        this.subscrQueue = [];
+        if (!!this.socketID) {
+          this.subscrQueue.forEach(args => {
+            this._subscribe(args[0], args[1]);
+          });
+          this.subscrQueue = [];
+        }
       });
     }
   }
@@ -73,7 +75,7 @@ export class PusherService implements OnDestroy {
       await this.init();
     } 
     
-    if (!this.online.getValue()) {
+    if (!this.socketID) {
       this.subscrQueue.push([channel, callback]);
     } else {
       this._subscribe(channel, callback);

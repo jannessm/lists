@@ -91,9 +91,9 @@ export class EditFormComponent implements OnDestroy {
 
     const name = this.editForm.get('name')?.value;
     const email = this.editForm.get('email')?.value;
-    const oldPwd = md5(this.editForm.get('oldPwd')?.value);
-    const pwd = md5(this.editForm.get('pwd')?.value);
-    const pwdConfirmation = md5(this.editForm.get('pwdConfirmation')?.value);
+    const oldPwd = this.editForm.get('oldPwd')?.value;
+    const pwd = this.editForm.get('pwd')?.value;
+    const pwdConfirmation = this.editForm.get('pwdConfirmation')?.value;
 
     let patch = {};
 
@@ -141,7 +141,11 @@ export class EditFormComponent implements OnDestroy {
 
   setPwd(oldPwd: string, pwd: string, pwdConfirmation: string) {
     if (!!oldPwd && !!pwd && !!pwdConfirmation && oldPwd !== pwd) {
-      this.authService.changePwd(oldPwd, pwd, pwdConfirmation).subscribe(res => {
+      this.authService.changePwd(
+        md5(oldPwd),
+        md5(pwd),
+        md5(pwdConfirmation)
+      ).subscribe(res => {
         if (res) {
           this.authService.logout();
         } else {

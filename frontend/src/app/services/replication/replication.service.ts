@@ -45,18 +45,6 @@ export class ReplicationService implements OnDestroy {
     collection: MyCollection<any, unknown, unknown>,
     meId: string | null
   ) {
-    if (!(await firstValueFrom(this.pusher.online))) {
-      await new Promise(resolve => {
-        const waitInterval = setInterval(async () => {
-          const online = await firstValueFrom(this.pusher.online);
-          if (online) {
-            clearInterval(waitInterval);
-            resolve(null);
-          }
-        }, 10);
-      });
-    }
-
     const that = this;
     const schema = graphQLGenerationInput[collectionName as GenerationInputKey];
     const pullQuery = pullQueryBuilderFromSchema(

@@ -8,6 +8,7 @@ import { BASE_API } from '../../globals';
 import { DB_INSTANCE } from './init-database';
 import { MyListsDatabase } from '../../mydb/types/database';
 import { Replicator } from '../../mydb/replication';
+import { PusherService } from '../pusher/pusher.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,8 @@ export class DataService implements OnDestroy {
 
   constructor(
     private replicationService: ReplicationService,
-    private http: HttpClient
+    private http: HttpClient,
+    private pusherService: PusherService,
   ) {
     this.http.get<GroceryCategories>(BASE_API + 'grocery-categories').subscribe(cats => {
       this.groceryCategories = cats;
@@ -37,6 +39,16 @@ export class DataService implements OnDestroy {
 
   async initDB(meId: string | null) {
     if (this.db && !this.dbInitialized) {
+      await new Promise((resolve, rej) => {
+        const checkInterval = setInterval(() => {
+          if (this.pusherService.socketID) {
+            clearInterval(checkInterval);
+            resolve(null);
+          }
+        }, 100);
+      });
+
+
       let repl = await this.replicationService.setupReplication(DATA_TYPE.ME, this.db.me, meId);
       this.replications[DATA_TYPE.ME] = repl;
       
