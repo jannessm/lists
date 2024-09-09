@@ -1,4 +1,4 @@
-import { Component, NgZone, Signal } from '@angular/core';
+import { Component, NgZone, Signal, WritableSignal, effect, signal } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.component';
 
@@ -8,6 +8,8 @@ import { MyListsDocument, newLists } from '../../mydb/types/lists';
 import { DataService } from '../../services/data/data.service';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
+import { MyMeDocument } from '../../mydb/types/me';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lists-overview',
@@ -22,16 +24,28 @@ import { AuthService } from '../../services/auth/auth.service';
 })
 export class ListsOverviewComponent {
 
-  lists: Signal<MyListsDocument[]>;
+  me: Signal<MyMeDocument>;
+  lists: MyListsDocument[] = [];
+  listsSub?: Subscription;
 
   constructor(
     public bottomSheet: MatBottomSheet,
     private dataService: DataService,
     private authService: AuthService,
   ) {
-    this.lists = this.dataService.db.lists.find({
-      sort: [{name: 'asc'}]
-    }).$$ as Signal<MyListsDocument[]>;
+    this.me = this.authService.me;
+
+    effect(() => {
+      if (this.me()) {
+        this.listsSub = this.dataService.db.lists.find({
+          selector: {id: this.me().lists},
+          sort: [{name: 'asc'}]
+        }).$.subscribe(docs => {
+          this.lists = docs as any as MyListsDocument[];
+          console.log(docs);
+        });
+      }
+    });
   }
 
   addList() {

@@ -10,14 +10,15 @@
         </button>
     </div>
     <div class="container">
+        <div *ngIf="!lists || !lists || lists.length === 0" class="no-lists">Keine Listen vorhanden</div>
+
         <button
             class="list-card"
-            *ngFor="let l of lists()"
+            *ngFor="let l of lists"
             mat-raised-button
             [routerLink]="'/user/lists/' + l.id">
             <span>{{ l.name }}</span>
             <mat-icon *ngIf="l.isShoppingList" [style.color]="'#999'">shopping_basket</mat-icon>
         </button>
-        <div *ngIf="!lists || !lists() || lists().length === 0" class="no-lists">Keine Listen vorhanden</div>
     </div>
 </div>

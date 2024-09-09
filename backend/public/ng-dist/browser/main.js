@@ -83076,10 +83076,11 @@ var MyCollection = class {
             const key = val[0];
             const value = val[1];
             if (value instanceof Array) {
+              console.log(value.reduce((c, v) => doc[key] === v || c, false));
               return carry && value.reduce((c, v) => doc[key] === v || c, false);
             }
-            return carry || doc[key] === value;
-          }, false);
+            return carry && doc[key] === value;
+          }, true);
         } else if (query2.neqSelector && !doc._deleted) {
           return Object.entries(query2.neqSelector).reduce((carry, val) => {
             const key = val[0];
@@ -84364,7 +84365,14 @@ var AddSheetComponent = _AddSheetComponent;
 })();
 
 // src/app/components/lists-overview/lists-overview.component.ts
-function ListsOverviewComponent_button_8_mat_icon_3_Template(rf, ctx) {
+function ListsOverviewComponent_div_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 6);
+    \u0275\u0275text(1, "Keine Listen vorhanden");
+    \u0275\u0275elementEnd();
+  }
+}
+function ListsOverviewComponent_button_9_mat_icon_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-icon");
     \u0275\u0275text(1, "shopping_basket");
@@ -84374,12 +84382,12 @@ function ListsOverviewComponent_button_8_mat_icon_3_Template(rf, ctx) {
     \u0275\u0275styleProp("color", "#999");
   }
 }
-function ListsOverviewComponent_button_8_Template(rf, ctx) {
+function ListsOverviewComponent_button_9_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "button", 6)(1, "span");
+    \u0275\u0275elementStart(0, "button", 7)(1, "span");
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(3, ListsOverviewComponent_button_8_mat_icon_3_Template, 2, 2, "mat-icon", 7);
+    \u0275\u0275template(3, ListsOverviewComponent_button_9_mat_icon_3_Template, 2, 2, "mat-icon", 8);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -84391,21 +84399,24 @@ function ListsOverviewComponent_button_8_Template(rf, ctx) {
     \u0275\u0275property("ngIf", l_r1.isShoppingList);
   }
 }
-function ListsOverviewComponent_div_9_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 8);
-    \u0275\u0275text(1, "Keine Listen vorhanden");
-    \u0275\u0275elementEnd();
-  }
-}
 var _ListsOverviewComponent = class _ListsOverviewComponent {
   constructor(bottomSheet, dataService, authService) {
     this.bottomSheet = bottomSheet;
     this.dataService = dataService;
     this.authService = authService;
-    this.lists = this.dataService.db.lists.find({
-      sort: [{ name: "asc" }]
-    }).$$;
+    this.lists = [];
+    this.me = this.authService.me;
+    effect(() => {
+      if (this.me()) {
+        this.listsSub = this.dataService.db.lists.find({
+          selector: { id: this.me().lists },
+          sort: [{ name: "asc" }]
+        }).$.subscribe((docs) => {
+          this.lists = docs;
+          console.log(docs);
+        });
+      }
+    });
   }
   addList() {
     const dialogRef = this.bottomSheet.open(AddSheetComponent);
@@ -84426,7 +84437,7 @@ var _ListsOverviewComponent = class _ListsOverviewComponent {
 _ListsOverviewComponent.\u0275fac = function ListsOverviewComponent_Factory(\u0275t) {
   return new (\u0275t || _ListsOverviewComponent)(\u0275\u0275directiveInject(MatBottomSheet), \u0275\u0275directiveInject(DataService), \u0275\u0275directiveInject(AuthService));
 };
-_ListsOverviewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ListsOverviewComponent, selectors: [["app-lists-overview"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 10, vars: 2, consts: [[1, "content-grid"], [1, "content-header"], ["mat-icon-button", "", 1, "add-button", 3, "click"], [1, "container"], ["class", "list-card", "mat-raised-button", "", 3, "routerLink", 4, "ngFor", "ngForOf"], ["class", "no-lists", 4, "ngIf"], ["mat-raised-button", "", 1, "list-card", 3, "routerLink"], [3, "color", 4, "ngIf"], [1, "no-lists"]], template: function ListsOverviewComponent_Template(rf, ctx) {
+_ListsOverviewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ListsOverviewComponent, selectors: [["app-lists-overview"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 10, vars: 2, consts: [[1, "content-grid"], [1, "content-header"], ["mat-icon-button", "", 1, "add-button", 3, "click"], [1, "container"], ["class", "no-lists", 4, "ngIf"], ["class", "list-card", "mat-raised-button", "", 3, "routerLink", 4, "ngFor", "ngForOf"], [1, "no-lists"], ["mat-raised-button", "", 1, "list-card", 3, "routerLink"], [3, "color", 4, "ngIf"]], template: function ListsOverviewComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "h2");
     \u0275\u0275text(3, "Lists");
@@ -84439,19 +84450,19 @@ _ListsOverviewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
     \u0275\u0275text(6, "add");
     \u0275\u0275elementEnd()()();
     \u0275\u0275elementStart(7, "div", 3);
-    \u0275\u0275template(8, ListsOverviewComponent_button_8_Template, 4, 3, "button", 4)(9, ListsOverviewComponent_div_9_Template, 2, 0, "div", 5);
+    \u0275\u0275template(8, ListsOverviewComponent_div_8_Template, 2, 0, "div", 4)(9, ListsOverviewComponent_button_9_Template, 4, 3, "button", 5);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     \u0275\u0275advance(8);
-    \u0275\u0275property("ngForOf", ctx.lists());
+    \u0275\u0275property("ngIf", !ctx.lists || !ctx.lists || ctx.lists.length === 0);
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", !ctx.lists || !ctx.lists() || ctx.lists().length === 0);
+    \u0275\u0275property("ngForOf", ctx.lists);
   }
 }, dependencies: [CommonModule, NgForOf, NgIf, MaterialModule, MatButton, MatIconButton, MatIcon, RouterModule, RouterLink], styles: ['\n\n.content-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-rows: [contentHeader] max-content [contentArea] 1fr;\n  width: 100%;\n  height: 100%;\n  justify-content: start;\n  grid-template-columns: 100%;\n  grid-template-areas: "contentHeader" "contentArea";\n}\n.content-header[_ngcontent-%COMP%] {\n  grid-area: contentHeader;\n  position: relative;\n}\n.content-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  margin-top: 0;\n}\n.content-header[_ngcontent-%COMP%]   .add-button[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 4px;\n  right: 0;\n}\n.list-card[_ngcontent-%COMP%] {\n  padding: 12px;\n  width: calc(50% - 8px);\n  white-space: pre-line;\n  word-break: break-all;\n  position: relative;\n  height: 84px;\n  border-radius: 8px;\n  color: var(--mat-app-text-color);\n}\n.list-card[_ngcontent-%COMP%]   mat-icon[_ngcontent-%COMP%]:not(.add-list) {\n  position: absolute;\n  left: 12px;\n  top: 12px;\n  width: 24px;\n  height: 24px;\n  font-size: 12px;\n}\n.container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: space-between;\n  gap: 16px;\n  align-content: flex-start;\n  height: 100%;\n  overflow-y: auto;\n  grid-area: contentArea;\n}\n.container[_ngcontent-%COMP%]   .no-lists[_ngcontent-%COMP%] {\n  width: 100%;\n  color: grey;\n  text-align: center;\n  padding-top: 25%;\n}\n/*# sourceMappingURL=lists-overview.component.css.map */'] });
 var ListsOverviewComponent = _ListsOverviewComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ListsOverviewComponent, { className: "ListsOverviewComponent", filePath: "src/app/components/lists-overview/lists-overview.component.ts", lineNumber: 23 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ListsOverviewComponent, { className: "ListsOverviewComponent", filePath: "src/app/components/lists-overview/lists-overview.component.ts", lineNumber: 25 });
 })();
 
 // src/app/pipes/name-badge.pipe.ts
