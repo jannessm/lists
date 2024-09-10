@@ -8,6 +8,8 @@ services:
       - MYSQL_ROOT_PASSWORD=password
     volumes:
       - lists-mysql-data:/var/lib/mysql
+    networks:
+      - lists
 
   soketi-dev:
     profiles: [dev]
@@ -18,6 +20,8 @@ services:
     ports:
       - '6001:6001'
       - '9601:9601'
+    networks:
+      - lists
   
   soketi:
     profiles: [staging, prod]
@@ -29,6 +33,8 @@ services:
     ports:
       - '6001:6001'
       - '9601:9601'
+    networks:
+      - lists
 
   laravel-dev:
     profiles: [dev]
@@ -43,6 +49,8 @@ services:
       - ./dev-entrypoint.sh:/entrypoint.sh
       - ./configs/dev:/configs
     entrypoint: /entrypoint.sh
+    networks:
+      - lists
 
   laravel:
     profiles: [staging, prod]
@@ -65,8 +73,11 @@ services:
       - "traefik.http.services.lists-staging.loadbalancer.server.port=8000"
     networks:
       - traefik
+      - lists
 
 networks:
+  lists:
+    driver: bridge
   traefik:
     external: true
 
