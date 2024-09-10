@@ -41,6 +41,7 @@ services:
     volumes:
       - ./backend:/app
       - ./dev-entrypoint.sh:/entrypoint.sh
+      - ./configs/dev:/configs
     entrypoint: /entrypoint.sh
 
   laravel:
@@ -54,6 +55,7 @@ services:
     volumes:
       - ./backend:/app
       - ./entrypoint.sh:/entrypoint.sh
+      - ./configs/prod:/configs
     entrypoint: /entrypoint.sh
     restart: unless-stopped
     labels:

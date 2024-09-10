@@ -1,5 +1,5 @@
 #!/bin/bash
-. .env
+. /configs/.env
 ./clear-cache.sh
 # php artisan migrate --seed
 php artisan queue:work &
