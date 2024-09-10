@@ -83195,6 +83195,14 @@ function initDatabase(injector) {
     if (!injector) {
       throw new Error("initDatabase() injector missing");
     }
+    if (!!localStorage.getItem("jwt")) {
+      localStorage.clear();
+      (yield indexedDB.databases()).forEach((db) => {
+        if (db.name) {
+          indexedDB.deleteDatabase(db.name);
+        }
+      });
+    }
     yield _create(injector).then((db) => DB_INSTANCE = db);
   });
 }
@@ -84459,7 +84467,7 @@ _ListsOverviewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
     \u0275\u0275advance();
     \u0275\u0275property("ngForOf", ctx.lists);
   }
-}, dependencies: [CommonModule, NgForOf, NgIf, MaterialModule, MatButton, MatIconButton, MatIcon, RouterModule, RouterLink], styles: ['\n\n.content-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-rows: [contentHeader] max-content [contentArea] 1fr;\n  width: 100%;\n  height: 100%;\n  justify-content: start;\n  grid-template-columns: 100%;\n  grid-template-areas: "contentHeader" "contentArea";\n}\n.content-header[_ngcontent-%COMP%] {\n  grid-area: contentHeader;\n  position: relative;\n}\n.content-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  margin-top: 0;\n}\n.content-header[_ngcontent-%COMP%]   .add-button[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 4px;\n  right: 0;\n}\n.list-card[_ngcontent-%COMP%] {\n  padding: 12px;\n  width: calc(50% - 8px);\n  white-space: pre-line;\n  word-break: break-all;\n  position: relative;\n  height: 84px;\n  border-radius: 8px;\n  color: var(--mat-app-text-color);\n}\n.list-card[_ngcontent-%COMP%]   mat-icon[_ngcontent-%COMP%]:not(.add-list) {\n  position: absolute;\n  left: 12px;\n  top: 12px;\n  width: 24px;\n  height: 24px;\n  font-size: 12px;\n}\n.container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: space-between;\n  gap: 16px;\n  align-content: flex-start;\n  height: 100%;\n  overflow-y: auto;\n  grid-area: contentArea;\n}\n.container[_ngcontent-%COMP%]   .no-lists[_ngcontent-%COMP%] {\n  width: 100%;\n  color: grey;\n  text-align: center;\n  padding-top: 25%;\n}\n/*# sourceMappingURL=lists-overview.component.css.map */'] });
+}, dependencies: [CommonModule, NgForOf, NgIf, MaterialModule, MatButton, MatIconButton, MatIcon, RouterModule, RouterLink], styles: ['\n\n.content-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-rows: [contentHeader] max-content [contentArea] 1fr;\n  width: 100%;\n  height: 100%;\n  justify-content: start;\n  grid-template-columns: 100%;\n  grid-template-areas: "contentHeader" "contentArea";\n}\n.content-header[_ngcontent-%COMP%] {\n  grid-area: contentHeader;\n  position: relative;\n}\n.content-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  margin-top: 0;\n}\n.content-header[_ngcontent-%COMP%]   .add-button[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 4px;\n  right: 0;\n}\n.list-card[_ngcontent-%COMP%] {\n  padding: 12px;\n  width: calc(50% - 8px);\n  white-space: pre-line;\n  word-break: break-all;\n  position: relative;\n  height: 84px;\n  border-radius: 8px;\n  color: var(--mat-app-text-color);\n}\n.list-card[_ngcontent-%COMP%]   mat-icon[_ngcontent-%COMP%]:not(.add-list) {\n  position: absolute;\n  left: 20px;\n  top: 12px;\n  width: 18px;\n  height: 18px;\n  font-size: 18px;\n}\n.container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: space-between;\n  gap: 16px;\n  align-content: flex-start;\n  height: 100%;\n  overflow-y: auto;\n  grid-area: contentArea;\n}\n.container[_ngcontent-%COMP%]   .no-lists[_ngcontent-%COMP%] {\n  width: 100%;\n  color: grey;\n  text-align: center;\n  padding-top: 25%;\n}\n/*# sourceMappingURL=lists-overview.component.css.map */'] });
 var ListsOverviewComponent = _ListsOverviewComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ListsOverviewComponent, { className: "ListsOverviewComponent", filePath: "src/app/components/lists-overview/lists-overview.component.ts", lineNumber: 25 });
@@ -87547,6 +87555,7 @@ var esm_default = flatpickr;
 
 // src/models/time-picker.ts
 var timePickerConfig = {
+  // altInput: false,
   enableTime: true,
   minuteIncrement: 5,
   disableMobile: false,
@@ -87647,7 +87656,7 @@ var _DateChipSelectComponent = class _DateChipSelectComponent {
         chipOption = "different";
       }
     }
-    this.chipOption = chipOption || "0 min";
+    this.chipOption = chipOption;
   }
   registerOnChange(fn) {
     this.onChange = fn;
@@ -87667,6 +87676,7 @@ var _DateChipSelectComponent = class _DateChipSelectComponent {
   openFlatpickr() {
     if (!this.pickrIsOpen && !!this.flatpickr) {
       this.flatpickr.open();
+      console.log("open");
       this.pickrIsOpen = true;
       this.pickrOpened.emit();
     }
@@ -87746,7 +87756,7 @@ _DateChipSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
   NgForOf,
   NgIf,
   DatePipe
-], styles: ["\n\ninput[_ngcontent-%COMP%] {\n  display: none;\n}\n/*# sourceMappingURL=date-chip-select.component.css.map */"] });
+], styles: ["\n\ninput[_ngcontent-%COMP%], \n.flatpickr-input[_ngcontent-%COMP%] {\n  display: none;\n}\n/*# sourceMappingURL=date-chip-select.component.css.map */"] });
 var DateChipSelectComponent = _DateChipSelectComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DateChipSelectComponent, { className: "DateChipSelectComponent", filePath: "src/app/components/selects/date-chip-select/date-chip-select.component.ts", lineNumber: 29 });
@@ -88935,7 +88945,7 @@ function byIds(ids) {
 // src/app/components/list/list-item/list-item.component.ts
 function ListItemComponent_div_0_mat_chip_set_6_mat_chip_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-chip", 9);
+    \u0275\u0275elementStart(0, "mat-chip", 10);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "date");
     \u0275\u0275elementEnd();
@@ -88949,7 +88959,7 @@ function ListItemComponent_div_0_mat_chip_set_6_mat_chip_1_Template(rf, ctx) {
 }
 function ListItemComponent_div_0_mat_chip_set_6_mat_chip_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-chip", 9);
+    \u0275\u0275elementStart(0, "mat-chip", 10);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "date");
     \u0275\u0275elementEnd();
@@ -88963,8 +88973,8 @@ function ListItemComponent_div_0_mat_chip_set_6_mat_chip_2_Template(rf, ctx) {
 }
 function ListItemComponent_div_0_mat_chip_set_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-chip-set", 7);
-    \u0275\u0275template(1, ListItemComponent_div_0_mat_chip_set_6_mat_chip_1_Template, 3, 5, "mat-chip", 8)(2, ListItemComponent_div_0_mat_chip_set_6_mat_chip_2_Template, 3, 5, "mat-chip", 8);
+    \u0275\u0275elementStart(0, "mat-chip-set", 8);
+    \u0275\u0275template(1, ListItemComponent_div_0_mat_chip_set_6_mat_chip_1_Template, 3, 5, "mat-chip", 9)(2, ListItemComponent_div_0_mat_chip_set_6_mat_chip_2_Template, 3, 5, "mat-chip", 9);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -88977,7 +88987,7 @@ function ListItemComponent_div_0_mat_chip_set_6_Template(rf, ctx) {
 }
 function ListItemComponent_div_0_button_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "button", 10);
+    \u0275\u0275elementStart(0, "button", 11);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "nameBadge");
     \u0275\u0275elementEnd();
@@ -88993,7 +89003,7 @@ function ListItemComponent_div_0_button_7_Template(rf, ctx) {
 function ListItemComponent_div_0_button_8_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 11);
+    \u0275\u0275elementStart(0, "button", 12);
     \u0275\u0275listener("click", function ListItemComponent_div_0_button_8_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
@@ -89008,27 +89018,25 @@ function ListItemComponent_div_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 1);
-    \u0275\u0275listener("pointerdown", function ListItemComponent_div_0_Template_div_pointerdown_0_listener($event) {
+    \u0275\u0275listener("click", function ListItemComponent_div_0_Template_div_click_0_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.openUpdateSheet($event, ctx_r1.item));
-    })("pointerup", function ListItemComponent_div_0_Template_div_pointerup_0_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.cancelUpdateSheet());
+      return \u0275\u0275resetView(ctx_r1.openEditSheet(ctx_r1.item));
     });
-    \u0275\u0275elementStart(1, "div")(2, "mat-checkbox", 2);
+    \u0275\u0275elementStart(1, "div", 2)(2, "mat-checkbox", 3);
     \u0275\u0275listener("change", function ListItemComponent_div_0_Template_mat_checkbox_change_2_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.toggleDone());
+    })("click", function ListItemComponent_div_0_Template_mat_checkbox_click_2_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView($event.stopPropagation());
     });
-    \u0275\u0275elementStart(3, "div", 3)(4, "span");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div", 4)(4, "span");
     \u0275\u0275text(5);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(6, ListItemComponent_div_0_mat_chip_set_6_Template, 3, 2, "mat-chip-set", 4)(7, ListItemComponent_div_0_button_7_Template, 3, 5, "button", 5);
-    \u0275\u0275elementEnd();
-    \u0275\u0275template(8, ListItemComponent_div_0_button_8_Template, 3, 0, "button", 6);
+    \u0275\u0275template(6, ListItemComponent_div_0_mat_chip_set_6_Template, 3, 2, "mat-chip-set", 5)(7, ListItemComponent_div_0_button_7_Template, 3, 5, "button", 6)(8, ListItemComponent_div_0_button_8_Template, 3, 0, "button", 7);
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
@@ -89049,17 +89057,21 @@ function ListItemComponent_div_0_Template(rf, ctx) {
   }
 }
 var _ListItemComponent = class _ListItemComponent {
-  onMousemove(event) {
-    this.pointerPosY = event.clientY;
-  }
-  onTouchMove(event) {
-    this.pointerPosY = event.changedTouches[0].clientY;
-  }
+  // pointerDown: boolean = false;
+  // pointerPosY: number | undefined; 
+  // updateSheetRef: MatBottomSheetRef<UpdateItemSheetComponent, any> | undefined;
+  // @HostListener('mousemove', ['$event'])
+  // onMousemove(event: MouseEvent): void  {
+  //   this.pointerPosY = event.clientY;
+  // }
+  // @HostListener('touchmove', ['$event'])
+  // onTouchMove(event: TouchEvent): void {
+  //   this.pointerPosY = event.changedTouches[0].clientY;
+  // }
   constructor(bottomSheet, users) {
     this.bottomSheet = bottomSheet;
     this.users = users;
     this.createdBy = signal(void 0);
-    this.pointerDown = false;
     effect(() => {
       if (this.item && this.list()) {
         this.createdBy$ = this.users.get(this.item.createdBy);
@@ -89098,50 +89110,24 @@ var _ListItemComponent = class _ListItemComponent {
   is_today(item) {
     return !!is_today(item);
   }
-  openUpdateSheet(event, item) {
-    if (!this.pointerDown && item) {
-      this.pointerDown = true;
-      const currScrollPos = event.clientY;
-      this.pointerPosY = currScrollPos;
-      setTimeout(() => {
-        if (this.pointerPosY != void 0 && this.pointerDown && !this.updateSheetRef && Math.abs(currScrollPos - this.pointerPosY) < 50) {
-          this.updateSheetRef = this.bottomSheet.open(UpdateItemSheetComponent, {
-            data: {
-              list: this.list,
-              item
-            }
-          });
-          this.updateSheetRef.afterDismissed().subscribe((patch) => {
-            if (this.item && patch) {
-              this.item.patch(patch);
-            }
-            setTimeout(() => {
-              this.cancelUpdateSheet();
-            }, 500);
-          });
-        } else {
-          this.cancelUpdateSheet();
-        }
-      }, 500);
-    }
-  }
-  cancelUpdateSheet() {
-    this.pointerDown = false;
-    this.updateSheetRef = void 0;
+  openEditSheet(item) {
+    const updateSheetRef = this.bottomSheet.open(UpdateItemSheetComponent, {
+      data: {
+        list: this.list,
+        item
+      }
+    });
+    updateSheetRef.afterDismissed().subscribe((patch) => {
+      if (this.item && patch) {
+        this.item.patch(patch);
+      }
+    });
   }
 };
 _ListItemComponent.\u0275fac = function ListItemComponent_Factory(\u0275t) {
   return new (\u0275t || _ListItemComponent)(\u0275\u0275directiveInject(MatBottomSheet), \u0275\u0275directiveInject(UsersService));
 };
-_ListItemComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ListItemComponent, selectors: [["app-list-item"]], hostBindings: function ListItemComponent_HostBindings(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275listener("mousemove", function ListItemComponent_mousemove_HostBindingHandler($event) {
-      return ctx.onMousemove($event);
-    })("touchmove", function ListItemComponent_touchmove_HostBindingHandler($event) {
-      return ctx.onTouchMove($event);
-    });
-  }
-}, inputs: { me: "me", list: "list", item: "item" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 1, vars: 1, consts: [["class", "item", 3, "item-done", "id", "pointerdown", "pointerup", 4, "ngIf"], [1, "item", 3, "pointerdown", "pointerup", "id"], ["color", "primary", 3, "change", "checked"], [1, "item-content"], ["disabled", "", 4, "ngIf"], ["mat-mini-fab", "", "disabled", "", 3, "class", 4, "ngIf"], ["mat-icon-button", "", 3, "click", 4, "ngIf"], ["disabled", ""], [3, "highlighted", 4, "ngIf"], [3, "highlighted"], ["mat-mini-fab", "", "disabled", ""], ["mat-icon-button", "", 3, "click"]], template: function ListItemComponent_Template(rf, ctx) {
+_ListItemComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ListItemComponent, selectors: [["app-list-item"]], inputs: { me: "me", list: "list", item: "item" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 1, vars: 1, consts: [["class", "item", 3, "item-done", "id", "click", 4, "ngIf"], [1, "item", 3, "click", "id"], [1, "item-container"], ["color", "primary", 3, "change", "click", "checked"], [1, "item-content"], ["disabled", "", 4, "ngIf"], ["mat-mini-fab", "", "disabled", "", 3, "class", 4, "ngIf"], ["mat-icon-button", "", 3, "click", 4, "ngIf"], ["disabled", ""], [3, "highlighted", 4, "ngIf"], [3, "highlighted"], ["mat-mini-fab", "", "disabled", ""], ["mat-icon-button", "", 3, "click"]], template: function ListItemComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275template(0, ListItemComponent_div_0_Template, 9, 8, "div", 0);
   }
@@ -89161,7 +89147,7 @@ _ListItemComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ typ
   MatIcon,
   NameBadgePipe,
   FormsModule
-], styles: ["\n\n.item-done[_ngcontent-%COMP%]   .item-content[_ngcontent-%COMP%], \n.item-done[_ngcontent-%COMP%]   mat-chip[_ngcontent-%COMP%] {\n  color: grey;\n  text-decoration: line-through;\n  -webkit-user-select: none;\n  user-select: none;\n}\n.item[_ngcontent-%COMP%] {\n  background: #EEE;\n  border-radius: 8px;\n  margin: 6px 0;\n  width: 100%;\n}\n.item[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  color: grey;\n}\n.item[_ngcontent-%COMP%]   mat-checkbox[_ngcontent-%COMP%] {\n  margin: 8px;\n  position: relative;\n  width: calc(100% - 20px);\n}\n.item[_ngcontent-%COMP%]   mat-checkbox[_ngcontent-%COMP%]   .item-content[_ngcontent-%COMP%] {\n  white-space: pre-wrap;\n  margin-right: 36px;\n  margin-bottom: 0 !important;\n  -webkit-user-select: none;\n  user-select: none;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n.item[_ngcontent-%COMP%]   mat-checkbox[_ngcontent-%COMP%]   button.mini-user-fab[_ngcontent-%COMP%] {\n  margin-left: 6px !important;\n  float: none;\n  z-index: 0;\n}\n.item[_ngcontent-%COMP%]   mat-checkbox[_ngcontent-%COMP%]   button[_ngcontent-%COMP%]:not(.mini-user-fab) {\n  top: calc(50% - 24px);\n  position: absolute;\n  right: 0;\n}\n.item[_ngcontent-%COMP%]   mat-chip-listbox[_ngcontent-%COMP%], \n.item[_ngcontent-%COMP%]   mat-chip-option[_ngcontent-%COMP%] {\n  display: inline-block;\n  -webkit-user-select: none;\n  user-select: none;\n}\n/*# sourceMappingURL=list-item.component.css.map */"] });
+], styles: ["\n\n.item-done[_ngcontent-%COMP%]   .item-content[_ngcontent-%COMP%], \n.item-done[_ngcontent-%COMP%]   mat-chip[_ngcontent-%COMP%] {\n  color: grey;\n  text-decoration: line-through;\n  -webkit-user-select: none;\n  user-select: none;\n}\n.item[_ngcontent-%COMP%] {\n  background: #EEE;\n  border-radius: 8px;\n  margin: 6px 0;\n  width: 100%;\n}\n.item[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  color: grey;\n}\n.item[_ngcontent-%COMP%]   .item-container[_ngcontent-%COMP%] {\n  display: flex;\n  position: relative;\n}\n.item[_ngcontent-%COMP%]   .item-container[_ngcontent-%COMP%]   mat-checkbox[_ngcontent-%COMP%] {\n  margin: 8px;\n  position: relative;\n}\n.item[_ngcontent-%COMP%]   .item-container[_ngcontent-%COMP%]   .item-content[_ngcontent-%COMP%] {\n  white-space: pre-wrap;\n  margin-right: 36px;\n  margin-bottom: 0 !important;\n  -webkit-user-select: none;\n  user-select: none;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n.item[_ngcontent-%COMP%]   .item-container[_ngcontent-%COMP%]   button.mini-user-fab[_ngcontent-%COMP%] {\n  margin-left: 6px !important;\n  float: none;\n  z-index: 0;\n}\n.item[_ngcontent-%COMP%]   .item-container[_ngcontent-%COMP%]   button[_ngcontent-%COMP%]:not(.mini-user-fab) {\n  position: absolute;\n  right: 0;\n}\n.item[_ngcontent-%COMP%]   mat-chip-listbox[_ngcontent-%COMP%], \n.item[_ngcontent-%COMP%]   mat-chip-option[_ngcontent-%COMP%] {\n  display: inline-block;\n  -webkit-user-select: none;\n  user-select: none;\n}\n/*# sourceMappingURL=list-item.component.css.map */"] });
 var ListItemComponent = _ListItemComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ListItemComponent, { className: "ListItemComponent", filePath: "src/app/components/list/list-item/list-item.component.ts", lineNumber: 29 });
@@ -90618,9 +90604,9 @@ var ShareListSheetComponent = _ShareListSheetComponent;
 })();
 
 // src/app/components/list/list-header/list-header.component.ts
-function ListHeaderComponent_h2_20_Template(rf, ctx) {
+function ListHeaderComponent_h3_20_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "h2");
+    \u0275\u0275elementStart(0, "h3");
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -90857,7 +90843,7 @@ _ListHeaderComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ t
     });
     \u0275\u0275text(19, "L\xF6schen");
     \u0275\u0275elementEnd()();
-    \u0275\u0275template(20, ListHeaderComponent_h2_20_Template, 2, 1, "h2", 5)(21, ListHeaderComponent_div_21_Template, 2, 1, "div", 6);
+    \u0275\u0275template(20, ListHeaderComponent_h3_20_Template, 2, 1, "h3", 5)(21, ListHeaderComponent_div_21_Template, 2, 1, "div", 6);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -90881,106 +90867,94 @@ var ListHeaderComponent = _ListHeaderComponent;
 
 // src/app/components/list/list.component.ts
 var _c018 = ["addInput"];
-function ListComponent_div_4_Template(rf, ctx) {
+function ListComponent_div_4_mat_chip_listbox_3_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 13);
-    \u0275\u0275listener("click", function ListComponent_div_4_Template_div_click_0_listener($event) {
+    \u0275\u0275elementStart(0, "mat-chip-listbox", 15)(1, "mat-chip-option", 16);
+    \u0275\u0275listener("click", function ListComponent_div_4_mat_chip_listbox_3_Template_mat_chip_option_click_1_listener() {
       \u0275\u0275restoreView(_r2);
-      const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.closeFocusInput($event));
-    });
-    \u0275\u0275elementEnd();
-  }
-}
-function ListComponent_div_5_mat_chip_listbox_3_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-chip-listbox", 17)(1, "mat-chip-option", 18);
-    \u0275\u0275listener("click", function ListComponent_div_5_mat_chip_listbox_3_Template_mat_chip_option_click_1_listener() {
-      \u0275\u0275restoreView(_r4);
-      const slot_r5 = \u0275\u0275nextContext().$implicit;
-      const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.slotCollapseStates[slot_r5.name] = !ctx_r2.slotCollapseStates[slot_r5.name]);
+      const slot_r3 = \u0275\u0275nextContext().$implicit;
+      const ctx_r3 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r3.slotCollapseStates[slot_r3.name] = !ctx_r3.slotCollapseStates[slot_r3.name]);
     });
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const slot_r5 = \u0275\u0275nextContext().$implicit;
-    const ctx_r2 = \u0275\u0275nextContext();
+    const slot_r3 = \u0275\u0275nextContext().$implicit;
+    const ctx_r3 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("selected", !ctx_r2.slotCollapseStates[slot_r5.name]);
+    \u0275\u0275property("selected", !ctx_r3.slotCollapseStates[slot_r3.name]);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", slot_r5.nDone, " ");
+    \u0275\u0275textInterpolate1(" ", slot_r3.nDone, " ");
   }
 }
-function ListComponent_div_5_ng_container_4_app_list_item_1_Template(rf, ctx) {
+function ListComponent_div_4_ng_container_4_app_list_item_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "app-list-item", 20);
+    \u0275\u0275element(0, "app-list-item", 18);
   }
   if (rf & 2) {
-    const item_r6 = \u0275\u0275nextContext().$implicit;
-    const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("me", ctx_r2.me)("list", ctx_r2.list)("item", item_r6);
+    const item_r5 = \u0275\u0275nextContext().$implicit;
+    const ctx_r3 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("me", ctx_r3.me)("list", ctx_r3.list)("item", item_r5);
   }
 }
-function ListComponent_div_5_ng_container_4_Template(rf, ctx) {
+function ListComponent_div_4_ng_container_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainerStart(0);
-    \u0275\u0275template(1, ListComponent_div_5_ng_container_4_app_list_item_1_Template, 1, 3, "app-list-item", 19);
+    \u0275\u0275template(1, ListComponent_div_4_ng_container_4_app_list_item_1_Template, 1, 3, "app-list-item", 17);
     \u0275\u0275elementContainerEnd();
   }
   if (rf & 2) {
-    const item_r6 = ctx.$implicit;
-    const slot_r5 = \u0275\u0275nextContext().$implicit;
-    const ctx_r2 = \u0275\u0275nextContext();
+    const item_r5 = ctx.$implicit;
+    const slot_r3 = \u0275\u0275nextContext().$implicit;
+    const ctx_r3 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", (!item_r6.done || !ctx_r2.slotCollapseStates[slot_r5.name]) && ctx_r2.list() && ctx_r2.me());
+    \u0275\u0275property("ngIf", (!item_r5.done || !ctx_r3.slotCollapseStates[slot_r3.name]) && ctx_r3.list() && ctx_r3.me());
+  }
+}
+function ListComponent_div_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 12)(1, "h5");
+    \u0275\u0275text(2);
+    \u0275\u0275template(3, ListComponent_div_4_mat_chip_listbox_3_Template, 3, 2, "mat-chip-listbox", 13);
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(4, ListComponent_div_4_ng_container_4_Template, 2, 1, "ng-container", 14);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const slot_r3 = ctx.$implicit;
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", slot_r3.name, " ");
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", slot_r3.nDone > 0);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngForOf", slot_r3.items);
   }
 }
 function ListComponent_div_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 14)(1, "h5");
-    \u0275\u0275text(2);
-    \u0275\u0275template(3, ListComponent_div_5_mat_chip_listbox_3_Template, 3, 2, "mat-chip-listbox", 15);
-    \u0275\u0275elementEnd();
-    \u0275\u0275template(4, ListComponent_div_5_ng_container_4_Template, 2, 1, "ng-container", 16);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const slot_r5 = ctx.$implicit;
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", slot_r5.name, " ");
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", slot_r5.nDone > 0);
-    \u0275\u0275advance();
-    \u0275\u0275property("ngForOf", slot_r5.items);
-  }
-}
-function ListComponent_div_6_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 21);
+    \u0275\u0275elementStart(0, "div", 19);
     \u0275\u0275text(1, "Keine Eintr\xE4ge vorhanden");
     \u0275\u0275elementEnd();
   }
 }
-function ListComponent_mat_toolbar_8_Template(rf, ctx) {
+function ListComponent_mat_toolbar_7_Template(rf, ctx) {
   if (rf & 1) {
-    const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-toolbar", 22)(1, "app-date-chip-select", 23);
-    \u0275\u0275listener("pickrOpened", function ListComponent_mat_toolbar_8_Template_app_date_chip_select_pickrOpened_1_listener() {
-      \u0275\u0275restoreView(_r7);
-      const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.pickerOpen = true);
+    const _r6 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "mat-toolbar", 20)(1, "app-date-chip-select", 21);
+    \u0275\u0275listener("pickrOpened", function ListComponent_mat_toolbar_7_Template_app_date_chip_select_pickrOpened_1_listener() {
+      \u0275\u0275restoreView(_r6);
+      const ctx_r3 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r3.pickerOpen = true);
     });
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275styleProp("display", ctx_r2.focusInput ? "block" : "none");
+    const ctx_r3 = \u0275\u0275nextContext();
+    \u0275\u0275styleProp("display", ctx_r3.focusInput ? "block" : "none");
     \u0275\u0275advance();
-    \u0275\u0275property("formControl", ctx_r2.newItemDue)("options", ctx_r2.dueOptions);
+    \u0275\u0275property("formControl", ctx_r3.newItemDue)("options", ctx_r3.dueOptions);
   }
 }
 var _ListComponent = class _ListComponent {
@@ -91119,7 +91093,7 @@ _ListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _
     let _t;
     \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.addInput = _t.first);
   }
-}, inputs: { id: "id" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 16, vars: 12, consts: [["itemsContainer", ""], ["addInput", ""], [1, "content-grid", 3, "click"], [3, "listToText", "lists", "users", "isAdmin"], ["id", "items-container"], ["id", "overlay", 3, "click", 4, "ngIf"], ["class", "slots", 4, "ngFor", "ngForOf"], ["class", "no-lists", 4, "ngIf"], [1, "input-bar", 3, "click"], ["class", "toolbar-time", 3, "display", 4, "ngIf"], [1, "toolbar-input"], ["matInput", "", "placeholder", "Hinzuf\xFCgen", "autocomplete", "off", 1, "add-input", 3, "formControl"], ["mat-icon-button", "", 3, "click"], ["id", "overlay", 3, "click"], [1, "slots"], ["class", "slot-done-toggle", 4, "ngIf"], [4, "ngFor", "ngForOf"], [1, "slot-done-toggle"], [3, "click", "selected"], [3, "me", "list", "item", 4, "ngIf"], [3, "me", "list", "item"], [1, "no-lists"], [1, "toolbar-time"], [3, "pickrOpened", "formControl", "options"]], template: function ListComponent_Template(rf, ctx) {
+}, inputs: { id: "id" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 15, vars: 11, consts: [["itemsContainer", ""], ["addInput", ""], [1, "content-grid", 3, "click"], [3, "listToText", "lists", "users", "isAdmin"], ["id", "items-container"], ["class", "slots", 4, "ngFor", "ngForOf"], ["class", "no-lists", 4, "ngIf"], [1, "input-bar", 3, "click"], ["class", "toolbar-time", 3, "display", 4, "ngIf"], [1, "toolbar-input"], ["matInput", "", "placeholder", "Hinzuf\xFCgen", "autocomplete", "off", 1, "add-input", 3, "formControl"], ["mat-icon-button", "", 3, "click"], [1, "slots"], ["class", "slot-done-toggle", 4, "ngIf"], [4, "ngFor", "ngForOf"], [1, "slot-done-toggle"], [3, "click", "selected"], [3, "me", "list", "item", 4, "ngIf"], [3, "me", "list", "item"], [1, "no-lists"], [1, "toolbar-time"], [3, "pickrOpened", "formControl", "options"]], template: function ListComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 2);
@@ -91134,31 +91108,29 @@ _ListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _
     });
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(2, "div", 4, 0);
-    \u0275\u0275template(4, ListComponent_div_4_Template, 1, 0, "div", 5)(5, ListComponent_div_5_Template, 5, 3, "div", 6)(6, ListComponent_div_6_Template, 2, 0, "div", 7);
+    \u0275\u0275template(4, ListComponent_div_4_Template, 5, 3, "div", 5)(5, ListComponent_div_5_Template, 2, 0, "div", 6);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "div", 8);
-    \u0275\u0275listener("click", function ListComponent_Template_div_click_7_listener($event) {
+    \u0275\u0275elementStart(6, "div", 7);
+    \u0275\u0275listener("click", function ListComponent_Template_div_click_6_listener($event) {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.openFocusInput($event));
     });
-    \u0275\u0275template(8, ListComponent_mat_toolbar_8_Template, 2, 4, "mat-toolbar", 9);
-    \u0275\u0275elementStart(9, "mat-toolbar", 10)(10, "form");
-    \u0275\u0275element(11, "input", 11, 1);
-    \u0275\u0275elementStart(13, "button", 12);
-    \u0275\u0275listener("click", function ListComponent_Template_button_click_13_listener() {
+    \u0275\u0275template(7, ListComponent_mat_toolbar_7_Template, 2, 4, "mat-toolbar", 8);
+    \u0275\u0275elementStart(8, "mat-toolbar", 9)(9, "form");
+    \u0275\u0275element(10, "input", 10, 1);
+    \u0275\u0275elementStart(12, "button", 11);
+    \u0275\u0275listener("click", function ListComponent_Template_button_click_12_listener() {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.addItem());
     });
-    \u0275\u0275elementStart(14, "mat-icon");
-    \u0275\u0275text(15, "add");
+    \u0275\u0275elementStart(13, "mat-icon");
+    \u0275\u0275text(14, "add");
     \u0275\u0275elementEnd()()()()()();
   }
   if (rf & 2) {
     \u0275\u0275advance();
     \u0275\u0275property("lists", ctx.list)("users", ctx.users)("isAdmin", ctx.userIsAdmin());
     \u0275\u0275advance(3);
-    \u0275\u0275property("ngIf", ctx.focusInput);
-    \u0275\u0275advance();
     \u0275\u0275property("ngForOf", ctx.slots());
     \u0275\u0275advance();
     \u0275\u0275property("ngIf", ctx.slots().length === 0);

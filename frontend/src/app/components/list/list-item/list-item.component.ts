@@ -38,18 +38,18 @@ export class ListItemComponent implements OnDestroy {
   createdBySub?: Subscription;
   createdBy: WritableSignal<MyUsersDocument | undefined> = signal(undefined);
 
-  pointerDown: boolean = false;
-  pointerPosY: number | undefined; 
-  updateSheetRef: MatBottomSheetRef<UpdateItemSheetComponent, any> | undefined;
+  // pointerDown: boolean = false;
+  // pointerPosY: number | undefined; 
+  // updateSheetRef: MatBottomSheetRef<UpdateItemSheetComponent, any> | undefined;
 
-  @HostListener('mousemove', ['$event'])
-  onMousemove(event: MouseEvent): void  {
-    this.pointerPosY = event.clientY;
-  }
-  @HostListener('touchmove', ['$event'])
-  onTouchMove(event: TouchEvent): void {
-    this.pointerPosY = event.changedTouches[0].clientY;
-  }
+  // @HostListener('mousemove', ['$event'])
+  // onMousemove(event: MouseEvent): void  {
+  //   this.pointerPosY = event.clientY;
+  // }
+  // @HostListener('touchmove', ['$event'])
+  // onTouchMove(event: TouchEvent): void {
+  //   this.pointerPosY = event.changedTouches[0].clientY;
+  // }
 
   constructor(
     private bottomSheet: MatBottomSheet,
@@ -100,44 +100,59 @@ export class ListItemComponent implements OnDestroy {
     return !!is_today(item);
   }
 
-  openUpdateSheet(event: MouseEvent, item?: MyItemDocument) {
-    if (!this.pointerDown && item) {
-      this.pointerDown = true;
-      const currScrollPos = event.clientY;
-      this.pointerPosY = currScrollPos;
+  openEditSheet(item: MyItemDocument) {
+    const updateSheetRef = this.bottomSheet.open(UpdateItemSheetComponent, {
+      data: {
+        list: this.list,
+        item
+      }
+    });
+
+    updateSheetRef.afterDismissed().subscribe(patch => {
+      if (this.item && patch) {
+        this.item.patch(patch);
+      }
+    });
+  }
+
+  // openUpdateSheet(event: MouseEvent, item?: MyItemDocument) {
+  //   if (!this.pointerDown && item) {
+  //     this.pointerDown = true;
+  //     const currScrollPos = event.clientY;
+  //     this.pointerPosY = currScrollPos;
       
-      setTimeout(() => {
+  //     setTimeout(() => {
         
-        if (this.pointerPosY != undefined &&
-            this.pointerDown &&
-            !this.updateSheetRef &&
-            Math.abs(currScrollPos - this.pointerPosY) < 50
-        ) {  
-          this.updateSheetRef = this.bottomSheet.open(UpdateItemSheetComponent, {
-            data: {
-              list: this.list,
-              item
-            }
-          });
+  //       if (this.pointerPosY != undefined &&
+  //           this.pointerDown &&
+  //           !this.updateSheetRef &&
+  //           Math.abs(currScrollPos - this.pointerPosY) < 50
+  //       ) {  
+  //         this.updateSheetRef = this.bottomSheet.open(UpdateItemSheetComponent, {
+  //           data: {
+  //             list: this.list,
+  //             item
+  //           }
+  //         });
   
-          this.updateSheetRef.afterDismissed().subscribe(patch => {
-            if (this.item && patch) {
-              this.item.patch(patch);
-            }
+  //         this.updateSheetRef.afterDismissed().subscribe(patch => {
+  //           if (this.item && patch) {
+  //             this.item.patch(patch);
+  //           }
 
-            setTimeout(() => {
-              this.cancelUpdateSheet();
-            }, 500);
-          });
-        } else {
-          this.cancelUpdateSheet();
-        }
-      }, 500);
-    }
-  }
+  //           setTimeout(() => {
+  //             this.cancelUpdateSheet();
+  //           }, 500);
+  //         });
+  //       } else {
+  //         this.cancelUpdateSheet();
+  //       }
+  //     }, 500);
+  //   }
+  // }
 
-  cancelUpdateSheet() {
-    this.pointerDown = false;
-    this.updateSheetRef = undefined;
-  }
+  // cancelUpdateSheet() {
+  //   this.pointerDown = false;
+  //   this.updateSheetRef = undefined;
+  // }
 }

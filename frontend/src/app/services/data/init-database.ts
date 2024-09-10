@@ -19,6 +19,16 @@ export async function initDatabase(injector: Injector) {
         throw new Error('initDatabase() injector missing');
     }
 
+    // remove old data
+    if (!!localStorage.getItem('jwt')) {
+        localStorage.clear();
+        (await indexedDB.databases()).forEach(db => {
+            if (db.name) {
+                indexedDB.deleteDatabase(db.name);
+            }
+        });
+    }
+
     await _create(injector).then(db => DB_INSTANCE = db);
 }
 

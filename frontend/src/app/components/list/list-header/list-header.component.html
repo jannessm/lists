@@ -10,7 +10,7 @@
         <button mat-menu-item (click)="deleteList()" [disabled]="!isAdmin">Löschen</button>
     </mat-menu>
 
-    <h2 *ngIf="lists()">{{lists().name}}</h2>
+    <h3 *ngIf="lists()">{{lists().name}}</h3>
     <div class="users" *ngIf="users() && users().length > 1" (click)="shareList()">
         <button mat-mini-fab *ngFor="let user of users(); let i = index" [class]="'user-fab-' + i % 12" disabled >{{user?.name | nameBadge}}</button>
     </div>

@@ -93,7 +93,7 @@ export class DateChipSelectComponent implements AfterViewInit {
       }
     }
 
-    this.chipOption = chipOption || '0 min';
+    this.chipOption = chipOption;
   }
 
   registerOnChange(fn: any): void {
@@ -119,6 +119,7 @@ export class DateChipSelectComponent implements AfterViewInit {
   openFlatpickr() {
     if (!this.pickrIsOpen && !!this.flatpickr) {
       this.flatpickr.open();
+      console.log('open');
       this.pickrIsOpen = true;
       this.pickrOpened.emit();
     }

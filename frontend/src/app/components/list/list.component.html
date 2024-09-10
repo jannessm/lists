@@ -7,7 +7,6 @@
     ></app-list-header>
 
     <div id="items-container" #itemsContainer>
-        <div id="overlay" *ngIf="focusInput" (click)="closeFocusInput($event)"></div>
         <div class="slots" *ngFor="let slot of slots()">
             <h5>
                 {{ slot.name }}
