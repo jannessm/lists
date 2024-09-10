@@ -61,7 +61,7 @@ services:
       - "traefik.http.routers.lists-staging.rule=Host(`lists-staging.magnusso.nz`)"
       - "traefik.http.routers.lists-staging.tls.certresolver=myresolver"
       - "traefik.http.services.lists-staging.loadbalancer.server.port=8000"
-    network:
+    networks:
       - traefik
 
 networks:
