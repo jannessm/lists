@@ -7,6 +7,7 @@ export const environment = {
   production: false,
   api: 'http://localhost:8080/',
   pusherUrl: 'localhost',
+  pusherPort: 6001,
   dexieDebugMode: false,
   hcaptcha: '10000000-ffff-ffff-ffff-000000000001',
   locale: 'de',

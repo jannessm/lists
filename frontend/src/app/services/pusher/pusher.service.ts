@@ -28,7 +28,7 @@ export class PusherService implements OnDestroy {
       this.pusher = new Pusher('app-key', {
         cluster: environment.pusherUrl,
         wsHost: environment.pusherUrl,
-        wsPort: 6001,
+        wsPort: environment.pusherPort,
         forceTLS: false,
         disableStats: true,
         enabledTransports: ['ws', 'wss'],
