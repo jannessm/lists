@@ -2,9 +2,13 @@
 
 namespace App\Notifications;
 
+use Carbon\Carbon;
+
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
+
+use NotificationChannels\WebPush\WebPushMessage;
 
 use App\WebPush\MyWebPushChannel;
 use App\Models\ListItem;
@@ -70,13 +74,18 @@ class ReminderNotification extends Notification implements ShouldQueue
      * @return array<string, mixed>
      */
     public function getTime() {
+        $due = null;
+        if ($this->item->due) {
+            $due = $this->item->due->setTimezone($this->item->timezone);
+        }
+
         if (
-            $this->item->due &&
-            $this->item->due->format('Y-m-d') === Carbon::now()->format('Y-m-d')
+            $due &&
+            $due->format('Y-m-d') === Carbon::now($this->item->timezone)->format('Y-m-d')
         ) {
-            return 'Heute um ' . $this->item->due->format('H:i');
-        } else if ($this->item->due) {
-            return 'Am ' . $this->item->due->format('d.m. H:i');
+            return 'Heute um ' . $due->format('H:i');
+        } else if ($due) {
+            return 'Am ' . $due->format('d.m. H:i');
         } else {
             return 'Erinnerung';
         }

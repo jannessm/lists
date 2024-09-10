@@ -53,7 +53,7 @@ class ListItem extends Model
     }
 
     public function localeDueTime($format) {
-        return $this->due->timezone($this->timezone)->format($format);
+        return $this->due->setTimezone($this->timezone)->format($format);
     }
 
     public function pushResolver($_, $args) {

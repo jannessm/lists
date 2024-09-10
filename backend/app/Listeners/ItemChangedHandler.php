@@ -2,8 +2,10 @@
 
 namespace App\Listeners;
 
+
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Notification;
 
 use Nuwave\Lighthouse\Execution\Utils\Subscription;
@@ -40,8 +42,11 @@ class ItemChangedHandler implements ShouldQueue
                     
                     $notification = ListsChangedNotification::fromPushRow($row, $updatedItem, $event->actor);
 
-                    // Notification::send($otherUsers, $notification);
-                    Notification::send($users, $notification);
+                    if (App::environment('local')) {
+                        Notification::send($users, $notification);
+                    } else {
+                        Notification::send($otherUsers, $notification);
+                    }
                     break;
                 }
             }

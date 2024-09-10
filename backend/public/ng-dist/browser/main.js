@@ -88944,7 +88944,7 @@ function ListItemComponent_div_0_mat_chip_set_6_mat_chip_1_Template(rf, ctx) {
     const ctx_r1 = \u0275\u0275nextContext(3);
     \u0275\u0275property("highlighted", !!ctx_r1.item.reminder);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(2, 2, ctx_r1.item.due, "h:mm"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(2, 2, ctx_r1.item.due, "shortTime"));
   }
 }
 function ListItemComponent_div_0_mat_chip_set_6_mat_chip_2_Template(rf, ctx) {
@@ -91227,13 +91227,16 @@ function laravelInterceptor(req, next) {
 // src/app/interceptors/no-connection.ts
 function noConnectionInterceptor(req, next) {
   const pusher = inject(PusherService);
-  return next(req).pipe(timeout(3e4), tap((event) => {
+  return next(req).pipe(timeout(1e4), tap((event) => {
     if (event.type === HttpEventType.ResponseHeader && event.status === 0) {
       pusher.online.next(false);
     } else if (!pusher.online.value) {
       pusher.online.next(true);
     }
   }), catchError((err) => {
+    if (err.name === "TimeoutError" || err.type === HttpEventType.ResponseHeader && err.status === 0) {
+      pusher.online.next(false);
+    }
     throw err;
   }));
 }

@@ -7,7 +7,7 @@ export function noConnectionInterceptor(req: HttpRequest<unknown>, next: HttpHan
     const pusher = inject(PusherService);
     
     return next(req).pipe(
-        timeout(30_000),
+        timeout(10000),
         tap(event => {
             if (
                 (event.type === HttpEventType.ResponseHeader && event.status === 0)
@@ -18,7 +18,11 @@ export function noConnectionInterceptor(req: HttpRequest<unknown>, next: HttpHan
             }
         }),
         catchError(err => {
-            // pusher.online.next(false);
+            if ( err.name === "TimeoutError" ||
+                (err.type === HttpEventType.ResponseHeader && err.status === 0)
+            ) {
+                pusher.online.next(false);
+            }
             throw err;
         })
     );
