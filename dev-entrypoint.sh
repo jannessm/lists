@@ -1,5 +1,6 @@
 #!/bin/bash
 # sleep 20
+cp /configs/.env .env
 . .env
 echo $APP_NAME
 # ./clear-cache.sh

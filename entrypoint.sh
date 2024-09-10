@@ -1,5 +1,6 @@
 #!/bin/bash
-. /configs/.env
+cp /configs/.env .env
+. .env
 echo $APP_NAME
 ./clear-cache.sh
 # php artisan migrate --seed
