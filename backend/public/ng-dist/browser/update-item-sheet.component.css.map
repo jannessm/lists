@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/components/bottom-sheets/update-item-sheet/update-item-sheet.component.scss"],
-  "sourcesContent": ["#reminder-picker, #due-picker {\n    opacity: 0;\n    height: 0;\n    width: 0;\n    z-index: -100;\n}"],
-  "mappings": ";AAAA,CAAA;AAAA,CAAA;AACI,WAAA;AACA,UAAA;AACA,SAAA;AACA,WAAA;;",
-  "names": []
-}

@@ -46,7 +46,23 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumError": "2mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all",
+              "serviceWorker": "ngsw-config.json"
+            },
+            "staging": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "2mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -71,6 +87,9 @@
           "configurations": {
             "production": {
               "buildTarget": "frontend:build:production"
+            },
+            "staging": {
+              "buildTarget": "frontend:build:staging"
             },
             "development": {
               "buildTarget": "frontend:build:development"
