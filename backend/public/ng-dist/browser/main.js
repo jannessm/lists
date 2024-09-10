@@ -82338,6 +82338,7 @@ var _PusherService = class _PusherService {
         if (!payload.more) {
           this.pusher?.unsubscribe(channel);
         }
+        console.log(payload.result);
         const result = payload.result.data;
         if (result) {
           callback(result);
@@ -82910,6 +82911,7 @@ var MyQuery = class {
 
 // src/app/mydb/conflict-handler.ts
 function defaultConflictHandler(forkState, assumedMasterState, trueMasterState) {
+  console.log(forkState, trueMasterState, assumedMasterState);
   if (!assumedMasterState || !trueMasterState || assumedMasterState.updatedAt === trueMasterState.updatedAt) {
     return forkState;
   } else {
@@ -83076,7 +83078,6 @@ var MyCollection = class {
             const key = val[0];
             const value = val[1];
             if (value instanceof Array) {
-              console.log(value.reduce((c, v) => doc[key] === v || c, false));
               return carry && value.reduce((c, v) => doc[key] === v || c, false);
             }
             return carry && doc[key] === value;
@@ -83230,7 +83231,7 @@ function addCollections(db) {
         }
       },
       [DATA_TYPE.USERS]: {
-        schema: ME_SCHEMA
+        schema: USERS_SCHEMA
       },
       [DATA_TYPE.LISTS]: {
         schema: LISTS_SCHEMA,
@@ -84413,7 +84414,6 @@ var _ListsOverviewComponent = class _ListsOverviewComponent {
           sort: [{ name: "asc" }]
         }).$.subscribe((docs) => {
           this.lists = docs;
-          console.log(docs);
         });
       }
     });
@@ -84513,56 +84513,56 @@ function EditFormComponent_form_1_mat_error_12_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
 }
-function EditFormComponent_form_1_mat_hint_22_Template(rf, ctx) {
+function EditFormComponent_form_1_mat_hint_19_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-hint");
     \u0275\u0275text(1, "Im Offlinemodus nicht \xE4nderbar.");
     \u0275\u0275elementEnd();
   }
 }
-function EditFormComponent_form_1_mat_error_23_Template(rf, ctx) {
+function EditFormComponent_form_1_mat_error_20_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-error");
     \u0275\u0275text(1, " Passwort muss angegeben werden! ");
     \u0275\u0275elementEnd();
   }
 }
-function EditFormComponent_form_1_mat_hint_30_Template(rf, ctx) {
+function EditFormComponent_form_1_mat_hint_27_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-hint");
     \u0275\u0275text(1, "Im Offlinemodus nicht \xE4nderbar.");
     \u0275\u0275elementEnd();
   }
 }
-function EditFormComponent_form_1_mat_error_31_Template(rf, ctx) {
+function EditFormComponent_form_1_mat_error_28_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-error");
     \u0275\u0275text(1, " Ein neues Passwort muss angegeben werden! ");
     \u0275\u0275elementEnd();
   }
 }
-function EditFormComponent_form_1_mat_hint_36_Template(rf, ctx) {
+function EditFormComponent_form_1_mat_hint_33_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-hint");
     \u0275\u0275text(1, "Im Offlinemodus nicht \xE4nderbar.");
     \u0275\u0275elementEnd();
   }
 }
-function EditFormComponent_form_1_mat_error_37_Template(rf, ctx) {
+function EditFormComponent_form_1_mat_error_34_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-error");
     \u0275\u0275text(1, " Das neue Passwort muss wiederholt werden! ");
     \u0275\u0275elementEnd();
   }
 }
-function EditFormComponent_form_1_mat_error_38_Template(rf, ctx) {
+function EditFormComponent_form_1_mat_error_35_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-error");
     \u0275\u0275text(1, " Neue Passw\xF6rter stimmen nicht \xFCberein! ");
     \u0275\u0275elementEnd();
   }
 }
-function EditFormComponent_form_1_mat_error_39_Template(rf, ctx) {
+function EditFormComponent_form_1_mat_error_36_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-error");
     \u0275\u0275text(1, " Das neue Passwort muss sich vom alten Passwort unterscheiden! ");
@@ -84583,26 +84583,26 @@ function EditFormComponent_form_1_Template(rf, ctx) {
     \u0275\u0275element(9, "input", 7);
     \u0275\u0275template(10, EditFormComponent_form_1_mat_hint_10_Template, 2, 0, "mat-hint", 6)(11, EditFormComponent_form_1_mat_error_11_Template, 2, 0, "mat-error", 6)(12, EditFormComponent_form_1_mat_error_12_Template, 2, 0, "mat-error", 6);
     \u0275\u0275elementEnd();
-    \u0275\u0275element(13, "br")(14, "br")(15, "br")(16, "br")(17, "br");
-    \u0275\u0275elementStart(18, "mat-form-field", 4)(19, "mat-label");
-    \u0275\u0275text(20, "Altes Passwort");
+    \u0275\u0275element(13, "br")(14, "br");
+    \u0275\u0275elementStart(15, "mat-form-field", 4)(16, "mat-label");
+    \u0275\u0275text(17, "Altes Passwort");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(21, "input", 8);
-    \u0275\u0275template(22, EditFormComponent_form_1_mat_hint_22_Template, 2, 0, "mat-hint", 6)(23, EditFormComponent_form_1_mat_error_23_Template, 2, 0, "mat-error", 6);
-    \u0275\u0275elementStart(24, "mat-hint");
-    \u0275\u0275text(25, "Nach einer \xC4nderung des Passworts musst du dich erneut einloggen.");
+    \u0275\u0275element(18, "input", 8);
+    \u0275\u0275template(19, EditFormComponent_form_1_mat_hint_19_Template, 2, 0, "mat-hint", 6)(20, EditFormComponent_form_1_mat_error_20_Template, 2, 0, "mat-error", 6);
+    \u0275\u0275elementStart(21, "mat-hint");
+    \u0275\u0275text(22, "Nach einer \xC4nderung des Passworts musst du dich erneut einloggen.");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(26, "mat-form-field", 4)(27, "mat-label");
-    \u0275\u0275text(28, "Neues Passwort");
+    \u0275\u0275elementStart(23, "mat-form-field", 4)(24, "mat-label");
+    \u0275\u0275text(25, "Neues Passwort");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(29, "input", 9);
-    \u0275\u0275template(30, EditFormComponent_form_1_mat_hint_30_Template, 2, 0, "mat-hint", 6)(31, EditFormComponent_form_1_mat_error_31_Template, 2, 0, "mat-error", 6);
+    \u0275\u0275element(26, "input", 9);
+    \u0275\u0275template(27, EditFormComponent_form_1_mat_hint_27_Template, 2, 0, "mat-hint", 6)(28, EditFormComponent_form_1_mat_error_28_Template, 2, 0, "mat-error", 6);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(32, "mat-form-field", 4)(33, "mat-label");
-    \u0275\u0275text(34, "Passwort wiederholen");
+    \u0275\u0275elementStart(29, "mat-form-field", 4)(30, "mat-label");
+    \u0275\u0275text(31, "Passwort wiederholen");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(35, "input", 10);
-    \u0275\u0275template(36, EditFormComponent_form_1_mat_hint_36_Template, 2, 0, "mat-hint", 6)(37, EditFormComponent_form_1_mat_error_37_Template, 2, 0, "mat-error", 6)(38, EditFormComponent_form_1_mat_error_38_Template, 2, 0, "mat-error", 6)(39, EditFormComponent_form_1_mat_error_39_Template, 2, 0, "mat-error", 6);
+    \u0275\u0275element(32, "input", 10);
+    \u0275\u0275template(33, EditFormComponent_form_1_mat_hint_33_Template, 2, 0, "mat-hint", 6)(34, EditFormComponent_form_1_mat_error_34_Template, 2, 0, "mat-error", 6)(35, EditFormComponent_form_1_mat_error_35_Template, 2, 0, "mat-error", 6)(36, EditFormComponent_form_1_mat_error_36_Template, 2, 0, "mat-error", 6);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -84622,7 +84622,7 @@ function EditFormComponent_form_1_Template(rf, ctx) {
     \u0275\u0275property("ngIf", (tmp_4_0 = ctx_r0.editForm.get("email")) == null ? null : tmp_4_0.hasError("required"));
     \u0275\u0275advance();
     \u0275\u0275property("ngIf", (tmp_5_0 = ctx_r0.editForm.get("email")) == null ? null : tmp_5_0.hasError("email"));
-    \u0275\u0275advance(10);
+    \u0275\u0275advance(7);
     \u0275\u0275property("ngIf", ctx_r0.disabled());
     \u0275\u0275advance();
     \u0275\u0275property("ngIf", (tmp_7_0 = ctx_r0.editForm.get("oldPwd")) == null ? null : tmp_7_0.hasError("required"));
@@ -84647,10 +84647,14 @@ function EditFormComponent_button_2_Template(rf, ctx) {
     \u0275\u0275listener("click", function EditFormComponent_button_2_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r2);
       const ctx_r0 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r0.cancelChanges());
+      return \u0275\u0275resetView(ctx_r0.saveChanges());
     });
-    \u0275\u0275text(1, "Abbrechen");
+    \u0275\u0275text(1, "Speichern");
     \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275property("disabled", !ctx_r0.editForm.valid);
   }
 }
 function EditFormComponent_button_3_Template(rf, ctx) {
@@ -84660,14 +84664,10 @@ function EditFormComponent_button_3_Template(rf, ctx) {
     \u0275\u0275listener("click", function EditFormComponent_button_3_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r0 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r0.saveChanges());
+      return \u0275\u0275resetView(ctx_r0.cancelChanges());
     });
-    \u0275\u0275text(1, "Speichern");
+    \u0275\u0275text(1, "Abbrechen");
     \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275property("disabled", !ctx_r0.editForm.valid);
   }
 }
 var _EditFormComponent = class _EditFormComponent {
@@ -84779,10 +84779,10 @@ var _EditFormComponent = class _EditFormComponent {
 _EditFormComponent.\u0275fac = function EditFormComponent_Factory(\u0275t) {
   return new (\u0275t || _EditFormComponent)(\u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(MatSnackBar));
 };
-_EditFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _EditFormComponent, selectors: [["app-settings-edit-form"]], inputs: { editMode: "editMode", disabled: "disabled" }, outputs: { name: "name" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 4, vars: 3, consts: [[3, "formGroup", 4, "ngIf"], ["mat-flat-button", "", "color", "primary", 3, "click", 4, "ngIf"], ["mat-stroked-button", "", 3, "disabled", "click", 4, "ngIf"], [3, "formGroup"], ["appearance", "outline"], ["matInput", "", "formControlName", "name"], [4, "ngIf"], ["matInput", "", "formControlName", "email"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "oldPwd"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "pwd"], ["matInput", "", "type", "password", "placeholder", "Passwort wiederholen", "formControlName", "pwdConfirmation"], ["mat-flat-button", "", "color", "primary", 3, "click"], ["mat-stroked-button", "", 3, "click", "disabled"]], template: function EditFormComponent_Template(rf, ctx) {
+_EditFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _EditFormComponent, selectors: [["app-settings-edit-form"]], inputs: { editMode: "editMode", disabled: "disabled" }, outputs: { name: "name" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 4, vars: 3, consts: [[3, "formGroup", 4, "ngIf"], ["mat-stroked-button", "", 3, "disabled", "click", 4, "ngIf"], ["mat-flat-button", "", "color", "primary", 3, "click", 4, "ngIf"], [3, "formGroup"], ["appearance", "outline"], ["matInput", "", "formControlName", "name"], [4, "ngIf"], ["matInput", "", "formControlName", "email"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "oldPwd"], ["matInput", "", "type", "password", "placeholder", "Passwort", "formControlName", "pwd"], ["matInput", "", "type", "password", "placeholder", "Passwort wiederholen", "formControlName", "pwdConfirmation"], ["mat-stroked-button", "", 3, "click", "disabled"], ["mat-flat-button", "", "color", "primary", 3, "click"]], template: function EditFormComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div");
-    \u0275\u0275template(1, EditFormComponent_form_1_Template, 40, 13, "form", 0)(2, EditFormComponent_button_2_Template, 2, 0, "button", 1)(3, EditFormComponent_button_3_Template, 2, 1, "button", 2);
+    \u0275\u0275template(1, EditFormComponent_form_1_Template, 37, 13, "form", 0)(2, EditFormComponent_button_2_Template, 2, 1, "button", 1)(3, EditFormComponent_button_3_Template, 2, 0, "button", 2);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -84793,7 +84793,7 @@ _EditFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ typ
     \u0275\u0275advance();
     \u0275\u0275property("ngIf", ctx.editMode());
   }
-}, dependencies: [CommonModule, NgIf, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, MaterialModule, MatButton, MatFormField, MatLabel, MatHint, MatError, MatInput], styles: ["\n\ndiv[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-form-field[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  width: 100%;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\ndiv[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n/*# sourceMappingURL=form.css.map */"] });
+}, dependencies: [CommonModule, NgIf, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, MaterialModule, MatButton, MatFormField, MatLabel, MatHint, MatError, MatInput], styles: ["\n\ndiv[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-form-field[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  width: 100%;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\ndiv[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n/*# sourceMappingURL=form.css.map */"] });
 var EditFormComponent = _EditFormComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(EditFormComponent, { className: "EditFormComponent", filePath: "src/app/components/settings/edit-form/edit-form.component.ts", lineNumber: 24 });
@@ -84886,7 +84886,7 @@ _ThemeFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ ty
     \u0275\u0275advance(4);
     \u0275\u0275property("formControl", ctx.theme);
   }
-}, dependencies: [ReactiveFormsModule, NgControlStatus, FormControlDirective, MaterialModule, MatFormField, MatLabel, MatSelect, MatOption], styles: ["\n\ndiv[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-form-field[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  width: 100%;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\ndiv[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n/*# sourceMappingURL=form.css.map */"] });
+}, dependencies: [ReactiveFormsModule, NgControlStatus, FormControlDirective, MaterialModule, MatFormField, MatLabel, MatSelect, MatOption], styles: ["\n\ndiv[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-form-field[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  width: 100%;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\ndiv[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n/*# sourceMappingURL=form.css.map */"] });
 var ThemeFormComponent = _ThemeFormComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ThemeFormComponent, { className: "ThemeFormComponent", filePath: "src/app/components/settings/theme-form/theme-form.component.ts", lineNumber: 19 });
@@ -85400,7 +85400,7 @@ _PushFormComponent.\u0275fac = function PushFormComponent_Factory(\u0275t) {
 };
 _PushFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PushFormComponent, selectors: [["app-settings-push-form"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 9, vars: 3, consts: [["color", "primary", 3, "formControl"]], template: function PushFormComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div")(1, "h4");
+    \u0275\u0275elementStart(0, "div")(1, "mat-label");
     \u0275\u0275text(2, "Push Benachritigungen");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "mat-slide-toggle", 0);
@@ -85421,7 +85421,7 @@ _PushFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ typ
     \u0275\u0275advance(2);
     \u0275\u0275property("formControl", ctx.receiveReminder);
   }
-}, dependencies: [MaterialModule, MatSlideToggle, ReactiveFormsModule, NgControlStatus, FormControlDirective], styles: ["\n\nmat-slide-toggle[_ngcontent-%COMP%]:not(:first-of-type) {\n  margin-left: 64px;\n  width: calc(100% - 64px);\n}\n/*# sourceMappingURL=push-form.component.css.map */", "\n\ndiv[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-form-field[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  width: 100%;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\ndiv[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n/*# sourceMappingURL=form.css.map */"] });
+}, dependencies: [MaterialModule, MatLabel, MatSlideToggle, ReactiveFormsModule, NgControlStatus, FormControlDirective], styles: ["\n\nmat-slide-toggle[_ngcontent-%COMP%]:not(:first-of-type) {\n  margin-left: 64px;\n  width: calc(100% - 64px);\n}\n/*# sourceMappingURL=push-form.component.css.map */", "\n\ndiv[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-form-field[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  width: 100%;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\ndiv[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n/*# sourceMappingURL=form.css.map */"] });
 var PushFormComponent = _PushFormComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PushFormComponent, { className: "PushFormComponent", filePath: "src/app/components/settings/push-form/push-form.component.ts", lineNumber: 18 });
@@ -87891,18 +87891,18 @@ _OthersFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ t
     \u0275\u0275advance(3);
     \u0275\u0275property("showOthers", false)("options", ctx.reminderOptions);
   }
-}, dependencies: [ReactiveFormsModule, \u0275NgNoValidate, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, MaterialModule, MatLabel, DateChipSelectComponent], styles: ["\n\ndiv[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-form-field[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  width: 100%;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\ndiv[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n/*# sourceMappingURL=form.css.map */"] });
+}, dependencies: [ReactiveFormsModule, \u0275NgNoValidate, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, MaterialModule, MatLabel, DateChipSelectComponent], styles: ["\n\ndiv[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\ndiv[_ngcontent-%COMP%]   form[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-form-field[_ngcontent-%COMP%], \ndiv[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  width: 100%;\n}\ndiv[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\ndiv[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 24px;\n}\n/*# sourceMappingURL=form.css.map */"] });
 var OthersFormComponent = _OthersFormComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(OthersFormComponent, { className: "OthersFormComponent", filePath: "src/app/components/settings/others-form/others-form.component.ts", lineNumber: 21 });
 })();
 
 // src/app/components/settings/settings.component.ts
-function SettingsComponent_div_0_button_1_Template(rf, ctx) {
+function SettingsComponent_div_0_button_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 10);
-    \u0275\u0275listener("click", function SettingsComponent_div_0_button_1_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 11);
+    \u0275\u0275listener("click", function SettingsComponent_div_0_button_2_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r2);
       const ctx_r2 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r2.enterEditMode());
@@ -87912,9 +87912,9 @@ function SettingsComponent_div_0_button_1_Template(rf, ctx) {
     \u0275\u0275elementEnd()();
   }
 }
-function SettingsComponent_div_0_button_2_Template(rf, ctx) {
+function SettingsComponent_div_0_button_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "button", 11);
+    \u0275\u0275elementStart(0, "button", 12);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "nameBadge");
     \u0275\u0275elementEnd();
@@ -87925,9 +87925,9 @@ function SettingsComponent_div_0_button_2_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, ctx_r2.user().name), " ");
   }
 }
-function SettingsComponent_div_0_button_3_Template(rf, ctx) {
+function SettingsComponent_div_0_button_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "button", 11);
+    \u0275\u0275elementStart(0, "button", 12);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "nameBadge");
     \u0275\u0275elementEnd();
@@ -87938,7 +87938,7 @@ function SettingsComponent_div_0_button_3_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, ctx_r2.userName()), " ");
   }
 }
-function SettingsComponent_div_0_div_5_Template(rf, ctx) {
+function SettingsComponent_div_0_div_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div");
     \u0275\u0275text(1);
@@ -87950,7 +87950,7 @@ function SettingsComponent_div_0_div_5_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.user().name);
   }
 }
-function SettingsComponent_div_0_div_6_Template(rf, ctx) {
+function SettingsComponent_div_0_div_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div");
     \u0275\u0275text(1);
@@ -87965,33 +87965,34 @@ function SettingsComponent_div_0_div_6_Template(rf, ctx) {
 function SettingsComponent_div_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 1);
-    \u0275\u0275template(1, SettingsComponent_div_0_button_1_Template, 3, 0, "button", 2)(2, SettingsComponent_div_0_button_2_Template, 3, 3, "button", 3)(3, SettingsComponent_div_0_button_3_Template, 3, 3, "button", 3);
-    \u0275\u0275elementStart(4, "div", 4);
-    \u0275\u0275template(5, SettingsComponent_div_0_div_5_Template, 2, 1, "div", 5)(6, SettingsComponent_div_0_div_6_Template, 2, 1, "div", 5);
-    \u0275\u0275elementStart(7, "app-settings-edit-form", 6);
-    \u0275\u0275listener("name", function SettingsComponent_div_0_Template_app_settings_edit_form_name_7_listener($event) {
+    \u0275\u0275elementStart(0, "div", 1)(1, "div", 2);
+    \u0275\u0275template(2, SettingsComponent_div_0_button_2_Template, 3, 0, "button", 3)(3, SettingsComponent_div_0_button_3_Template, 3, 3, "button", 4)(4, SettingsComponent_div_0_button_4_Template, 3, 3, "button", 4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "div", 5);
+    \u0275\u0275template(6, SettingsComponent_div_0_div_6_Template, 2, 1, "div", 6)(7, SettingsComponent_div_0_div_7_Template, 2, 1, "div", 6);
+    \u0275\u0275elementStart(8, "app-settings-edit-form", 7);
+    \u0275\u0275listener("name", function SettingsComponent_div_0_Template_app_settings_edit_form_name_8_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.userName.set($event));
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275element(8, "hr")(9, "app-settings-theme-form", 7)(10, "app-settings-others-form", 7)(11, "hr")(12, "app-settings-push-form", 7);
-    \u0275\u0275elementStart(13, "button", 8);
-    \u0275\u0275listener("click", function SettingsComponent_div_0_Template_button_click_13_listener() {
+    \u0275\u0275element(9, "hr")(10, "app-settings-theme-form", 8)(11, "app-settings-others-form", 8)(12, "hr")(13, "app-settings-push-form", 8)(14, "hr");
+    \u0275\u0275elementStart(15, "button", 9);
+    \u0275\u0275listener("click", function SettingsComponent_div_0_Template_button_click_15_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.logout());
     });
-    \u0275\u0275text(14, "Logout");
+    \u0275\u0275text(16, "Logout");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(15, "div", 9);
-    \u0275\u0275text(16);
+    \u0275\u0275elementStart(17, "div", 10);
+    \u0275\u0275text(18);
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
+    \u0275\u0275advance(2);
     \u0275\u0275property("ngIf", !ctx_r2.editMode());
     \u0275\u0275advance();
     \u0275\u0275property("ngIf", !ctx_r2.editMode() && ctx_r2.user() && !!ctx_r2.user().name);
@@ -88003,7 +88004,7 @@ function SettingsComponent_div_0_Template(rf, ctx) {
     \u0275\u0275property("ngIf", ctx_r2.user() && !ctx_r2.editMode());
     \u0275\u0275advance();
     \u0275\u0275property("editMode", ctx_r2.editMode)("disabled", ctx_r2.editFormDisabled);
-    \u0275\u0275advance(9);
+    \u0275\u0275advance(10);
     \u0275\u0275textInterpolate1("v", ctx_r2.version, "");
   }
 }
@@ -88038,9 +88039,9 @@ var _SettingsComponent = class _SettingsComponent {
 _SettingsComponent.\u0275fac = function SettingsComponent_Factory(\u0275t) {
   return new (\u0275t || _SettingsComponent)(\u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(PusherService));
 };
-_SettingsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsComponent, selectors: [["app-settings"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 1, vars: 1, consts: [["class", "container", 4, "ngIf"], [1, "container"], ["mat-icon-button", "", "class", "edit-buttons", 3, "click", 4, "ngIf"], ["disabled", "", "mat-fab", "", "class", "user-fab-0", 4, "ngIf"], [1, "inner-container"], [4, "ngIf"], [1, "forms", 3, "name", "editMode", "disabled"], [1, "forms"], ["mat-stroked-button", "", 3, "click"], ["id", "version"], ["mat-icon-button", "", 1, "edit-buttons", 3, "click"], ["disabled", "", "mat-fab", "", 1, "user-fab-0"]], template: function SettingsComponent_Template(rf, ctx) {
+_SettingsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsComponent, selectors: [["app-settings"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 1, vars: 1, consts: [["class", "container", 4, "ngIf"], [1, "container"], [1, "header-container"], ["mat-icon-button", "", "class", "edit-buttons", 3, "click", 4, "ngIf"], ["disabled", "", "mat-fab", "", "class", "user-fab-0", 4, "ngIf"], [1, "inner-container"], [4, "ngIf"], [1, "forms", 3, "name", "editMode", "disabled"], [1, "forms"], ["mat-stroked-button", "", 3, "click"], ["id", "version"], ["mat-icon-button", "", 1, "edit-buttons", 3, "click"], ["disabled", "", "mat-fab", "", 1, "user-fab-0"]], template: function SettingsComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, SettingsComponent_div_0_Template, 17, 8, "div", 0);
+    \u0275\u0275template(0, SettingsComponent_div_0_Template, 19, 8, "div", 0);
   }
   if (rf & 2) {
     \u0275\u0275property("ngIf", ctx.user());
@@ -88060,7 +88061,7 @@ _SettingsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ typ
   ThemeFormComponent,
   PushFormComponent,
   OthersFormComponent
-], styles: ["\n\n.container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  height: 100%;\n}\n.container[_ngcontent-%COMP%]   button.user-fab-0[_ngcontent-%COMP%] {\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   button.edit-buttons[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 32px;\n  right: 0;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%] {\n  overflow: hidden auto;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   div[_ngcontent-%COMP%]:first-child {\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   #version[_ngcontent-%COMP%] {\n  color: grey;\n  font-size: 12px;\n  margin-top: 48px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   .forms[_ngcontent-%COMP%] {\n  width: 100%;\n}\n/*# sourceMappingURL=settings.component.css.map */"] });
+], styles: ["\n\n.container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n  height: 100%;\n}\n.container[_ngcontent-%COMP%]   .header-container[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100%;\n  height: 80px;\n  flex-shrink: 0;\n}\n.container[_ngcontent-%COMP%]   .header-container[_ngcontent-%COMP%]   button.user-fab-0[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 12px;\n  right: calc(50% - 21px);\n}\n.container[_ngcontent-%COMP%]   .header-container[_ngcontent-%COMP%]   button.edit-buttons[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 12px;\n  right: 0;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%] {\n  overflow: hidden auto;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   div[_ngcontent-%COMP%]:first-child {\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  width: 100%;\n  line-height: 36px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   #version[_ngcontent-%COMP%] {\n  color: grey;\n  font-size: 12px;\n  margin-top: 48px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   hr[_ngcontent-%COMP%] {\n  width: 100%;\n  border: none;\n  margin: 12px;\n}\n.container[_ngcontent-%COMP%]   .inner-container[_ngcontent-%COMP%]   .forms[_ngcontent-%COMP%] {\n  width: 100%;\n}\n/*# sourceMappingURL=settings.component.css.map */"] });
 var SettingsComponent = _SettingsComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsComponent, { className: "SettingsComponent", filePath: "src/app/components/settings/settings.component.ts", lineNumber: 33 });
@@ -90562,7 +90563,7 @@ var _ShareListSheetComponent = class _ShareListSheetComponent {
   }
   removeSharedWith(userId) {
     let resp;
-    if (this.isAdmin) {
+    if (this.isAdmin || userId == this.me().id) {
       resp = {
         "remove": userId
       };
@@ -90735,10 +90736,11 @@ var _ListHeaderComponent = class _ListHeaderComponent {
                 return;
               }
               this.authService.unshareLists(data.remove, this.lists().id).subscribe((success) => {
-                if (!success) {
+                if (success) {
                   this.snackbar.open("Nutzer " + removeUser.name + " wurde entfernt.", "Ok");
+                } else {
+                  this.snackbar.open("Nutzer konnte nicht entfernt werden.", "Ok");
                 }
-                this.snackbar.open("Nutzer konnte nicht entfernt werden.", "Ok");
               });
             });
           }
@@ -90800,7 +90802,7 @@ var _ListHeaderComponent = class _ListHeaderComponent {
 _ListHeaderComponent.\u0275fac = function ListHeaderComponent_Factory(\u0275t) {
   return new (\u0275t || _ListHeaderComponent)(\u0275\u0275directiveInject(MatBottomSheet), \u0275\u0275directiveInject(MatSnackBar), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(Router), \u0275\u0275directiveInject(DataService));
 };
-_ListHeaderComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ListHeaderComponent, selectors: [["app-list-header"]], inputs: { lists: "lists", users: "users", isAdmin: "isAdmin" }, outputs: { listToText: "listToText" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 22, vars: 6, consts: [["menu", "matMenu"], [1, "content-header"], ["mat-icon-button", "", 1, "menu", 3, "matMenuTriggerFor"], ["mat-menu-item", "", 3, "click", "disabled"], ["mat-menu-item", "", 3, "click"], [4, "ngIf"], ["class", "users", 3, "click", 4, "ngIf"], [1, "users", 3, "click"], ["mat-mini-fab", "", "disabled", "", 3, "class", 4, "ngFor", "ngForOf"], ["mat-mini-fab", "", "disabled", ""]], template: function ListHeaderComponent_Template(rf, ctx) {
+_ListHeaderComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ListHeaderComponent, selectors: [["app-list-header"]], inputs: { lists: "lists", users: "users", isAdmin: "isAdmin" }, outputs: { listToText: "listToText" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 22, vars: 5, consts: [["menu", "matMenu"], [1, "content-header"], ["mat-icon-button", "", 1, "menu", 3, "matMenuTriggerFor"], ["mat-menu-item", "", 3, "click", "disabled"], ["mat-menu-item", "", 3, "click"], [4, "ngIf"], ["class", "users", 3, "click", 4, "ngIf"], [1, "users", 3, "click"], ["mat-mini-fab", "", "disabled", "", 3, "class", 4, "ngFor", "ngForOf"], ["mat-mini-fab", "", "disabled", ""]], template: function ListHeaderComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 1)(1, "button", 2)(2, "mat-icon");
@@ -90813,7 +90815,7 @@ _ListHeaderComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ t
     });
     \u0275\u0275text(7, "Einstellungen");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "button", 3);
+    \u0275\u0275elementStart(8, "button", 4);
     \u0275\u0275listener("click", function ListHeaderComponent_Template_button_click_8_listener() {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.shareList());
@@ -90864,9 +90866,7 @@ _ListHeaderComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ t
     \u0275\u0275property("matMenuTriggerFor", menu_r6);
     \u0275\u0275advance(5);
     \u0275\u0275property("disabled", !ctx.isAdmin);
-    \u0275\u0275advance(2);
-    \u0275\u0275property("disabled", !ctx.isAdmin);
-    \u0275\u0275advance(10);
+    \u0275\u0275advance(12);
     \u0275\u0275property("disabled", !ctx.isAdmin);
     \u0275\u0275advance(2);
     \u0275\u0275property("ngIf", ctx.lists());

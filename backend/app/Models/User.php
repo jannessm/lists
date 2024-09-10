@@ -101,7 +101,7 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
             return $val->users();
         })->flatten()->unique('id')
         ->filter(function ($val, $key) {
-            return $val->id !== Auth::id();
+            return $val->id !== $this->id;
         });
         return $users;
     }
@@ -140,6 +140,7 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
 
             if (!$conflict) {
                 $newState['password'] = $masterUser->password;
+                $newState['updated_at'] = $this->freshTimestamp();
                 array_push($upserts, $newState);
             }
         }

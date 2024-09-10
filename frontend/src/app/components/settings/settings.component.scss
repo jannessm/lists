@@ -3,24 +3,33 @@
     flex-direction: column;
     align-items: center;
     gap: 16px;
-    height: 100%;    
+    height: 100%;
+
+    .header-container {
+        position: relative;
+        width: 100%;
+        height: 80px;
+        flex-shrink: 0;
+
+        button.user-fab-0 {
+            position: absolute;
+            top: 12px;
+            right: calc(50% - 21px);
+        }
         
-    button.user-fab-0 {
-        margin: 12px;
+        button.edit-buttons {
+            position: absolute;
+            top: 12px;
+            right: 0;
+        }
     }
-    
-    button.edit-buttons {
-        position: absolute;
-        top: 32px;
-        right: 0;
-    }
+        
 
     .inner-container {
         overflow: hidden auto;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 16px;
         width: 100%;
         box-sizing: border-box;
         padding: 16px 0;

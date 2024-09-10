@@ -6,6 +6,7 @@ import { MyReactivityFactory } from "../../mydb/types/interfaces";
 import { MyDatabase, createMyDatabase } from "../../mydb/database";
 import { ME_SCHEMA } from "../../mydb/types/me";
 import { LISTS_SCHEMA, listsConflictHandler } from "../../mydb/types/lists";
+import { USERS_SCHEMA } from "../../mydb/types/users";
 
 export let DB_INSTANCE: any;
 
@@ -65,7 +66,7 @@ export async function addCollections(db: MyDatabase): Promise<MyDatabase> {
             }
         },
         [DATA_TYPE.USERS]: {
-            schema: ME_SCHEMA,
+            schema: USERS_SCHEMA,
         },
         [DATA_TYPE.LISTS]: {
             schema: LISTS_SCHEMA,

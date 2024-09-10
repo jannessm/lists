@@ -22,9 +22,6 @@
         </mat-form-field>
         <br>
         <br>
-        <br>
-        <br>
-        <br>
         <mat-form-field appearance="outline">
             <mat-label>Altes Passwort</mat-label>
             <input matInput type="password" placeholder="Passwort" formControlName="oldPwd">
@@ -58,12 +55,12 @@
         </mat-form-field>
     </form>
     
-    <button mat-flat-button
-        color="primary"
-        (click)="cancelChanges()"
-        *ngIf="editMode()">Abbrechen</button>
     <button mat-stroked-button
         (click)="saveChanges()"
         *ngIf="editMode()"
         [disabled]="!editForm.valid">Speichern</button>
+    <button mat-flat-button
+        color="primary"
+        (click)="cancelChanges()"
+        *ngIf="editMode()">Abbrechen</button>
 </div>

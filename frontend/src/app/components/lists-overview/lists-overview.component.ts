@@ -42,7 +42,6 @@ export class ListsOverviewComponent {
           sort: [{name: 'asc'}]
         }).$.subscribe(docs => {
           this.lists = docs as any as MyListsDocument[];
-          console.log(docs);
         });
       }
     });

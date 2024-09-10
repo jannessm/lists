@@ -211,7 +211,6 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
                         const value = val[1];
                         
                         if (value instanceof Array) {
-                            console.log(value.reduce((c, v) => doc[key] === v || c, false));
                             return carry && value.reduce((c, v) => doc[key] === v || c, false);
                         }
 

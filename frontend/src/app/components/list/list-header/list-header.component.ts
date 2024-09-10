@@ -118,10 +118,11 @@ export class ListHeaderComponent {
 
               this.authService.unshareLists(data.remove, this.lists().id)
                 .subscribe(success => {
-                  if (!success) {
+                  if (success) {
                     this.snackbar.open('Nutzer ' + removeUser.name + ' wurde entfernt.', 'Ok');
+                  } else {
+                    this.snackbar.open('Nutzer konnte nicht entfernt werden.', 'Ok');
                   }
-                  this.snackbar.open('Nutzer konnte nicht entfernt werden.', 'Ok');
                 })
             })
           }

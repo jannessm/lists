@@ -1,25 +1,28 @@
 <div class="container" *ngIf="user()">
-    <button mat-icon-button
-        *ngIf="!editMode()"
-        class="edit-buttons"
-        (click)="enterEditMode()">
-            <mat-icon>edit</mat-icon>
-    </button>
-    
-    <button
-        disabled
-        mat-fab
-        class="user-fab-0"
-        *ngIf="!editMode() && user() && !!user().name">
-            {{user().name | nameBadge}}
-    </button>
-    <button
-        disabled
-        mat-fab
-        class="user-fab-0"
-        *ngIf="editMode()">
-            {{userName() | nameBadge}}
-    </button>
+
+    <div class="header-container">
+        <button mat-icon-button
+            *ngIf="!editMode()"
+            class="edit-buttons"
+            (click)="enterEditMode()">
+                <mat-icon>edit</mat-icon>
+        </button>
+        
+        <button
+            disabled
+            mat-fab
+            class="user-fab-0"
+            *ngIf="!editMode() && user() && !!user().name">
+                {{user().name | nameBadge}}
+        </button>
+        <button
+            disabled
+            mat-fab
+            class="user-fab-0"
+            *ngIf="editMode()">
+                {{userName() | nameBadge}}
+        </button>
+    </div>
 
     <div class="inner-container">
 
@@ -43,6 +46,8 @@
 
         <app-settings-push-form class="forms"></app-settings-push-form>
         
+        <hr>
+
         <button mat-stroked-button (click)="logout()">Logout</button>
         <div id="version">v{{version}}</div>
     </div>

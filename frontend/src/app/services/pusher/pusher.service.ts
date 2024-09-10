@@ -90,7 +90,7 @@ export class PusherService implements OnDestroy {
         if (!payload.more) {
           this.pusher?.unsubscribe(channel);
         }
-
+        console.log(payload.result);
         const result = payload.result.data;
 
         if (result) {

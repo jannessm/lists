@@ -2,7 +2,7 @@
     <button class="menu" mat-icon-button [matMenuTriggerFor]="menu"><mat-icon>more_vert</mat-icon></button>
     <mat-menu #menu="matMenu">
         <button mat-menu-item (click)="listSettings()" [disabled]="!isAdmin">Einstellungen</button>
-        <button mat-menu-item (click)="shareList()" [disabled]="!isAdmin">Teilen</button>
+        <button mat-menu-item (click)="shareList()">Teilen</button>
         <button mat-menu-item (click)="listToText.emit()">Verschicken</button>
         <button mat-menu-item (click)="markAllNotDone()">Alle Einträge abwählen</button>
         <button mat-menu-item (click)="deleteAll()">Alle Einträge löschen</button>

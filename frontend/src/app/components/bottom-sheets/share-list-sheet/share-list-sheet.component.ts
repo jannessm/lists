@@ -112,7 +112,7 @@ export class ShareListSheetComponent implements OnDestroy {
 
   removeSharedWith(userId: string) {
     let resp;
-    if (this.isAdmin) {
+    if (this.isAdmin || userId == this.me().id) {
       resp = {
         'remove': userId
       };
