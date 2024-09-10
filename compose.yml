@@ -18,11 +18,10 @@ services:
     volumes:
       - ./configs/dev:/configs
     ports:
-      - '6001:6001'
-      - '9601:9601'
+      - 6001:6001
     networks:
       - lists
-  
+
   soketi:
     profiles: [staging, prod]
     image: 'quay.io/soketi/soketi:1.6-16-distroless'
@@ -30,14 +29,15 @@ services:
     entrypoint: /nodejs/bin/node /app/bin/server.js start --config=/configs/socketi-config.json
     volumes:
       - ./configs/prod:/configs
-    ports:
-      - '6001:6001'
-      - '9601:9601'
+    expose:
+      - 6001
     networks:
       - lists
+      - traefik
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.lists-staging-wss.rule=Host(`lists-staging-wss.magnusso.nz`)"
+      - "traefik.http.routers.lists-staging-wss.tls=true"
       - "traefik.http.routers.lists-staging-wss.tls.certresolver=myresolver"
       - "traefik.http.services.lists-staging-wss.loadbalancer.server.port=6001"
 
@@ -63,8 +63,8 @@ services:
     depends_on:
       - mysql
       - soketi
-    ports:
-      - "8000:8000"
+    expose:
+      - 8000
     volumes:
       - ./backend:/app
       - ./entrypoint.sh:/entrypoint.sh
