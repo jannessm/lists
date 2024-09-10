@@ -2,7 +2,7 @@ version: '3'
 
 services:
   mysql:
-    profiles: [prod, dev]
+    profiles: [prod, staging, dev]
     image: mysql:latest
     environment:
       - MYSQL_DATABASE=lists
@@ -20,6 +20,16 @@ services:
       - '6001:6001'
       - '9601:9601'
   
+  soketi:
+    profiles: [staging, prod]
+    image: 'quay.io/soketi/soketi:1.6-16-distroless'
+    entrypoint: /nodejs/bin/node /app/bin/server.js start --config=/configs/socketi-config.json
+    volumes:
+      - ./configs/prod:/configs
+    ports:
+      - '6001:6001'
+      - '9601:9601'
+
   laravel-dev:
     profiles: [dev]
     image: bitnami/laravel:11
@@ -30,8 +40,33 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
-      - ./dev-entrypoint.sh:/dev-entrypoint.sh
-    entrypoint: /dev-entrypoint.sh
+      - ./dev-entrypoint.sh:/entrypoint.sh
+    entrypoint: /entrypoint.sh
+
+  laravel:
+    profiles: [staging, prod]
+    image: bitnami/laravel:11
+    depends_on:
+      - mysql
+      - soketi
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./entrypoint.sh:/entrypoint.sh
+    entrypoint: /entrypoint.sh
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.lists-staging.rule=Host(`lists-staging.magnusso.nz`)"
+      - "traefik.http.routers.lists-staging.tls.certresolver=myresolver"
+      - "traefik.http.services.lists-staging.loadbalancer.server.port=8000"
+    network:
+      - traefik
+
+networks:
+  traefik:
+    external: true
 
 volumes:
   lists-mysql-data:
