@@ -1,5 +1,6 @@
 #!/bin/bash
 . /configs/.env
+echo $APP_NAME
 ./clear-cache.sh
 # php artisan migrate --seed
 php artisan queue:work &

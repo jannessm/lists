@@ -1,8 +1,7 @@
-version: '3'
-
 services:
   mysql:
     profiles: [prod, staging, dev]
+    restart: unless-stopped
     image: mysql:latest
     environment:
       - MYSQL_DATABASE=lists
@@ -23,6 +22,7 @@ services:
   soketi:
     profiles: [staging, prod]
     image: 'quay.io/soketi/soketi:1.6-16-distroless'
+    restart: unless-stopped
     entrypoint: /nodejs/bin/node /app/bin/server.js start --config=/configs/socketi-config.json
     volumes:
       - ./configs/prod:/configs
