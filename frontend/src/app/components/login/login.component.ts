@@ -51,9 +51,12 @@ export class LoginComponent implements OnDestroy {
     });
 
     this.formSub = this.form.valueChanges.subscribe(() => {
-      this.initCaptcha.set(true);
       this.resetErrors();
     });
+  }
+
+  ngAfterViewInit() {
+    this.initCaptcha.set(true);
   }
 
   ngOnDestroy() {
