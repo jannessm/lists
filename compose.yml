@@ -36,10 +36,12 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
       - "traefik.http.routers.lists-staging-wss.rule=Host(`lists-staging-wss.magnusso.nz`)"
       - "traefik.http.routers.lists-staging-wss.tls=true"
       - "traefik.http.routers.lists-staging-wss.tls.certresolver=myresolver"
       - "traefik.http.services.lists-staging-wss.loadbalancer.server.port=6001"
+      - "traefik.http.routers.lists-staging-wss.entrypoints=websecure"
 
   laravel-dev:
     profiles: [dev]
@@ -73,8 +75,10 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
       - "traefik.http.routers.lists-staging.rule=Host(`lists-staging.magnusso.nz`)"
       - "traefik.http.routers.lists-staging.tls.certresolver=myresolver"
+      - "traefik.http.routers.lists-staging.entrypoints=web,websecure"
       - "traefik.http.services.lists-staging.loadbalancer.server.port=8000"
     networks:
       - traefik
@@ -82,7 +86,6 @@ services:
 
 networks:
   lists:
-    driver: bridge
   traefik:
     external: true
 
