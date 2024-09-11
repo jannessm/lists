@@ -5,6 +5,8 @@ import { environment } from '../../../environments/environment';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { PushSettings } from './push-settings';
 import { DataApiService } from '../data-api/data-api.service';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { ConfirmSheetComponent } from '../../components/bottom-sheets/confirm-sheet/confirm-sheet.component';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +21,8 @@ export class WebPushService {
   constructor(
     private swPush: SwPush,
     private authService: AuthService,
-    private dataApi: DataApiService
+    private dataApi: DataApiService,
+    private bottomSheet: MatBottomSheet
   ) {
     if (swPush.isEnabled) {
       this.sub = toSignal(swPush.subscription);
@@ -30,11 +33,17 @@ export class WebPushService {
     effect(() => {
       const sub = this.sub();
       if (!this.subscribeChallenged && this.authService.me() && swPush.isEnabled) {
-        this.subscribe();
+        this.requestSub();
       } else if (!!sub) {
         this.getSettings(sub.endpoint);
       }
     });
+  }
+
+  requestSub() {
+    if (confirm('Erlaube Push Nachrichten, um immer auf dem Laufenden zu bleiben und an ToDos erinnert zu werden.')) {
+      this.subscribe();
+    }
   }
 
   async subscribe() {
