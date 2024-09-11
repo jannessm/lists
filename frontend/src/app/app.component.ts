@@ -61,7 +61,9 @@ export class AppComponent {
       this.cookieService.set('listsId', uuid(), 365);
     }
 
-    (screen.orientation as any).lock("portrait");
+    if (!!(screen.orientation as any).lock) {
+      (screen.orientation as any).lock("portrait");
+    }
 
     if (this.swUpdate.isEnabled) {
       this.swUpdate.versionUpdates.subscribe(event => {

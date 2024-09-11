@@ -5,8 +5,6 @@ import { environment } from '../../../environments/environment';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { PushSettings } from './push-settings';
 import { DataApiService } from '../data-api/data-api.service';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { ConfirmSheetComponent } from '../../components/bottom-sheets/confirm-sheet/confirm-sheet.component';
 
 @Injectable({
   providedIn: 'root'
@@ -15,14 +13,14 @@ export class WebPushService {
 
   sub: Signal<PushSubscription | null | undefined>;
   subscribeChallenged = false;
+  initTimeoutDone = signal(false);
 
   settings: WritableSignal<PushSettings | undefined> = signal(undefined);
 
   constructor(
     private swPush: SwPush,
     private authService: AuthService,
-    private dataApi: DataApiService,
-    private bottomSheet: MatBottomSheet
+    private dataApi: DataApiService
   ) {
     if (swPush.isEnabled) {
       this.sub = toSignal(swPush.subscription);
