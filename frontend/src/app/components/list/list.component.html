@@ -10,7 +10,7 @@
         <div class="slots" *ngFor="let slot of slots()">
             <h5>
                 {{ slot.name }}
-                <mat-chip-listbox *ngIf="slot.nDone > 0" class="slot-done-toggle">
+                <mat-chip-listbox *ngIf="slot.nDone > 0" class="slot-done-toggle" (click)="$event.stopPropagation()">
                     <mat-chip-option (click)="slotCollapseStates[slot.name] = !slotCollapseStates[slot.name]" [selected]="!slotCollapseStates[slot.name]">
                         {{ slot.nDone }}
                     </mat-chip-option>

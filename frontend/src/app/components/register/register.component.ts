@@ -57,9 +57,12 @@ export class RegisterComponent implements OnDestroy {
     });
 
     this.fromSub = this.form.valueChanges.subscribe(() => {
-      this.initCaptcha.set(true);
       this.form.setErrors(null);
     });
+  }
+
+  ngAfterViewInit() {
+    this.initCaptcha.set(true);
   }
 
   ngOnDestroy(): void {

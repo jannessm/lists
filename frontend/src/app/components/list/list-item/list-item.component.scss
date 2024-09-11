@@ -18,6 +18,7 @@
     .item-container {
         display: flex;
         position: relative;
+        align-items: center;
 
         mat-checkbox {
             margin: 8px;
