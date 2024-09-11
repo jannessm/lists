@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/settings/push-form/push-form.component.scss"],
+  "sourcesContent": ["mat-slide-toggle:not(:first-of-type) {\n    margin-left: 64px;\n    width: calc(100% - 64px);\n}"],
+  "mappings": ";AAAA,gBAAA,KAAA;AACI,eAAA;AACA,SAAA,KAAA,KAAA,EAAA;;",
+  "names": []
+}

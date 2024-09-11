@@ -64,18 +64,8 @@
               ]
             },
             "staging": {
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "2mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
-                }
-              ],
+              "sourceMap": true,
+              "optimization": false,
               "outputHashing": "all",
               "serviceWorker": "ngsw-config.json",
               "fileReplacements": [
