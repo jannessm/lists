@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "build": "ng build",
-    "staging": "ng build -c staging",
+    "staging": "ng build -c staging --source-map true",
     "start": "ng build --watch -c development --source-map true",
     "test": "ng test"
   },
