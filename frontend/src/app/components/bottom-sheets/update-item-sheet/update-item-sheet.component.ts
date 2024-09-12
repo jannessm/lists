@@ -1,10 +1,8 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, Inject, OnDestroy, ViewChild } from '@angular/core';
+import { Component, Inject, OnDestroy, Signal, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { MaterialModule } from '../../../material.module';
-import flatpickr from 'flatpickr';
-import { timePickerConfig } from '../../../../models/time-picker';
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { Subscription } from 'rxjs';
 import { MyListsDocument } from '../../../mydb/types/lists';
@@ -30,7 +28,7 @@ import { DateInputSelectComponent } from '../../selects/date-input-select/date-i
 })
 export class UpdateItemSheetComponent implements OnDestroy {
   form: FormGroup;
-  list: MyListsDocument;
+  list: Signal<MyListsDocument>;
 
   dueOptions = DueOptionLabels.slice(0, 2);
   reminderOptions = ReminderOptionLabels;
@@ -43,10 +41,14 @@ export class UpdateItemSheetComponent implements OnDestroy {
 
   constructor(
     public bottomSheetRef: MatBottomSheetRef<UpdateItemSheetComponent>,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: {list: MyListsDocument, item: MyItemDocument},
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: {
+      list: Signal<MyListsDocument>,
+      item: MyItemDocument
+    },
     private fb: FormBuilder
   ) {
     this.list = data.list;
+    console.log(this.list().isShoppingList);
     const due = !!data.item.due ? new Date(data.item.due) : null;
     const reminder = !!data.item.reminder ? new Date(data.item.reminder) : null;
 
@@ -113,7 +115,7 @@ export class UpdateItemSheetComponent implements OnDestroy {
     }
 
     if (this.form.get('description')?.value != this.data.item.description &&
-      !this.list.isShoppingList
+      !this.list().isShoppingList
     ) {
       Object.assign(patch, {
         description: this.form.get('description')?.value.trim()
@@ -121,7 +123,7 @@ export class UpdateItemSheetComponent implements OnDestroy {
     }
     
     if (dueToggle && due && due != this.data.item.due &&
-      !this.list.isShoppingList) {
+      !this.list().isShoppingList) {
       Object.assign(patch, {
         due
       });
@@ -130,7 +132,7 @@ export class UpdateItemSheetComponent implements OnDestroy {
     }
 
     if (dueToggle && due && this.form.get('reminder')?.value &&
-      !this.list.isShoppingList) {
+      !this.list().isShoppingList) {
       const reminder = getReminderDate(
         new Date(due),
         this.form.get('reminder')?.value

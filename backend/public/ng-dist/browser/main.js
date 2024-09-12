@@ -88700,19 +88700,39 @@ function UpdateItemSheetComponent_mat_slide_toggle_8_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
 }
-function UpdateItemSheetComponent_div_10_Template(rf, ctx) {
+function UpdateItemSheetComponent_app_date_input_select_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div")(1, "mat-label");
-    \u0275\u0275text(2, "Erinnerung");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "app-date-chip-select", 12);
-    \u0275\u0275listener("pickrOpened", function UpdateItemSheetComponent_div_10_Template_app_date_chip_select_pickrOpened_3_listener() {
+    \u0275\u0275elementStart(0, "app-date-input-select", 12);
+    \u0275\u0275listener("pickrOpened", function UpdateItemSheetComponent_app_date_input_select_9_Template_app_date_input_select_pickrOpened_0_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.pickrOpened());
-    })("pickrClosed", function UpdateItemSheetComponent_div_10_Template_app_date_chip_select_pickrClosed_3_listener() {
+    })("pickrClosed", function UpdateItemSheetComponent_app_date_input_select_9_Template_app_date_input_select_pickrClosed_0_listener() {
       \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.pickrClosed());
+    });
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275property("options", ctx_r1.dueOptions)("getChipValue", ctx_r1.getDueValue)("getChipDate", ctx_r1.getDueDate);
+  }
+}
+function UpdateItemSheetComponent_div_10_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div")(1, "mat-label");
+    \u0275\u0275text(2, "Erinnerung");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "app-date-chip-select", 13);
+    \u0275\u0275listener("pickrOpened", function UpdateItemSheetComponent_div_10_Template_app_date_chip_select_pickrOpened_3_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.pickrOpened());
+    })("pickrClosed", function UpdateItemSheetComponent_div_10_Template_app_date_chip_select_pickrClosed_3_listener() {
+      \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.pickrClosed());
     });
@@ -88733,6 +88753,7 @@ var _UpdateItemSheetComponent = class _UpdateItemSheetComponent {
     this.reminderOptions = ReminderOptionLabels;
     this.subscriptions = [];
     this.list = data.list;
+    console.log(this.list().isShoppingList);
     const due = !!data.item.due ? new Date(data.item.due) : null;
     const reminder = !!data.item.reminder ? new Date(data.item.reminder) : null;
     this.form = fb.group({
@@ -88786,19 +88807,19 @@ var _UpdateItemSheetComponent = class _UpdateItemSheetComponent {
         name: this.form.get("name")?.value.trim()
       });
     }
-    if (this.form.get("description")?.value != this.data.item.description && !this.list.isShoppingList) {
+    if (this.form.get("description")?.value != this.data.item.description && !this.list().isShoppingList) {
       Object.assign(patch, {
         description: this.form.get("description")?.value.trim()
       });
     }
-    if (dueToggle && due && due != this.data.item.due && !this.list.isShoppingList) {
+    if (dueToggle && due && due != this.data.item.due && !this.list().isShoppingList) {
       Object.assign(patch, {
         due
       });
     } else if (this.data.item.due != null && !dueToggle) {
       Object.assign(patch, { due: null });
     }
-    if (dueToggle && due && this.form.get("reminder")?.value && !this.list.isShoppingList) {
+    if (dueToggle && due && this.form.get("reminder")?.value && !this.list().isShoppingList) {
       const reminder = getReminderDate(new Date(due), this.form.get("reminder")?.value);
       if (reminder != this.data.item.reminder) {
         console.log(reminder);
@@ -88823,7 +88844,7 @@ _UpdateItemSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     let _t;
     \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.autosize = _t.first);
   }
-}, standalone: true, features: [\u0275\u0275ProvidersFeature([DatePipe]), \u0275\u0275StandaloneFeature], decls: 15, vars: 9, consts: [["autosize", "cdkTextareaAutosize"], ["autocomplete", "off", 3, "formGroup"], ["appearance", "outline"], ["matInput", "", "formControlName", "name", "placeholder", "Name"], ["appearance", "outline", 4, "ngIf"], ["color", "primary", "formControlName", "due-toggle", 4, "ngIf"], ["formControlName", "due", 3, "pickrOpened", "pickrClosed", "options", "getChipValue", "getChipDate"], [4, "ngIf"], ["mat-stroked-button", "", 3, "click", "disabled"], ["mat-flat-button", "", "color", "primary", 3, "click"], ["matInput", "", "formControlName", "description", "placeholder", "Beschreibung", "cdkTextareaAutosize", "", "cdkAutosizeMinRows", "5"], ["color", "primary", "formControlName", "due-toggle"], ["formControlName", "reminder", 3, "pickrOpened", "pickrClosed", "options"]], template: function UpdateItemSheetComponent_Template(rf, ctx) {
+}, standalone: true, features: [\u0275\u0275ProvidersFeature([DatePipe]), \u0275\u0275StandaloneFeature], decls: 15, vars: 7, consts: [["autosize", "cdkTextareaAutosize"], ["autocomplete", "off", 3, "formGroup"], ["appearance", "outline"], ["matInput", "", "formControlName", "name", "placeholder", "Name"], ["appearance", "outline", 4, "ngIf"], ["color", "primary", "formControlName", "due-toggle", 4, "ngIf"], ["formControlName", "due", 3, "options", "getChipValue", "getChipDate", "pickrOpened", "pickrClosed", 4, "ngIf"], [4, "ngIf"], ["mat-stroked-button", "", 3, "click", "disabled"], ["mat-flat-button", "", "color", "primary", 3, "click"], ["matInput", "", "formControlName", "description", "placeholder", "Beschreibung", "cdkTextareaAutosize", "", "cdkAutosizeMinRows", "5"], ["color", "primary", "formControlName", "due-toggle"], ["formControlName", "due", 3, "pickrOpened", "pickrClosed", "options", "getChipValue", "getChipDate"], ["formControlName", "reminder", 3, "pickrOpened", "pickrClosed", "options"]], template: function UpdateItemSheetComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "h4");
     \u0275\u0275text(1, "Element Bearbeiten");
@@ -88833,15 +88854,7 @@ _UpdateItemSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     \u0275\u0275elementEnd();
     \u0275\u0275element(6, "input", 3);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(7, UpdateItemSheetComponent_mat_form_field_7_Template, 5, 0, "mat-form-field", 4)(8, UpdateItemSheetComponent_mat_slide_toggle_8_Template, 2, 0, "mat-slide-toggle", 5);
-    \u0275\u0275elementStart(9, "app-date-input-select", 6);
-    \u0275\u0275listener("pickrOpened", function UpdateItemSheetComponent_Template_app_date_input_select_pickrOpened_9_listener() {
-      return ctx.pickrOpened();
-    })("pickrClosed", function UpdateItemSheetComponent_Template_app_date_input_select_pickrClosed_9_listener() {
-      return ctx.pickrClosed();
-    });
-    \u0275\u0275elementEnd();
-    \u0275\u0275template(10, UpdateItemSheetComponent_div_10_Template, 4, 1, "div", 7);
+    \u0275\u0275template(7, UpdateItemSheetComponent_mat_form_field_7_Template, 5, 0, "mat-form-field", 4)(8, UpdateItemSheetComponent_mat_slide_toggle_8_Template, 2, 0, "mat-slide-toggle", 5)(9, UpdateItemSheetComponent_app_date_input_select_9_Template, 1, 3, "app-date-input-select", 6)(10, UpdateItemSheetComponent_div_10_Template, 4, 1, "div", 7);
     \u0275\u0275elementStart(11, "button", 8);
     \u0275\u0275listener("click", function UpdateItemSheetComponent_Template_button_click_11_listener() {
       return ctx.returnFormContent();
@@ -88856,17 +88869,17 @@ _UpdateItemSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    let tmp_6_0;
+    let tmp_4_0;
     \u0275\u0275advance(2);
     \u0275\u0275property("formGroup", ctx.form);
     \u0275\u0275advance(5);
-    \u0275\u0275property("ngIf", !ctx.list.isShoppingList);
+    \u0275\u0275property("ngIf", !ctx.list().isShoppingList);
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", !ctx.list.isShoppingList);
+    \u0275\u0275property("ngIf", !ctx.list().isShoppingList);
     \u0275\u0275advance();
-    \u0275\u0275property("options", ctx.dueOptions)("getChipValue", ctx.getDueValue)("getChipDate", ctx.getDueDate);
+    \u0275\u0275property("ngIf", !ctx.list().isShoppingList);
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", (tmp_6_0 = ctx.form.get("due-toggle")) == null ? null : tmp_6_0.value);
+    \u0275\u0275property("ngIf", ((tmp_4_0 = ctx.form.get("due-toggle")) == null ? null : tmp_4_0.value) && !ctx.list().isShoppingList);
     \u0275\u0275advance();
     \u0275\u0275property("disabled", !ctx.form.valid);
     \u0275\u0275advance();
@@ -88895,7 +88908,7 @@ _UpdateItemSheetComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
 ], styles: ["\n\n#reminder-picker[_ngcontent-%COMP%], \n#due-picker[_ngcontent-%COMP%] {\n  opacity: 0;\n  height: 0;\n  width: 0;\n  z-index: -100;\n}\n/*# sourceMappingURL=update-item-sheet.component.css.map */", "\n\nbutton[_ngcontent-%COMP%] {\n  width: 100%;\n  margin: 6px 0;\n}\nbutton[_ngcontent-%COMP%]:last-child {\n  margin-bottom: 38pt;\n}\nform[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  margin: 24px 0;\n}\nform[_ngcontent-%COMP%]   mat-slide-toggle[_ngcontent-%COMP%] {\n  margin: 24px 0;\n}\n/*# sourceMappingURL=styles.css.map */"] });
 var UpdateItemSheetComponent = _UpdateItemSheetComponent;
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UpdateItemSheetComponent, { className: "UpdateItemSheetComponent", filePath: "src/app/components/bottom-sheets/update-item-sheet/update-item-sheet.component.ts", lineNumber: 31 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UpdateItemSheetComponent, { className: "UpdateItemSheetComponent", filePath: "src/app/components/bottom-sheets/update-item-sheet/update-item-sheet.component.ts", lineNumber: 29 });
 })();
 
 // src/app/components/bottom-sheets/confirm-sheet/confirm-sheet.component.ts

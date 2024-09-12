@@ -7,7 +7,7 @@
     </mat-form-field>
     
     
-    <mat-form-field appearance="outline" *ngIf="!list.isShoppingList">
+    <mat-form-field appearance="outline" *ngIf="!list().isShoppingList">
         <mat-label>Beschreibung</mat-label>
         <textarea matInput formControlName="description" placeholder="Beschreibung" cdkTextareaAutosize
         #autosize="cdkTextareaAutosize"
@@ -15,10 +15,11 @@
     </mat-form-field>
     
     <!-- Due -->
-    <mat-slide-toggle  *ngIf="!list.isShoppingList" color="primary" formControlName="due-toggle">Fällig am</mat-slide-toggle>
+    <mat-slide-toggle  *ngIf="!list().isShoppingList" color="primary" formControlName="due-toggle">Fällig am</mat-slide-toggle>
 
     <app-date-input-select
         formControlName="due"
+        *ngIf="!list().isShoppingList"
         (pickrOpened)="pickrOpened()"
         (pickrClosed)="pickrClosed()"
         [options]="dueOptions"
@@ -27,7 +28,7 @@
     ></app-date-input-select>
     
     <!-- Reminder -->
-    <div *ngIf="form.get('due-toggle')?.value">
+    <div *ngIf="form.get('due-toggle')?.value && !list().isShoppingList">
         <mat-label>Erinnerung</mat-label>
         <app-date-chip-select
             formControlName="reminder"
