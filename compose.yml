@@ -124,7 +124,7 @@ services:
   
   laravel:
     <<: *laravel
-    <<: *laravel-staging
+    <<: *laravel-networks
     profiles: [prod]
     depends_on:
       - mysql
