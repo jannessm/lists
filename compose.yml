@@ -1,38 +1,36 @@
+# basic definitions
+x-mysql: &mysql
+  image: mysql:latest
+  restart: unless-stopped
+  environment:
+    - MYSQL_DATABASE=lists
+    - MYSQL_ROOT_PASSWORD=password
+  networks:
+    - lists
+
+x-soketi-distroless: &soketi-distroless
+  image: 'quay.io/soketi/soketi:1.6-16-distroless'
+  restart: unless-stopped
+  entrypoint: /nodejs/bin/node /app/bin/server.js start --config=/configs/socketi-config.json
+  expose:
+    - 6001
+  networks:
+    - lists
+    - traefik
+
+x-laravel: &laravel
+  image: bitnami/laravel:11
+  restart: unless-stopped
+  expose:
+    - 8000
+  entrypoint: /entrypoint.sh
+
+x-laravel-networks: &laravel-networks
+  networks:
+    - lists
+    - traefik
+
 services:
-
-  # basic definitions
-  x-mysql: &mysql
-    restart: unless-stopped
-    image: mysql:latest
-    environment:
-      - MYSQL_DATABASE=lists
-      - MYSQL_ROOT_PASSWORD=password
-    networks:
-      - lists
-  
-  x-soketi-distroless: &soketi-distroless
-    image: 'quay.io/soketi/soketi:1.6-16-distroless'
-    restart: unless-stopped
-    entrypoint: /nodejs/bin/node /app/bin/server.js start --config=/configs/socketi-config.json
-    expose:
-      - 6001
-    networks:
-      - lists
-      - traefik
-  
-  x-laravel: &laravel
-    image: bitnami/laravel:11
-    restart: unless-stopped
-    expose:
-      - 8000
-    entrypoint: /entrypoint.sh
-  
-  x-laravel-networks: &laravel-networks
-    networks:
-      - lists
-      - traefik
-
-  
   # mysql
   mysql-dev:
     <<: *mysql
