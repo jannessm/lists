@@ -104,8 +104,7 @@ services:
       - lists
 
   laravel-staging:
-    <<: *laravel
-    <<: *laravel-networks
+    <<: [*laravel, *laravel-networks]
     profiles: [staging]
     depends_on:
       - mysql-dev
@@ -123,8 +122,7 @@ services:
       - "traefik.http.services.lists-staging.loadbalancer.server.port=8000"
   
   laravel:
-    <<: *laravel
-    <<: *laravel-networks
+    <<: [*laravel, *laravel-networks]
     profiles: [prod]
     depends_on:
       - mysql
