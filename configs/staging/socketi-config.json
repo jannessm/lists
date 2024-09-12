@@ -8,7 +8,7 @@
             "secret": "app-secret",
             "webhooks": [
                 {
-                    "url": "http://laravel:8000/graphql/subscriptions/webhook",
+                    "url": "http://laravel-staging:8000/graphql/subscriptions/webhook",
                     "event_types": ["channel_vacated", "channel_occupied"]
                 }
             ]

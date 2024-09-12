@@ -1,15 +1,21 @@
 services:
-  mysql:
-    profiles: [prod, staging, dev]
+  mysql-dev: &mysql
+    profiles: [staging, dev]
     restart: unless-stopped
     image: mysql:latest
     environment:
       - MYSQL_DATABASE=lists
       - MYSQL_ROOT_PASSWORD=password
     volumes:
-      - lists-mysql-data:/var/lib/mysql
+      - lists-mysql-data-dev:/var/lib/mysql
     networks:
       - lists
+  
+  mysql:
+    <<: *mysql
+    profiles: [prod]
+    volumes:
+      - lists-mysql-data:/var/lib/mysql
 
   soketi-dev:
     profiles: [dev]
@@ -22,13 +28,13 @@ services:
     networks:
       - lists
 
-  soketi:
-    profiles: [staging, prod]
+  soketi-staging: &soketi
+    profiles: [staging]
     image: 'quay.io/soketi/soketi:1.6-16-distroless'
     restart: unless-stopped
     entrypoint: /nodejs/bin/node /app/bin/server.js start --config=/configs/socketi-config.json
     volumes:
-      - ./configs/prod:/configs
+      - ./configs/staging:/configs
     expose:
       - 6001
     networks:
@@ -42,6 +48,14 @@ services:
       - "traefik.http.routers.lists-staging-wss.tls.certresolver=myresolver"
       - "traefik.http.services.lists-staging-wss.loadbalancer.server.port=6001"
       - "traefik.http.routers.lists-staging-wss.entrypoints=websecure"
+  
+  soketi:
+    <<: *soketi
+    profiles: [prod]
+    volumes:
+      - ./configs/prod:/configs
+    labels:
+      - "traefik.http.routers.lists-wss.rule=Host(`lists-wss.magnusso.nz`)"
 
   laravel-dev:
     profiles: [dev]
@@ -59,8 +73,8 @@ services:
     networks:
       - lists
 
-  laravel:
-    profiles: [staging, prod]
+  laravel-staging: &laravel
+    profiles: [staging]
     image: bitnami/laravel:11
     depends_on:
       - mysql
@@ -83,6 +97,13 @@ services:
     networks:
       - traefik
       - lists
+  
+  laravel:
+    <<: *laravel
+    profiles: [prod]
+    labels:
+      - "traefik.http.routers.lists-staging.rule=Host(`lists.magnusso.nz`)"
+
 
 networks:
   lists:
@@ -90,4 +111,5 @@ networks:
     external: true
 
 volumes:
+  lists-mysql-data-dev:
   lists-mysql-data:

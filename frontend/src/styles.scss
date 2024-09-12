@@ -3,7 +3,7 @@
 @import 'variables.scss';
 
 html { overscroll-behavior: none; }
-html, body { height: 100%; overflow: hidden; }
+html, body { height: 100%; overflow: hidden; user-select: none;}
 body { margin: 0px; }
 
 @media (min-width: 769px) {

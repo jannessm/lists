@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/bottom-sheets/styles.scss"],
+  "sourcesContent": ["button {\n    width: 100%;\n    margin: 6px 0;\n\n    &:last-child {\n        margin-bottom: 38pt;\n    }\n}\n\nform {\n    display: flex;\n    flex-direction: column;\n    margin: 24px 0;\n\n    mat-slide-toggle {\n        margin: 24px 0;\n    }\n}"],
+  "mappings": ";AAAA;AACI,SAAA;AACA,UAAA,IAAA;;AAEA,MAAA;AACI,iBAAA;;AAIR;AACI,WAAA;AACA,kBAAA;AACA,UAAA,KAAA;;AAEA,KAAA;AACI,UAAA,KAAA;;",
+  "names": []
+}

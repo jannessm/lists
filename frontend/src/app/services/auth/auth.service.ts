@@ -57,11 +57,6 @@ export class AuthService {
     this.pusher.online.pipe(debounceTime(1000)).subscribe(isOnline => {
       if (isOnline && this.isLoggedIn()) {
         this.evaluateVerifiedMail();
-        this.verificationInverval = setInterval(this.evaluateVerifiedMail.bind(this), 5 * 60 * 1000);
-      } else {
-        if (this.verificationInverval) {
-          clearInterval(this.verificationInverval);
-        }
       }
     })
   }
