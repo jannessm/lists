@@ -41,7 +41,9 @@ export class ListsOverviewComponent {
           selector: {id: this.me().lists},
           sort: [{name: 'asc'}]
         }).$.subscribe(docs => {
-          this.lists = docs as any as MyListsDocument[];
+          const shoppingLists = docs.filter((d: any) => d.isShoppingList) as any[];
+          const nonShoppingLists = docs.filter((d: any) => !d.isShoppingList);
+          this.lists = [...shoppingLists, ...nonShoppingLists] as MyListsDocument[];
         });
       }
     });

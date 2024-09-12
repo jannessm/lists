@@ -84458,7 +84458,9 @@ var _ListsOverviewComponent = class _ListsOverviewComponent {
           selector: { id: this.me().lists },
           sort: [{ name: "asc" }]
         }).$.subscribe((docs) => {
-          this.lists = docs;
+          const shoppingLists = docs.filter((d) => d.isShoppingList);
+          const nonShoppingLists = docs.filter((d) => !d.isShoppingList);
+          this.lists = [...shoppingLists, ...nonShoppingLists];
         });
       }
     });
