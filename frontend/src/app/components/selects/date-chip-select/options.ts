@@ -11,7 +11,7 @@ export enum ReminderOption {
 export enum DueOption {
   TODAY = 'today',
   TOMORROW = 'tomorrow',
-  SOMETIME = 'somtime',
+  SOMETIME = 'sometime',
 }
 
 

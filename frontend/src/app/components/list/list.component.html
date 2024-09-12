@@ -1,4 +1,5 @@
-<div class="content-grid" (click)="closeFocusInput($event)">
+<div class="content-grid">
+    <div id="content-overlay" *ngIf="focusInput" (click)="closeFocusInput($event)"></div>
     <app-list-header
         [lists]="list"
         [users]="users"
@@ -10,7 +11,7 @@
         <div class="slots" *ngFor="let slot of slots()">
             <h5>
                 {{ slot.name }}
-                <mat-chip-listbox *ngIf="slot.nDone > 0" class="slot-done-toggle" (click)="$event.stopPropagation()">
+                <mat-chip-listbox *ngIf="slot.nDone > 0" class="slot-done-toggle">
                     <mat-chip-option (click)="slotCollapseStates[slot.name] = !slotCollapseStates[slot.name]" [selected]="!slotCollapseStates[slot.name]">
                         {{ slot.nDone }}
                     </mat-chip-option>
@@ -35,6 +36,7 @@
             <app-date-chip-select
                 [formControl]="newItemDue"
                 [options]="dueOptions"
+                [defaultOption]="dueDefault"
                 (pickrOpened)="pickerOpen = true"
             ></app-date-chip-select>
         </mat-toolbar>

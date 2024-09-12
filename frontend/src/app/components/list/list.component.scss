@@ -19,6 +19,14 @@
         
         grid-template-rows: [contentHeader] max-content [contentArea] 1fr [inputBar] auto;
     }
+
+    #content-overlay {
+        grid-area: contentHeader / 1 / contentArea / 1;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+    }
 }
 
 
@@ -29,13 +37,6 @@
     overflow-x: hidden;
     position: relative;
     padding-top: 12px;
-
-    #overlay {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        z-index: 1000;
-    }
 
     .slot-done-toggle {
         // display: inline-block;

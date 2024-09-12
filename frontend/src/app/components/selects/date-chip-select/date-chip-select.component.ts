@@ -5,6 +5,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 
 import flatpickr from 'flatpickr';
 import { timePickerConfig } from '../../../../models/time-picker';
+import { MatChipListboxChange } from '@angular/material/chips';
 
 @Component({
   selector: 'app-date-chip-select',
@@ -37,6 +38,7 @@ export class DateChipSelectComponent implements AfterViewInit {
   }
   private _showOthers = true;
   @Input() options: [key: string, value: string][] = [];
+  @Input() defaultOption: string | undefined;
 
   @Output() pickrOpened = new EventEmitter<void>();
   @Output() pickrClosed = new EventEmitter<void>();
@@ -55,6 +57,8 @@ export class DateChipSelectComponent implements AfterViewInit {
 
   constructor(private datePipe: DatePipe) {
     this.timezone = new Date().toISOString().slice(16);
+
+
   }
 
   ngAfterViewInit(): void {
@@ -64,10 +68,12 @@ export class DateChipSelectComponent implements AfterViewInit {
   get value(): string {
     switch(this.chipOption) {
       case 'different':
-        if (typeof this.date === 'string') {
+        if (typeof this.date === 'string' && !!this.date) {
           this.date = new Date(this.date);
+          return this.date.toISOString().slice(0, 16) + this.timezone;
+        } else {
+          return this.chipOption;
         }
-        return this.date.toISOString().slice(0, 16) + this.timezone;
       default:
         return this.chipOption;
     }
@@ -108,6 +114,21 @@ export class DateChipSelectComponent implements AfterViewInit {
     this.disabled = isDisabled;
   }
 
+  changeOption(event: MatChipListboxChange) {
+    if (!event.value && this.defaultOption) {
+      console.log(this.defaultOption);
+      setTimeout(() => {
+        this.chipOption = this.defaultOption || '';
+      }, 10);
+    } else if (
+      event.value === 'different' &&
+      this.showOthers &&
+      !this.pickrIsOpen
+    ) {
+      this.openFlatpickr()
+    }
+  }
+
   initFlatpickr() {
     this.flatpickr = flatpickr(this.picker.nativeElement, timePickerConfig) as flatpickr.Instance;
   
@@ -119,7 +140,6 @@ export class DateChipSelectComponent implements AfterViewInit {
   openFlatpickr() {
     if (!this.pickrIsOpen && !!this.flatpickr) {
       this.flatpickr.open();
-      console.log('open');
       this.pickrIsOpen = true;
       this.pickrOpened.emit();
     }

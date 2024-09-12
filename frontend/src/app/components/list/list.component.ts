@@ -65,6 +65,7 @@ export class ListComponent implements OnDestroy {
   focusInput: boolean = false;
   newItemDue = new FormControl<string>(DueOption.SOMETIME);
   dueOptions = DueOptionLabels;
+  dueDefault = DueOption.SOMETIME;
   initialized = false;
   pickerOpen = false;
 
@@ -159,9 +160,8 @@ export class ListComponent implements OnDestroy {
     //    => focus input and set pickerOpen to false
     // picker was not open && add form is in focus
     //    => remove focus on add form
-    // some click occured on the add form
-    //    => focus add input
-
+    // some click occured on the content
+    //    => remove focus 
     if (this.pickerOpen && this.focusInput) {
       event.stopPropagation();
       this.addInput.nativeElement.focus();
@@ -173,7 +173,6 @@ export class ListComponent implements OnDestroy {
 
     } else {
       event.stopPropagation();
-      this.addInput.nativeElement.focus();
     }
   }
 

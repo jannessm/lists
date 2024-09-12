@@ -1,8 +1,8 @@
-import { Component, HostListener, Input, OnDestroy, Signal, WritableSignal, effect, signal } from '@angular/core';
+import { Component, Input, OnDestroy, Signal, WritableSignal, effect, signal } from '@angular/core';
 import { MaterialModule } from '../../../material.module';
 import { CommonModule } from '@angular/common';
 import { MyItemDocument } from '../../../mydb/types/list-item';
-import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { UpdateItemSheetComponent } from '../../bottom-sheets/update-item-sheet/update-item-sheet.component';
 import { MyListsDocument } from '../../../mydb/types/lists';
 import { ConfirmSheetComponent } from '../../bottom-sheets/confirm-sheet/confirm-sheet.component';
@@ -37,19 +37,6 @@ export class ListItemComponent implements OnDestroy {
   createdBy$?: Observable<MyUsersDocument>;
   createdBySub?: Subscription;
   createdBy: WritableSignal<MyUsersDocument | undefined> = signal(undefined);
-
-  // pointerDown: boolean = false;
-  // pointerPosY: number | undefined; 
-  // updateSheetRef: MatBottomSheetRef<UpdateItemSheetComponent, any> | undefined;
-
-  // @HostListener('mousemove', ['$event'])
-  // onMousemove(event: MouseEvent): void  {
-  //   this.pointerPosY = event.clientY;
-  // }
-  // @HostListener('touchmove', ['$event'])
-  // onTouchMove(event: TouchEvent): void {
-  //   this.pointerPosY = event.changedTouches[0].clientY;
-  // }
 
   constructor(
     private bottomSheet: MatBottomSheet,
@@ -114,45 +101,4 @@ export class ListItemComponent implements OnDestroy {
       }
     });
   }
-
-  // openUpdateSheet(event: MouseEvent, item?: MyItemDocument) {
-  //   if (!this.pointerDown && item) {
-  //     this.pointerDown = true;
-  //     const currScrollPos = event.clientY;
-  //     this.pointerPosY = currScrollPos;
-      
-  //     setTimeout(() => {
-        
-  //       if (this.pointerPosY != undefined &&
-  //           this.pointerDown &&
-  //           !this.updateSheetRef &&
-  //           Math.abs(currScrollPos - this.pointerPosY) < 50
-  //       ) {  
-  //         this.updateSheetRef = this.bottomSheet.open(UpdateItemSheetComponent, {
-  //           data: {
-  //             list: this.list,
-  //             item
-  //           }
-  //         });
-  
-  //         this.updateSheetRef.afterDismissed().subscribe(patch => {
-  //           if (this.item && patch) {
-  //             this.item.patch(patch);
-  //           }
-
-  //           setTimeout(() => {
-  //             this.cancelUpdateSheet();
-  //           }, 500);
-  //         });
-  //       } else {
-  //         this.cancelUpdateSheet();
-  //       }
-  //     }, 500);
-  //   }
-  // }
-
-  // cancelUpdateSheet() {
-  //   this.pointerDown = false;
-  //   this.updateSheetRef = undefined;
-  // }
 }
