@@ -11,6 +11,7 @@ import { DueOptionLabels, ReminderOption, ReminderOptionLabels, getDueDate, getD
 import { DateChipSelectComponent } from '../../selects/date-chip-select/date-chip-select.component';
 import { DateInputSelectComponent } from '../../selects/date-input-select/date-input-select.component';
 import { AuthService } from '../../../services/auth/auth.service';
+import { datesAreEqual } from '../../selects/time-helpers';
 
 @Component({
   selector: 'app-update-item-sheet',
@@ -59,7 +60,7 @@ export class UpdateItemSheetComponent implements OnDestroy {
       'name': [data.item.name, Validators.required],
       'description': [data.item.description],
       'due-toggle': [!!data.item.due],
-      'due': [due],
+      'due': [!!due ? due.toISOString() : null],
       'reminder': [getReminderValue(due, reminder, this.reminderDefault)],
     });
 
@@ -125,24 +126,38 @@ export class UpdateItemSheetComponent implements OnDestroy {
       });
     }
     
-    if (dueToggle && due && due != this.data.item.due &&
-      !this.list().isShoppingList) {
+    const dueChanged = !datesAreEqual(due, this.data.item.due || null)
+    console.log(due, this.data.item.due);
+    if (
+      dueToggle &&
+      due &&
+      dueChanged &&
+      !this.list().isShoppingList
+    ) {
+      console.log(this.data.item.due, due);
       Object.assign(patch, {
         due
       });
-    } else if (this.data.item.due != null && !dueToggle) {
-      Object.assign(patch, {due: null});
+    } else if (!dueToggle) {
+      Object.assign(patch, {due: null, reminder: null});
     }
 
-    if (dueToggle && due && this.form.get('reminder')?.value !== undefined &&
-      !this.list().isShoppingList) {
+    if (
+      dueToggle &&
+      due &&
+      this.form.get('reminder')?.value &&
+      !this.list().isShoppingList
+    ) {
       const reminder = getReminderDate(
         new Date(due),
         this.form.get('reminder')?.value
       );
 
-      console.log(reminder);
-      if (reminder != this.data.item.reminder) {
+      const reminderChanged = !datesAreEqual(
+        reminder,
+        this.data.item.reminder || null
+      );
+      if (reminderChanged) {
         Object.assign(patch, {
           reminder
         });

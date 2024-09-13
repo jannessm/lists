@@ -76,7 +76,7 @@ export class DateChipSelectComponent implements AfterViewInit {
   writeValue(chipOption: string): void {
     if (this.showOthers) {
       let date: Date | string = ''
-      
+
       try {
         date = new Date(chipOption) || '';
 

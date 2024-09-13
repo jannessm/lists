@@ -15,11 +15,11 @@
     </mat-form-field>
     
     <!-- Due -->
-    <mat-slide-toggle  *ngIf="!list().isShoppingList" color="primary" formControlName="due-toggle">Fällig am</mat-slide-toggle>
+    <mat-slide-toggle *ngIf="!list().isShoppingList" color="primary" formControlName="due-toggle">Fällig am</mat-slide-toggle>
 
     <app-date-input-select
         formControlName="due"
-        *ngIf="!list().isShoppingList"
+        *ngIf="!list().isShoppingList && form.get('due-toggle')?.value"
         (pickrOpened)="pickrOpened()"
         (pickrClosed)="pickrClosed()"
         [options]="dueOptions"

@@ -61,12 +61,20 @@ export class DateInputSelectComponent implements AfterViewInit {
     }
   }
 
-  writeValue(date: Date | null): void {
+  writeValue(date: string | null): void {
     if (!!date) {
-      this.date = date;
-      this.dateString = this.getDateString(date);
-      this.chipOption = this.getChipValue(date);
+      this.date = new Date(date);
+    } else {
+      this.date = new Date();
+      this.date.setDate(this.date.getDate() + 1);
+      this.date.setHours(9, 0, 0, 0);
+      setTimeout(() => {
+        this.onChange(this.value);
+        this.onTouched();
+      });
     }
+    this.dateString = this.getDateString(this.date);
+    this.chipOption = this.getChipValue(this.date);
   }
 
   updateTime() {
