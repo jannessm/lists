@@ -7,9 +7,10 @@ import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { Subscription } from 'rxjs';
 import { MyListsDocument } from '../../../mydb/types/lists';
 import { MyItemDocument } from '../../../mydb/types/list-item';
-import { DueOptionLabels, ReminderOptionLabels, getDueDate, getDueValue, getReminderDate, getReminderValue } from '../../selects/date-chip-select/options';
+import { DueOptionLabels, ReminderOption, ReminderOptionLabels, getDueDate, getDueValue, getReminderDate, getReminderValue } from '../../selects/date-chip-select/options';
 import { DateChipSelectComponent } from '../../selects/date-chip-select/date-chip-select.component';
 import { DateInputSelectComponent } from '../../selects/date-input-select/date-input-select.component';
+import { AuthService } from '../../../services/auth/auth.service';
 
 @Component({
   selector: 'app-update-item-sheet',
@@ -32,6 +33,7 @@ export class UpdateItemSheetComponent implements OnDestroy {
 
   dueOptions = DueOptionLabels.slice(0, 2);
   reminderOptions = ReminderOptionLabels;
+  reminderDefault: ReminderOption;
 
   enableBottomSheetClose?: ReturnType<typeof setTimeout>;
 
@@ -45,19 +47,20 @@ export class UpdateItemSheetComponent implements OnDestroy {
       list: Signal<MyListsDocument>,
       item: MyItemDocument
     },
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private authService: AuthService
   ) {
     this.list = data.list;
-    console.log(this.list().isShoppingList);
     const due = !!data.item.due ? new Date(data.item.due) : null;
     const reminder = !!data.item.reminder ? new Date(data.item.reminder) : null;
+    this.reminderDefault = this.authService.me().defaultReminder as ReminderOption || ReminderOption.MIN_30;
 
-    this.form = fb.group({
+    this.form = this.fb.group({
       'name': [data.item.name, Validators.required],
       'description': [data.item.description],
       'due-toggle': [!!data.item.due],
       'due': [due],
-      'reminder': [getReminderValue(due, reminder)],
+      'reminder': [getReminderValue(due, reminder, this.reminderDefault)],
     });
 
     const formSub = this.form.get('due-toggle')?.valueChanges.subscribe(dueEnabled => {
@@ -131,23 +134,22 @@ export class UpdateItemSheetComponent implements OnDestroy {
       Object.assign(patch, {due: null});
     }
 
-    if (dueToggle && due && this.form.get('reminder')?.value &&
+    if (dueToggle && due && this.form.get('reminder')?.value !== undefined &&
       !this.list().isShoppingList) {
       const reminder = getReminderDate(
         new Date(due),
         this.form.get('reminder')?.value
       );
 
+      console.log(reminder);
       if (reminder != this.data.item.reminder) {
-        console.log(reminder);
         Object.assign(patch, {
-          reminder: reminder
+          reminder
         });
       }
-    } else if (this.data.item.reminder != null) {
-      Object.assign(patch, {reminder: null});
     }
 
+    console.log(patch);
     this.bottomSheetRef.dismiss(patch);
   }
 }

@@ -49,17 +49,11 @@ export class DateChipSelectComponent implements AfterViewInit {
 
   chipOption: string = '';
   date: Date | string = '';
-  timezone?: string;
   flatpickr?: flatpickr.Instance;
   pickrIsOpen = false;
   @ViewChild('pickr') picker!: ElementRef;
   
-
-  constructor(private datePipe: DatePipe) {
-    this.timezone = new Date().toISOString().slice(16);
-
-
-  }
+  constructor(private datePipe: DatePipe) { }
 
   ngAfterViewInit(): void {
     this.initFlatpickr();
@@ -70,7 +64,7 @@ export class DateChipSelectComponent implements AfterViewInit {
       case 'different':
         if (typeof this.date === 'string' && !!this.date) {
           this.date = new Date(this.date);
-          return this.date.toISOString().slice(0, 16) + this.timezone;
+          return this.date.toISOString();
         } else {
           return this.chipOption;
         }
@@ -115,18 +109,22 @@ export class DateChipSelectComponent implements AfterViewInit {
   }
 
   changeOption(event: MatChipListboxChange) {
-    if (!event.value && this.defaultOption) {
-      console.log(this.defaultOption);
-      setTimeout(() => {
+    setTimeout(() => {
+      if (!event.value && this.defaultOption) {
         this.chipOption = this.defaultOption || '';
-      }, 10);
-    } else if (
-      event.value === 'different' &&
-      this.showOthers &&
-      !this.pickrIsOpen
-    ) {
-      this.openFlatpickr()
-    }
+        this.onChange(this.value);
+        this.onTouched();
+      } else if (
+        event.value === 'different' &&
+        this.showOthers &&
+        !this.pickrIsOpen
+      ) {
+        this.openFlatpickr();
+      } else {
+        this.onChange(this.value);
+        this.onTouched();
+      }
+    }, 10);
   }
 
   initFlatpickr() {

@@ -31,9 +31,12 @@ export const DueOptionLabels: [key: string, value: string][] = [
 
 export function getReminderValue(
   due: Date | null,
-  reminder: Date | null
+  reminder: Date | null,
+  defaultValue: ReminderOption
 ): string {
-  if (!due || !reminder) {
+  if (!due) {
+    return defaultValue;
+  } else if (!reminder) {
     return ReminderOption.NO_REMINDER;
   }
 
