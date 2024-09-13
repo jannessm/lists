@@ -9,7 +9,6 @@ export function datesAreEqual(a: string | null, b: string | null) {
     const aDate = new Date(a);
     const bDate = new Date(b);
 
-    console.log(a, b);
     if (isNaN(aDate.valueOf()) || isNaN(bDate.valueOf())) {
         throw Error('invalid Date cannot be compared');
     }
