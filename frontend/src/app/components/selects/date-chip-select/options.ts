@@ -92,13 +92,18 @@ export function getReminderDate(
       break;
     case ReminderOption.H_1:
       date.setHours(due.getHours() - 1);
-      break
+      break;
     case ReminderOption.D_1:
       date.setHours(due.getHours() - 24);
-      break
+      break;
     case ReminderOption.MIN_0:
+      break;
     default:
-      break
+      const reminderDate = new Date(reminder);
+      if (!isNaN(reminderDate.valueOf())) {
+        return reminderDate.toISOString();
+      }
+      break;
   }
 
   return date.toISOString();

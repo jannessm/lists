@@ -127,7 +127,6 @@ export class UpdateItemSheetComponent implements OnDestroy {
     }
     
     const dueChanged = !datesAreEqual(due, this.data.item.due || null)
-    console.log(due, this.data.item.due);
     if (
       dueToggle &&
       due &&
@@ -152,6 +151,8 @@ export class UpdateItemSheetComponent implements OnDestroy {
         new Date(due),
         this.form.get('reminder')?.value
       );
+
+      console.log(reminder);
 
       const reminderChanged = !datesAreEqual(
         reminder,
