@@ -9,5 +9,5 @@ export const environment = {
   hcaptcha: '06a2b0dc-e686-453e-8db2-9c9e40402054',
   locale: 'de',
   version: version,
-  vapid: 'BEQ7Z6AYftjPVg8a554wmJUFeCeR5UAs4eBqWQOUFbbwlbK6qjlbo3TR7GwgpfhJ4TAT2-sGZZQMwkVXRQEdxOI',
+  vapid: 'BP_6-nx9gAkQu0FbpjUH3EjQNePCH5hJhD9gepQRrHArsHshyUuxzM_PvxOQuGKfBllwzIEHfrH32e_5xDLgFEw',
 };
