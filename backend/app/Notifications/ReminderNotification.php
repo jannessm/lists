@@ -52,10 +52,14 @@ class ReminderNotification extends Notification implements ShouldQueue
 
         return (new WebPushMessage)
             ->title($this->item->name)
-            ->icon('/favicon.ico')
+            ->icon('/icons/Icon-256.png')
             ->body($this->getTime())
             ->action('Liste öffnen', 'open_list')
-            ->options(['TTL' => 1000])
+            ->options([
+                'TTL' => 1000,
+                'urgency' => 'normal',
+                // 'topic' => 'reminder'
+            ])
             ->data(['onActionClick' => [
                 "default" => [
                     "operation" => "navigateLastFocusedOrOpen",

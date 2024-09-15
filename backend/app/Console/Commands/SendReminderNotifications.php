@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 
 use Carbon\Carbon;
@@ -49,6 +50,7 @@ class SendReminderNotifications extends Command
         ])->get()->all();
 
         foreach($items as $item) {
+            Log::debug('send reminder for "' . $item->name . '" at ' . $item->reminder);
             $users = $item->lists->users();
             $notification = new ReminderNotification($item);
             Notification::send($users, $notification);

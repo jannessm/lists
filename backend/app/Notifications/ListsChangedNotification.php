@@ -59,10 +59,13 @@ class ListsChangedNotification extends Notification implements ShouldQueue
 
         return (new WebPushMessage)
             ->title($list->name . ' geändert')
-            ->icon('/favicon.ico')
+            ->icon('/icons/Icon-256.png')
             ->body($actor . ' hat ' . $this->item->name . ' ' . $this->eventToText() . '.')
             ->action('Liste öffnen', 'open_list')
-            ->options(['TTL' => 1000])
+            ->options([
+                'TTL' => 1000,
+                'urgency' => 'normal'
+            ])
             ->data(['onActionClick' => [
                 "default" => [
                     "operation" => "navigateLastFocusedOrOpen",
