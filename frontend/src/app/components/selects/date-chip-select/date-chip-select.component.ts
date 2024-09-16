@@ -112,6 +112,7 @@ export class DateChipSelectComponent implements AfterViewInit {
     setTimeout(() => {
       if (!event.value && this.defaultOption) {
         this.chipOption = this.defaultOption || '';
+        this.date = '';
         this.onChange(this.value);
         this.onTouched();
       } else if (
