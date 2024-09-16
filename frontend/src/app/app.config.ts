@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, ApplicationConfig, Injector, LOCALE_ID, isDevMode } from '@angular/core';
+import { APP_INITIALIZER, ApplicationConfig, Injector, LOCALE_ID, enableProdMode, isDevMode } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -9,6 +9,10 @@ import { noConnectionInterceptor } from './interceptors/no-connection';
 import { provideServiceWorker } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { initDatabase } from './services/data/init-database';
+
+if (environment.production) {
+  enableProdMode();
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
