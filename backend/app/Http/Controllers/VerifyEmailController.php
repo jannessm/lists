@@ -7,6 +7,8 @@ use Illuminate\Auth\Events\Verified;
 use Illuminate\Routing\Controller;
 use Laravel\Fortify\Contracts\VerifyEmailResponse;
 
+use App\Http\Requests\VerifyEmailRequest;
+
 class VerifyEmailController extends Controller
 {
     /**
