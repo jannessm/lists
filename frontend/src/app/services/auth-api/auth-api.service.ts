@@ -107,6 +107,7 @@ export class AuthApiService {
     }).pipe(
       catchError(() => of(ChangeEmailStatus.ERROR)),
       map(res => {
+        console.log(res);
         if (res instanceof HttpResponse) {
           if (res.status === 200 && res.body.status === ChangeEmailStatus.EMAIL_ALREADY_USED) {
             return ChangeEmailStatus.EMAIL_ALREADY_USED;
