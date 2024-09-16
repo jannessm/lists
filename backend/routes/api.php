@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-use Laravel\Fortify\Http\Controllers\VerifyEmailController;
 use Laravel\Fortify\RoutePath;
 
 use Symfony\Component\HttpFoundation\Response;
@@ -15,6 +14,7 @@ use Nuwave\Lighthouse\Execution\Utils\Subscription;
 
 use App\Http\Controllers\PushController;
 use App\Http\Controllers\ShareListsController;
+use App\Http\Controllers\VerifyEmailController;
 
 
 $verificationLimiter = config('fortify.limiters.verification', '6,1');
