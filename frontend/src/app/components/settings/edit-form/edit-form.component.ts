@@ -89,8 +89,8 @@ export class EditFormComponent implements OnDestroy {
       return;
     }
 
-    const name = this.editForm.get('name')?.value;
-    const email = this.editForm.get('email')?.value;
+    const name = this.editForm.get('name')?.value.trim();
+    const email = this.editForm.get('email')?.value.trim();
     const oldPwd = this.editForm.get('oldPwd')?.value;
     const pwd = this.editForm.get('pwd')?.value;
     const pwdConfirmation = this.editForm.get('pwdConfirmation')?.value;

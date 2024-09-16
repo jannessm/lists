@@ -108,10 +108,10 @@ export class AuthApiService {
       catchError(() => of(ChangeEmailStatus.ERROR)),
       map(res => {
         if (res instanceof HttpResponse) {
-          if (res.status === 200) {
-            return ChangeEmailStatus.OK;
-          } else {
+          if (res.status === 200 && res.body.status === ChangeEmailStatus.EMAIL_ALREADY_USED) {
             return ChangeEmailStatus.EMAIL_ALREADY_USED;
+          } else if (res.status === 200) {
+            return ChangeEmailStatus.OK;
           }
         }
 
