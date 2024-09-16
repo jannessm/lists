@@ -36,12 +36,17 @@ class AppServiceProvider extends ServiceProvider
                 ->salutation("Mit freundlichen Grüßen");
         });
 
-        ResetPassword::toMailUsing(function (object $notifiable, string $url) {
+        ResetPassword::toMailUsing(function (object $notifiable, string $token) {
+            $url = url(route('password.reset', [
+                'token' => $token,
+                'email' => $notifiable->getEmailForPasswordReset(),
+            ], false));
+    
             return (new MailMessage)
                 ->greeting('Hallo!')
                 ->subject('Passwort Zurücksetzen')
                 ->line('Nutze den Link um dein Passwort zurückzusetzen.')
-                ->action('Passwort zurücksetzen', $this->resetUrl($notifiable))
+                ->action('Passwort zurücksetzen', $url)
                 ->line('Der Link ist 60 Minuten gültig. Sollte keine Anfrage gestellt worden sein, ist keine weitere Aktion nötig.')
                 ->salutation("Mit freundlichen Grüßen");
         });
