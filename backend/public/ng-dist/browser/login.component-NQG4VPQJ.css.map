@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/login/login.component.scss"],
+  "sourcesContent": ["div {\n    img {\n        margin: 12px;\n        margin-left: calc(50% - 64px);\n    }\n    form {\n        display: flex;\n        flex-direction: column;\n    }\n\n    button {\n        margin: 12px 0;\n    }\n\n    .container {\n        width: 100%;\n        display: flex;\n        justify-content: space-between;\n        margin: 0;\n    }\n}\n\n.buymeacoffee {\n    margin-left: calc(50% - 217px/2);\n}"],
+  "mappings": ";AACI,IAAA;AACI,UAAA;AACA,eAAA,KAAA,IAAA,EAAA;;AAEJ,IAAA;AACI,WAAA;AACA,kBAAA;;AAGJ,IAAA;AACI,UAAA,KAAA;;AAGJ,IAAA,CAAA;AACI,SAAA;AACA,WAAA;AACA,mBAAA;AACA,UAAA;;AAIR,CAAA;AACI,eAAA,KAAA,IAAA,EAAA;;",
+  "names": []
+}

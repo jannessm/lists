@@ -1,0 +1,59 @@
+####### Query Types #############
+type ListItem {
+  id: String!
+  name: String!
+  description: String
+  reminder: DateTimeUtc
+  due: DateTimeUtc
+  createdBy: User! @belongsTo
+  lists: Lists! @belongsTo
+  done: Boolean!
+  timezone: String!
+  
+  "When item was created."
+  createdAt: DateTimeUtc! @rename(attribute: "created_at")
+
+  "When item was last updated."
+  updatedAt: DateTimeUtc! @rename(attribute: "updated_at")
+
+  "Delete flag for rxDB"
+  _deleted: Boolean!
+}
+
+####### Input Types #########
+input ListItemInput {
+  id: String
+  name: String!
+  description: String
+  reminder: DateTimeUtc
+  due: DateTimeUtc
+  timezone: String!
+  createdBy: RefInput @model(class: "App\\Models\\User") @belongsTo
+  lists: RefInput! @model(class: "App\\Models\\Lists") @belongsTo
+  done: Boolean!
+  createdAt: DateTimeUtc @rename(attribute: "created_at")
+  updatedAt: DateTimeUtc @rename(attribute: "updated_at")
+  _deleted: Boolean
+}
+
+input ItemsInputHeaders {
+  id: String
+}
+
+input ItemsInputPushRow {
+  newDocumentState: ListItemInput!
+  assumedMasterState: ListItemInput
+}
+
+input ItemsInputCheckpoint {
+  id: String
+  updatedAt: DateTimeUtc
+}
+
+
+####### Response Types #######
+
+type ListItemPullBulk {
+  documents: [ListItem]!
+  checkpoint: CheckpointType
+}

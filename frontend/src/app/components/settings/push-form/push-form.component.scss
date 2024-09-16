@@ -1,0 +1,4 @@
+mat-slide-toggle:not(:first-of-type) {
+    margin-left: 64px;
+    width: calc(100% - 64px);
+}

@@ -1,0 +1,9 @@
+<div>
+    <form [formGroup]="form">
+        <mat-label>Erinnerungen</mat-label>
+        <app-date-chip-select
+            formControlName="reminder"
+            [showOthers]="false"
+            [options]="reminderOptions"></app-date-chip-select>
+    </form>
+</div>

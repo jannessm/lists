@@ -1,0 +1,33 @@
+#import interfaces.graphql
+#import user.graphql
+#import lists.graphql
+#import list-item.graphql
+#import push-settings.graphql
+
+type Query @guard {
+    pullMe(checkpoint: MeInputCheckpoint @spread, limit: Int!): MePullBulk!
+    pullUsers(checkpoint: UsersInputCheckpoint @spread, limit: Int!): UsersPullBulk!
+  
+    pullLists(checkpoint: ListsInputCheckpoint @spread, limit: Int!): ListsPullBulk!
+    
+    pullItems(checkpoint: ItemsInputCheckpoint @spread, limit: Int!): ListItemPullBulk!
+
+    pushSettings(endpoint: String!): PushSettings @field(resolver: "App\\Models\\PushSettings@queryResolver")
+}
+
+type Mutation @guard {
+  pushMe(rows: [MeInputPushRow!]): [User!]! @field(resolver: "App\\Models\\User@pushMeResolver")
+
+  pushLists(rows: [ListsInputPushRow!]): [Lists!]! @field(resolver: "App\\Models\\Lists@pushResolver")
+
+  pushItems(rows: [ItemsInputPushRow!]): [ListItem!]! @field(resolver: "App\\Models\\ListItem@pushResolver")
+
+  pushSettings(settings: PushSettingsInput): PushSettings @field(resolver: "App\\Models\\PushSettings@pushResolver")
+}
+
+type Subscription @guard {
+  streamMe(headers: MeInputHeaders): MePullBulk
+  streamUsers(headers: UsersInputHeaders): UsersPullBulk
+  streamLists(headers: ListsInputHeaders): ListsPullBulk
+  streamItems(headers: ItemsInputHeaders): ListItemPullBulk
+}

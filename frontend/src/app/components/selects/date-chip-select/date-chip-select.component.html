@@ -1,0 +1,8 @@
+<mat-chip-listbox [(ngModel)]="chipOption" [disabled]="disabled" (change)="changeOption($event)">
+    <mat-chip-option *ngFor="let item of options" [value]="item[0]">{{item[1]}}</mat-chip-option>
+    
+    <mat-chip-option *ngIf="showOthers" value="different">
+        {{(this.date | date:'short') || 'Andere'}}
+    </mat-chip-option>
+</mat-chip-listbox>
+<input type="datetime-local" #pickr [(ngModel)]="date">

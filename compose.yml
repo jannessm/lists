@@ -1,0 +1,143 @@
+# basic definitions
+x-mysql: &mysql
+  image: mysql:latest
+  restart: unless-stopped
+  environment:
+    - MYSQL_DATABASE=lists
+    - MYSQL_ROOT_PASSWORD=password
+  networks:
+    - lists
+
+x-soketi-distroless: &soketi-distroless
+  image: 'quay.io/soketi/soketi:1.6-16-distroless'
+  restart: unless-stopped
+  entrypoint: /nodejs/bin/node /app/bin/server.js start --config=/configs/socketi-config.json
+  expose:
+    - 6001
+  networks:
+    - lists
+    - traefik
+
+x-laravel: &laravel
+  image: bitnami/laravel:11
+  restart: unless-stopped
+  expose:
+    - 8000
+  entrypoint: /entrypoint.sh
+
+x-laravel-networks: &laravel-networks
+  networks:
+    - lists
+    - traefik
+
+services:
+  # mysql
+  mysql-dev:
+    <<: *mysql
+    profiles: [staging, dev]
+    volumes:
+      - lists-mysql-data-dev:/var/lib/mysql
+
+  mysql:
+    <<: *mysql
+    profiles: [prod]
+    volumes:
+      - lists-mysql-data:/var/lib/mysql
+
+
+  # soketi
+  soketi-dev:
+    profiles: [dev]
+    image: 'quay.io/soketi/soketi:1.6-16-alpine'
+    entrypoint: /app/bin/server.js start --config=/configs/socketi-config.json
+    volumes:
+      - ./configs/dev:/configs
+    ports:
+      - 6001:6001
+    networks:
+      - lists
+
+  soketi-staging:
+    <<: *soketi-distroless
+    profiles: [staging]
+    volumes:
+      - ./configs/staging:/configs
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.http.routers.lists-staging-wss.rule=Host(`lists-staging-wss.magnusso.nz`)"
+      - "traefik.http.routers.lists-staging-wss.tls=true"
+      - "traefik.http.routers.lists-staging-wss.tls.certresolver=myresolver"
+      - "traefik.http.services.lists-staging-wss.loadbalancer.server.port=6001"
+      - "traefik.http.routers.lists-staging-wss.entrypoints=websecure"
+  
+  soketi:
+    <<: *soketi-distroless
+    profiles: [prod]
+    volumes:
+      - ./configs/prod:/configs
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.http.routers.lists-wss.rule=Host(`lists-wss.magnusso.nz`)"
+      - "traefik.http.routers.lists-wss.tls=true"
+      - "traefik.http.routers.lists-wss.tls.certresolver=myresolver"
+      - "traefik.http.services.lists-wss.loadbalancer.server.port=6001"
+      - "traefik.http.routers.lists-wss.entrypoints=websecure"
+
+  # laravel
+  laravel-dev:
+    <<: *laravel
+    profiles: [dev]
+    depends_on:
+      - mysql-dev
+      - soketi-dev
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./dev-entrypoint.sh:/entrypoint.sh
+      - ./configs/dev:/configs
+    networks:
+      - lists
+
+  laravel-staging:
+    <<: [*laravel, *laravel-networks]
+    profiles: [staging]
+    depends_on:
+      - mysql-dev
+      - soketi-staging
+    volumes:
+      - ./backend:/app
+      - ./entrypoint.sh:/entrypoint.sh
+      - ./configs/staging:/configs
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.http.routers.lists-staging.rule=Host(`lists-staging.magnusso.nz`)"
+      - "traefik.http.routers.lists-staging.tls.certresolver=myresolver"
+      - "traefik.http.routers.lists-staging.entrypoints=web,websecure"
+      - "traefik.http.services.lists-staging.loadbalancer.server.port=8000"
+  
+  laravel:
+    <<: [*laravel, *laravel-networks]
+    profiles: [prod]
+    depends_on:
+      - mysql
+      - soketi
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.http.routers.lists.rule=Host(`lists.magnusso.nz`)"
+      - "traefik.http.routers.lists.tls.certresolver=myresolver"
+      - "traefik.http.routers.lists.entrypoints=web,websecure"
+      - "traefik.http.services.lists.loadbalancer.server.port=8000"
+
+networks:
+  lists:
+  traefik:
+    external: true
+
+volumes:
+  lists-mysql-data-dev:
+  lists-mysql-data:

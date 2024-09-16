@@ -1,0 +1,12 @@
+<h3>{{title}}</h3>
+
+    <form [formGroup]="form" autocomplete="off">
+        <mat-form-field appearance="outline">
+            <input matInput formControlName="name" placeholder="Name" maxlength="50">
+            <mat-hint>max 50 Zeichen sind erlaubt.</mat-hint>
+        </mat-form-field>
+        <mat-slide-toggle color="primary" formControlName="isShoppingList">Einkaufsliste</mat-slide-toggle>
+
+        <button mat-stroked-button [disabled]="!form.valid" (click)="returnFormContent()">{{data ? 'Speichern' : 'Hinzufügen'}}</button>
+        <button mat-flat-button color="primary" (click)="bottomSheetRef.dismiss()">Abbrechen</button>
+    </form>

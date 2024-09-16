@@ -1,0 +1,17 @@
+<div class="content-header">
+    <button class="menu" mat-icon-button [matMenuTriggerFor]="menu"><mat-icon>more_vert</mat-icon></button>
+    <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="listSettings()" [disabled]="!isAdmin">Einstellungen</button>
+        <button mat-menu-item (click)="shareList()">Teilen</button>
+        <button mat-menu-item (click)="listToText.emit()">Verschicken</button>
+        <button mat-menu-item (click)="markAllNotDone()">Alle Einträge abwählen</button>
+        <button mat-menu-item (click)="deleteAll()">Alle Einträge löschen</button>
+        <button mat-menu-item (click)="deleteAllDone()">Alle erledigten Einträge löschen</button>
+        <button mat-menu-item (click)="deleteList()" [disabled]="!isAdmin">Löschen</button>
+    </mat-menu>
+
+    <h2 *ngIf="lists()">{{lists().name}}</h2>
+    <div class="users" *ngIf="users() && users().length > 1" (click)="shareList()">
+        <button mat-mini-fab *ngFor="let user of users(); let i = index" [class]="'user-fab-' + i % 12" disabled >{{user?.name | nameBadge}}</button>
+    </div>
+</div>

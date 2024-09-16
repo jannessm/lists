@@ -1,0 +1,86 @@
+####### Query Types #############
+
+"Account of a person who utilizes this application."
+type User implements Item {
+  "Unique primary key."
+  id: String!
+
+  "Non-unique name."
+  name: String!
+
+  "Unique email address."
+  email: String!
+
+  "When the email was verified."
+  emailVerifiedAt: DateTimeUtc @canRoot(ability: "viewDetails") @rename(attribute: "email_verified_at")
+
+  ""
+  lists: [Lists]! @canRoot(ability: "viewDetails") @method(name: "lists")
+
+  "Theme setting: One of ['auto', 'dark', 'light']"
+  theme: String @canRoot(ability: "viewDetails")
+
+  "Default list that is opened on startup"
+  defaultList: Lists @canRoot(ability: "viewDetails")
+
+  "Default setting to use when selecting reminder"
+  defaultReminder: String @canRoot(ability: "viewDetails") @rename(attribute: "default_reminder")
+  
+  "When item was created."
+  createdAt: DateTimeUtc! @rename(attribute: "created_at")
+
+  "When item was last updated."
+  updatedAt: DateTimeUtc! @rename(attribute: "updated_at")
+
+  "Delete flag for rxDB"
+  _deleted: Boolean!
+}
+
+
+
+####### Input Types #########
+
+input UserInput {
+  id: String!
+  name: String!
+  email: String
+  emailVerifiedAt: DateTimeUtc @canRoot(ability: "viewDetails") @rename(attribute: "email_verified_at")
+  theme: String @canRoot(ability: "viewDetails")
+  defaultReminder: String @canRoot(ability: "viewDetails") @rename(attribute: "default_reminder")
+  createdAt: DateTimeUtc @rename(attribute: "created_at")
+  updatedAt: DateTimeUtc @rename(attribute: "updated_at")
+  _deleted: Boolean
+}
+
+input MeInputHeaders {
+  id: String
+}
+input UsersInputHeaders {
+  id: String
+}
+
+input MeInputPushRow {
+  newDocumentState: UserInput!
+  assumedMasterState: UserInput!
+}
+
+input MeInputCheckpoint {
+  updatedAt: DateTimeUtc
+}
+input UsersInputCheckpoint {
+  id: String
+  updatedAt: DateTimeUtc
+}
+
+
+####### Response Types #######
+
+type UsersPullBulk {
+  documents: [User]!
+  checkpoint: CheckpointType
+}
+
+type MePullBulk {
+  documents: [User]!
+  checkpoint: CheckpointType
+}

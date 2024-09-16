@@ -1,0 +1,54 @@
+<div class="container" *ngIf="user()">
+
+    <div class="header-container">
+        <button mat-icon-button
+            *ngIf="!editMode()"
+            class="edit-buttons"
+            (click)="enterEditMode()">
+                <mat-icon>edit</mat-icon>
+        </button>
+        
+        <button
+            disabled
+            mat-fab
+            class="user-fab-0"
+            *ngIf="!editMode() && user() && !!user().name">
+                {{user().name | nameBadge}}
+        </button>
+        <button
+            disabled
+            mat-fab
+            class="user-fab-0"
+            *ngIf="editMode()">
+                {{userName() | nameBadge}}
+        </button>
+    </div>
+
+    <div class="inner-container">
+
+        <div *ngIf="user() && !editMode()">{{user().name}}</div>
+        <div *ngIf="user() && !editMode()">{{user().email}}</div>
+    
+        <app-settings-edit-form
+            [editMode]="editMode"
+            [disabled]="editFormDisabled"
+            (name)="userName.set($event)"
+            class="forms"
+        ></app-settings-edit-form>
+    
+        <hr>
+    
+        <app-settings-theme-form class="forms"></app-settings-theme-form>
+        
+        <app-settings-others-form class="forms"></app-settings-others-form>
+
+        <hr>
+
+        <app-settings-push-form class="forms"></app-settings-push-form>
+        
+        <hr>
+
+        <button mat-stroked-button (click)="logout()">Logout</button>
+        <div id="version">v{{version}}</div>
+    </div>
+</div>

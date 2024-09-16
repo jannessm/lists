@@ -1,0 +1,55 @@
+####### Query Types #############
+type Lists {
+  id: String!
+  name: String!
+  isShoppingList: Boolean! @rename(attribute: "is_shopping_list")
+  createdBy: User @belongsTo
+  sharedWith: [User]! @belongsToMany
+  items: [ListItem]! @hasMany
+  
+  "When item was created."
+  createdAt: DateTimeUtc! @rename(attribute: "created_at")
+
+  "When item was last updated."
+  updatedAt: DateTimeUtc! @rename(attribute: "updated_at")
+
+  "Delete flag for rxDB"
+  _deleted: Boolean!
+}
+
+####### Input Types #########
+input ListsInput {
+  id: String
+  name: String!
+  isShoppingList: Boolean! @rename(attribute: "is_shopping_list")
+  createdBy: RefInput! @model(class: "App\\Models\\User") @belongsTo
+  createdAt: DateTimeUtc @rename(attribute: "created_at")
+  updatedAt: DateTimeUtc @rename(attribute: "updated_at")
+  _deleted: Boolean
+}
+
+input ListsInputHeaders {
+  id: String
+}
+
+input ListsRefInput {
+  id: String!
+}
+
+input ListsInputPushRow {
+  newDocumentState: ListsInput!
+  assumedMasterState: ListsInput
+}
+
+input ListsInputCheckpoint {
+  id: String
+  updatedAt: DateTimeUtc
+}
+
+
+####### Response Types #######
+
+type ListsPullBulk {
+  documents: [Lists]!
+  checkpoint: CheckpointType
+}

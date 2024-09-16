@@ -1,0 +1,15 @@
+scalar DateTime
+  @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+
+scalar DateTimeUtc
+  @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTimeUtc")
+
+type CheckpointType {
+    id: String
+    updatedAt: DateTimeUtc!
+}
+
+input RefInput {
+  id: String!
+  name: String
+}

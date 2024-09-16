@@ -1,0 +1,41 @@
+<div>
+    <img src="icons/Icon-128.png">
+    <form [formGroup]="form">
+        <mat-form-field appearance="outline">
+            <mat-label>email</mat-label>
+            <input matInput placeholder="Email" formControlName="email" type="email">
+            <mat-error *ngIf="form.get('email')?.hasError('required')">
+                Email muss angegeben werden!
+            </mat-error>
+            <mat-error *ngIf="form.get('email')?.hasError('email')">
+                Bitte eine gültige Email Adresse angeben!
+            </mat-error>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+            <mat-label>password</mat-label>
+            <input matInput type="password" placeholder="Password" formControlName="pwd">
+            <mat-error *ngIf="form.get('pwd')?.hasError('required')">
+                Passwort muss angegeben werden!
+            </mat-error>
+        </mat-form-field>
+    
+        <app-hcaptcha
+            [init]="initCaptcha"
+            (verify)="captchaVerify($event)"
+            (error)="captchaError()"
+            (expired)="captchaError()"
+        ></app-hcaptcha>
+        <mat-error *ngIf="wrongCredentials">Es wurde kein Benutzer für diese Nutzerdaten gefunden.</mat-error>
+        <mat-error *ngIf="form.get('captcha')?.hasError('captcha')">Cpatcha nicht erfolgreich. Bitte neu laden.</mat-error>
+        <button mat-flat-button color="primary" (click)="login()" [disabled]="form.invalid || form.disabled">Login</button>
+        
+        <div class="container">
+            <button mat-stroked-button routerLink="/forgot-password" type="button">Passwort vergessen</button>
+            <button mat-stroked-button routerLink="/register" type="button">Register<mat-icon>chevron_right</mat-icon></button>
+        </div>
+    </form>
+
+</div>
+
+<a href="https://www.buymeacoffee.com/jannessm" target="_blank" class="buymeacoffee"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-white.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>

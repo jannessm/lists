@@ -1,0 +1,28 @@
+<div class="item"
+    *ngIf="item && list"
+        [class.item-done]="item.done"
+        (click)="openEditSheet(item)"
+        [id]="'id-' + item.id">
+    
+    <div class="item-container">
+        <mat-checkbox (change)="toggleDone()" color="primary" [checked]="item.done" (click)="$event.stopPropagation()"></mat-checkbox>
+
+        <div class="item-content">
+            <span>{{ item.name }}</span>
+            <mat-chip-listbox *ngIf="!list().isShoppingList">
+                <mat-chip-option
+                    *ngIf="item && item.due"
+                    selectable="false"
+                    disableRipple="true"
+                    [highlighted]="!!item.reminder">
+                    <span *ngIf="is_today(item); then shortTime else short"></span>
+                </mat-chip-option>
+
+                <ng-template #shortTime>{{item.due | date:'shortTime'}}</ng-template>
+                <ng-template #short>{{item.due | date:'short'}}</ng-template>
+            </mat-chip-listbox>
+            <button mat-mini-fab disabled *ngIf="createdBy() && item && me().id !== createdBy()?.id" [class]="'mini-user-fab user-fab-' + userFab(item) % 12">{{createdBy()?.name | nameBadge}}</button>
+            <button mat-icon-button (click)="deleteItem(item)" *ngIf="item && item.done"><mat-icon>close</mat-icon></button>
+        </div>
+    </div>
+</div>

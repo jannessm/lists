@@ -1,0 +1,59 @@
+<div class="container">
+    <form [formGroup]="form">
+        <mat-form-field appearance="outline">
+            <mat-label>Name</mat-label>
+            <input matInput placeholder="Name" formControlName="name">
+            <mat-error *ngIf="form.get('name')?.hasError('required')">
+                Name muss angegeben werden!
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput placeholder="Email" formControlName="email" type="email">
+            <mat-error *ngIf="form.get('email')?.hasError('required')">
+                Email muss angegeben werden!
+            </mat-error>
+            <mat-error *ngIf="form.get('email')?.hasError('email')">
+                Bitte eine gültige Email Adresse angeben!
+            </mat-error>
+            <mat-error *ngIf="form.get('email')?.hasError('emailOccupied')">Email ist bereits registriert.</mat-error>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+            <mat-label>Passwort</mat-label>
+            <input matInput type="password" placeholder="Passwort" formControlName="pwd">
+            <mat-error *ngIf="form.get('pwd')?.hasError('required')">
+                Passwort muss angegeben werden!
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Passwort wiederholen</mat-label>
+            <input matInput type="password" placeholder="Passwort wiederholen" formControlName="pwd_confirmation">
+            <mat-error *ngIf="form.get('pwd_confirmation')?.hasError('required')">
+                Passwort muss angegeben werden!
+            </mat-error>
+        </mat-form-field>
+        
+        <app-hcaptcha
+            [init]="initCaptcha"
+            (verify)="captchaVerify($event)"
+            (error)="captchaError()"
+            (expired)="captchaError()"
+        ></app-hcaptcha>
+
+
+        <mat-error *ngIf="form.hasError('notMatching')">
+            Passwörter stimmen nicht überein!
+        </mat-error>
+        <mat-error *ngIf="form.hasError('error')">
+            Etwas ist schief gelaufen!
+        </mat-error>
+        <mat-error *ngIf="form.get('captcha')?.hasError('captcha')">Cpatcha nicht erfolgreich. Bitte neu laden.</mat-error>
+        
+        <button mat-flat-button color="primary" (click)="register()" [disabled]="form.invalid || form.disabled">Register</button>
+        
+        <div class="container">
+            <button mat-stroked-button type="button" routerLink="/login"><mat-icon>chevron_left</mat-icon>Login</button>
+        </div>
+    </form>
+</div>

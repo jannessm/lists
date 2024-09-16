@@ -1,3 +1,0 @@
-<?php
-
-$sqliteFile = 'data.db';

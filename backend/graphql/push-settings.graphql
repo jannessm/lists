@@ -1,0 +1,12 @@
+type PushSettings {
+  receivePush: Boolean! @rename(attribute: "receive_push")
+  receiveListsChanged: Boolean! @rename(attribute: "receive_lists_changed")
+  receiveReminder: Boolean! @rename(attribute: "receive_reminder")
+}
+
+input PushSettingsInput {
+    endpoint: String!
+    receivePush: Boolean! 
+    receiveListsChanged: Boolean!
+    receiveReminder: Boolean!
+}

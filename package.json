@@ -1,12 +1,8 @@
 {
   "name": "lists",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
-    "server": "php -S localhost:8080 -t server/ -c server/php.ini",
-    "page": "cd page; npm start",
-    "page-win": "cd ./page; npm start-win",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

@@ -1,0 +1,16 @@
+<div>
+    <mat-label>Push Benachritigungen</mat-label>
+    <mat-slide-toggle
+        color="primary"
+        [formControl]="receivePush">
+        Push Nachrichten
+    </mat-slide-toggle>
+    
+    <mat-slide-toggle
+        color="primary"
+        [formControl]="receiveListsChanged">
+        Push Nachricht bei Veränderung einer Liste
+    </mat-slide-toggle>
+    
+    <mat-slide-toggle color="primary" [formControl]="receiveReminder">Push Nachricht für Erinnerungen</mat-slide-toggle>
+</div>

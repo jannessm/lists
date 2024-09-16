@@ -1,0 +1,17 @@
+{
+    "debug": false,
+    "port": 6001,
+    "appManager.array.apps": [
+        {
+            "id": "app-id",
+            "key": "app-key",
+            "secret": "app-secret",
+            "webhooks": [
+                {
+                    "url": "http://laravel-dev:8000/graphql/subscriptions/webhook",
+                    "event_types": ["channel_vacated", "channel_occupied"]
+                }
+            ]
+        }
+    ]
+}

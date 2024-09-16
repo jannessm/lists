@@ -1,0 +1,44 @@
+<h3>Element Bearbeiten</h3>
+
+<form [formGroup]="form" autocomplete="off">
+    <mat-form-field appearance="outline">
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name" placeholder="Name">
+    </mat-form-field>
+    
+    
+    <mat-form-field appearance="outline" *ngIf="!list().isShoppingList">
+        <mat-label>Beschreibung</mat-label>
+        <textarea matInput formControlName="description" placeholder="Beschreibung" cdkTextareaAutosize
+        #autosize="cdkTextareaAutosize"
+        cdkAutosizeMinRows="5"></textarea>
+    </mat-form-field>
+    
+    <!-- Due -->
+    <mat-slide-toggle *ngIf="!list().isShoppingList" color="primary" formControlName="due-toggle">Fällig am</mat-slide-toggle>
+
+    <app-date-input-select
+        formControlName="due"
+        *ngIf="!list().isShoppingList && form.get('due-toggle')?.value"
+        (pickrOpened)="pickrOpened()"
+        (pickrClosed)="pickrClosed()"
+        [options]="dueOptions"
+        [getChipValue]="getDueValue"
+        [getChipDate]="getDueDate"
+    ></app-date-input-select>
+    
+    <!-- Reminder -->
+    <div *ngIf="form.get('due-toggle')?.value && !list().isShoppingList">
+        <mat-label>Erinnerung</mat-label>
+        <app-date-chip-select
+            formControlName="reminder"
+            (pickrOpened)="pickrOpened()"
+            (pickrClosed)="pickrClosed()"
+            [defaultOption]="reminderDefault"
+            [options]="reminderOptions"
+        ></app-date-chip-select>
+    </div>
+
+    <button mat-stroked-button [disabled]="!form.valid" (click)="returnFormContent()">{{'Speichern'}}</button>
+    <button mat-flat-button color="primary" (click)="bottomSheetRef.dismiss()">Abbrechen</button>
+</form>

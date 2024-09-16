@@ -1,0 +1,23 @@
+div {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 16px 0;
+
+    form, mat-form-field, mat-slide-toggle {
+        width: 100%;
+    }
+
+    button {
+        width: 100%;
+        line-height: 36px;
+    }
+
+    hr {
+        width: 100%;
+        border: none;
+        margin: 24px;
+    }
+}

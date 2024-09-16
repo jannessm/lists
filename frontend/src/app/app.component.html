@@ -1,0 +1,27 @@
+<div id="app-container">
+    <div id="offline-indicator" *ngIf="!(pusher.online | async) && authService.isLoggedIn()">Offline</div>
+    <div class="content" [style.top]="marginTopContent + 'px'">
+        <router-outlet></router-outlet>
+    </div>
+    
+    <mat-toolbar *ngIf="authService.isLoggedIn()">
+        <button
+            mat-button
+            routerLink="/user/lists"
+            [color]="router.isActive('/user/lists', true) ? 'primary' : undefined">
+            <div class="toolbar-button">
+                <mat-icon>list</mat-icon>
+                <span>Lists</span>
+            </div>
+        </button>
+        <button
+            mat-button
+            routerLink="/user/settings"
+            [color]="router.isActive('/user/settings', true) ? 'primary' : undefined">
+            <div class="toolbar-button">
+                <mat-icon>settings</mat-icon>
+                <span>Einstellungen</span>
+            </div>
+        </button>
+    </mat-toolbar>
+</div>
