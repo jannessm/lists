@@ -144,8 +144,6 @@ export class Replicator {
             newDocumentState: this.applyPushMod(doc)
         };
 
-        console.log(pushRow);
-
         if (!!assumedMaster) {
             pushRow.assumedMasterState = this.applyPushMod(assumedMaster);
         }
@@ -168,7 +166,6 @@ export class Replicator {
             mod = this.pushOptions.modifier(mod);
         }
         
-        console.log(mod);
         return mod;
     }
 }

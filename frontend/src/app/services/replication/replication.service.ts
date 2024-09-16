@@ -103,7 +103,6 @@ export class ReplicationService implements OnDestroy {
         modifier: (doc: any) => {
           removeItems(doc, ['sharedWith', 'items']);
           
-          console.log('before', doc);
           unpackRef(doc, ['createdBy']);
           
           if (collectionName == 'me') {

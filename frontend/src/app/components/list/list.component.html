@@ -1,5 +1,5 @@
 <div class="content-grid">
-    <div id="content-overlay" *ngIf="focusInput" (click)="closeFocusInput($event)"></div>
+    <div id="content-overlay" *ngIf="focusInput" (click)="closeFocusInput($event)" #overlay></div>
     <app-list-header
         [lists]="list"
         [users]="users"
@@ -24,6 +24,7 @@
                     [me]="me"
                     [list]="list"
                     [item]="item"
+                    (deleted)="deleteItem(item)"
                     ></app-list-item>
             </ng-container>
         </div>

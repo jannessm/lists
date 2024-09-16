@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, Signal, WritableSignal, effect, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, Output, Signal, WritableSignal, effect, signal } from '@angular/core';
 import { MaterialModule } from '../../../material.module';
 import { CommonModule } from '@angular/common';
 import { MyItemDocument } from '../../../mydb/types/list-item';
@@ -33,6 +33,8 @@ export class ListItemComponent implements OnDestroy {
   list!: Signal<MyListsDocument>;
   @Input()
   item!: MyItemDocument;
+
+  @Output() deleted = new EventEmitter<void>();
 
   createdBy$?: Observable<MyUsersDocument>;
   createdBySub?: Subscription;
@@ -69,6 +71,7 @@ export class ListItemComponent implements OnDestroy {
     confirm.afterDismissed().subscribe(del => {
       if (this.item && del) {
         this.item.remove();
+        this.deleted.emit();
       }
     });
   }

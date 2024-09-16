@@ -38,6 +38,7 @@ import { ListHeaderComponent } from './list-header/list-header.component';
 })
 export class ListComponent implements OnDestroy {
   @ViewChild('addInput') addInput!: ElementRef;
+  @ViewChild('overlay') overlay!: ElementRef;
 
   @Input()
   set id(id: string) {
@@ -46,8 +47,8 @@ export class ListComponent implements OnDestroy {
         selector: { id }
       }).$$ as Signal<MyListsDocument>;
 
-      this.listItems = this.dataService.db.items.find({
-        selector: {lists: id }
+      this.listItemsChanges = this.dataService.db.items.find({
+        selector: { lists: id },
       }).$$ as Signal<MyItemDocument[]>;
     } else {
       this.router.navigateByUrl('/user/lists');
@@ -56,7 +57,8 @@ export class ListComponent implements OnDestroy {
   
   me: Signal<MyMeDocument>;
   list!: Signal<MyListsDocument>;
-  listItems!: Signal<MyItemDocument[]>;
+  listItemsChanges!: Signal<MyItemDocument[]>;
+  listItems: WritableSignal<MyItemDocument[]> = signal([]);
 
   users$?: Subscription;
   users: WritableSignal<MyUsersDocument[]> = signal([]);
@@ -99,6 +101,12 @@ export class ListComponent implements OnDestroy {
         const users = this.usersService.getMany(this.list().users());
         this.users$ = users.subscribe(u => this.users.set(u));
       }
+
+      if (this.listItemsChanges()) {
+        setTimeout(() => {
+          this.listItems.set(this.listItemsChanges());
+        }, 10);
+      }
     });
   }
 
@@ -125,14 +133,14 @@ export class ListComponent implements OnDestroy {
   addItem() {
     if (this.list && this.list() &&
         this.me && this.me() &&
-        this.newItem.value !== ''
+        !!this.newItem.value?.trim()
       ) {
       const due = getDueDate(this.newItemDue.value || '');
 
       const item = {
         name: this.newItem.value,
         due: due,
-        createdBy: {id: this.me().id, name: this.me.name},
+        createdBy: this.me().id,
         lists: this.list().id
       };
 
@@ -140,10 +148,14 @@ export class ListComponent implements OnDestroy {
         newItem(item, this.me().defaultReminder)
       ).then(() => {
         this.newItem.reset();
-        this.focusInput = false;
         this.newItemDue.setValue(DueOption.SOMETIME);
+        this.closeFocusInput();
       });
     }
+  }
+
+  deleteItem(item: MyItemDocument) {
+    this.listItems.set(this.listItems().filter(i => i.id !== item.id));
   }
 
   openFocusInput(event: Event) {
@@ -155,24 +167,26 @@ export class ListComponent implements OnDestroy {
     }
   }
 
-  closeFocusInput(event: Event) {
+  closeFocusInput(event?: Event) {
     // picker was open && add form is in focus
     //    => focus input and set pickerOpen to false
     // picker was not open && add form is in focus
     //    => remove focus on add form
     // some click occured on the content
     //    => remove focus 
-    if (this.pickerOpen && this.focusInput) {
+    if (event && this.pickerOpen && this.focusInput) {
       event.stopPropagation();
       this.addInput.nativeElement.focus();
       this.pickerOpen = false;
 
-    } else if (!this.pickerOpen && this.focusInput) {
+    } else if (event && !this.pickerOpen && this.focusInput) {
       event.stopPropagation();
       this.focusInput = false;
 
-    } else {
+    } else if (event) {
       event.stopPropagation();
+    } else {
+      setTimeout(() => {this.focusInput = false; this.addInput.nativeElement.blur()});
     }
   }
 
