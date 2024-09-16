@@ -6,7 +6,7 @@ export const environment = {
   pusher: {
     url: 'lists-staging-wss.magnusso.nz',
     port: 443,
-    appId: 'app-key'
+    appKey: 'app-key'
   },
   dexieDebugMode: false,
   hcaptcha: '06a2b0dc-e686-453e-8db2-9c9e40402054',

@@ -9,7 +9,7 @@ export const environment = {
   pusher: {
     url: 'localhost',
     port: 6001,
-    appId: 'app-key'
+    appKey: 'app-key'
   },
   dexieDebugMode: false,
   hcaptcha: '10000000-ffff-ffff-ffff-000000000001',
