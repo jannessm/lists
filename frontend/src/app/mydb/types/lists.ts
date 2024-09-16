@@ -10,7 +10,7 @@ export function newLists(lists: any): any {
         id: ulid().toLowerCase(),
         name: '',
         isShoppingList: false,
-        createdBy: {id: '', name: ''},
+        createdBy: '',
         sharedWith: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),

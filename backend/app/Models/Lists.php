@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Auth;
 use Nuwave\Lighthouse\Execution\Utils\Subscription;
 
+use App\Events\ListsChanged;
 
 class Lists extends Model
 {

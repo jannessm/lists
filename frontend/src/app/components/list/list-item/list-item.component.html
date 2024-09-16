@@ -1,5 +1,5 @@
 <div class="item"
-    *ngIf="item && list"
+    *ngIf="item && list()"
         [class.item-done]="item.done"
         (click)="openEditSheet(item)"
         [id]="'id-' + item.id">
@@ -22,7 +22,8 @@
                 <ng-template #short>{{item.due | date:'short'}}</ng-template>
             </mat-chip-listbox>
             <button mat-mini-fab disabled *ngIf="createdBy() && item && me().id !== createdBy()?.id" [class]="'mini-user-fab user-fab-' + userFab(item) % 12">{{createdBy()?.name | nameBadge}}</button>
-            <button mat-icon-button (click)="deleteItem(item)" *ngIf="item && item.done"><mat-icon>close</mat-icon></button>
         </div>
+
+        <button mat-icon-button (click)="deleteItem(item); $event.stopPropagation()" *ngIf="item && item.done"><mat-icon>close</mat-icon></button>
     </div>
 </div>

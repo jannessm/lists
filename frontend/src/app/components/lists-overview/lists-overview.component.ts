@@ -37,13 +37,19 @@ export class ListsOverviewComponent {
 
     effect(() => {
       if (this.me()) {
+        if (this.listsSub) {
+          this.listsSub.unsubscribe();
+        }
+        
         this.listsSub = this.dataService.db.lists.find({
           selector: {id: this.me().lists},
           sort: [{name: 'asc'}]
         }).$.subscribe(docs => {
-          const shoppingLists = docs.filter((d: any) => d.isShoppingList) as any[];
-          const nonShoppingLists = docs.filter((d: any) => !d.isShoppingList);
-          this.lists = [...shoppingLists, ...nonShoppingLists] as MyListsDocument[];
+          if (docs) {
+            const shoppingLists = docs.filter((d: any) => d.isShoppingList) as any[];
+            const nonShoppingLists = docs.filter((d: any) => !d.isShoppingList);
+            this.lists = [...shoppingLists, ...nonShoppingLists] as MyListsDocument[];
+          }
         });
       }
     });
@@ -57,14 +63,16 @@ export class ListsOverviewComponent {
           this.authService.me && 
           this.authService.me()
       ) {
-        this.dataService.db.lists.insert(newLists({
+        const newList = newLists({
           name: res.name,
           isShoppingList: res.isShoppingList,
-          createdBy: {
-            id: this.authService.me().id,
-            name: this.authService.me().name
-          },
-        }));
+          createdBy: this.authService.me().id,
+        });
+
+        const lists = this.authService.me().lists || [];
+        
+        this.dataService.db.lists.insert(newList);
+        this.authService.me().patch({lists: [...lists, newList.id]})
       }
     });
   }

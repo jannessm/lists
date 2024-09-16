@@ -10,7 +10,7 @@ export function newItem(item: any, defaultReminder?: string): any {
         id: ulid().toLowerCase(),
         name: '',
         description: '',
-        createdBy: {id: '', name: ''},
+        createdBy: '',
         reminder: null,
         due: null,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,

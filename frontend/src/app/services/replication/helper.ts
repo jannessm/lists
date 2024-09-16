@@ -13,7 +13,7 @@ export function unpackRef(doc: any, keys: string[]) {
         if (key in doc && typeof(doc[key]) === 'string') {
             doc[key] = {id: doc[key]};
         } else if (key in doc) {
-            doc[key] = doc[key].map((d: any) => {id: d});
+            doc[key] = doc[key].map((d: any) => {return {id: d};});
         }
     });
 }
