@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use Laravel\Fortify\Http\Controllers\VerifyEmailController;
+use Laravel\Fortify\RoutePath;
+
 use Symfony\Component\HttpFoundation\Response;
 
 use Nuwave\Lighthouse\Execution\Utils\Subscription;
@@ -49,6 +52,10 @@ Route::middleware(["web"])->get('email/verified', function(Request $request) {
     return ["verified" => false];
 });
 
+Route::get(RoutePath::for('verification.verify', '/email/verify/{id}/{hash}'), [VerifyEmailController::class, '__invoke'])
+    ->middleware(['signed', 'throttle:'.$verificationLimiter])
+    ->name('verification.verify');
+
 Route::middleware(["web"])->post('user/change-email', function(Request $request) {
     $user = $request->user();
 
@@ -65,7 +72,7 @@ Route::middleware(["web"])->post('user/change-email', function(Request $request)
     $user->save();
     $user->sendEmailVerificationNotification();
 
-    Subscription::broadcast('streamMe', [$user]);
+    UserChanged::dispatch([$user]);
 
     return ['status' => 'ok'];
 });
