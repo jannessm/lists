@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/components/snackbars/ios-installer-push/ios-installer-push.component.scss"],
-  "sourcesContent": [":host {\n    display: flex;\n}"],
-  "mappings": ";AAAA;AACI,WAAA;;",
-  "names": []
-}
