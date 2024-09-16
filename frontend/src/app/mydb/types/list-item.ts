@@ -5,7 +5,7 @@ import { Signal } from "@angular/core";
 import { MyDocument } from './classes';
 import { MyCollection } from '../collection';
 
-export function newItem(item: any, defaultReminder?: string): any {
+export function newItem(item: any): any {
     const newItem = {
         id: ulid().toLowerCase(),
         name: '',
@@ -14,7 +14,7 @@ export function newItem(item: any, defaultReminder?: string): any {
         reminder: null,
         due: null,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        lists: {id: '', name: ''},
+        lists: '',
         done: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),

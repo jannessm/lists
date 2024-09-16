@@ -59,10 +59,22 @@ export class MyQuery<DocType, DocMethods> {
         private collection: MyCollection<DocType, DocMethods, unknown>,
         private query: QueryObject
     ) {
+        const key = this.collection.primaryKey;
         this.collection.$.pipe(
-                filter(docs => docs.reduce((carry, doc) =>
-                    carry || this.query.filter(doc), false
-                ))
+                filter(docs => docs.reduce((carry, doc: any) => {
+                    console.log(this.subject.value);
+                        if (this.subject.value && !!this.subject.value.find((d: any) => 
+                                d[key] === doc[key]
+                            )) {
+                            return true;
+                        }
+                        if (carry || this.query.filter(doc)) {
+                            return true;
+                        }
+
+                        return carry;
+                    }, false)
+                )
             )
             .subscribe(() => {
                 this.update();
@@ -84,7 +96,7 @@ export class MyQuery<DocType, DocMethods> {
     }
 
     private update() {
-        this.query.query().then(docs => {
+        return this.query.query().then(docs => {
             this.subject.next(docs);
         });
     }
@@ -94,17 +106,18 @@ export class MyQuery<DocType, DocMethods> {
     }
 
     async bulkPatch(patch: any) {
-        const updates = this.subject.value.map(doc => {
-            return {
-                key: doc.key,
-                changes: patch
-            };
-        });
+        await this.update();
 
-        return this.collection.table.bulkUpdate(updates);
+        if (!this.subject.value) {
+            return;
+        }
+
+        return this.collection.bulkUpdate(this.subject.value, patch);
     }
 
-    remove() {
-        this.subject.value.forEach(doc => doc.remove());
+    async remove() {
+        await this.update();
+
+        return this.bulkPatch({'_deleted': true});
     }
 }

@@ -15,7 +15,7 @@ import { MyMeDocument } from '../../mydb/types/me';
 import { Subscription } from 'rxjs';
 import { MyUsersDocument } from '../../mydb/types/users';
 import { UsersService } from '../../services/users/users.service';
-import { DueOption, DueOptionLabels, getDueDate } from '../selects/date-chip-select/options';
+import { DueOption, DueOptionLabels, getDueDate, getReminderDate } from '../selects/date-chip-select/options';
 import { DateChipSelectComponent } from '../selects/date-chip-select/date-chip-select.component';
 import { ListHeaderComponent } from './list-header/list-header.component';
 
@@ -47,7 +47,7 @@ export class ListComponent implements OnDestroy {
         selector: { id }
       }).$$ as Signal<MyListsDocument>;
 
-      this.listItemsChanges = this.dataService.db.items.find({
+      this.listItems = this.dataService.db.items.find({
         selector: { lists: id },
       }).$$ as Signal<MyItemDocument[]>;
     } else {
@@ -57,8 +57,7 @@ export class ListComponent implements OnDestroy {
   
   me: Signal<MyMeDocument>;
   list!: Signal<MyListsDocument>;
-  listItemsChanges!: Signal<MyItemDocument[]>;
-  listItems: WritableSignal<MyItemDocument[]> = signal([]);
+  listItems!: Signal<MyItemDocument[]>;
 
   users$?: Subscription;
   users: WritableSignal<MyUsersDocument[]> = signal([]);
@@ -101,12 +100,6 @@ export class ListComponent implements OnDestroy {
         const users = this.usersService.getMany(this.list().users());
         this.users$ = users.subscribe(u => this.users.set(u));
       }
-
-      if (this.listItemsChanges()) {
-        setTimeout(() => {
-          this.listItems.set(this.listItemsChanges());
-        }, 10);
-      }
     });
   }
 
@@ -144,18 +137,21 @@ export class ListComponent implements OnDestroy {
         lists: this.list().id
       };
 
+      const defaultReminder = this.me().defaultReminder;
+      if (!!due && !!defaultReminder) {
+        Object.assign(item, {
+          reminder: getReminderDate(new Date(due), defaultReminder)
+        })
+      }
+
       this.dataService.db.items.insert(
-        newItem(item, this.me().defaultReminder)
+        newItem(item)
       ).then(() => {
         this.newItem.reset();
         this.newItemDue.setValue(DueOption.SOMETIME);
         this.closeFocusInput();
       });
     }
-  }
-
-  deleteItem(item: MyItemDocument) {
-    this.listItems.set(this.listItems().filter(i => i.id !== item.id));
   }
 
   openFocusInput(event: Event) {

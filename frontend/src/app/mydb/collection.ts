@@ -129,6 +129,29 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
         );
     }
 
+    async bulkUpdate(
+        docs: MyDocument<DocType, DocMethods>[],
+        patch: {key: string, changes: any}
+    ) {
+        Object.assign(patch, {touched: true});
+
+        const updates = docs.map(doc => {
+            return {
+                key: doc.key,
+                changes: patch
+            };
+        });
+        const keys = docs.map(doc => doc.key);
+        
+        await this.table.bulkUpdate(updates);
+        const updatedDocs = await this.table.bulkGet(keys);
+        this.db.next(
+            this.tableName,
+            updatedDocs.map(d => new MyDocument<DocType, DocMethods>(this, d))
+        );
+
+    }
+
     async remoteBulkAdd(docs: any[]) {
         // add new docs to mastertable and "forks"
         //   if doc exists in forks -> resolve err and add again

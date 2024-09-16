@@ -34,8 +34,6 @@ export class ListItemComponent implements OnDestroy {
   @Input()
   item!: MyItemDocument;
 
-  @Output() deleted = new EventEmitter<void>();
-
   createdBy$?: Observable<MyUsersDocument>;
   createdBySub?: Subscription;
   createdBy: WritableSignal<MyUsersDocument | undefined> = signal(undefined);
@@ -71,7 +69,6 @@ export class ListItemComponent implements OnDestroy {
     confirm.afterDismissed().subscribe(del => {
       if (this.item && del) {
         this.item.remove();
-        this.deleted.emit();
       }
     });
   }
