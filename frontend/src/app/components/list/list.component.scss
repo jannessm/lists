@@ -37,14 +37,12 @@
     overflow-x: hidden;
     position: relative;
     padding-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 
     .slot-done-toggle {
-        // display: inline-block;
         float: right;
-    }
-
-    .slots:not(:first-child) {
-        margin-top: 0.5em;
     }
 
     .no-lists {

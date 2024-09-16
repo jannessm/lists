@@ -4,6 +4,8 @@ import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angul
 import { WebPushService } from '../../../services/web-push/web-push.service';
 import { Subscription, debounceTime, tap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { IosService } from '../../../services/ios/ios.service';
+import { IosInstallerPushComponent } from '../../snackbars/ios-installer-push/ios-installer-push.component';
 
 @Component({
   selector: 'app-settings-push-form',
@@ -26,7 +28,8 @@ export class PushFormComponent implements OnDestroy {
 
   constructor(private fb: FormBuilder,
               private pushService: WebPushService,
-              private snackBar: MatSnackBar) {
+              private snackBar: MatSnackBar,
+              private iosService: IosService) {
     this.form = fb.group({
       receivePush: [false],
       receiveListsChanged: [{value: true, disabled: true}],
@@ -90,7 +93,13 @@ export class PushFormComponent implements OnDestroy {
     }
 
     if (!sub) {
-      this.snackBar.open('Bitte Push Benachrichtigungen im Browser aktivieren.', 'Ok');
+      if (this.iosService.isIos && this.iosService.isInstalled) {
+        this.snackBar.open('Bitte aktiviere deine Pushbenachritigungen in den Einstellungen.', 'Ok');
+      } else if (this.iosService.isIos && !this.iosService.isInstalled) {
+        this.snackBar.openFromComponent(IosInstallerPushComponent);
+      } else {
+        this.snackBar.open('Bitte aktiviere die Push Benachrichtigungen im Browser.', 'Ok');
+      }
       
       const settings = this.pushService.settings();
       this.receivePush.setValue(false, {emitEvent: false});

@@ -8,7 +8,7 @@
     <button mat-icon-button (click)="removeSharedWith(user.id)" *ngIf="isAdmin && user.id !== lists().createdBy || user.id === me().id"><mat-icon>close</mat-icon></button>
 </div>
 
-<h4 *ngIf="isAdmin">Hinzufügen</h4>
+<h3 *ngIf="isAdmin">Hinzufügen</h3>
 
 <form [formGroup]="form" autocomplete="off" *ngIf="isAdmin">
     <mat-form-field appearance="outline">

@@ -1,4 +1,4 @@
-<h4>Element Bearbeiten</h4>
+<h3>Element Bearbeiten</h3>
 
 <form [formGroup]="form" autocomplete="off">
     <mat-form-field appearance="outline">
@@ -34,7 +34,7 @@
             formControlName="reminder"
             (pickrOpened)="pickrOpened()"
             (pickrClosed)="pickrClosed()"
-            (defaultOption)="reminderDefault"
+            [defaultOption]="reminderDefault"
             [options]="reminderOptions"
         ></app-date-chip-select>
     </div>
