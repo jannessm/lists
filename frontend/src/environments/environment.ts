@@ -6,8 +6,11 @@ import { version } from './version';
 export const environment = {
   production: false,
   api: 'http://localhost:8080/',
-  pusherUrl: 'localhost',
-  pusherPort: 6001,
+  pusher: {
+    url: 'localhost',
+    port: 6001,
+    appId: 'app-key'
+  },
   dexieDebugMode: false,
   hcaptcha: '10000000-ffff-ffff-ffff-000000000001',
   locale: 'de',
