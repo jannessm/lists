@@ -59,7 +59,7 @@ class ListsChangedNotification extends Notification implements ShouldQueue
 
         return (new WebPushMessage)
             ->title($list->name . ' geändert')
-            ->icon('/icons/Icon-256.png')
+            ->icon('/icons/Icon-64.png')
             ->body($actor . ' hat ' . $this->item->name . ' ' . $this->eventToText() . '.')
             ->action('Liste öffnen', 'open_list')
             ->options([
@@ -91,12 +91,14 @@ class ListsChangedNotification extends Notification implements ShouldQueue
     }
 
     static function fromPushRow($pushRow, ListItem $item, User $user) {
+        if (!array_key_exists('assumedMasterState')) {
+            return new ListsChangedNotification($item, ListChangeEvent::Added, $user);
+        }
+        
         $newState = $pushRow['newDocumentState'];
         $master = $pushRow['assumedMasterState'];
-
-        if (!$master) {
-            return new ListsChangedNotification($item, ListChangeEvent::Added, $user);
-        } else if ($newState['done'] !== $master['done'] && $item->done) {
+        
+        if ($newState['done'] !== $master['done'] && $item->done) {
             return new ListsChangedNotification($item, ListChangeEvent::Done, $user);
         }
 

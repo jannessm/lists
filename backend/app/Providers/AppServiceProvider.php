@@ -41,7 +41,7 @@ class AppServiceProvider extends ServiceProvider
                 ->greeting('Hallo!')
                 ->subject('Passwort Zurücksetzen')
                 ->line('Nutze den Link um dein Passwort zurückzusetzen.')
-                ->action('Passwort zurücksetzen', $url)
+                ->action('Passwort zurücksetzen', $this->resetUrl($notifiable))
                 ->line('Der Link ist 60 Minuten gültig. Sollte keine Anfrage gestellt worden sein, ist keine weitere Aktion nötig.')
                 ->salutation("Mit freundlichen Grüßen");
         });
