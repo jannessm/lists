@@ -10,10 +10,11 @@ export function packRef(doc: any, keys: string[]) {
 
 export function unpackRef(doc: any, keys: string[]) {
     keys.forEach(key => {
+        console.log(key, key in doc, typeof doc[key], doc[key]);
         if (key in doc && typeof(doc[key]) === 'string') {
             doc[key] = {id: doc[key]};
         } else if (key in doc) {
-            doc[key] = doc[key].map((d: any) => {id: d});
+            doc[key] = doc[key].map((d: any) => {return {id: d};});
         }
     });
 }

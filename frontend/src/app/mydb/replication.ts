@@ -144,10 +144,11 @@ export class Replicator {
             newDocumentState: this.applyPushMod(doc)
         };
 
+        console.log(pushRow);
+
         if (!!assumedMaster) {
             pushRow.assumedMasterState = this.applyPushMod(assumedMaster);
         }
-        
         return pushRow;
     }
 
@@ -161,12 +162,13 @@ export class Replicator {
                     delete mod[key];
             }
         });
-
+        
         // apply modifier if defined
-        if (this.pushOptions?.modifier) {
+        if (!!this.pushOptions?.modifier) {
             mod = this.pushOptions.modifier(mod);
         }
-
+        
+        console.log(mod);
         return mod;
     }
 }
