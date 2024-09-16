@@ -2,12 +2,12 @@
 
 namespace App\Listeners;
 
-use NotificationChannels\WebPush\Events\NotificationFailed;
+use NotificationChannels\WebPush\Events\NotificationSent;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
 
-class NotificationFailedListener
+class NotificationSentListener
 {
     /**
      * Create the event listener.
@@ -20,8 +20,8 @@ class NotificationFailedListener
     /**
      * Handle the event.
      */
-    public function handle(NotificationFailed $event): void
+    public function handle(NotificationSent $event): void
     {
-        Log::warning(json_encode($event->report, JSON_PRETTY_PRINT));
+        Log::info(json_encode($event->report, JSON_PRETTY_PRINT));
     }
 }
