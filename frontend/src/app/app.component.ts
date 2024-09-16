@@ -100,7 +100,7 @@ export class AppComponent {
   }
 
   showAppUpdateAlert() {
-    const sheetRef = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Ein Update ist verfügbar! Jetzt updaten?'});
+    const sheetRef = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Ein Update ist verfügbar! Jetzt laden?'});
 
     sheetRef.afterDismissed().subscribe(update => {
       if (update) {
