@@ -4,7 +4,7 @@ x-mysql: &mysql
   restart: unless-stopped
   environment:
     - MYSQL_DATABASE=lists
-    - MYSQL_ROOT_PASSWORD=password
+    - MYSQL_ROOT_PASSWORD=Vo4CjUSwT94TMu
   networks:
     - lists
 
@@ -70,7 +70,7 @@ services:
       - "traefik.http.routers.lists-staging-wss.tls.certresolver=myresolver"
       - "traefik.http.services.lists-staging-wss.loadbalancer.server.port=6001"
       - "traefik.http.routers.lists-staging-wss.entrypoints=websecure"
-  
+
   soketi:
     <<: *soketi-distroless
     profiles: [prod]
@@ -118,13 +118,17 @@ services:
       - "traefik.http.routers.lists-staging.tls.certresolver=myresolver"
       - "traefik.http.routers.lists-staging.entrypoints=web,websecure"
       - "traefik.http.services.lists-staging.loadbalancer.server.port=8000"
-  
+
   laravel:
     <<: [*laravel, *laravel-networks]
     profiles: [prod]
     depends_on:
       - mysql
       - soketi
+    volumes:
+      - ./backend:/app
+      - ./entrypoint.sh:/entrypoint.sh
+      - ./configs/prod:/configs
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik"
