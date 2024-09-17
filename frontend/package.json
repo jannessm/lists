@@ -21,7 +21,6 @@
     "@angular/platform-browser-dynamic": "^18.0.3",
     "@angular/router": "^18.0.3",
     "@angular/service-worker": "^18.0.3",
-    "dayjs": "^1.11.10",
     "dexie": "^4.0.4",
     "flatpickr": "^4.6.13",
     "laravel-echo": "^1.16.0",

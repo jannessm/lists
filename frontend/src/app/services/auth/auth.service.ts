@@ -2,9 +2,8 @@ import { Injectable, Signal, WritableSignal, effect, signal } from '@angular/cor
 import { CookieService } from 'ngx-cookie-service';
 import { AuthApiService } from '../auth-api/auth-api.service';
 import { REGISTER, SESSION_COOKIE } from '../../globals';
-import dayjs from 'dayjs';
 import md5 from 'md5-ts';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { Observable, map, debounceTime, of } from 'rxjs';
 import { AuthResponse, ChangeEmailStatus } from '../../../models/responses';
 import { PusherService } from '../pusher/pusher.service';
@@ -118,15 +117,17 @@ export class AuthService {
   }
 
   setSessionCookie() {
-    const expiration = dayjs().add(3, 'y').toDate();
+    const expiration = new Date();
+    expiration.setMonth(expiration.getMonth() + 3);
 
-    this.cookies.set(SESSION_COOKIE, md5('coolToken'), expiration);
+    this.cookies.set(SESSION_COOKIE, md5(Math.random().toString()), expiration);
   }
 
   deleteSessionCookie() {
-    const expiration = dayjs().subtract(3, 'y').toDate();
+    const expiration = new Date();
+    expiration.setMonth(expiration.getFullYear() - 1);
 
-    this.cookies.set(SESSION_COOKIE, md5('coolToken'), expiration);
+    this.cookies.set(SESSION_COOKIE, md5(Math.random().toString()), expiration);
   }
 
   evaluateVerifiedMail() {
