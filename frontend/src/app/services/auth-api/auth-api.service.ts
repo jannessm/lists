@@ -66,15 +66,15 @@ export class AuthApiService {
 
   validateLogin(): Observable<string | null> {
     return this.http.get<ValidateResponse>(BASE_API + 'auth', {observe: 'response'}).pipe(
-      catchError(() => of(null)),
+      catchError(() => of('error')),
       map(res => {
         if (res instanceof HttpResponse) {
-          if (res.status === 200 && !!res.body?.loggedIn) {
+          if (res.status === 200 && !!res.body) {
             return res.body.loggedIn;
           }
         }
 
-        return null;
+        return 'error';
       }),
     );
   }

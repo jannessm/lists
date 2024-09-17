@@ -51,7 +51,9 @@ export class AuthService {
     });
     
     this.api.validateLogin().subscribe(loggedIn => {
-      this.isLoggedIn.set(!!loggedIn);
+      if (loggedIn !== 'error') {
+        this.isLoggedIn.set(!!loggedIn);
+      }
     });
 
     this.pusher.online.pipe(debounceTime(1000)).subscribe(isOnline => {
@@ -138,7 +140,6 @@ export class AuthService {
     }
 
     const now = new Date();
-    console.log(now.valueOf() - lastVerificationDate.valueOf(), 24 * 60 * 60 * 1000);
     if (now.valueOf() - lastVerificationDate.valueOf() > 24 * 60 * 60 * 1000) {
       localStorage.setItem('lastVerification', now.toISOString());
 
