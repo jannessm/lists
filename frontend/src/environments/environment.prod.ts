@@ -12,5 +12,5 @@ export const environment = {
   hcaptcha: '06a2b0dc-e686-453e-8db2-9c9e40402054',
   locale: 'de',
   version: version,
-  vapid: 'BN3Iox_of6ZXwyqIVTjqqQLpVqCM26gqKMTW5jugWdSexPZex3PfEBXNcJryRWkSOOv7S5g_b62fztxVtqDCNfI',
+  vapid: 'BA5fa13vuI6jMC00zKDRhNdwWK-MZH8tA2QL1of4Jw6AfN8g_B3jSaBSraU_jXlaiGDXLxDarXiOPE9eiR1FiWg',
 };

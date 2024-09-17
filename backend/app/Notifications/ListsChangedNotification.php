@@ -91,7 +91,7 @@ class ListsChangedNotification extends Notification implements ShouldQueue
     }
 
     static function fromPushRow($pushRow, ListItem $item, User $user) {
-        if (!array_key_exists('assumedMasterState')) {
+        if (!array_key_exists('assumedMasterState', $pushRow	)) {
             return new ListsChangedNotification($item, ListChangeEvent::Added, $user);
         }
         
