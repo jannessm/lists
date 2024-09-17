@@ -49,9 +49,8 @@ export class WebPushService {
     
     const sub = await this.swPush.requestSubscription({
       serverPublicKey: environment.vapid
-    }).catch(err => {
+    }).catch(async (err) => {
       console.log(err);
-      this.swPush.unsubscribe();
       return;
     });
 
@@ -62,7 +61,8 @@ export class WebPushService {
         }
       });
     } else if (!secondTry) {
-      this.subscribe(true)
+      await this.swPush.unsubscribe();
+      await this.subscribe(true)
     }
   }
 
