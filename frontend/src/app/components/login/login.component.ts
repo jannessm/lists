@@ -15,6 +15,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { HCaptchaComponent } from '../hcaptcha/hcaptcha.component';
 import { Subscription } from 'rxjs';
 
+declare const window: any;
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -85,6 +87,8 @@ export class LoginComponent implements OnDestroy {
         Object.values(this.form.controls).forEach(control => {
           control.setErrors({'wrongCredentials': true});
         });
+
+        window.hcaptcha.reset();
       }
     })
   }

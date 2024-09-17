@@ -17,6 +17,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { HCaptchaComponent } from '../hcaptcha/hcaptcha.component';
 import { Subscription } from 'rxjs';
 
+declare const window: any;
+
 @Component({
   selector: 'app-register',
   standalone: true,
@@ -79,8 +81,10 @@ export class RegisterComponent implements OnDestroy {
     ).subscribe(res => {
       if (res == REGISTER.FOUND) {
         this.form.get('email')?.setErrors({emailOccupied: true});
+        window.hcaptcha.reset();
       } else if (res == REGISTER.ERROR) {
         this.form.setErrors({'error': true});
+        window.hcaptcha.reset();
       }
     });
   }
