@@ -29,6 +29,12 @@ x-laravel-networks: &laravel-networks
   networks:
     - lists
     - traefik
+  
+x-logging-config: &logging-config
+  logging:
+    options:
+      max-size: "10m"
+      max-file: "3"
 
 services:
   # mysql
@@ -39,7 +45,7 @@ services:
       - lists-mysql-data-dev:/var/lib/mysql
 
   mysql:
-    <<: *mysql
+    <<: [*mysql, *logging-config]
     profiles: [prod]
     volumes:
       - lists-mysql-data:/var/lib/mysql
@@ -72,7 +78,7 @@ services:
       - "traefik.http.routers.lists-staging-wss.entrypoints=websecure"
 
   soketi:
-    <<: *soketi-distroless
+    <<: [*soketi-distroless, *logging-config]
     profiles: [prod]
     volumes:
       - ./configs/prod:/configs
@@ -120,7 +126,7 @@ services:
       - "traefik.http.services.lists-staging.loadbalancer.server.port=8000"
 
   laravel:
-    <<: [*laravel, *laravel-networks]
+    <<: [*laravel, *laravel-networks, *logging-config]
     profiles: [prod]
     depends_on:
       - mysql
