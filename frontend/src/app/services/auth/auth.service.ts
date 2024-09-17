@@ -128,18 +128,33 @@ export class AuthService {
   }
 
   evaluateVerifiedMail() {
-    this.api.verifyEmail().subscribe(verified => {
-      if (!verified) {
-        const dialogRef = this.bottomsheet.open(VerifyMailComponent);
-        dialogRef.afterDismissed().subscribe(sendMail => {
-          if (sendMail) {
-            this.api.resendVerificationMail().subscribe(() => {
-              this.snackBar.open('Email wurde versendet.', 'OK');
-            });
-          }
-        })
-      }
-    });
+    const lastVerification = localStorage.getItem('lastVerification');
+    let lastVerificationDate: Date = new Date();
+
+    if (!!lastVerification) {
+      lastVerificationDate = new Date(lastVerification);
+    } else {
+      lastVerificationDate.setDate(lastVerificationDate.getDate() - 2);
+    }
+
+    const now = new Date();
+    console.log(now.valueOf() - lastVerificationDate.valueOf(), 24 * 60 * 60 * 1000);
+    if (now.valueOf() - lastVerificationDate.valueOf() > 24 * 60 * 60 * 1000) {
+      localStorage.setItem('lastVerification', now.toISOString());
+
+      this.api.verifyEmail().subscribe(verified => {
+        if (!verified) {
+          const dialogRef = this.bottomsheet.open(VerifyMailComponent);
+          dialogRef.afterDismissed().subscribe(sendMail => {
+            if (sendMail) {
+              this.api.resendVerificationMail().subscribe(() => {
+                this.snackBar.open('Email wurde versendet.', 'OK');
+              });
+            }
+          })
+        }
+      });
+    }
   }
 
   changeEmail(newEmail: string): Observable<ChangeEmailStatus> {

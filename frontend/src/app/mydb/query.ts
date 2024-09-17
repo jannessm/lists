@@ -62,19 +62,17 @@ export class MyQuery<DocType, DocMethods> {
         const key = this.collection.primaryKey;
         this.collection.$.pipe(
                 filter(docs => docs.reduce((carry, doc: any) => {
-                    console.log(this.subject.value);
-                        if (this.subject.value && !!this.subject.value.find((d: any) => 
-                                d[key] === doc[key]
-                            )) {
-                            return true;
-                        }
-                        if (carry || this.query.filter(doc)) {
-                            return true;
-                        }
+                    if (this.subject.value && !!this.subject.value.find((d: any) => 
+                            d[key] === doc[key]
+                        )) {
+                        return true;
+                    }
+                    if (carry || this.query.filter(doc)) {
+                        return true;
+                    }
 
-                        return carry;
-                    }, false)
-                )
+                    return carry;
+                }, false))
             )
             .subscribe(() => {
                 this.update();
