@@ -44,12 +44,16 @@ export class WebPushService {
     }
   }
 
-  async subscribe() {
+  async subscribe(secondTry = false) {
     this.subscribeChallenged = true;
     
     const sub = await this.swPush.requestSubscription({
       serverPublicKey: environment.vapid
-    }).catch(err => {console.log(err); return;});
+    }).catch(err => {
+      console.log(err);
+      this.swPush.unsubscribe();
+      return;
+    });
 
     if (sub) {
       this.authService.pushSubscribe(sub).subscribe(success => {
@@ -57,6 +61,8 @@ export class WebPushService {
           this.getSettings(sub.endpoint);
         }
       });
+    } else if (!secondTry) {
+      this.subscribe(true)
     }
   }
 
