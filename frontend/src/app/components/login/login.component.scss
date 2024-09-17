@@ -3,7 +3,7 @@ div {
     
     img {
         margin: 12px;
-        margin-left: calc(50% - 64px);
+        margin-left: calc(50% - 32px);
     }
     form {
         display: flex;
@@ -19,9 +19,18 @@ div {
         display: flex;
         justify-content: space-between;
         margin: 0;
+        padding: 0;
+
+        @media (max-width: 359px) {
+            flex-direction: column;
+        }
     }
 }
 
 .buymeacoffee {
     margin-left: calc(50% - 217px/2);
+
+    img {
+        margin-top: 48px;
+    }
 }
