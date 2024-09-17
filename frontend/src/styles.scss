@@ -1,4 +1,6 @@
 @use 'sass:list';
+@use '@angular/material' as mat;
+
 @import 'flatpickr/dist/flatpickr.css'; // you may need to adjust the css import depending on your build tool
 @import 'variables.scss';
 

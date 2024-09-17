@@ -4,3 +4,13 @@
     width: 0;
     z-index: -100;
 }
+
+#description {
+    button {
+        width: 32px;
+    }
+
+    mat-form-field {
+        width: 100%;
+    }
+}

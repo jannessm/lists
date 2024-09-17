@@ -6,13 +6,23 @@
         <input matInput formControlName="name" placeholder="Name">
     </mat-form-field>
     
-    
-    <mat-form-field appearance="outline" *ngIf="!list().isShoppingList">
-        <mat-label>Beschreibung</mat-label>
-        <textarea matInput formControlName="description" placeholder="Beschreibung" cdkTextareaAutosize
-        #autosize="cdkTextareaAutosize"
-        cdkAutosizeMinRows="5"></textarea>
-    </mat-form-field>
+    <div id="description" *ngIf="!list().isShoppingList">
+        <mat-label *ngIf="!editDescription">Beschreibung</mat-label>
+        <button *ngIf="!editDescription" mat-icon-button (click)="editDescription = true">
+            <mat-icon>edit</mat-icon>
+        </button>
+        <div *ngIf="!editDescription"
+            [innerHtml]="form.get('description')?.value | linkify"
+            (click)="$event.stopPropagation()"
+        ></div>
+
+        <mat-form-field appearance="outline" *ngIf="editDescription" (focusout)="editDescription = false">
+            <mat-label>Beschreibung</mat-label>
+            <textarea matInput formControlName="description" placeholder="Beschreibung" cdkTextareaAutosize
+            #autosize="cdkTextareaAutosize"
+            cdkAutosizeMinRows="5"></textarea>
+        </mat-form-field>
+    </div>
     
     <!-- Due -->
     <mat-slide-toggle *ngIf="!list().isShoppingList" color="primary" formControlName="due-toggle">Fällig am</mat-slide-toggle>
@@ -39,6 +49,6 @@
         ></app-date-chip-select>
     </div>
 
-    <button mat-stroked-button [disabled]="!form.valid" (click)="returnFormContent()">{{'Speichern'}}</button>
+    <button mat-stroked-button [disabled]="!form.valid" (click)="returnFormContent()">Speichern</button>
     <button mat-flat-button color="primary" (click)="bottomSheetRef.dismiss()">Abbrechen</button>
 </form>

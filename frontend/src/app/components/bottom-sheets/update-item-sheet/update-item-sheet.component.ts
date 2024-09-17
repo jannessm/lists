@@ -12,6 +12,7 @@ import { DateChipSelectComponent } from '../../selects/date-chip-select/date-chi
 import { DateInputSelectComponent } from '../../selects/date-input-select/date-input-select.component';
 import { AuthService } from '../../../services/auth/auth.service';
 import { datesAreEqual } from '../../selects/time-helpers';
+import { LinkifyPipe } from '../../../pipes/linkify.pipe';
 
 @Component({
   selector: 'app-update-item-sheet',
@@ -22,15 +23,17 @@ import { datesAreEqual } from '../../selects/time-helpers';
     CommonModule,
     MaterialModule,
     DateChipSelectComponent,
-    DateInputSelectComponent
+    DateInputSelectComponent,
+    LinkifyPipe
   ],
-  providers: [DatePipe],
   templateUrl: './update-item-sheet.component.html',
   styleUrls: ['./update-item-sheet.component.scss', '../styles.scss']
 })
 export class UpdateItemSheetComponent implements OnDestroy {
   form: FormGroup;
   list: Signal<MyListsDocument>;
+
+  editDescription = false;
 
   dueOptions = DueOptionLabels.slice(0, 2);
   reminderOptions = ReminderOptionLabels;
