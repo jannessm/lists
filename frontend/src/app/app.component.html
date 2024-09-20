@@ -1,27 +1,37 @@
 <div id="app-container">
     <div id="offline-indicator" *ngIf="!(pusher.online | async) && authService.isLoggedIn()">Offline</div>
-    <div class="content" [style.top]="marginTopContent + 'px'">
-        <router-outlet></router-outlet>
+
+    <div id="content-container" *ngIf="router.url.startsWith('/user'); else logIn">
+        <div id="content">
+            <router-outlet></router-outlet>
+
+            <mat-toolbar *ngIf="authService.isLoggedIn()">
+                <button
+                    mat-button
+                    routerLink="/user/lists"
+                    [color]="router.isActive('/user/lists', true) ? 'primary' : undefined">
+                    <div class="toolbar-button">
+                        <mat-icon>list</mat-icon>
+                        <span>Lists</span>
+                    </div>
+                </button>
+                <button
+                    mat-button
+                    routerLink="/user/settings"
+                    [color]="router.isActive('/user/settings', true) ? 'primary' : undefined">
+                    <div class="toolbar-button">
+                        <mat-icon>settings</mat-icon>
+                        <span>Einstellungen</span>
+                    </div>
+                </button>
+            </mat-toolbar>
+        </div>
     </div>
+
+    <ng-template #logIn>
+        <div id="login">
+            <router-outlet></router-outlet>
+        </div>
+    </ng-template>
     
-    <mat-toolbar *ngIf="authService.isLoggedIn()">
-        <button
-            mat-button
-            routerLink="/user/lists"
-            [color]="router.isActive('/user/lists', true) ? 'primary' : undefined">
-            <div class="toolbar-button">
-                <mat-icon>list</mat-icon>
-                <span>Lists</span>
-            </div>
-        </button>
-        <button
-            mat-button
-            routerLink="/user/settings"
-            [color]="router.isActive('/user/settings', true) ? 'primary' : undefined">
-            <div class="toolbar-button">
-                <mat-icon>settings</mat-icon>
-                <span>Einstellungen</span>
-            </div>
-        </button>
-    </mat-toolbar>
 </div>

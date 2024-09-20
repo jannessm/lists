@@ -38,7 +38,6 @@ export class AppComponent {
   title = 'Lists';
   startPos = 0;
   scrollTop = -1;
-  marginTopContent = -1;
   refreshOpacity = 0;
   animationState = 'start';
   loading = false;
