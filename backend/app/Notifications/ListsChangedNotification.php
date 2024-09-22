@@ -9,14 +9,8 @@ use Illuminate\Notifications\Notification;
 use NotificationChannels\WebPush\WebPushMessage;
 
 use App\WebPush\MyWebPushChannel;
-use App\Models\ListItem;
+use App\Models\Lists;
 use App\Models\User;
-
-enum ListChangeEvent {
-    case Added;
-    case Done;
-    case Changed;
-}
 
 class ListsChangedNotification extends Notification implements ShouldQueue
 {
@@ -26,8 +20,8 @@ class ListsChangedNotification extends Notification implements ShouldQueue
      * Create a new notification instance.
      */
     public function __construct(
-        private ListItem $item,
-        private ListChangeEvent $type,
+        private Lists $lists,
+        private int $items,
         private User $actor) { }
 
     /**
@@ -54,13 +48,12 @@ class ListsChangedNotification extends Notification implements ShouldQueue
     }
 
     public function toWebPush($notifiable, $notification) {
-        $list = $this->item->lists;
         $actor = explode(' ', $this->actor->name)[0];
 
         return (new WebPushMessage)
-            ->title($list->name . ' geändert')
+            ->title($this->lists->name . ' geändert')
             ->icon('/icons/Icon-64.png')
-            ->body($actor . ' hat ' . $this->item->name . ' ' . $this->eventToText() . '.')
+            ->body($actor . ' hat ' . $this->items . ' Einträge geändert.')
             ->action('Liste öffnen', 'open_list')
             ->options([
                 'TTL' => 1000,
@@ -69,39 +62,12 @@ class ListsChangedNotification extends Notification implements ShouldQueue
             ->data(['onActionClick' => [
                 "default" => [
                     "operation" => "navigateLastFocusedOrOpen",
-                    "url" => "/user/lists/" . $list->id
+                    "url" => "/user/lists/" . $this->lists->id
                 ],
                 "open_list" => [
                     "operation" => "navigateLastFocusedOrOpen",
-                    "url" => "/user/lists/" . $list->id
+                    "url" => "/user/lists/" . $this->lists->id
                 ]
             ]]);
-    }
-
-    function eventToText() {
-        switch ($this->type) {
-            case ListChangeEvent::Added:
-                return 'hinzugefügt';
-            case ListChangeEvent::Done:
-                return 'erledigt';
-            
-            default:
-                return 'verändert';
-        }
-    }
-
-    static function fromPushRow($pushRow, ListItem $item, User $user) {
-        if (!array_key_exists('assumedMasterState', $pushRow	)) {
-            return new ListsChangedNotification($item, ListChangeEvent::Added, $user);
-        }
-        
-        $newState = $pushRow['newDocumentState'];
-        $master = $pushRow['assumedMasterState'];
-        
-        if ($newState['done'] !== $master['done'] && $item->done) {
-            return new ListsChangedNotification($item, ListChangeEvent::Done, $user);
-        }
-
-        return new ListsChangedNotification($item, ListChangeEvent::Changed, $user);
     }
 }
