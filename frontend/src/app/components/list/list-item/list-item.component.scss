@@ -5,6 +5,9 @@
         user-select: none;
     }
 }
+.item-touched {
+    opacity: 0.6;
+}
 .item {
     background: #EEE;
     border-radius: 8px;

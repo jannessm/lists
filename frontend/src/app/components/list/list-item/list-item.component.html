@@ -1,6 +1,7 @@
 <div class="item"
     *ngIf="item && list()"
         [class.item-done]="item.done"
+        [class.item-touched]="!!item.touched"
         (click)="openEditSheet(item)"
         [id]="'id-' + item.id">
     
