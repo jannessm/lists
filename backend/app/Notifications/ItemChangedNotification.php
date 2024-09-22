@@ -9,10 +9,16 @@ use Illuminate\Notifications\Notification;
 use NotificationChannels\WebPush\WebPushMessage;
 
 use App\WebPush\MyWebPushChannel;
-use App\Models\Lists;
+use App\Models\ListItem;
 use App\Models\User;
 
-class ListsChangedNotification extends Notification implements ShouldQueue
+enum ItemChangeEvent {
+    case Added;
+    case Done;
+    case Changed;
+}
+
+class ItemChangedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -20,8 +26,8 @@ class ListsChangedNotification extends Notification implements ShouldQueue
      * Create a new notification instance.
      */
     public function __construct(
-        private Lists $lists,
-        private number $items,
+        private ListItem $item,
+        private ItemChangeEvent $type,
         private User $actor) { }
 
     /**
@@ -54,7 +60,7 @@ class ListsChangedNotification extends Notification implements ShouldQueue
         return (new WebPushMessage)
             ->title($list->name . ' geändert')
             ->icon('/icons/Icon-64.png')
-            ->body($actor . ' hat ' . $this->items . ' Einträge geändert.')
+            ->body($actor . ' hat ' . $this->item->name . ' ' . $this->eventToText() . '.')
             ->action('Liste öffnen', 'open_list')
             ->options([
                 'TTL' => 1000,
@@ -70,5 +76,32 @@ class ListsChangedNotification extends Notification implements ShouldQueue
                     "url" => "/user/lists/" . $list->id
                 ]
             ]]);
+    }
+
+    function eventToText() {
+        switch ($this->type) {
+            case ItemChangeEvent::Added:
+                return 'hinzugefügt';
+            case ItemChangeEvent::Done:
+                return 'erledigt';
+            
+            default:
+                return 'verändert';
+        }
+    }
+
+    static function fromPushRow($pushRow, ListItem $item, User $user) {
+        if (!array_key_exists('assumedMasterState', $pushRow	)) {
+            return new ListsChangedNotification($item, ItemChangeEvent::Added, $user);
+        }
+        
+        $newState = $pushRow['newDocumentState'];
+        $master = $pushRow['assumedMasterState'];
+        
+        if ($newState['done'] !== $master['done'] && $item->done) {
+            return new ListsChangedNotification($item, ItemChangeEvent::Done, $user);
+        }
+
+        return new ListsChangedNotification($item, ItemChangeEvent::Changed, $user);
     }
 }

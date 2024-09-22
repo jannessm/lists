@@ -33,23 +33,59 @@ class ItemChangedHandler implements ShouldQueue
         // stream changes
         Subscription::broadcast('streamItems', $updatedItems);
 
-        // send Push Notifications
-        foreach($updatedItems as $updatedItem) {
-            foreach($event->pushRows as $row) {
-                if ($updatedItem->id === $row['newDocumentState']['id']) {
-                    $users = $updatedItem->lists->users();
-                    $otherUsers = $users->whereNotIn('id', [$event->actor->id]);
-                    
-                    $notification = ListsChangedNotification::fromPushRow($row, $updatedItem, $event->actor);
+        // sort by lists
+        $lists = [];
+        foreach($updatedItems as $item) {
+            $lists_id = $item->lists->id;
+            if (!array_key_exists($lists_id, $lists)) {
+                $lists[$lists_id] = [];
+            }
 
-                    if (App::environment('local')) {
-                        Notification::send($users, $notification);
-                    } else {
-                        Notification::send($otherUsers, $notification);
-                    }
-                    break;
-                }
+            array_push($lists[$lists_id], $item);
+        }
+
+        // create pushRows map
+        $pushRows = [];
+        foreach($event->pushRows as $row) {
+            $pushRows[$row['newDocumentState']['id']] = $row;
+        }
+
+        // send Push Notifications
+        foreach($lists as $items) {
+            $list = $items[0]->lists;
+            $users = $list->users();
+            $otherUsers = $users->whereNotIn('id', [$event->actor->id]);
+            
+            if (count($items) > 1) {
+                // create summarized notification
+                $notification = new ListsChangedNotification($list, count($items), $event->actor);
+            } else {
+                // create specific notification
+                $notification = ItemChangedNotification::fromPushRow($pushRows[$updatedItem->id], $updatedItem, $event->actor);
+            }
+
+            if (App::environment('local')) {
+                Notification::send($users, $notification);
+            } else {
+                Notification::send($otherUsers, $notification);
             }
         }
+        // foreach($updatedItems as $updatedItem) {
+        //     foreach($event->pushRows as $row) {
+        //         if ($updatedItem->id === $row['newDocumentState']['id']) {
+        //             $users = $updatedItem->lists->users();
+        //             $otherUsers = $users->whereNotIn('id', [$event->actor->id]);
+                    
+        //             $notification = ListsChangedNotification::fromPushRow($row, $updatedItem, $event->actor);
+
+        //             if (App::environment('local')) {
+        //                 Notification::send($users, $notification);
+        //             } else {
+        //                 Notification::send($otherUsers, $notification);
+        //             }
+        //             break;
+        //         }
+        //     }
+        // }
     }
 }

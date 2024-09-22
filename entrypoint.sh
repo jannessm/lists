@@ -2,7 +2,7 @@
 cp /configs/.env .env
 . .env
 echo $APP_NAME
-#sleep 20
+# sleep 20
 ./clear-cache.sh
 # php artisan migrate --seed
 php artisan queue:work &
