@@ -40,6 +40,10 @@ body {
 
     a {
         color: mat.get-theme-color(m3-theme.$light-theme, 'primary', 50);
+
+        .gh {
+            fill: #24292f;
+        }
     }
     
     &.dark-theme {
@@ -72,6 +76,10 @@ body {
 
         a {
             color: mat.get-theme-color(m3-theme.$dark-theme, 'primary', 50);
+
+            .gh {
+                fill: white;
+            }
         }
     }
 }
