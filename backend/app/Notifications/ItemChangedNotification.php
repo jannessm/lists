@@ -16,6 +16,7 @@ enum ItemChangeEvent {
     case Added;
     case Done;
     case Changed;
+    case Deleted;
 }
 
 class ItemChangedNotification extends Notification implements ShouldQueue
@@ -84,7 +85,8 @@ class ItemChangedNotification extends Notification implements ShouldQueue
                 return 'hinzugefügt';
             case ItemChangeEvent::Done:
                 return 'erledigt';
-            
+            case ItemChangeEvent::Deleted:
+                return 'gelöscht';
             default:
                 return 'verändert';
         }
@@ -92,16 +94,19 @@ class ItemChangedNotification extends Notification implements ShouldQueue
 
     static function fromPushRow($pushRow, ListItem $item, User $user) {
         if (!array_key_exists('assumedMasterState', $pushRow	)) {
-            return new ListsChangedNotification($item, ItemChangeEvent::Added, $user);
+            return new ItemChangedNotification($item, ItemChangeEvent::Added, $user);
         }
         
         $newState = $pushRow['newDocumentState'];
         $master = $pushRow['assumedMasterState'];
         
         if ($newState['done'] !== $master['done'] && $item->done) {
-            return new ListsChangedNotification($item, ItemChangeEvent::Done, $user);
+            return new ItemChangedNotification($item, ItemChangeEvent::Done, $user);
         }
 
-        return new ListsChangedNotification($item, ItemChangeEvent::Changed, $user);
+        if ($newState['_deleted'] !== $newState['_deleted'] && $item->_deleted) {
+            return new ItemChangedNotification($item, ItemChangeEvent::Deleted, $user);
+        }
+        return new ItemChangedNotification($item, ItemChangeEvent::Changed, $user);
     }
 }

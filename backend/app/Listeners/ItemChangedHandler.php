@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Notification;
 use Nuwave\Lighthouse\Execution\Utils\Subscription;
 
 use App\Events\ListItemChanged;
+use App\Notifications\ItemChangedNotification;
 use App\Notifications\ListsChangedNotification;
 
 class ItemChangedHandler implements ShouldQueue
@@ -59,12 +60,13 @@ class ItemChangedHandler implements ShouldQueue
             if (count($items) > 1) {
                 // create summarized notification
                 $notification = new ListsChangedNotification($list, count($items), $event->actor);
-            } else {
+            } else if (count($items) === 1) {
                 // create specific notification
+                $updatedItem = $items[0];
                 $notification = ItemChangedNotification::fromPushRow($pushRows[$updatedItem->id], $updatedItem, $event->actor);
             }
 
-            if (App::environment('local')) {
+            if (App::environment('dev')) {
                 Notification::send($users, $notification);
             } else {
                 Notification::send($otherUsers, $notification);

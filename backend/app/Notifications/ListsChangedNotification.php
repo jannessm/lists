@@ -21,7 +21,7 @@ class ListsChangedNotification extends Notification implements ShouldQueue
      */
     public function __construct(
         private Lists $lists,
-        private number $items,
+        private int $items,
         private User $actor) { }
 
     /**
@@ -48,11 +48,10 @@ class ListsChangedNotification extends Notification implements ShouldQueue
     }
 
     public function toWebPush($notifiable, $notification) {
-        $list = $this->item->lists;
         $actor = explode(' ', $this->actor->name)[0];
 
         return (new WebPushMessage)
-            ->title($list->name . ' geändert')
+            ->title($this->lists->name . ' geändert')
             ->icon('/icons/Icon-64.png')
             ->body($actor . ' hat ' . $this->items . ' Einträge geändert.')
             ->action('Liste öffnen', 'open_list')
@@ -63,11 +62,11 @@ class ListsChangedNotification extends Notification implements ShouldQueue
             ->data(['onActionClick' => [
                 "default" => [
                     "operation" => "navigateLastFocusedOrOpen",
-                    "url" => "/user/lists/" . $list->id
+                    "url" => "/user/lists/" . $this->lists->id
                 ],
                 "open_list" => [
                     "operation" => "navigateLastFocusedOrOpen",
-                    "url" => "/user/lists/" . $list->id
+                    "url" => "/user/lists/" . $this->lists->id
                 ]
             ]]);
     }
