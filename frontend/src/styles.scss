@@ -19,11 +19,6 @@ body { margin: 0px; }
     width: 100% !important;
 }
 
-.half {
-    max-width: 500px;
-    margin: 0 auto;
-}
-
 .mini-user-fab {
     width: 36px !important;
     height: 36px !important;
@@ -59,7 +54,7 @@ body { margin: 0px; }
 
 .flatpickr-calendar {
     top: 16px !important;
-    left: calc(50% - 336px / 2) !important;
+    left: calc(50% - 150px) !important;
 }
 .flatpickr-calendar::before, .flatpickr-calendar::after {
     content: none;

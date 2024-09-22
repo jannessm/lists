@@ -120,7 +120,8 @@ export function getDueDate(due: DueOption | string): string | null {
       tomorrow.setHours(9 + 24,0,0,0);
       return tomorrow.toISOString();
     case DueOption.SOMETIME:
-    default:
       return null;
+    default:
+      return due;
   }
 }

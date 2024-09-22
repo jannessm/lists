@@ -37,6 +37,11 @@ export class AuthService {
       if (this.isLoggedIn()) {
         this.setSessionCookie();
         this.dataService.initDB(null);
+        setTimeout(() => {
+          if (!this.router.url.startsWith('/user')) {
+            this.router.navigateByUrl('/user/lists');
+          }
+        }, 100);
       } else {
         this.deleteSessionCookie();
         this.pusher.unsubscribe();

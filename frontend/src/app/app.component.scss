@@ -2,13 +2,63 @@
 
 #app-container {
     display: grid;
-    grid-template-rows: [offlineIndicator] 5px [content] calc(100% - 5px - $nav-bar-height) [footer] $nav-bar-height;
+    grid-template-rows: [offlineIndicator] 5px [contentContainer] calc(100% - 5px);
     grid-template-columns: 1fr min(100%, 769px) 1fr;
     height: 100%;
     width: 100%;
     grid-template-areas: ". offlineIndicator ."
-        ". content ."
-        ". footer .";
+        ". contentContainer .";
+
+
+    #login {
+        grid-area: 2 / contentContainer / 2 / contentContainer;
+        width: 100%;
+        padding: 12px 12px 0;
+        box-sizing: border-box;
+        padding-top: 24px;
+        overflow-y: auto;
+    }
+
+    #content-container {
+        grid-area: 2 / contentContainer / 2 / contentContainer;
+        width: 100%;
+        box-sizing: border-box;
+        
+        display: grid;
+        grid-template-rows: [content] calc(100% - $nav-bar-height) [footer] $nav-bar-height;
+
+        grid-template-areas: "content"
+            "footer";
+
+        #content {
+            grid-area: content;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 12px 0;
+        }
+
+        mat-toolbar {
+            grid-area: footer;
+            display: flex;
+            justify-content: space-around;
+            height: 100%;
+            z-index: 10;
+            width: 100%;
+        
+            button {
+                height: 100%;
+                flex: 1;
+                border-radius: 0;
+            }
+        
+            .toolbar-button {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+    }
 }
 
 #offline-indicator {
@@ -20,36 +70,6 @@
     animation: offline 300ms ease-out 3s forwards;
     overflow: hidden;
     box-sizing: border-box;
-}
-
-mat-toolbar {
-    grid-area: footer;
-    display: flex;
-    justify-content: space-around;
-    height: 100%;
-    z-index: 10;
-    width: 100%;
-
-    button {
-        height: 100%;
-        flex: 1;
-        border-radius: 0;
-    }
-
-    .toolbar-button {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-}
-
-.content {
-    grid-area: content;
-    padding: 12px 12px 0;
-    width: 100%;
-    box-sizing: border-box;
-    padding-top: 24px;
 }
 
 @keyframes offline {

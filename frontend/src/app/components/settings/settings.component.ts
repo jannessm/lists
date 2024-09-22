@@ -70,4 +70,8 @@ export class SettingsComponent implements OnDestroy {
     }
   }
 
+  openGithub() {
+    window.open('https://github.com/jannessm/lists', '_blank')?.focus();
+  }
+
 }

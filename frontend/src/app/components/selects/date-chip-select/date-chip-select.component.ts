@@ -41,7 +41,7 @@ export class DateChipSelectComponent implements AfterViewInit {
   @Input() defaultOption: string | undefined;
 
   @Output() pickrOpened = new EventEmitter<void>();
-  @Output() pickrClosed = new EventEmitter<void>();
+  @Output() pickrClosed = new EventEmitter<Event>();
 
   onChange: any = () => {};
   onTouched: any = () => {};

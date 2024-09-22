@@ -15,13 +15,22 @@ export class WebPushService {
   subscribeChallenged = false;
   initTimeoutDone = signal(false);
 
-  settings: WritableSignal<PushSettings | undefined> = signal(undefined);
+  settings: WritableSignal<PushSettings | null>;
 
   constructor(
     private swPush: SwPush,
     private authService: AuthService,
     private dataApi: DataApiService
   ) {
+    const settingsItem = localStorage.getItem('pushSettings');
+    let settings: PushSettings | null;
+    if (!!settingsItem) {
+      settings = JSON.parse(settingsItem) as PushSettings;
+    } else {
+      settings = null;
+    }
+    this.settings = signal(settings);
+
     if (swPush.isEnabled) {
       this.sub = toSignal(swPush.subscription);
     } else {
@@ -80,6 +89,7 @@ export class WebPushService {
     }).subscribe(res => {
       if (res.data?.pushSettings) {
         this.settings.set(res.data.pushSettings);
+        localStorage.setItem('pushSettings', JSON.stringify(res.data.pushSettings));
       }
     });
   }

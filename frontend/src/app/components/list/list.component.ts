@@ -69,6 +69,7 @@ export class ListComponent implements OnDestroy {
   dueDefault = DueOption.SOMETIME;
   initialized = false;
   pickerOpen = false;
+  ignoreNext = false;
 
   slots: Signal<Slot[]> = computed(() => {
     if (this.listItems() && this.list()) {
@@ -158,22 +159,28 @@ export class ListComponent implements OnDestroy {
     event.stopPropagation();
     this.focusInput = true;
     
-    if (!this.pickerOpen) {
-      this.addInput.nativeElement.focus();
-    }
+    setTimeout(() => {
+      if (!this.pickerOpen) {
+        this.addInput.nativeElement.focus();
+      }
+    }, 10);
   }
 
   closeFocusInput(event?: Event) {
+    if (this.ignoreNext) {
+      this.ignoreNext = false;
+      this.addInput.nativeElement.focus();
+      return;
+    }
     // picker was open && add form is in focus
     //    => focus input and set pickerOpen to false
     // picker was not open && add form is in focus
     //    => remove focus on add form
     // some click occured on the content
     //    => remove focus 
-    if (event && this.pickerOpen && this.focusInput) {
-      event.stopPropagation();
-      this.addInput.nativeElement.focus();
+    if (this.pickerOpen && this.focusInput) {
       this.pickerOpen = false;
+      this.ignoreNext = true;
 
     } else if (event && !this.pickerOpen && this.focusInput) {
       event.stopPropagation();
@@ -182,7 +189,10 @@ export class ListComponent implements OnDestroy {
     } else if (event) {
       event.stopPropagation();
     } else {
-      setTimeout(() => {this.focusInput = false; this.addInput.nativeElement.blur()});
+      setTimeout(() => {
+        this.focusInput = false;
+        this.addInput.nativeElement.blur();
+      }, 10);
     }
   }
 
