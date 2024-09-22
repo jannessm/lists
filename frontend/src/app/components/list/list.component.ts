@@ -191,8 +191,8 @@ export class ListComponent implements OnDestroy {
     } else {
       setTimeout(() => {
         this.focusInput = false;
-        this.addInput.nativeElement.blur()
-      });
+        this.addInput.nativeElement.blur();
+      }, 10);
     }
   }
 

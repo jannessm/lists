@@ -54,7 +54,7 @@ body { margin: 0px; }
 
 .flatpickr-calendar {
     top: 16px !important;
-    left: calc(50% - 336px / 2) !important;
+    left: calc(50% - 150px) !important;
 }
 .flatpickr-calendar::before, .flatpickr-calendar::after {
     content: none;
