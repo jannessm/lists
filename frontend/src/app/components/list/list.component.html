@@ -38,6 +38,7 @@
                 [options]="dueOptions"
                 [defaultOption]="dueDefault"
                 (pickrOpened)="pickerOpen = true"
+                (pickrClosed)="closeFocusInput()"
             ></app-date-chip-select>
         </mat-toolbar>
 
