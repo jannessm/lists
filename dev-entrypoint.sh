@@ -3,7 +3,7 @@
 cp /configs/.env .env
 . .env
 echo $APP_NAME
-# ./clear-cache.sh
+./clear-cache.sh
 # php artisan migrate --seed
 php artisan queue:listen &
 php artisan schedule:work &
