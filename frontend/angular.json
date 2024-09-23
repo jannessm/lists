@@ -108,8 +108,8 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
+            "codeCoverage": true,
             "polyfills": [
-              "src/polyfills.js",
               "zone.js",
               "zone.js/testing"
             ],

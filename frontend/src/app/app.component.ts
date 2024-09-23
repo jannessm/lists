@@ -8,7 +8,6 @@ import { MaterialModule } from './material.module';
 import { PusherService } from './services/pusher/pusher.service';
 import { ThemeService } from './services/theme/theme.service';
 import { DataService } from './services/data/data.service';
-import { HttpClient } from '@angular/common/http';
 
 /**
  * IMPORTANT: RxDB creates rxjs observables outside of angulars zone
