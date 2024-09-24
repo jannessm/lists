@@ -54,7 +54,7 @@ describe('AuthService', () => {
   });
 
   it('should be created', () => {
-    mockAuthApi.validateLogin.and.returnValue(of('asdfasdf'));
+    mockAuthApi.validateLogin.and.returnValue(of('error'));
     mockCookieService.check.and.returnValue(false);
     
     service = TestBed.inject(AuthService);
