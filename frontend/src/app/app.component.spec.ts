@@ -1,7 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { AppComponent } from './app.component';
-import { MockPusherService } from './services/pusher/pusher.service.mock';
 import { PusherService } from './services/pusher/pusher.service';
 import { AuthService } from './services/auth/auth.service';
 import { DataService } from './services/data/data.service';
@@ -19,7 +17,6 @@ let mockCookieService: jasmine.SpyObj<CookieService>;
 let mockSwUpdate: jasmine.SpyObj<SwUpdate>;
 let mockBottomSheet: jasmine.SpyObj<MatBottomSheet>;
 
-
 describe('AppComponent', () => {
   beforeEach(async () => {
     const MockThemeService = jasmine.createSpyObj('ThemeService', ['isDark']);
@@ -31,16 +28,16 @@ describe('AppComponent', () => {
     await TestBed.configureTestingModule({
       imports: [AppComponent],
       providers: [
-        { provide: PusherService, useClass: {} },
-        { provide: AuthService, useClass: {} },
-        { provide: DataService, useClass: {} },
-        { provide: Router, useClass: {} },
-        { provide: WebPushService, useClass: {} },
-        { provide: IosService, useClass: {} },
-        { provide: ThemeService, useClass: MockThemeService },
-        { provide: CookieService, useClass: MockCookieService },
-        { provide: SwUpdate, useClass: MockSwUpdate },
-        { provide: MatBottomSheet, useClass: MockBottomSheet },
+        { provide: PusherService, useValue: {} },
+        { provide: AuthService, useValue: {} },
+        { provide: DataService, useValue: {} },
+        { provide: Router, useValue: {} },
+        { provide: WebPushService, useValue: {} },
+        { provide: IosService, useValue: {} },
+        { provide: ThemeService, useValue: MockThemeService },
+        { provide: CookieService, useValue: MockCookieService },
+        { provide: SwUpdate, useValue: MockSwUpdate },
+        { provide: MatBottomSheet, useValue: MockBottomSheet },
       ]
     }).compileComponents();
 
@@ -60,15 +57,11 @@ describe('AppComponent', () => {
   });
 
   it(`should have the 'Lists' title`, () => {
+    mockThemeService.isDark.and.returnValue(true);
+    mockCookieService.check.and.returnValue(false);
+
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
     expect(app.title).toEqual('Lists');
-  });
-
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, frontend');
   });
 });

@@ -9,12 +9,6 @@ import { PusherService } from './services/pusher/pusher.service';
 import { ThemeService } from './services/theme/theme.service';
 import { DataService } from './services/data/data.service';
 
-/**
- * IMPORTANT: RxDB creates rxjs observables outside of angulars zone
- * So you have to import the rxjs patch to ensure changedetection works correctly.
- * @link https://www.bennadel.com/blog/3448-binding-rxjs-observable-sources-outside-of-the-ngzone-in-angular-6-0-2.htm
- */
-import 'zone.js/plugins/zone-patch-rxjs';
 import { SwUpdate } from '@angular/service-worker';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ConfirmSheetComponent } from './components/bottom-sheets/confirm-sheet/confirm-sheet.component';
@@ -62,7 +56,7 @@ export class AppComponent {
     }
 
     if (!!(screen.orientation as any).lock) {
-      (screen.orientation as any).lock("portrait");
+      (screen.orientation as any).lock("portrait").catch(() => {});
     }
 
     if (this.swUpdate.isEnabled) {
