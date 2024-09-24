@@ -11,6 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { of } from 'rxjs';
 import { signal } from '@angular/core';
 import { MockMyMeDocument } from './auth.service.mock';
+import { getAuthApiMock } from '../auth-api/auth-api.mock';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -24,7 +25,7 @@ describe('AuthService', () => {
 
   beforeEach(() => {
     const MockCookieService = jasmine.createSpyObj('CookieService', ['check', 'delete', 'set']) as jasmine.SpyObj<CookieService>;
-    const MockAuthApi = jasmine.createSpyObj('AuthApiService', ['validateLogin', 'login', 'register', 'logout', 'verifyEmail', 'changeEmail', 'changePwd', 'forgotPwd', 'resetPwd', 'shareLists', 'unshareLists', 'pushSubscribe', 'resendVerificationMail']) as jasmine.SpyObj<AuthApiService>;
+    const MockAuthApi = getAuthApiMock();
     const MockRouter = jasmine.createSpyObj('Router', ['navigateByUrl'], {'url': '/user/lists'}) as jasmine.SpyObj<Router>;
     const MockPusherService = jasmine.createSpyObj('PusherService', ['unsubscribe'], {'online': of(true)}) as jasmine.SpyObj<PusherService>;
     const MockDataService = jasmine.createSpyObj('DataService', ['initDB', 'removeData'], {db: {me: {findOne: () => {return {$$: signal(MockMyMeDocument)}}}}}) as jasmine.SpyObj<DataService>;
@@ -43,7 +44,6 @@ describe('AuthService', () => {
       ]
     });
     
-    service = TestBed.inject(AuthService);
     mockCookieService = TestBed.inject(CookieService) as jasmine.SpyObj<CookieService>;
     mockAuthApi = TestBed.inject(AuthApiService) as jasmine.SpyObj<AuthApiService>;
     mockRouter = TestBed.inject(Router) as jasmine.SpyObj<Router>;
@@ -55,6 +55,10 @@ describe('AuthService', () => {
 
   it('should be created', () => {
     mockAuthApi.validateLogin.and.returnValue(of('asdfasdf'));
+    mockCookieService.check.and.returnValue(false);
+    
+    service = TestBed.inject(AuthService);
+
     expect(service).toBeTruthy();
   });
 });
