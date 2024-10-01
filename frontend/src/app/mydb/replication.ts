@@ -129,10 +129,12 @@ export class Replicator {
             await this.collection.remoteBulkAdd(conflicts);
             
             // try again with updated data
-            await this.pushInterval(docs, true);
+            return await this.pushInterval(docs, true);
         } else if (conflicts.length === 0) {
             console.log('mark untouched');
-            await this.collection.markUntouched(docs);
+            return await this.collection.markUntouched(docs);
+        } else {
+            throw Error('push still has conflicts.');
         }
     }
 
