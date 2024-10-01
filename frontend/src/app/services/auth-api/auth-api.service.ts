@@ -10,7 +10,11 @@ import { BASE_API, REGISTER } from '../../globals';
 export class AuthApiService {
 
   constructor(private http: HttpClient) {
-    // this.http.get(BASE_API.replace('api/', '') + "sanctum/csrf-cookie").subscribe(()=>{});
+    this.refreshCSRF();
+  }
+
+  refreshCSRF() {
+    this.http.get(BASE_API.replace('api/', '') + "sanctum/csrf-cookie").subscribe(()=>{});
   }
 
   login(email: string, password: string, captcha: string): Observable<boolean> {

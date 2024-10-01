@@ -60,6 +60,11 @@ export class AuthService {
       }
     });
 
+    this.pusher.online.subscribe(isOnline => {
+      if (isOnline) {
+        this.api.refreshCSRF();
+      }
+    });
     this.pusher.online.pipe(debounceTime(1000)).subscribe(isOnline => {
       if (isOnline && this.isLoggedIn()) {
         this.evaluateVerifiedMail();
