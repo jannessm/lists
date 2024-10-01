@@ -106,7 +106,7 @@ export class Replicator {
         });
     }
 
-    public async pushInterval(docs: any[], secondTry = false) {
+    public async pushInterval(docs: any[], secondTry = false): Promise<void> {
         if (!this.pushOptions) return;
 
         let pushRows: MyPushRow[] = await Promise.all(
