@@ -131,6 +131,7 @@ export class Replicator {
             // try again with updated data
             await this.pushInterval(docs, true);
         } else if (conflicts.length === 0) {
+            console.log('mark untouched');
             await this.collection.markUntouched(docs);
         }
     }
