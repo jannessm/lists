@@ -40,14 +40,17 @@ class Statistics extends Mailable
      */
     public function content(): Content
     {
-        $user = Auth::user();
+        $mail = (new MailMessage)->greeting('Neue Statistiken sind da!')
+        ->line('Die App wird von '.$this->all_users.' benutzt.')
+        ->line($this->unverified_users.' haben ihre Email noch nicht verifiziert.')
+        ->line(count($this->new_users).' haben sich neu registriert:');
+
+        foreach($this->new_users as $u) {
+            $mail->line($u->name);
+        }
         
         return new Content(
-            htmlString: (new MailMessage)->greeting('Neue Statistiken sind da!')
-                ->line('Die App wird von '.$this->all_users.' benutzt.')
-                ->line($this->unverified_users.' haben ihre Email noch nicht verifiziert.')
-                ->line($this->new_users.' haben sich neu registriert.')
-                ->salutation('Mit freundlichen Grüßen')
+            htmlString: $mail->salutation('Mit freundlichen Grüßen')
                 ->render()
         );
     }
