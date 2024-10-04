@@ -59,7 +59,7 @@ class UsageStatisticsEmail extends Mailable
         $mail->line(new HtmlString('<hr>'))
             ->line(new HtmlString('<h2>Items</h2>'))
             ->line($this->new_items.' neue Einträge wurden angelegt.')
-            ->line($this->deleted_items.' sind seit länger als einen Monat gelöscht.')
+            ->line($this->deleted_items.' sind seit länger als einer Woche gelöscht.')
             ->line(new HtmlString('<hr>'));
         
         $mail->line('Top users:');
