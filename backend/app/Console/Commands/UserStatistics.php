@@ -4,12 +4,12 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 
 use Carbon\Carbon;
 
-use App\Models\ListItem;
-use App\Notifications\ReminderNotification;
+use App\Mail\UserStatisticsEmail;
 
 class UserStatistics extends Command
 {
