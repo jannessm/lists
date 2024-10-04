@@ -15,3 +15,4 @@ use Illuminate\Support\Facades\Schedule;
 */
 
 Schedule::command('app:send-reminders')->everyMinute();
+Schedule::command('app:send-usage-statistics')->weekly();

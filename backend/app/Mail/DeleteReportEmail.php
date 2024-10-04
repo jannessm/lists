@@ -10,17 +10,19 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
+use Illuminate\Support\Collection;
 
-class Statistics extends Mailable
+class DeleteReportEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(private int $all_users,
-                                private int $new_users,
-                                private int $unverified_users)
+    public function __construct(private int $deleted_items,
+                                private int $deleted_lists,
+                                private int $deleted_users=0)
     {
         //
     }
@@ -31,7 +33,7 @@ class Statistics extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '[Lists]: User Statistics',
+            subject: '[Lists]: Delete Report',
         );
     }
 
@@ -40,18 +42,13 @@ class Statistics extends Mailable
      */
     public function content(): Content
     {
-        $mail = (new MailMessage)->greeting('Neue Statistiken sind da!')
-        ->line('Die App wird von '.$this->all_users.' benutzt.')
-        ->line($this->unverified_users.' haben ihre Email noch nicht verifiziert.')
-        ->line(count($this->new_users).' haben sich neu registriert:');
-
-        foreach($this->new_users as $u) {
-            $mail->line($u->name);
-        }
+        $mail = (new MailMessage)->greeting('Delete Report!')
+            ->line('Es wurden '.$this->deleted_items.' Einträge gelöscht.')
+            ->line('Es wurden '.$this->deleted_lists.' Listen gelöscht.')
+            ->line('Es wurden '.$this->deleted_users.' Benutzer gelöscht.');
         
         return new Content(
-            htmlString: $mail->salutation('Mit freundlichen Grüßen')
-                ->render()
+            htmlString: $mail->render()
         );
     }
 
