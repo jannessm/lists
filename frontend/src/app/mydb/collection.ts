@@ -106,7 +106,7 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
         );
     }
 
-    async markUntouched(docs: MyDocument<DocType, DocMethods>[]) {
+    async markUntouched(docs: any[]) {
         const changes = docs.map((doc: any) => {
             return {
                 key: doc[this.primaryKey],
@@ -114,6 +114,14 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
             };
         });
         this.table.bulkUpdate(changes);
+        
+        const keys = docs.map((doc: any) => doc[this.primaryKey]);
+        const updatedDocs = await this.table.bulkGet(keys);
+        this.db.next(
+            this.tableName,
+            updatedDocs.map(d => new MyDocument<DocType, DocMethods>(this, d)),
+            false
+        );
     }
 
     async update(newDoc: any) {

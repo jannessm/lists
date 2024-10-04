@@ -33,7 +33,7 @@
     position: relative;
     height: calc(60px + 24px);
     border-radius: 8px;
-    color: var(--mat-app-text-color);
+    color: var(--mat-app-text-color) !important;
 
     mat-icon:not(.add-list) {
         position: absolute;

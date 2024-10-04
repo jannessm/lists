@@ -10,6 +10,10 @@ import { BASE_API, REGISTER } from '../../globals';
 export class AuthApiService {
 
   constructor(private http: HttpClient) {
+    this.refreshCSRF();
+  }
+
+  refreshCSRF() {
     this.http.get(BASE_API.replace('api/', '') + "sanctum/csrf-cookie").subscribe(()=>{});
   }
 

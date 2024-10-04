@@ -106,7 +106,7 @@ export class Replicator {
         });
     }
 
-    public async pushInterval(docs: any[], secondTry = false) {
+    public async pushInterval(docs: any[], secondTry = false): Promise<void> {
         if (!this.pushOptions) return;
 
         let pushRows: MyPushRow[] = await Promise.all(
@@ -129,9 +129,12 @@ export class Replicator {
             await this.collection.remoteBulkAdd(conflicts);
             
             // try again with updated data
-            await this.pushInterval(docs, true);
+            return await this.pushInterval(docs, true);
         } else if (conflicts.length === 0) {
-            await this.collection.markUntouched(docs);
+            console.log('mark untouched');
+            return await this.collection.markUntouched(docs);
+        } else {
+            throw Error('push still has conflicts.');
         }
     }
 
