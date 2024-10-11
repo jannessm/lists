@@ -21,6 +21,7 @@ class ShareListsNotification extends Notification
      */
     public function __construct(String $id)
     {
+        //TODO: what if $id is false (not synced yet with backend?)
         $this->lists = Lists::where('id', $id)->first();
     }
 
