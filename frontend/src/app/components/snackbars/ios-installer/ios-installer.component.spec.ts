@@ -1,16 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { IosInstallerComponent } from './ios-installer.component';
+import { MatSnackBarRef } from '@angular/material/snack-bar';
 
 describe('IosInstallerComponent', () => {
   let component: IosInstallerComponent;
   let fixture: ComponentFixture<IosInstallerComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [IosInstallerComponent]
-    })
-    .compileComponents();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: MatSnackBarRef, useValue: {} }
+      ]
+    });
 
     fixture = TestBed.createComponent(IosInstallerComponent);
     component = fixture.componentInstance;

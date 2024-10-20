@@ -11,7 +11,7 @@ import { MaterialModule } from '../../../material.module';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    MaterialModule
+    MaterialModule,
   ],
   templateUrl: './theme-form.component.html',
   styleUrls: ['./theme-form.component.scss', '../form.scss']
