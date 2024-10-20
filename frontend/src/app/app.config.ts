@@ -9,6 +9,7 @@ import { noConnectionInterceptor } from './interceptors/no-connection';
 import { provideServiceWorker } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { initDatabase } from './services/data/init-database';
+import Pusher from 'pusher-js';
 
 if (environment.production) {
   enableProdMode();

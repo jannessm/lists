@@ -12,6 +12,7 @@ import { of } from 'rxjs';
 import { signal } from '@angular/core';
 import { MockMyMeDocument } from './auth.service.mock';
 import { getAuthApiMock } from '../auth-api/auth-api.mock';
+import { CookieServiceMock, MatBottomSheetMock, MatSnackBarMock } from '../../../testing/mocks';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -24,23 +25,21 @@ describe('AuthService', () => {
   let mockSnackBar: jasmine.SpyObj<MatSnackBar>;
 
   beforeEach(() => {
-    const MockCookieService = jasmine.createSpyObj('CookieService', ['check', 'delete', 'set']) as jasmine.SpyObj<CookieService>;
     const MockAuthApi = getAuthApiMock();
-    const MockRouter = jasmine.createSpyObj('Router', ['navigateByUrl'], {'url': '/user/lists'}) as jasmine.SpyObj<Router>;
-    const MockPusherService = jasmine.createSpyObj('PusherService', ['unsubscribe'], {'online': of(true)}) as jasmine.SpyObj<PusherService>;
-    const MockDataService = jasmine.createSpyObj('DataService', ['initDB', 'removeData'], {db: {me: {findOne: () => {return {$$: signal(MockMyMeDocument)}}}}}) as jasmine.SpyObj<DataService>;
-    const MockBottomSheet = jasmine.createSpyObj('MatBottomSheet', ['open']) as jasmine.SpyObj<MatBottomSheet>;
-    const MockSnackBar = jasmine.createSpyObj('MatSnackBar', ['open']) as jasmine.SpyObj<MatSnackBar>;
+    const MockRouter = jasmine.createSpyObj('Router', ['navigateByUrl'], {'url': '/user/lists'});
+    const MockPusherService = jasmine.createSpyObj('PusherService', ['unsubscribe'], {'online': of(true)});
+    const MockDataService = jasmine.createSpyObj('DataService', ['initDB', 'removeData'], {db: {me: {findOne: () => {return {$$: signal(MockMyMeDocument)}}}}});
+    
 
     TestBed.configureTestingModule({
       providers: [
-        {provide: CookieService, useValue: MockCookieService},
+        {provide: CookieService, useValue: CookieServiceMock},
         {provide: AuthApiService, useValue: MockAuthApi},
         {provide: Router, useValue: MockRouter},
         {provide: PusherService, useValue: MockPusherService},
         {provide: DataService, useValue: MockDataService},
-        {provide: MatBottomSheet, useValue: MockBottomSheet},
-        {provide: MatSnackBar, useValue: MockSnackBar},
+        {provide: MatBottomSheet, useValue: MatBottomSheetMock},
+        {provide: MatSnackBar, useValue: MatSnackBarMock},
       ]
     });
     
