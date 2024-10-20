@@ -15,6 +15,7 @@ use Nuwave\Lighthouse\Execution\Utils\Subscription;
 use App\Http\Controllers\PushController;
 use App\Http\Controllers\ShareListsController;
 use App\Http\Controllers\VerifyEmailController;
+use App\Events\UserChanged;
 
 
 $verificationLimiter = config('fortify.limiters.verification', '6,1');
