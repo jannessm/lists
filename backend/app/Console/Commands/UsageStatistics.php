@@ -56,8 +56,8 @@ class UsageStatistics extends Command
             ->where([['_deleted', true], ['updated_at', '>=', $last_week]])
             ->count();
 
-        if (!!env('ADMIN_MAIL', False)) {
-            Mail::to(env('ADMIN_MAIL', False))->send(
+        if (!!config('mail.admin_mail')) {
+            Mail::to(config('mail.admin_mail'))->send(
                 new UsageStatisticsEmail($all_users, $new_users, $unverified_users,
                                          $new_items, $new_items_by_user, $deleted_items)
             );
