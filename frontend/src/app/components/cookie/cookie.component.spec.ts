@@ -7,10 +7,8 @@ describe('CookieComponent', () => {
   let fixture: ComponentFixture<CookieComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ CookieComponent ]
-    })
-    .compileComponents();
+    TestBed.configureTestingModule({
+    });
   });
 
   beforeEach(() => {

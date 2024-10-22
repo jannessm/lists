@@ -23,8 +23,6 @@ describe('ResetPasswordComponent', () => {
   let authMock: jasmine.SpyObj<AuthService>;
 
   beforeEach(async () => {
-
-
     const ActivatedRouteMock = jasmine.createSpyObj('ActivatedRoute', [], {queryParams: of({token: 'token', email: 'nice_email'})});
     const AuthMock = jasmine.createSpyObj('AuthService', ['resetPwd']);
 

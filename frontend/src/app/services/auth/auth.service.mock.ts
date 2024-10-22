@@ -16,3 +16,21 @@ export class MockMyMeDocument {
   patch = () => Promise.resolve();
   remove = () => {this._deleted = true; return Promise.resolve()}
 }
+
+export class MockMyListsDocument {
+  name = 'test';
+  isShoppingList = false;
+  patch = () => Promise.resolve();
+}
+
+export class MockMyItemDocument {
+  id = 'asdf';
+  done = false;
+  touched = false;
+  due = null;
+  reminder = null;
+  createdBy = 'asdf';
+  _deleted = false;
+  patch = () => Promise.resolve();
+  remove = () => {this._deleted = true; return Promise.resolve()};
+}

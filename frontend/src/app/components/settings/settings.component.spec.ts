@@ -10,7 +10,6 @@ import { ThemeFormComponent } from './theme-form/theme-form.component';
 import { PushFormComponent } from './push-form/push-form.component';
 import { OthersFormComponent } from './others-form/others-form.component';
 import { MyMeDocument } from '../../mydb/types/me';
-import { provideAnimations, provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('SettingsComponent', () => {
   @Component({
@@ -62,7 +61,8 @@ describe('SettingsComponent', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useValue: AuthServiceMock },
-        { provide: PusherService, useValue: PusherMock }      ]
+        { provide: PusherService, useValue: PusherMock }
+      ]
     });
 
     authMock = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;

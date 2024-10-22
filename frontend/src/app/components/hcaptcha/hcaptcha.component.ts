@@ -7,9 +7,7 @@ declare const window: any;
 @Component({
   selector: 'app-hcaptcha',
   standalone: true,
-  imports: [
-
-  ],
+  imports: [ ],
   templateUrl: './hcaptcha.component.html',
   styleUrl: './hcaptcha.component.scss'
 })

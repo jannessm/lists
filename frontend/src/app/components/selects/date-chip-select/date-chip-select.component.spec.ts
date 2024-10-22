@@ -7,10 +7,8 @@ describe('DateChipSelectComponent', () => {
   let fixture: ComponentFixture<DateChipSelectComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [DateChipSelectComponent]
-    })
-    .compileComponents();
+    TestBed.configureTestingModule({
+    });
 
     fixture = TestBed.createComponent(DateChipSelectComponent);
     component = fixture.componentInstance;
