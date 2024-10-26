@@ -11,11 +11,11 @@ describe('VerifyMailComponent', () => {
 
   beforeEach(async () => {
     const BottomSheetRef = jasmine.createSpyObj('BottomSheet', ['dismiss']);
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       providers: [
         { provide: MatBottomSheetRef, useValue: BottomSheetRef }
       ]
-    });
+    }).compileComponents();
 
     bottomSheetMock = TestBed.inject(MatBottomSheetRef) as jasmine.SpyObj<MatBottomSheetRef>;
 

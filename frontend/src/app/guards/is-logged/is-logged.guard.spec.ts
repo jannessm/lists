@@ -8,7 +8,7 @@ describe('isLoggedGuard', () => {
       TestBed.runInInjectionContext(() => isLoggedGuard(...guardParameters));
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    await TestBed.configureTestingModule({}).compileComponents();
   });
 
   it('should be created', () => {

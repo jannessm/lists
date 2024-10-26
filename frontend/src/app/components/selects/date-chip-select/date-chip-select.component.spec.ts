@@ -7,8 +7,8 @@ describe('DateChipSelectComponent', () => {
   let fixture: ComponentFixture<DateChipSelectComponent>;
 
   beforeEach(async () => {
-    TestBed.configureTestingModule({
-    });
+    await TestBed.configureTestingModule({
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DateChipSelectComponent);
     component = fixture.componentInstance;

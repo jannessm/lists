@@ -8,11 +8,11 @@ describe('DateInputSelectComponent', () => {
   let fixture: ComponentFixture<DateInputSelectComponent>;
 
   beforeEach(async () => {
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       providers: [
         provideAnimations(),
       ]
-    });
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DateInputSelectComponent);
     component = fixture.componentInstance;

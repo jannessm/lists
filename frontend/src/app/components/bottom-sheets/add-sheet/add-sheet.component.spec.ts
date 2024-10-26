@@ -13,13 +13,13 @@ describe('AddSheetComponent', () => {
   beforeEach(async () => {
     const BottomSheetRef = jasmine.createSpyObj('BottomSheet', ['dismiss']);
 
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       providers: [
         { provide: MatBottomSheetRef, useValue: BottomSheetRef },
         { provide: MAT_BOTTOM_SHEET_DATA, useValue: undefined },
         provideAnimations(),
       ]
-    });
+    }).compileComponents();
 
     bottomSheetMock = TestBed.inject(MatBottomSheetRef) as jasmine.SpyObj<MatBottomSheetRef>;
 

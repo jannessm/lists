@@ -31,14 +31,14 @@ describe('ListsOverviewComponent', () => {
     const BottomSheetMock = jasmine.createSpyObj('BottomSheet', ['open']);
   
 
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useValue: AuthMock },
         { provide: DataService, useValue: DataMock },
         { provide: MatBottomSheet, useValue: BottomSheetMock },
         provideAnimations(),
       ]
-    });
+    }).compileComponents();
 
     authMock = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     bottomSheetMock = TestBed.inject(MatBottomSheet) as jasmine.SpyObj<MatBottomSheet>;

@@ -23,13 +23,13 @@ describe('ListItemComponent', () => {
     const BottomSheetMock = jasmine.createSpyObj('BottomSheet', ['open']);
     bottomSheetRefMock = jasmine.createSpyObj('BottomSheetRef', ['afterDissmised']);
   
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       providers: [
         { provide: UsersService, useValue: UsersMock },
         { provide: MatBottomSheet, useValue: BottomSheetMock },
         provideAnimations(),
       ]
-    });
+    }).compileComponents();
 
     usersMock = TestBed.inject(UsersService) as jasmine.SpyObj<UsersService>;
     bottomSheetMock = TestBed.inject(MatBottomSheet) as jasmine.SpyObj<MatBottomSheet>;

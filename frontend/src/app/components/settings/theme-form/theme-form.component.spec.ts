@@ -20,12 +20,12 @@ describe('ThemeFormComponent', () => {
     const AuthServiceMock = jasmine.createSpyObj('AuthService', [], {'me': meSignal});
     const ThemeServiceMock = jasmine.createSpyObj('ThemeService', ['userPreference']);
 
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useValue: AuthServiceMock },
         { provide: ThemeService, useValue: ThemeServiceMock },
         provideAnimations()
-      ]});
+    ]}).compileComponents();
 
     authMock = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     themeMock = TestBed.inject(ThemeService) as jasmine.SpyObj<ThemeService>;

@@ -26,7 +26,7 @@ describe('ShareListSheetComponent', () => {
     }}}}});
     bottomSheetRefMock = jasmine.createSpyObj('BottomSheetRef', ['dismiss']);
 
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useValue: AuthMock },
         { provide: DataService, useValue: DataMock },
@@ -38,8 +38,7 @@ describe('ShareListSheetComponent', () => {
         } },
         provideAnimations(),
       ]
-      
-    });
+    }).compileComponents();
 
     authMock = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     dataMock = TestBed.inject(DataService) as jasmine.SpyObj<DataService>;

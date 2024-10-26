@@ -16,12 +16,12 @@ describe('PushFormComponent', () => {
     const SnackBarMock = jasmine.createSpyObj('SnackBar', ['open']);
 
 
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       providers: [
         { provide: WebPushService, useValue: WebPushMock },
         { provide: MatSnackBar, useValue: SnackBarMock },
       ]
-    });
+    }).compileComponents();
 
     webPushMock = TestBed.inject(WebPushService) as jasmine.SpyObj<WebPushService>;
     snackBarMock = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;

@@ -101,7 +101,7 @@ describe('ListComponent', () => {
       }
     })
     
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useValue: AuthMock },
         { provide: DataService, useValue: DataMock },
@@ -111,7 +111,7 @@ describe('ListComponent', () => {
         provideRouter([{path: 'user/lists', component: TestComponent}]),
         provideHttpClientTesting(),
       ]
-    });
+    }).compileComponents();
 
     authMock = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     dataMock = TestBed.inject(DataService) as jasmine.SpyObj<DataService>;

@@ -9,11 +9,11 @@ describe('LinkifyPipe', () => {
   beforeEach(async () => {
     const DomSanitizer = jasmine.createSpyObj('DomSanitizer', ['sanitize']);
     
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       providers: [
         { provide: DomSanitizer, useValue: DomSanitizer },
       ]
-    });
+    }).compileComponents();
 
     domSanitizerMock = TestBed.inject(DomSanitizer);
   })

@@ -23,14 +23,14 @@ describe('RegisterComponent', () => {
   beforeEach(async () => {
     const AuthMock = jasmine.createSpyObj('AuthService', ['register']);
 
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useValue: AuthMock },
         provideAnimations(),
         provideRouter([{path: 'login', component: TestComponent}]),
         provideHttpClientTesting(),
       ]
-    });
+    }).compileComponents();
 
     authMock = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     

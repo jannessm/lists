@@ -27,7 +27,7 @@ describe('ResetPasswordComponent', () => {
     const AuthMock = jasmine.createSpyObj('AuthService', ['forgotPwd']);
     const SnackBarMock = jasmine.createSpyObj('SnackBar', ['open']);
     
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useValue: AuthMock },
         { provide: MatSnackBar, useValue: SnackBarMock },
@@ -35,7 +35,7 @@ describe('ResetPasswordComponent', () => {
         provideRouter([{path: 'login', component: TestLoginComponent}]),
         provideHttpClientTesting(),
       ]
-    });
+    }).compileComponents();
 
     authMock = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     snackBarMock = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;

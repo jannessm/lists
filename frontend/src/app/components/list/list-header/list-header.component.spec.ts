@@ -42,7 +42,7 @@ describe('ListHeaderComponent', () => {
     const BottomSheetMock = jasmine.createSpyObj('BottomSheet', ['open']);
     bottomSheetRefMock = jasmine.createSpyObj('BottomSheetRef', ['afterDissmised']);
 
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useValue: AuthMock },
         { provide: DataService, useValue: DataMock },
@@ -52,7 +52,7 @@ describe('ListHeaderComponent', () => {
         provideRouter([{path: 'user/lists', component: TestComponent}]),
         provideHttpClientTesting(),
       ]
-    });
+    }).compileComponents();
   
     authMock = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     snackBarMock = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;

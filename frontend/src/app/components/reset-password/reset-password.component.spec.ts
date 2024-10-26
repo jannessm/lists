@@ -26,7 +26,7 @@ describe('ResetPasswordComponent', () => {
     const ActivatedRouteMock = jasmine.createSpyObj('ActivatedRoute', [], {queryParams: of({token: 'token', email: 'nice_email'})});
     const AuthMock = jasmine.createSpyObj('AuthService', ['resetPwd']);
 
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       providers: [
         { provide: ActivatedRoute, useValue: ActivatedRouteMock },
         { provide: AuthService, useValue: AuthMock },
@@ -34,7 +34,7 @@ describe('ResetPasswordComponent', () => {
         provideRouter([{path: 'login', component: TestLoginComponent}]),
         provideHttpClientTesting(),
       ]
-    });
+    }).compileComponents();
 
     activatedRouteMock = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     authMock = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;

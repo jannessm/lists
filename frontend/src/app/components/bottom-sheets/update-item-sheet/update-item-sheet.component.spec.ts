@@ -19,7 +19,7 @@ describe('UpdateItemSheetComponent', () => {
     const AuthMock = jasmine.createSpyObj('AuthService', [], {me: user});
     const BottomSheetRef = jasmine.createSpyObj('BottomSheet', ['dismiss']);
 
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useValue: AuthMock },
         { provide: MatBottomSheetRef, useValue: BottomSheetRef },
@@ -29,7 +29,7 @@ describe('UpdateItemSheetComponent', () => {
         } },
         provideAnimations(),
       ]
-    });
+    }).compileComponents();
 
     authMock = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     bottomSheetMock = TestBed.inject(MatBottomSheetRef) as jasmine.SpyObj<MatBottomSheetRef>;

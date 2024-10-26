@@ -8,11 +8,11 @@ describe('IosInstallerComponent', () => {
   let fixture: ComponentFixture<IosInstallerComponent>;
 
   beforeEach(async () => {
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       providers: [
         { provide: MatSnackBarRef, useValue: {} }
       ]
-    });
+    }).compileComponents();
 
     fixture = TestBed.createComponent(IosInstallerComponent);
     component = fixture.componentInstance;

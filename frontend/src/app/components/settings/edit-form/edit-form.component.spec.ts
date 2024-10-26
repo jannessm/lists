@@ -16,11 +16,11 @@ describe('EditFormComponent', () => {
     meSignal = signal(undefined);
     const AuthServiceMock = jasmine.createSpyObj('AuthService', ['changeEmail', 'changePwd', 'logout'], {'me': meSignal});
 
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useValue: AuthServiceMock },
       ]
-    });
+    }).compileComponents();
 
     authMock = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
 

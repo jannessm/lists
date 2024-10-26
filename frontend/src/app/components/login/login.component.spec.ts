@@ -47,7 +47,7 @@ describe('LoginComponent', () => {
       }
     })
 
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useValue: AuthServiceMock },
         provideAnimations(),
@@ -57,7 +57,7 @@ describe('LoginComponent', () => {
         ]),
         provideHttpClientTesting(),
       ]
-    });
+    }).compileComponents();
     
     authMock = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
   

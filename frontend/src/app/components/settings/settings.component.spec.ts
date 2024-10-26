@@ -58,12 +58,12 @@ describe('SettingsComponent', () => {
       }
     });
 
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useValue: AuthServiceMock },
         { provide: PusherService, useValue: PusherMock }
       ]
-    });
+    }).compileComponents();
 
     authMock = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     pusherMock = TestBed.inject(PusherService) as jasmine.SpyObj<PusherService>;
