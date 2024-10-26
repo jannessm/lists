@@ -5,7 +5,8 @@ import { MAT_BOTTOM_SHEET_DATA, MatBottomSheetRef } from '@angular/material/bott
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { AuthService } from '../../../services/auth/auth.service';
 import { signal } from '@angular/core';
-import { MockMyItemDocument, MockMyListsDocument, MockMyMeDocument } from '../../../services/auth/auth.service.mock';
+import { AuthServiceSpy, MockMyItemDocument, MockMyListsDocument, MockMyMeDocument } from '../../../services/auth/auth.service.mock';
+import { MatBottomSheetRefMock } from '../../../../testing/mocks';
 
 describe('UpdateItemSheetComponent', () => {
   let component: UpdateItemSheetComponent;
@@ -13,16 +14,12 @@ describe('UpdateItemSheetComponent', () => {
 
   let authMock: jasmine.SpyObj<AuthService>;
   let bottomSheetMock: jasmine.SpyObj<MatBottomSheetRef>;
-  let user = signal(new MockMyMeDocument());
 
   beforeEach(async () => {
-    const AuthMock = jasmine.createSpyObj('AuthService', [], {me: user});
-    const BottomSheetRef = jasmine.createSpyObj('BottomSheet', ['dismiss']);
-
     await TestBed.configureTestingModule({
       providers: [
-        { provide: AuthService, useValue: AuthMock },
-        { provide: MatBottomSheetRef, useValue: BottomSheetRef },
+        { provide: AuthService, useClass: AuthServiceSpy },
+        { provide: MatBottomSheetRef, useValue: MatBottomSheetRefMock },
         { provide: MAT_BOTTOM_SHEET_DATA, useValue: {
           list: signal(new MockMyListsDocument()),
           item: new MockMyItemDocument()

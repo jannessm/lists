@@ -1,20 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ResetPasswordComponent } from './reset-password.component';
-import { ActivatedRoute, provideRouter, Router } from '@angular/router';
+import { ActivatedRoute, provideRouter, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import { of } from 'rxjs';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { Component } from '@angular/core';
+import { AuthServiceSpy } from '../../services/auth/auth.service.mock';
 
 describe('ResetPasswordComponent', () => {
-  @Component({
-    selector: "app-login",
-    standalone: true,
-    template: ``,
-  })
-  class TestLoginComponent {}
 
   let component: ResetPasswordComponent;
   let fixture: ComponentFixture<ResetPasswordComponent>;
@@ -24,14 +19,16 @@ describe('ResetPasswordComponent', () => {
 
   beforeEach(async () => {
     const ActivatedRouteMock = jasmine.createSpyObj('ActivatedRoute', [], {queryParams: of({token: 'token', email: 'nice_email'})});
-    const AuthMock = jasmine.createSpyObj('AuthService', ['resetPwd']);
 
     await TestBed.configureTestingModule({
+      imports: [
+        RouterLink
+      ],
       providers: [
         { provide: ActivatedRoute, useValue: ActivatedRouteMock },
-        { provide: AuthService, useValue: AuthMock },
+        { provide: AuthService, useClass: AuthServiceSpy },
         provideAnimations(),
-        provideRouter([{path: 'login', component: TestLoginComponent}]),
+        provideRouter([]),
         provideHttpClientTesting(),
       ]
     }).compileComponents();

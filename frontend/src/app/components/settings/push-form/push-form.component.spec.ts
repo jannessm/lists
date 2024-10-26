@@ -3,6 +3,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PushFormComponent } from './push-form.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { WebPushService } from '../../../services/web-push/web-push.service';
+import { MatSnackBarMock } from '../../../../testing/mocks';
+import { WebPushServiceSpy } from '../../../services/web-push/web-push.service.mock';
 
 describe('PushFormComponent', () => {
   let component: PushFormComponent;
@@ -12,14 +14,10 @@ describe('PushFormComponent', () => {
   let snackBarMock: jasmine.SpyObj<MatSnackBar>;
 
   beforeEach(async () => {
-    const WebPushMock = jasmine.createSpyObj('WebPushMock', ['settings', 'sub', 'subscribe', 'patchSettings'], {'subscribeChallanged': false});
-    const SnackBarMock = jasmine.createSpyObj('SnackBar', ['open']);
-
-
     await TestBed.configureTestingModule({
       providers: [
-        { provide: WebPushService, useValue: WebPushMock },
-        { provide: MatSnackBar, useValue: SnackBarMock },
+        { provide: WebPushService, useClass: WebPushServiceSpy },
+        { provide: MatSnackBar, useValue: MatSnackBarMock },
       ]
     }).compileComponents();
 

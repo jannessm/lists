@@ -4,12 +4,14 @@ import { SettingsComponent } from './settings.component';
 import { AuthService } from '../../services/auth/auth.service';
 import { PusherService } from '../../services/pusher/pusher.service';
 import { of } from 'rxjs';
-import { Component, signal, Signal } from '@angular/core';
+import { Component, Input, signal, Signal } from '@angular/core';
 import { EditFormComponent } from './edit-form/edit-form.component';
 import { ThemeFormComponent } from './theme-form/theme-form.component';
 import { PushFormComponent } from './push-form/push-form.component';
 import { OthersFormComponent } from './others-form/others-form.component';
 import { MyMeDocument } from '../../mydb/types/me';
+import { AuthServiceSpy } from '../../services/auth/auth.service.mock';
+import { PusherServiceSpy } from '../../services/pusher/pusher.service.mock';
 
 describe('SettingsComponent', () => {
   @Component({
@@ -17,7 +19,10 @@ describe('SettingsComponent', () => {
     standalone: true,
     template: ``,
   })
-  class TestEditFormComponent {}
+  class TestEditFormComponent {
+    @Input() editMode!: boolean;
+    @Input() disabled!: boolean;
+  }
   @Component({
     selector: "app-settings-theme-form",
     standalone: true,
@@ -42,27 +47,20 @@ describe('SettingsComponent', () => {
 
   let authMock: jasmine.SpyObj<AuthService>;
   let pusherMock: jasmine.SpyObj<PusherService>;
-  let meSignal: Signal<MyMeDocument | undefined>;
 
   beforeEach(async () => {
-    meSignal = signal(undefined);
-    const AuthServiceMock = jasmine.createSpyObj('AuthService', [], {'me': meSignal});
-    const PusherMock = jasmine.createSpyObj('PusherMock', [], {'online': of(true)});
-
-    TestBed.overrideComponent(SettingsComponent, {
+    await TestBed.configureTestingModule({
+      providers: [
+        { provide: AuthService, useClass: AuthServiceSpy },
+        { provide: PusherService, useClass: PusherServiceSpy }
+      ]
+    }).overrideComponent(SettingsComponent, {
       add: {
         imports: [TestEditFormComponent, TestThemeFormComponent, TestPushFormComponent, TestOthersFormComponent]
       },
       remove: {
         imports: [EditFormComponent, ThemeFormComponent, PushFormComponent, OthersFormComponent]
       }
-    });
-
-    await TestBed.configureTestingModule({
-      providers: [
-        { provide: AuthService, useValue: AuthServiceMock },
-        { provide: PusherService, useValue: PusherMock }
-      ]
     }).compileComponents();
 
     authMock = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;

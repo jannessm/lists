@@ -9,6 +9,8 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { MyMeDocument } from '../../../mydb/types/me';
 import { MyItemDocument } from '../../../mydb/types/list-item';
 import { UsersService } from '../../../services/users/users.service';
+import { UsersServiceSpy } from '../../../services/users/users.service.mock';
+import { MatBottomSheetMock } from '../../../../testing/mocks';
 
 describe('ListItemComponent', () => {
   let component: ListItemComponent;
@@ -19,14 +21,10 @@ describe('ListItemComponent', () => {
   let bottomSheetRefMock: jasmine.SpyObj<MatBottomSheetRef>;
 
   beforeEach(async () => {
-    const UsersMock = jasmine.createSpyObj('Users', ['get']);
-    const BottomSheetMock = jasmine.createSpyObj('BottomSheet', ['open']);
-    bottomSheetRefMock = jasmine.createSpyObj('BottomSheetRef', ['afterDissmised']);
-  
     await TestBed.configureTestingModule({
       providers: [
-        { provide: UsersService, useValue: UsersMock },
-        { provide: MatBottomSheet, useValue: BottomSheetMock },
+        { provide: UsersService, useClass: UsersServiceSpy },
+        { provide: MatBottomSheet, useClass: MatBottomSheetMock },
         provideAnimations(),
       ]
     }).compileComponents();

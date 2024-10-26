@@ -7,6 +7,8 @@ import { Component } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { AuthServiceSpy } from '../../services/auth/auth.service.mock';
+import { MatSnackBarMock } from '../../../testing/mocks';
 
 describe('ResetPasswordComponent', () => {
   @Component({
@@ -24,13 +26,10 @@ describe('ResetPasswordComponent', () => {
   let snackBarMock: jasmine.SpyObj<MatSnackBar>;
 
   beforeEach(async () => {
-    const AuthMock = jasmine.createSpyObj('AuthService', ['forgotPwd']);
-    const SnackBarMock = jasmine.createSpyObj('SnackBar', ['open']);
-    
     await TestBed.configureTestingModule({
       providers: [
-        { provide: AuthService, useValue: AuthMock },
-        { provide: MatSnackBar, useValue: SnackBarMock },
+        { provide: AuthService, useClass: AuthServiceSpy },
+        { provide: MatSnackBar, useValue: MatSnackBarMock },
         provideAnimations(),
         provideRouter([{path: 'login', component: TestLoginComponent}]),
         provideHttpClientTesting(),

@@ -6,7 +6,8 @@ import { AuthService } from '../../../services/auth/auth.service';
 import { DataService } from '../../../services/data/data.service';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
-import { MockMyListsDocument, MockMyMeDocument } from '../../../services/auth/auth.service.mock';
+import { AuthServiceSpy, MockMyListsDocument, MockMyMeDocument } from '../../../services/auth/auth.service.mock';
+import { DataServiceSpy } from '../../../services/data/data.service.mock';
 
 describe('ShareListSheetComponent', () => {
   let component: ShareListSheetComponent;
@@ -17,23 +18,16 @@ describe('ShareListSheetComponent', () => {
   let bottomSheetRefMock: jasmine.SpyObj<MatBottomSheetRef>;
 
   beforeEach(async () => {
-    const AuthMock = jasmine.createSpyObj('AuthService', [], {
-      me: signal(new MockMyMeDocument())
-    });
-    const DataMock = jasmine.createSpyObj('DataService', [], {db: {items: {find: () => {return {
-      remove: () => {},
-      patch: () => {}
-    }}}}});
     bottomSheetRefMock = jasmine.createSpyObj('BottomSheetRef', ['dismiss']);
 
     await TestBed.configureTestingModule({
       providers: [
-        { provide: AuthService, useValue: AuthMock },
-        { provide: DataService, useValue: DataMock },
+        { provide: AuthService, useClass: AuthServiceSpy },
+        { provide: DataService, useClass: DataServiceSpy },
         { provide: MatBottomSheetRef, useValue: bottomSheetRefMock},
         { provide: MAT_BOTTOM_SHEET_DATA, useValue: {
           lists: signal(new MockMyListsDocument()),
-          users: signal(undefined),
+          users: signal([]),
           isAdmin: false,
         } },
         provideAnimations(),

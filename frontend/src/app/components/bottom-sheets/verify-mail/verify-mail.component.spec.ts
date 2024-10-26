@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { VerifyMailComponent } from './verify-mail.component';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { MatBottomSheetRefMock } from '../../../../testing/mocks';
 
 describe('VerifyMailComponent', () => {
   let component: VerifyMailComponent;
@@ -10,10 +11,9 @@ describe('VerifyMailComponent', () => {
   let bottomSheetMock: jasmine.SpyObj<MatBottomSheetRef>;
 
   beforeEach(async () => {
-    const BottomSheetRef = jasmine.createSpyObj('BottomSheet', ['dismiss']);
     await TestBed.configureTestingModule({
       providers: [
-        { provide: MatBottomSheetRef, useValue: BottomSheetRef }
+        { provide: MatBottomSheetRef, useValue: MatBottomSheetRefMock }
       ]
     }).compileComponents();
 

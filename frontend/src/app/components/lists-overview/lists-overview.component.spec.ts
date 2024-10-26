@@ -6,8 +6,10 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AuthService } from '../../services/auth/auth.service';
 import { DataService } from '../../services/data/data.service';
 import { signal } from '@angular/core';
-import { MockMyListsDocument } from '../../services/auth/auth.service.mock';
+import { AuthServiceSpy, MockMyListsDocument } from '../../services/auth/auth.service.mock';
 import { of } from 'rxjs';
+import { DataServiceSpy } from '../../services/data/data.service.mock';
+import { MatBottomSheetRefMock } from '../../../testing/mocks';
 
 describe('ListsOverviewComponent', () => {
   let component: ListsOverviewComponent;
@@ -19,23 +21,11 @@ describe('ListsOverviewComponent', () => {
 
 
   beforeEach(async () => {
-    const AuthMock = jasmine.createSpyObj('AuthService', [], {
-      me: signal(undefined)
-    });
-    const DataMock = jasmine.createSpyObj('DataService', [], {db: {
-      lists: {
-        find: () => {return {$: of(new MockMyListsDocument())}},
-        insert: () => {}
-      }
-    }});
-    const BottomSheetMock = jasmine.createSpyObj('BottomSheet', ['open']);
-  
-
     await TestBed.configureTestingModule({
       providers: [
-        { provide: AuthService, useValue: AuthMock },
-        { provide: DataService, useValue: DataMock },
-        { provide: MatBottomSheet, useValue: BottomSheetMock },
+        { provide: AuthService, useClass: AuthServiceSpy },
+        { provide: DataService, useClass: DataServiceSpy },
+        { provide: MatBottomSheet, useValue: MatBottomSheetRefMock },
         provideAnimations(),
       ]
     }).compileComponents();

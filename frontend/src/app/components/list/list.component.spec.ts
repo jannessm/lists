@@ -7,7 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { Component, EventEmitter, Input, Output, Signal, signal, WritableSignal } from '@angular/core';
+import { Component, EventEmitter, Input, NO_ERRORS_SCHEMA, Output, Signal, signal, WritableSignal } from '@angular/core';
 import { ListHeaderComponent } from './list-header/list-header.component';
 import { ListItemComponent } from './list-item/list-item.component';
 import { DateChipSelectComponent } from '../selects/date-chip-select/date-chip-select.component';
@@ -16,59 +16,13 @@ import { MyUsersDocument } from '../../mydb/types/users';
 import { MyListsDocument } from '../../mydb/types/lists';
 import { MyMeDocument } from '../../mydb/types/me';
 import { MyItemDocument } from '../../mydb/types/list-item';
-import { MockMyItemDocument } from '../../services/auth/auth.service.mock';
+import { AuthServiceSpy, MockMyItemDocument } from '../../services/auth/auth.service.mock';
+import { DataServiceSpy } from '../../services/data/data.service.mock';
+import { provideHttpClient } from '@angular/common/http';
+import { MatSnackBarMock } from '../../../testing/mocks';
+import { UsersServiceSpy } from '../../services/users/users.service.mock';
 
 describe('ListComponent', () => {
-  @Component({
-    selector: "app-test",
-    standalone: true,
-    template: ``,
-  })
-  class TestComponent {}
-
-  @Component({
-    selector: "app-list-header",
-    standalone: true,
-    template: ``,
-  })
-  class TestHeaderComponent {
-    @Input() lists!: Signal<MyListsDocument>;
-    @Input() users: WritableSignal<MyUsersDocument[]> = signal([]);
-    @Input() isAdmin = false;
-
-    @Output() listToText = new EventEmitter<void>();
-  }
-
-  @Component({
-    selector: "app-list-item",
-    standalone: true,
-    template: ``,
-  })
-  class TestItemComponent {
-    @Input()
-    me!: Signal<MyMeDocument>;
-    @Input()
-    list!: Signal<MyListsDocument>;
-    @Input()
-    item!: MyItemDocument;
-  }
-
-  @Component({
-    selector: "app-date-chip-select",
-    standalone: true,
-    template: ``,
-  })
-  class TestDateChipComponent {
-    @Input()
-    set showOthers(showOthers: boolean) {}
-    get showOthers() {return true;}
-    @Input() options: [key: string, value: string][] = [];
-    @Input() defaultOption: string | undefined;
-  
-    @Output() pickrOpened = new EventEmitter<void>();
-    @Output() pickrClosed = new EventEmitter<Event>();
-  }
-
   let component: ListComponent;
   let fixture: ComponentFixture<ListComponent>;
 
@@ -79,38 +33,18 @@ describe('ListComponent', () => {
   let user = signal(undefined);
 
   beforeEach(async () => {
-    const AuthMock = jasmine.createSpyObj('AuthService', ['shareLists', 'unshareLists'], {me: user});
-    const DataMock = jasmine.createSpyObj('DataService', [], {db: {
-      items: {
-        insert: () => Promise.resolve(),
-        find: () => {return {$$: signal([new MockMyItemDocument()])}}
-      },
-      lists: {
-        findOne: () => {return {$$: signal(undefined)}}
-      },
-      groceryCategories: {}}});
-    const UserMock = jasmine.createSpyObj('AuthService', ['shareLists', 'unshareLists']);
-    const SnackBarMock = jasmine.createSpyObj('SnackBar', ['open']);
-
-    TestBed.overrideComponent(ListComponent, {
-      add: {
-        imports: [TestHeaderComponent, TestItemComponent, TestDateChipComponent]
-      },
-      remove: {
-        imports: [ListHeaderComponent, ListItemComponent, DateChipSelectComponent]
-      }
-    })
-    
     await TestBed.configureTestingModule({
       providers: [
-        { provide: AuthService, useValue: AuthMock },
-        { provide: DataService, useValue: DataMock },
-        { provide: UsersService, useValue: UserMock },
-        { provide: MatSnackBar, useValue: SnackBarMock },
+        { provide: AuthService, useClass: AuthServiceSpy },
+        { provide: DataService, useClass: DataServiceSpy },
+        { provide: UsersService, useClass: UsersServiceSpy },
+        { provide: MatSnackBar, useValue: MatSnackBarMock },
         provideAnimations(),
-        provideRouter([{path: 'user/lists', component: TestComponent}]),
+        provideRouter([]),
+        provideHttpClient(),
         provideHttpClientTesting(),
-      ]
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     authMock = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;

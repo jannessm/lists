@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { DataService } from '../data/data.service';
 import { MyUsersDocument } from '../../mydb/types/users';
-import { Observable, combineLatest, combineLatestAll, filter, map, merge, tap } from 'rxjs';
+import { Observable, combineLatest, filter, map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'

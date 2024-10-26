@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ConfirmSheetComponent } from './confirm-sheet.component';
 import { MAT_BOTTOM_SHEET_DATA, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { MatBottomSheetRefMock } from '../../../../testing/mocks';
 
 describe('ConfirmSheetComponent', () => {
   let component: ConfirmSheetComponent;
@@ -11,11 +12,9 @@ describe('ConfirmSheetComponent', () => {
   let bottomSheetMock: jasmine.SpyObj<MatBottomSheetRef>;
 
   beforeEach(async () => {
-    const BottomSheetRef = jasmine.createSpyObj('BottomSheet', ['dismiss']);
-  
     await TestBed.configureTestingModule({
       providers: [
-        { provide: MatBottomSheetRef, useValue: BottomSheetRef },
+        { provide: MatBottomSheetRef, useValue: MatBottomSheetRefMock },
         { provide: MAT_BOTTOM_SHEET_DATA, useValue: undefined },
         provideAnimations(),
       ]

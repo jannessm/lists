@@ -4,21 +4,19 @@ import { EditFormComponent } from './edit-form.component';
 import { Signal, signal } from '@angular/core';
 import { AuthService } from '../../../services/auth/auth.service';
 import { MyMeDocument } from '../../../mydb/types/me';
+import { AuthServiceSpy } from '../../../services/auth/auth.service.mock';
 
 describe('EditFormComponent', () => {
   let component: EditFormComponent;
   let fixture: ComponentFixture<EditFormComponent>;
 
   let authMock: jasmine.SpyObj<AuthService>;
-  let meSignal: Signal<MyMeDocument | undefined>;
 
   beforeEach(async () => {
-    meSignal = signal(undefined);
-    const AuthServiceMock = jasmine.createSpyObj('AuthService', ['changeEmail', 'changePwd', 'logout'], {'me': meSignal});
 
     await TestBed.configureTestingModule({
       providers: [
-        { provide: AuthService, useValue: AuthServiceMock },
+        { provide: AuthService, useClass: AuthServiceSpy },
       ]
     }).compileComponents();
 

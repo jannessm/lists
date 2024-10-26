@@ -9,9 +9,11 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { Component, signal, WritableSignal } from '@angular/core';
 import { DataService } from '../../../services/data/data.service';
-import { MockMyListsDocument } from '../../../services/auth/auth.service.mock';
+import { AuthServiceSpy, MockMyListsDocument } from '../../../services/auth/auth.service.mock';
 import { MyListsDatabase } from '../../../mydb/types/database';
 import { MyListsDocument } from '../../../mydb/types/lists';
+import { DataServiceSpy } from '../../../services/data/data.service.mock';
+import { MatBottomSheetMock, MatSnackBarMock } from '../../../../testing/mocks';
 
 describe('ListHeaderComponent', () => {
   @Component({
@@ -33,21 +35,12 @@ describe('ListHeaderComponent', () => {
   let snackBarMock: jasmine.SpyObj<MatSnackBar>;
 
   beforeEach(async () => {
-    const AuthMock = jasmine.createSpyObj('AuthService', ['shareLists', 'unshareLists']);
-    const DataMock = jasmine.createSpyObj('DataService', [], {db: {items: {find: () => {return {
-      remove: () => {},
-      patch: () => {}
-    }}}}});
-    const SnackBarMock = jasmine.createSpyObj('SnackBar', ['open']);
-    const BottomSheetMock = jasmine.createSpyObj('BottomSheet', ['open']);
-    bottomSheetRefMock = jasmine.createSpyObj('BottomSheetRef', ['afterDissmised']);
-
     await TestBed.configureTestingModule({
       providers: [
-        { provide: AuthService, useValue: AuthMock },
-        { provide: DataService, useValue: DataMock },
-        { provide: MatSnackBar, useValue: SnackBarMock },
-        { provide: MatBottomSheet, useValue: BottomSheetMock },
+        { provide: AuthService, useClass: AuthServiceSpy },
+        { provide: DataService, useClass: DataServiceSpy },
+        { provide: MatSnackBar, useValue: MatSnackBarMock },
+        { provide: MatBottomSheet, useClass: MatBottomSheetMock },
         provideAnimations(),
         provideRouter([{path: 'user/lists', component: TestComponent}]),
         provideHttpClientTesting(),
@@ -57,7 +50,6 @@ describe('ListHeaderComponent', () => {
     authMock = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     snackBarMock = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     bottomSheetMock = TestBed.inject(MatBottomSheet) as jasmine.SpyObj<MatBottomSheet>;
-    bottomSheetMock.open.and.returnValue(bottomSheetRefMock);
 
     fixture = TestBed.createComponent(ListHeaderComponent);
     component = fixture.componentInstance;

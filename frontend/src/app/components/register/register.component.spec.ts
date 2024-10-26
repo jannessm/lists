@@ -3,9 +3,10 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RegisterComponent } from './register.component';
 import { AuthService } from '../../services/auth/auth.service';
 import { Component } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, RouterLink } from '@angular/router';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { AuthServiceSpy } from '../../services/auth/auth.service.mock';
 
 describe('RegisterComponent', () => {
   @Component({
@@ -21,13 +22,15 @@ describe('RegisterComponent', () => {
   let authMock: jasmine.SpyObj<AuthService>;
 
   beforeEach(async () => {
-    const AuthMock = jasmine.createSpyObj('AuthService', ['register']);
 
     await TestBed.configureTestingModule({
+      imports: [
+        RouterLink
+      ],
       providers: [
-        { provide: AuthService, useValue: AuthMock },
+        { provide: AuthService, useValue: AuthServiceSpy },
         provideAnimations(),
-        provideRouter([{path: 'login', component: TestComponent}]),
+        provideRouter([]),
         provideHttpClientTesting(),
       ]
     }).compileComponents();
