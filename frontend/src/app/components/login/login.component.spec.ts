@@ -7,6 +7,7 @@ import { MyMeDocument } from '../../mydb/types/me';
 import { provideRouter } from '@angular/router';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { HCaptchaComponent } from '../hcaptcha/hcaptcha.component';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 describe('LoginComponent', () => {
   @Component({
@@ -23,7 +24,7 @@ describe('LoginComponent', () => {
     template: ``,
   })
   class TestCaptchaComponent {
-    @Input() initCaptch: any;
+    @Input() init!: Signal<boolean>;
     @Output() verify = new EventEmitter<string>();
     @Output() expired = new EventEmitter<any>();
     @Output() error = new EventEmitter<any>();
@@ -49,7 +50,7 @@ describe('LoginComponent', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useValue: AuthServiceMock },
-
+        provideAnimations(),
         provideRouter([
           {path: 'forgot-password', component: TestLoginComponent},
           {path: 'register', component: TestLoginComponent}

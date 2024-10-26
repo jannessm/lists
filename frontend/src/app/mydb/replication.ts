@@ -102,7 +102,7 @@ export class Replicator {
     
                     clearInterval(pushInterval);
                 } catch { }
-            }, 60 * 1000);
+            }, 10 * 1000);
         });
     }
 

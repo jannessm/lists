@@ -56,7 +56,7 @@ describe('SettingsComponent', () => {
       remove: {
         imports: [EditFormComponent, ThemeFormComponent, PushFormComponent, OthersFormComponent]
       }
-    })
+    });
 
     TestBed.configureTestingModule({
       providers: [
