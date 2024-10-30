@@ -23,7 +23,6 @@ describe('ListHeaderComponent', () => {
   })
   class TestComponent {}
 
-
   let component: ListHeaderComponent;
   let fixture: ComponentFixture<ListHeaderComponent>;
   

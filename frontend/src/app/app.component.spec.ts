@@ -17,6 +17,9 @@ let mockCookieService: jasmine.SpyObj<CookieService>;
 let mockSwUpdate: jasmine.SpyObj<SwUpdate>;
 let mockBottomSheet: jasmine.SpyObj<MatBottomSheet>;
 
+// prevent unload error
+window.onbeforeunload = jasmine.createSpy();
+
 describe('AppComponent', () => {
   beforeEach(async () => {
     const MockThemeService = jasmine.createSpyObj('ThemeService', ['isDark']);

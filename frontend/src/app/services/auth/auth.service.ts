@@ -73,7 +73,7 @@ export class AuthService {
     }
 
     return this.api.login(email, password, captcha).pipe(
-      map(success => {
+      map(success => { 
         if (success) {
           this.isLoggedIn.set(true);
 
