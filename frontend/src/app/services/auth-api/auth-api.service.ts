@@ -14,7 +14,9 @@ export class AuthApiService {
   }
 
   refreshCSRF() {
-    this.http.get(BASE_API.replace('api/', '') + "sanctum/csrf-cookie").subscribe(()=>{});
+    this.http.get(BASE_API.replace('api/', '') + "sanctum/csrf-cookie", {
+      headers: {'ngsw-bypass': 'true'}
+    }).subscribe(()=>{});
   }
 
   login(email: string, password: string, captcha: string): Observable<boolean> {
