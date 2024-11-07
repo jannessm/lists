@@ -44,6 +44,7 @@ export class Replicator {
     }
 
     public async pull() {
+        console.log('pull', this.identifier);
         while(true) {
             const lastCheckpoint = await this.collection.getLastCheckpoint()
             const newDocs = await this.pullOptions.handler(
