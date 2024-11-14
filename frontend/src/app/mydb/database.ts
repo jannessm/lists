@@ -72,6 +72,7 @@ export class MyDatabase {
     }
 
     next(collection: string, changes: MyDocument<any, any>[], replicate = true) {
+        console.log('new change', collection, changes);
         this.changes.next({
             collection,
             replicate,
