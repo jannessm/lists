@@ -20,6 +20,7 @@ export class ReplicationService implements OnDestroy {
 
   @HostListener('document:visibilitychange', ['$event'])
   visibilitychange() {
+    console.log('visibility change');
     if (this.lastPusherState) {
       Object.values(this.streamSubjects).forEach(subj => {
         subj.next('RESYNC');
@@ -105,16 +106,16 @@ export class ReplicationService implements OnDestroy {
           const query = pushQuery(changedRows);
 
           query.query = fixQuery(query.query);
-    
+
           const result = await firstValueFrom(that.api.graphQL<MutationResponse<PushResult>>(query));
 
           return (result.data as PushResult)['push' + operationName];
         },
         modifier: (doc: any) => {
           removeItems(doc, ['sharedWith', 'items']);
-          
+
           unpackRef(doc, ['createdBy']);
-          
+
           if (collectionName == 'me') {
             delete doc['lists'];
           } else if ('lists' in doc) {
@@ -146,7 +147,7 @@ export class ReplicationService implements OnDestroy {
       headers = {id: meId}
     }
     const query = pullStreamQuery(headers);
-    
+
     // fix array items
     query.query = fixQuery(query.query);
 

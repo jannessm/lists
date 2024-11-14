@@ -29,7 +29,7 @@ export class Replicator {
         this.localEvents$ = this.collection.replication$.subscribe(docs => {
             this.push(docs);
         });
-        
+
         this.pull().then(() => this.startStream());
     }
 
@@ -100,10 +100,10 @@ export class Replicator {
             const pushInterval = setInterval(async () => {
                 try {
                     await this.pushInterval(docs);
-    
+
                     clearInterval(pushInterval);
                 } catch { }
-            }, 60 * 1000);
+            }, 10 * 1000);
         });
     }
 
@@ -125,10 +125,10 @@ export class Replicator {
                     return doc;
                 });
             }
-            
+
             // update masterstate
             await this.collection.remoteBulkAdd(conflicts);
-            
+
             // try again with updated data
             return await this.pushInterval(docs, true);
         } else if (conflicts.length === 0) {
@@ -164,12 +164,12 @@ export class Replicator {
                     delete mod[key];
             }
         });
-        
+
         // apply modifier if defined
         if (!!this.pushOptions?.modifier) {
             mod = this.pushOptions.modifier(mod);
         }
-        
+
         return mod;
     }
 }
