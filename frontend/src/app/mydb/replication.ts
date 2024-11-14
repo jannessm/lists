@@ -91,6 +91,8 @@ export class Replicator {
     public push(docs: MyDocument<any, unknown>[]) {
         if (docs.length === 0 || !this.pushOptions) return;
 
+        console.log('push', docs);
+
         // create deep copies to avoid modifying MyDocument instances.
         docs = docs.map(doc => doc.isClassObject ? doc.lastData : doc)
             .map(doc => JSON.parse(JSON.stringify(doc)));
