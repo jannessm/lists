@@ -1,4 +1,4 @@
-import { Component, WritableSignal, effect, signal } from '@angular/core';
+import { Component, HostListener, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
@@ -14,6 +14,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ConfirmSheetComponent } from './components/bottom-sheets/confirm-sheet/confirm-sheet.component';
 import { WebPushService } from './services/web-push/web-push.service';
 import { IosService } from './services/ios/ios.service';
+import { ReplicationService } from './services/replication/replication.service';
 
 @Component({
   selector: 'app-root',
@@ -35,6 +36,17 @@ export class AppComponent {
   animationState = 'start';
   loading = false;
 
+  @HostListener('document:visibilitychange', ['$event'])
+  @HostListener('document:pageshow', ['event'])
+  @HostListener('document:focus', ['event'])
+  resync() {
+    if (this.replicationService.lastPusherState) {
+      Object.values(this.replicationService.streamSubjects).forEach(subj => {
+        subj.next('RESYNC');
+      });
+    }
+  }
+
   constructor(
     public pusher: PusherService,
     public authService: AuthService,
@@ -45,7 +57,8 @@ export class AppComponent {
     private swUpdate: SwUpdate,
     private bottomSheet: MatBottomSheet,
     private webPush: WebPushService,
-    private iosService: IosService
+    private iosService: IosService,
+    private replicationService: ReplicationService
   ) {
     effect(() => {
       this.setTheme(this.themeService.isDark());

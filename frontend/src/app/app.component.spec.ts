@@ -11,6 +11,8 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { WebPushService } from './services/web-push/web-push.service';
 import { IosService } from './services/ios/ios.service';
 import { of } from 'rxjs';
+import { ReplicationService } from './services/replication/replication.service';
+import { ReplicationServiceMock } from './services/replication/replication.service.mock';
 
 let mockThemeService: jasmine.SpyObj<ThemeService>;
 let mockCookieService: jasmine.SpyObj<CookieService>;
@@ -41,6 +43,7 @@ describe('AppComponent', () => {
         { provide: CookieService, useValue: MockCookieService },
         { provide: SwUpdate, useValue: MockSwUpdate },
         { provide: MatBottomSheet, useValue: MockBottomSheet },
+        { provide: ReplicationService, useValue: ReplicationServiceMock }
       ]
     }).compileComponents();
 

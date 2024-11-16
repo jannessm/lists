@@ -1,4 +1,4 @@
-import { HostListener, Injectable, OnDestroy } from '@angular/core';
+import { Host, HostListener, Injectable, OnDestroy } from '@angular/core';
 import { DataApiService } from '../data-api/data-api.service';
 import { Subject, firstValueFrom } from 'rxjs';
 import { DATA_TYPE, graphQLGenerationInput } from '../../mydb/types/graphql-types';
@@ -17,17 +17,6 @@ type GenerationInputKey = keyof typeof graphQLGenerationInput;
   providedIn: 'root'
 })
 export class ReplicationService implements OnDestroy {
-
-  @HostListener('document:visibilitychange', ['$event'])
-  visibilitychange() {
-    console.log('visibility change');
-    if (this.lastPusherState) {
-      Object.values(this.streamSubjects).forEach(subj => {
-        subj.next('RESYNC');
-      });
-    }
-
-  }
 
   replications: {[key: string]: any} = {};
   streamSubjects: {[key: string]: Subject<any>} = {};
