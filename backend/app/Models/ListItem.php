@@ -86,11 +86,20 @@ class ListItem extends Model
                                 $conflict = !$val->eq($masterItem[$param]);
                                 break;
                             }
+                            break;
+                        case "description":
+                            if (!!$val) {
+                                $conflict = $masterItem[$param] !== $val;
+                            } else {
+                                $conflict = !$val !== !$masterItem[$param];
+                            }
+                            break;
                         default:
                             $conflict = $masterItem[$param] !== $val;
                     }
 
                     if ($conflict) {
+//                        var_dump($param, $val, $masterItem[$param], !$val, !$masterItem[$param]);
                         array_push($conflicts, $masterItem);
                         break;
                     }
@@ -141,7 +150,7 @@ class ListItem extends Model
                 array_push($newName, substr($parsed['host'], 0, $max_len));
                 array_push($newDescription, $part);
                 $was_domain = true;
-            
+
             // if $part is url and there is name parts move url to description
             } elseif (!$was_domain && $is_valid_url) {
                 array_push($newDescription, $part);
@@ -149,9 +158,9 @@ class ListItem extends Model
 
             // if $part is no url and adding it to the previous name parts is still valid
             } elseif (!$was_domain && $newNameLen + strlen($part) + 1 <= $max_len) {
-                array_push($newName, $part);                    
+                array_push($newName, $part);
                 $newNameLen += strlen($part) + 1;
-            
+
             // else add $part to the description
             } else {
                 array_push($newDescription, $part);
