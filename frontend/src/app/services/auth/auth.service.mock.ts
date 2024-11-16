@@ -49,4 +49,5 @@ export class MockMyItemDocument {
   _deleted = false;
   patch = () => Promise.resolve();
   remove = () => {this._deleted = true; return Promise.resolve()};
+  links = () => [];
 }
