@@ -111,6 +111,10 @@ export class ReplicationService implements OnDestroy {
             doc['lists'] = {id: doc['lists']};
           }
 
+          if ('description' in doc && !doc.description) {
+            doc.description = null;
+          }
+
           return doc;
         }
       };
