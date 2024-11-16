@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnDestroy, Output, Signal, WritableSignal, effect, signal } from '@angular/core';
 import { MaterialModule } from '../../../material.module';
 import { CommonModule } from '@angular/common';
-import { MyItemDocument } from '../../../mydb/types/list-item';
+import { MyItemDocument, splitName } from '../../../mydb/types/list-item';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { UpdateItemSheetComponent } from '../../bottom-sheets/update-item-sheet/update-item-sheet.component';
 import { MyListsDocument } from '../../../mydb/types/lists';
@@ -13,6 +13,7 @@ import { MyMeDocument } from '../../../mydb/types/me';
 import { UsersService } from '../../../services/users/users.service';
 import { MyUsersDocument } from '../../../mydb/types/users';
 import { Observable, Subscription } from 'rxjs';
+import { OpenLinkSheetComponent } from '../../bottom-sheets/open-link-sheet/open-link-sheet.component';
 
 @Component({
   selector: 'app-list-item',
@@ -97,8 +98,22 @@ export class ListItemComponent implements OnDestroy {
 
     updateSheetRef.afterDismissed().subscribe(patch => {
       if (this.item && patch) {
+        if (patch.name && patch.name.length > 50) {
+          patch = splitName(patch);
+        }
         this.item.patch(patch);
       }
     });
+  }
+
+  openLink(item: MyItemDocument) {
+    const links = item.links();
+    if (links.length > 1) {
+      this.bottomSheet.open(OpenLinkSheetComponent, {
+        data: links
+      });
+    } else {
+      window.open(links[0], '_blank');
+    }
   }
 }

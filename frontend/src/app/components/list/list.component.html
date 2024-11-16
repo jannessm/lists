@@ -44,7 +44,8 @@
 
         <mat-toolbar class="toolbar-input" [class.focusInput]="focusInput" [class.isShoppingList]="list() ? list().isShoppingList : false">
             <form>
-                <input #addInput matInput placeholder="Hinzufügen" class="add-input" [formControl]="newItem" autocomplete="off">
+                <input #addInput matInput placeholder="Hinzufügen" class="add-input" 
+                    [formControl]="newItem" autocomplete="off" [maxlength]="list() && list().isShoppingList ? 50 : 524288">
                 <button mat-icon-button (click)="addItem()"><mat-icon>add</mat-icon></button>
             </form>
         </mat-toolbar>

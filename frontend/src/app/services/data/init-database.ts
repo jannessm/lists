@@ -7,6 +7,7 @@ import { MyDatabase, createMyDatabase } from "../../mydb/database";
 import { ME_SCHEMA } from "../../mydb/types/me";
 import { LISTS_SCHEMA, listsConflictHandler } from "../../mydb/types/lists";
 import { USERS_SCHEMA } from "../../mydb/types/users";
+import { isValidUrl } from "../../pipes/linkify.pipe";
 
 export let DB_INSTANCE: any;
 
@@ -89,6 +90,22 @@ export async function addCollections(db: MyDatabase): Promise<MyDatabase> {
         },
         [DATA_TYPE.LIST_ITEM]: {
             schema: ITEM_SCHEMA,
+            methods: {
+                links: function() {
+                    const links: string[] = [];
+                    const description = (this as any).description as string | null | undefined || '';
+
+                    description.split('\n').forEach(line => {
+                        line.split(' ').forEach(word => {
+                            if (isValidUrl(word)) {
+                                links.push(word);
+                            }
+                        })
+                    });
+
+                    return links;
+                }
+            },
             conflictHandler: itemsConflictHandler
         }
     });

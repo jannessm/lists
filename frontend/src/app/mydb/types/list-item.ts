@@ -21,6 +21,8 @@ export function newItem(item: any): any {
         _deleted: false
     }
 
+    item = splitName(item);
+
     Object.assign(newItem, item);
 
     return newItem;
@@ -69,7 +71,9 @@ export const ITEM_SCHEMA = {
 type MyItemDocumentType = AsTyped<typeof ITEM_SCHEMA>;
 
 // ORM methods
-type MyItemDocumentMethods = { };
+type MyItemDocumentMethods = {
+    links(): string[];
+};
 
 export type MyItemDocument = MyDocument<MyItemDocumentType, MyItemDocumentMethods>
 export type MyItemCollection = MyCollection<MyItemDocumentType, MyItemDocumentMethods, Signal<unknown>>;
@@ -80,16 +84,13 @@ export function itemsConflictHandler(
     trueMasterState: MyItemDocumentType | undefined,
 ) {
     // if no master state was ever registered
-    if (!assumedMasterState || !trueMasterState) {
+    if (!assumedMasterState || !trueMasterState || assumedMasterState.id !== forkState.id || trueMasterState.id !== forkState.id) {
         return forkState;
     // overwrite fork state with master changes that are different from the assumedMaster
     } else {
         const newState: MyItemDocumentType = JSON.parse(JSON.stringify(forkState));
         if (assumedMasterState.name !== trueMasterState.name) {
             newState.name = trueMasterState.name;
-        }
-        if (assumedMasterState.done !== trueMasterState.done) {
-            newState.done = trueMasterState.done;
         }
         if (assumedMasterState.description !== trueMasterState.description) {
             newState.description = trueMasterState.description;
@@ -100,6 +101,12 @@ export function itemsConflictHandler(
         if (assumedMasterState.due !== trueMasterState.due) {
             newState.due = trueMasterState.due;
         }
+        if (assumedMasterState.timezone !== trueMasterState.timezone) {
+            newState.timezone = trueMasterState.timezone;
+        }
+        if (assumedMasterState.done !== trueMasterState.done) {
+            newState.done = trueMasterState.done;
+        }
         if (assumedMasterState.updatedAt !== trueMasterState.updatedAt) {
             newState.updatedAt = trueMasterState.updatedAt;
         }
@@ -109,4 +116,55 @@ export function itemsConflictHandler(
 
         return newState;
     }
+}
+
+export function splitName(item: MyItemDocumentType | {name: string, description?: string | null}, maxLength=50) {
+    const parts = item.name.split(' ');
+    const newName: string[] = [];
+    const newDescription: string[] = [];
+    let newNameLen = -1; // first has no space in front
+    let wasDomain = false;
+
+    parts.forEach((part) => {
+        let parsed;
+        try {
+            parsed = new URL(part);
+        } catch { }
+        
+        // if part is URL and no domain was parsed yet, set host as name
+        // and move the URL to the description
+        if (!wasDomain && !!parsed && newName.length === 0) {
+            newName.push(parsed.hostname.substring(0, maxLength));
+            newDescription.push(part);
+            wasDomain = true;
+        
+        // if part is URL and there is already a name, move URL to description
+        } else if (!wasDomain && !!parsed) {
+            newDescription.push(part);
+            wasDomain = true;
+
+        // if part is not a URL and adding it to the previous name parts is still valid
+        } else if (!wasDomain && newNameLen + part.length + 1 <= maxLength) {
+            newName.push(part);                    
+            newNameLen += part.length + 1;
+        
+        // else add part to the description
+        } else {
+            newDescription.push(part);
+        }
+    });
+
+    item.name = newName.join(' ');
+
+    const newDescriptionJoined = newDescription.join(' ');
+    newDescription.length = 0; // clear the array
+    if (newDescriptionJoined.length > 0) {
+        newDescription.push(newDescriptionJoined);
+    }
+    if (item.description && item.description.length > 0) {
+        newDescription.push(item.description);
+    }
+    item.description = newDescription.join("\n\n") || null;
+
+    return item;
 }

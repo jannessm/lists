@@ -22,9 +22,11 @@
                 <ng-template #shortTime>{{item.due | date:'shortTime'}}</ng-template>
                 <ng-template #short>{{item.due | date:'short'}}</ng-template>
             </mat-chip-listbox>
-            <button mat-mini-fab disabled *ngIf="createdBy() && item && me().id !== createdBy()?.id" [class]="'mini-user-fab user-fab-' + userFab(item) % 12">{{createdBy()?.name | nameBadge}}</button>
         </div>
 
+        <button mat-icon-button (click)="openLink(item); $event.stopPropagation()" *ngIf="item && item.links().length > 0"><mat-icon>link</mat-icon></button>
         <button mat-icon-button (click)="deleteItem(item); $event.stopPropagation()" *ngIf="item && item.done"><mat-icon>close</mat-icon></button>
+
+        <div class="created-marker" *ngIf="createdBy() && item && me().id !== createdBy()?.id" [class]="'user-fab-' + userFab(item) % 12"></div>
     </div>
 </div>

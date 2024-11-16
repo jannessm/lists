@@ -13,6 +13,7 @@
     border-radius: 8px;
     margin: 6px 0;
     width: 100%;
+    overflow: hidden;
     
     button {
         color: grey;
@@ -46,6 +47,13 @@
         }
     
         button:not(.mini-user-fab) {
+            position: absolute;
+            right: 0;
+        }
+
+        .created-marker {
+            height: 100%;
+            width: 4px;
             position: absolute;
             right: 0;
         }

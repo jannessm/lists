@@ -138,7 +138,7 @@ class ListItem extends Model
             // if $part is url and no domain was parsed yet ($was_domain) => set host as name
             // and move the url to the description
             if (!$was_domain && $is_valid_url && count($newName) === 0) {
-                array_push($newName, substr($parsed['host'], 0, 50));
+                array_push($newName, substr($parsed['host'], 0, $max_len));
                 array_push($newDescription, $part);
                 $was_domain = true;
             
@@ -148,7 +148,7 @@ class ListItem extends Model
                 $was_domain = true;
 
             // if $part is no url and adding it to the previous name parts is still valid
-            } elseif (!$was_domain && $newNameLen + strlen($part) + 1 <= 50) {
+            } elseif (!$was_domain && $newNameLen + strlen($part) + 1 <= $max_len) {
                 array_push($newName, $part);                    
                 $newNameLen += strlen($part) + 1;
             
@@ -165,7 +165,7 @@ class ListItem extends Model
         if (strlen($newDescriptionJoined) > 0) {
             array_push($newDescription, $newDescriptionJoined);
         }
-        if (strlen($newState['description']) > 0) {
+        if (!!$newState['description'] && strlen($newState['description']) > 0) {
             array_push($newDescription, $newState['description']);
         }
         $newState['description'] = join("\n\n", $newDescription);

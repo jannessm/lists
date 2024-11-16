@@ -1,0 +1,9 @@
+.link {
+    height: auto;
+    border-radius: 10px;
+    min-height: 48px;
+
+    &:nth-last-child(2) {
+        margin-bottom: 50px;
+    }
+}

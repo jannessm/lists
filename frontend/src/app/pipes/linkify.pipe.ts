@@ -19,7 +19,7 @@ export class LinkifyPipe implements PipeTransform {
     if (text && text.length > 0) {
       for (let line of text.split('\n')) {
         for (let t of line.split(' ')) {
-          if (t.startsWith('http') && t.length > 7) {
+          if (isValidUrl(t)) {
             parsedText += `<a href="${t}" target="_blank">${t}</a> `;
           } else {
             parsedText += t + ' ';
@@ -34,4 +34,9 @@ export class LinkifyPipe implements PipeTransform {
     return text;
   }
 
+}
+
+export function isValidUrl(str: string): boolean {
+  const regex = /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z0-9]{2,}(\/[^\s]*)?$/i;
+  return regex.test(str);
 }

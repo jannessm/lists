@@ -6,7 +6,7 @@ import { MaterialModule } from '../../../material.module';
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { Subscription } from 'rxjs';
 import { MyListsDocument } from '../../../mydb/types/lists';
-import { MyItemDocument } from '../../../mydb/types/list-item';
+import { MyItemDocument, splitName } from '../../../mydb/types/list-item';
 import { DueOptionLabels, ReminderOption, ReminderOptionLabels, getDueDate, getDueValue, getReminderDate, getReminderValue } from '../../selects/date-chip-select/options';
 import { DateChipSelectComponent } from '../../selects/date-chip-select/date-chip-select.component';
 import { DateInputSelectComponent } from '../../selects/date-input-select/date-input-select.component';
@@ -136,7 +136,6 @@ export class UpdateItemSheetComponent implements OnDestroy {
       dueChanged &&
       !this.list().isShoppingList
     ) {
-      console.log(this.data.item.due, due);
       Object.assign(patch, {
         due
       });
@@ -155,8 +154,6 @@ export class UpdateItemSheetComponent implements OnDestroy {
         this.form.get('reminder')?.value
       );
 
-      console.log(reminder);
-
       const reminderChanged = !datesAreEqual(
         reminder,
         this.data.item.reminder || null
@@ -168,7 +165,16 @@ export class UpdateItemSheetComponent implements OnDestroy {
       }
     }
 
-    console.log(patch);
+    // check if name length is valid
+    if (!(patch as any)['name'] && this.data.item.name.length > 50) {
+      const item = {name: this.data.item.name, description: this.data.item.description};
+      if ((patch as any)['description'] !== undefined) {
+        item.description = (patch as any).description;
+      }
+      const mod = splitName(item);
+      Object.assign(patch, {name: mod.name, description: mod.description});
+    }
+
     this.bottomSheetRef.dismiss(patch);
   }
 }

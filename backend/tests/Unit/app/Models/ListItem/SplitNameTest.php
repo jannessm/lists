@@ -16,17 +16,17 @@ class SplitNameTest extends TestCase
     #[TestWith(["01234567890123456789012345678901234567890123456789"])]
     public function smaller_than_50_does_nothing(String $name): void
     {
-        $state = ['name' => $name, 'description' => ''];
+        $state = ['name' => $name, 'description' => null];
         ListItem::splitName($state);
         $this->assertEquals($state['name'], $name);
-        $this->assertEquals($state['description'], '');
+        $this->assertEquals($state['description'], null);
     }
 
     #[Test]
     #[TestWith(["012345678901234567890123456789012345678901234567891"])]
     public function moves_first_element_to_description_if_too_long(String $name): void
     {
-        $state = ['name' => $name, 'description' => ''];
+        $state = ['name' => $name, 'description' => null];
         $state = ListItem::splitName($state);
         $this->assertEquals($state['name'], '');
         $this->assertEquals($state['description'], $name);
@@ -36,7 +36,7 @@ class SplitNameTest extends TestCase
     #[TestWith(["https://test.com", "test.com"])]
     public function moves_url_to_description_even_if_too_short(String $name, String $newName): void
     {
-        $state = ['name' => $name, 'description' => ''];
+        $state = ['name' => $name, 'description' => null];
         $state = ListItem::splitName($state);
         $this->assertEquals($state['name'], $newName);
         $this->assertEquals($state['description'], $name);
@@ -48,7 +48,7 @@ class SplitNameTest extends TestCase
         String $name, String $newName, String $newDescription
     ): void
     {
-        $state = ['name' => $name, 'description' => ''];
+        $state = ['name' => $name, 'description' => null];
         $state = ListItem::splitName($state);
         $this->assertEquals($state['name'], $newName);
         $this->assertEquals($state['description'], $newDescription);
