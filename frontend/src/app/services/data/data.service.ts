@@ -11,7 +11,7 @@ import { Replicator } from '../../mydb/replication';
 import { PusherService } from '../pusher/pusher.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DataService implements OnDestroy {
   replications: {[key: string]: Replicator} = {};

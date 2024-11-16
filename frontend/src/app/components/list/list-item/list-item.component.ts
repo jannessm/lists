@@ -39,8 +39,8 @@ export class ListItemComponent implements OnDestroy {
   createdBy: WritableSignal<MyUsersDocument | undefined> = signal(undefined);
 
   constructor(
+    public users: UsersService,
     private bottomSheet: MatBottomSheet,
-    public users: UsersService
   ) {
     effect(() => {
       if (this.item && this.list()) {

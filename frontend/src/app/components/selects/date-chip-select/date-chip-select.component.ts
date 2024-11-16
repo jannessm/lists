@@ -28,7 +28,7 @@ import { MatChipListboxChange } from '@angular/material/chips';
   styleUrl: './date-chip-select.component.scss'
 })
 export class DateChipSelectComponent implements AfterViewInit {
-  
+
   @Input()
   set showOthers(showOthers: boolean) {
     this._showOthers = showOthers;

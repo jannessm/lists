@@ -1,6 +1,6 @@
 import { HostListener, Injectable, OnDestroy } from '@angular/core';
 import { DataApiService } from '../data-api/data-api.service';
-import { Subject, firstValueFrom, lastValueFrom } from 'rxjs';
+import { Subject, firstValueFrom } from 'rxjs';
 import { DATA_TYPE, graphQLGenerationInput } from '../../mydb/types/graphql-types';
 import { MutationResponse, PullResult, PushResult, QueryResponse, SubscriptionResponse } from '../../../models/responses';
 import { PusherService } from '../pusher/pusher.service';

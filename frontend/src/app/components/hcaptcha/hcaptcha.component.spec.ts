@@ -1,19 +1,24 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { HcaptchaComponent } from './hcaptcha.component';
+import { HCaptchaComponent } from './hcaptcha.component';
+import { signal } from '@angular/core';
+import { of } from 'rxjs';
 
-describe('HcaptchaComponent', () => {
-  let component: HcaptchaComponent;
-  let fixture: ComponentFixture<HcaptchaComponent>;
+describe('HCaptchaComponent', () => {
+  let component: HCaptchaComponent;
+  let fixture: ComponentFixture<HCaptchaComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HcaptchaComponent]
+      imports: [HCaptchaComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(HcaptchaComponent);
+    fixture = TestBed.createComponent(HCaptchaComponent);
     component = fixture.componentInstance;
+    
+    spyOn(component, 'loadHCaptcha').and.returnValue(of());
+    fixture.componentRef.setInput('init', signal(false));
     fixture.detectChanges();
   });
 

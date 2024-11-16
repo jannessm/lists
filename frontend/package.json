@@ -6,7 +6,8 @@
     "build": "ng build",
     "staging": "ng build -c staging --source-map true",
     "start": "ng build --watch -c development --source-map true",
-    "test": "ng test"
+    "test": "ng test --no-watch --no-progress --browsers=ChromeHeadless",
+    "test-interactive": "ng test"
   },
   "private": true,
   "dependencies": {
