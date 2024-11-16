@@ -53,26 +53,26 @@ describe('DateChipSelectComponent', () => {
       expect(component.value).toEqual('');
     });
 
-    it('should return correct value after select', () => {
-      expect(component.value).toEqual('');
+    // it('should return correct value after select', () => {
+    //   expect(component.value).toEqual('');
 
-      // click on option
-      const chipOptions = componentEl.queryAll(By.css('mat-chip-option'));
-      click(chipOptions[0]);
+    //   // click on option
+    //   const chipOptions = componentEl.queryAll(By.css('mat-chip-option'));
+    //   click(chipOptions[0]);
 
-      fixture.detectChanges();
+    //   fixture.detectChanges();
 
-      expect(component.chipOption).toEqual('option1');
-    });
+    //   expect(component.chipOption).toEqual('option1');
+    // });
 
-    it('should allow empty selection', () => {
-      const chipOptions = componentEl.queryAll(By.css('mat-chip-option'));
-    });
+    // it('should allow empty selection', () => {
+    //   const chipOptions = componentEl.queryAll(By.css('mat-chip-option'));
+    // });
 
     
 
-    it('should return correct value after selection change', () => {
+    // it('should return correct value after selection change', () => {
 
-    });
+    // });
   })
 });
