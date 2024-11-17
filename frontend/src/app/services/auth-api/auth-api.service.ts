@@ -10,13 +10,13 @@ import { BASE_API, REGISTER } from '../../globals';
 export class AuthApiService {
 
   constructor(private http: HttpClient) {
-    this.refreshCSRF();
+    this.refreshCSRF().subscribe(()=>{});
   }
 
   refreshCSRF() {
-    this.http.get(BASE_API.replace('api/', '') + "sanctum/csrf-cookie", {
+    return this.http.get(BASE_API.replace('api/', '') + "sanctum/csrf-cookie", {
       headers: {'ngsw-bypass': 'true'}
-    }).subscribe(()=>{});
+    });
   }
 
   login(email: string, password: string, captcha: string): Observable<boolean> {
