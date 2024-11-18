@@ -1,11 +1,10 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild, forwardRef } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, forwardRef } from '@angular/core';
 import { FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../../../material.module';
 import { CommonModule, DatePipe } from '@angular/common';
 
 import flatpickr from 'flatpickr';
-import { timePickerConfig } from '../../../../models/time-picker';
-import { MatChipListboxChange } from '@angular/material/chips';
+import { getTimePickerConfig } from '../../../../models/time-picker';
 
 @Component({
   selector: 'app-date-chip-select',
@@ -27,18 +26,33 @@ import { MatChipListboxChange } from '@angular/material/chips';
   templateUrl: './date-chip-select.component.html',
   styleUrl: './date-chip-select.component.scss'
 })
-export class DateChipSelectComponent implements AfterViewInit {
+export class DateChipSelectComponent {
 
   @Input()
   set showOthers(showOthers: boolean) {
     this._showOthers = showOthers;
+    if (this._showOthers) {
+      this.initFlatpickr();
+    }
   }
   get showOthers() {
     return this._showOthers;
   }
   private _showOthers = true;
+
   @Input() options: [key: string, value: string][] = [];
-  @Input() defaultOption: string | undefined;
+  @Input() 
+  set defaultOption(defaultOption: string) {
+    this._defaultOption = defaultOption;
+    if (!this.chipOption) {
+      this.chipOption = defaultOption;
+    }
+  }
+  get defaultOption(): string | undefined {
+    return this._defaultOption;
+  }
+  private _defaultOption: string | undefined;
+
 
   @Output() pickrOpened = new EventEmitter<void>();
   @Output() pickrClosed = new EventEmitter<Event>();
@@ -54,10 +68,6 @@ export class DateChipSelectComponent implements AfterViewInit {
   @ViewChild('pickr') picker!: ElementRef;
   
   constructor(private datePipe: DatePipe) { }
-
-  ngAfterViewInit(): void {
-    this.initFlatpickr();
-  }
 
   get value(): string {
     switch(this.chipOption) {
@@ -108,20 +118,22 @@ export class DateChipSelectComponent implements AfterViewInit {
     this.disabled = isDisabled;
   }
 
-  changeOption(event: MatChipListboxChange) {
+  changeOption(value: string) {
     setTimeout(() => {
-      if (!event.value && this.defaultOption) {
+      if (!value || value === this.chipOption) {
         this.chipOption = this.defaultOption || '';
         this.date = '';
         this.onChange(this.value);
         this.onTouched();
       } else if (
-        event.value === 'different' &&
+        value === 'different' &&
         this.showOthers &&
         !this.pickrIsOpen
       ) {
+        this.chipOption = value;
         this.openFlatpickr();
       } else {
+        this.chipOption = value;
         this.onChange(this.value);
         this.onTouched();
       }
@@ -129,11 +141,16 @@ export class DateChipSelectComponent implements AfterViewInit {
   }
 
   initFlatpickr() {
-    this.flatpickr = flatpickr(this.picker.nativeElement, timePickerConfig) as flatpickr.Instance;
+    this.flatpickr = flatpickr(this.picker.nativeElement, getTimePickerConfig()) as flatpickr.Instance;
   
     this.flatpickr.config.onClose.push(() => {
       this.closePickr();
     });
+    this.flatpickr.config.onChange.push(() => {
+      if (this.flatpickr) {
+        this.date = this.flatpickr.selectedDates[0];
+      }
+    })
   }
 
   openFlatpickr() {
@@ -145,8 +162,9 @@ export class DateChipSelectComponent implements AfterViewInit {
   }
 
   closePickr() {
-    if (this.pickrIsOpen) {
+    if (this.pickrIsOpen && this.flatpickr) {
       this.pickrIsOpen = false;
+      this.date = this.flatpickr.selectedDates[0];
       this.pickrClosed.emit();
       this.onChange(this.value);
       this.onTouched();

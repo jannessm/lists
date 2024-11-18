@@ -1,7 +1,8 @@
+import { of } from "rxjs";
 import { AuthApiService } from "./auth-api.service";
 
 export function getAuthApiMock() {
-    return jasmine.createSpyObj('AuthApiService',
+    const mock = jasmine.createSpyObj('AuthApiService',
         [
             'validateLogin',
             'login',
@@ -18,4 +19,7 @@ export function getAuthApiMock() {
             'resendVerificationMail',
             'refreshCSRF'
         ]) as jasmine.SpyObj<AuthApiService>;
+    
+    mock.refreshCSRF.and.returnValue(of());
+    return mock;
 }
