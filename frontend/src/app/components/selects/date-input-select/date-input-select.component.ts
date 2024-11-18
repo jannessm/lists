@@ -2,7 +2,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild, forwardRef } from '@angular/core';
 import { FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import flatpickr from 'flatpickr';
-import { timePickerConfig } from '../../../../models/time-picker';
+import { getTimePickerConfig } from '../../../../models/time-picker';
 import { MaterialModule } from '../../../material.module';
 
 @Component({
@@ -114,7 +114,7 @@ export class DateInputSelectComponent implements AfterViewInit {
   }
 
   initFlatpickr() {
-    const config = JSON.parse(JSON.stringify(timePickerConfig));
+    const config = getTimePickerConfig();
     Object.assign(config, {
       formatDate: (date: Date) => this.getDateString(date)
     });

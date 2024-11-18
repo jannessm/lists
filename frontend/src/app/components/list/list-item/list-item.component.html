@@ -24,8 +24,10 @@
             </mat-chip-listbox>
         </div>
 
-        <button mat-icon-button (click)="openLink(item); $event.stopPropagation()" *ngIf="item && item.links().length > 0"><mat-icon>link</mat-icon></button>
-        <button mat-icon-button (click)="deleteItem(item); $event.stopPropagation()" *ngIf="item && item.done"><mat-icon>close</mat-icon></button>
+        <div class="actions">
+            <button mat-icon-button (click)="openLink(item); $event.stopPropagation()" *ngIf="item && item.links().length > 0"><mat-icon>link</mat-icon></button>
+            <button mat-icon-button (click)="deleteItem(item); $event.stopPropagation()" *ngIf="item && item.done"><mat-icon>close</mat-icon></button>
+        </div>
 
         <div class="created-marker" *ngIf="createdBy() && item && me().id !== createdBy()?.id" [class]="'user-fab-' + userFab(item) % 12"></div>
     </div>

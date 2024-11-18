@@ -62,7 +62,7 @@ export class AuthService {
 
     this.pusher.online.subscribe(isOnline => {
       if (isOnline) {
-        this.api.refreshCSRF();
+        this.api.refreshCSRF().subscribe(()=>{});
       }
     });
     this.pusher.online.pipe(debounceTime(1000)).subscribe(isOnline => {
@@ -206,5 +206,9 @@ export class AuthService {
       );
     }
     return of(false);
+  }
+
+  refreshCSRF() {
+    return this.api.refreshCSRF();
   }
 }
