@@ -80,13 +80,6 @@ class ListItem extends Model
                         case "updated_at":
                             $conflict = False; // ignore timestamps since they are only set by backend
                             break;
-                        case "due":
-                        case "reminder":
-                            if (!!$val && !!$masterItem[$param]) {
-                                $conflict = !$val->eq($masterItem[$param]);
-                                break;
-                            }
-                            break;
                         case "description":
                             if (!!$val) {
                                 $conflict = $masterItem[$param] !== $val;
@@ -94,6 +87,14 @@ class ListItem extends Model
                                 $conflict = !$val !== !$masterItem[$param];
                             }
                             break;
+                        case "due":
+                        case "reminder":
+                            if (!!$val && !!$masterItem[$param]) {
+                                $conflict = !$val->eq($masterItem[$param]);
+                                break;
+                            } else {
+                                $conflict = $masterItem[$param] !== $val;
+                            }
                         default:
                             $conflict = $masterItem[$param] !== $val;
                     }
