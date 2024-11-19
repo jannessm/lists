@@ -57,7 +57,7 @@ describe('DateChipSelectComponent', () => {
     });
     
     it('should render provided options', () => {
-      const chipOptions = componentEl.queryAll(By.css('mat-chip-option'));
+      const chipOptions = componentEl.queryAll(By.css('mat-chip-option button'));
       expect(chipOptions.length).toEqual(3);
       chipOptions.forEach((option: DebugElement, i) => {
         expect(option.nativeElement.textContent).toContain(options[i][1]);
@@ -72,8 +72,8 @@ describe('DateChipSelectComponent', () => {
       expect(component.value).toEqual('');
 
       // click on option
-      const chipOptions = componentEl.queryAll(By.css('mat-chip-option'));
-      click(chipOptions[0]);
+      const chipOptions = componentEl.queryAll(By.css('mat-chip-option button'));
+      chipOptions[0].nativeElement.click();
       tick(100);
       expect(component.value).toEqual('option1');
 
@@ -83,7 +83,7 @@ describe('DateChipSelectComponent', () => {
       expect(component.value).toEqual('');
 
       // click an option
-      const chipOptions = componentEl.queryAll(By.css('mat-chip-option'));
+      const chipOptions = componentEl.queryAll(By.css('mat-chip-option button'));
       click(chipOptions[0]);
       tick(100);
       expect(component.value).toEqual('option1');
@@ -100,7 +100,7 @@ describe('DateChipSelectComponent', () => {
       expect(component.value).toEqual('');
 
       // click on option
-      const chipOptions = componentEl.queryAll(By.css('mat-chip-option'));
+      const chipOptions = componentEl.queryAll(By.css('mat-chip-option button'));
       click(chipOptions[0]);
       tick(100);
       expect(component.value).toEqual('option1');
@@ -125,7 +125,7 @@ describe('DateChipSelectComponent', () => {
     });
     
     it('should render provided options', () => {
-      const chipOptions = componentEl.queryAll(By.css('mat-chip-option'));
+      const chipOptions = componentEl.queryAll(By.css('mat-chip-option button'));
       expect(chipOptions.length).toEqual(3);
       chipOptions.forEach((option: DebugElement, i) => {
         expect(option.nativeElement.textContent).toContain(options[i][1]);
@@ -140,7 +140,7 @@ describe('DateChipSelectComponent', () => {
       expect(component.value).toEqual('option1');
 
       // click on option
-      const chipOptions = componentEl.queryAll(By.css('mat-chip-option'));
+      const chipOptions = componentEl.queryAll(By.css('mat-chip-option button'));
       click(chipOptions[1]);
       tick(100);
       expect(component.value).toEqual('option2');
@@ -151,7 +151,7 @@ describe('DateChipSelectComponent', () => {
       expect(component.value).toEqual('option1');
 
       // click an option
-      const chipOptions = componentEl.queryAll(By.css('mat-chip-option'));
+      const chipOptions = componentEl.queryAll(By.css('mat-chip-option button'));
       click(chipOptions[1]);
       tick(100);
       expect(component.value).toEqual('option2');
@@ -166,7 +166,7 @@ describe('DateChipSelectComponent', () => {
       expect(component.value).toEqual('option1');
 
       // click an option
-      const chipOptions = componentEl.queryAll(By.css('mat-chip-option'));
+      const chipOptions = componentEl.queryAll(By.css('mat-chip-option button'));
       click(chipOptions[0]);
       tick(100);
       expect(component.value).toEqual('option1');
@@ -190,7 +190,7 @@ describe('DateChipSelectComponent', () => {
     it('timepicker should open on select and preselect current time', fakeAsync(() => {
       expect(component.date).toEqual('');
 
-      const differentOption = componentEl.query(By.css('mat-chip-option[value=different]'));
+      const differentOption = componentEl.query(By.css('mat-chip-option[value=different] button'));
       click(differentOption);
       tick(100);
       expect(component.pickrIsOpen).toBeTrue();
@@ -202,7 +202,7 @@ describe('DateChipSelectComponent', () => {
     it('if timepicker is closed, text of different should be replaced', fakeAsync(() => {
       expect(component.date).toEqual('');
 
-      const differentOption = componentEl.query(By.css('mat-chip-option[value=different]'));
+      const differentOption = componentEl.query(By.css('mat-chip-option[value=different] button'));
       click(differentOption);
       tick(100);
 
@@ -223,7 +223,7 @@ describe('DateChipSelectComponent', () => {
       expect(component.date).toEqual('');
       const newDate = new Date(2222,0,24);
 
-      const differentOption = componentEl.query(By.css('mat-chip-option[value=different]'));
+      const differentOption = componentEl.query(By.css('mat-chip-option[value=different] button'));
       click(differentOption);
       fixture.detectChanges();
       tick(100);

@@ -13,6 +13,6 @@ export const ButtonClickEvents = {
     if (el instanceof HTMLElement) {
       el.click();
     } else {
-      el.triggerEventHandler('click', eventObj);
+      el.nativeElement.click();
     }
   }
