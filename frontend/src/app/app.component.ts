@@ -36,15 +36,17 @@ export class AppComponent {
   animationState = 'start';
   loading = false;
 
-  @HostListener('document:visibilitychange', ['$event'])
   @HostListener('document:pageshow', ['event'])
   @HostListener('document:focus', ['event'])
   resync() {
     if (this.replicationService.lastPusherState) {
       this.authService.refreshCSRF().subscribe(()=>{
-        Object.values(this.replicationService.streamSubjects).forEach(subj => {
-          subj.next('RESYNC');
-        });
+        setTimeout(() => {
+          console.log('resync after csrf');
+          Object.values(this.replicationService.streamSubjects).forEach(subj => {
+            subj.next('RESYNC');
+          });
+        }, 500);
       });
 
     }
@@ -90,7 +92,7 @@ export class AppComponent {
     if (urlParts.length > 1) {
       try {
         const elem = document.querySelector('#' + urlParts[1]);
-  
+
         if (elem && !elem.classList.contains('highlight')) {
           elem.scrollIntoView({ behavior: "smooth", block: "start"});
           elem.classList.add('highlight')
@@ -116,7 +118,7 @@ export class AppComponent {
       }
     });
   }
-  
+
   doAppUpdate() {
     this.swUpdate.activateUpdate().then(() => document.location.reload());
   }
