@@ -41,15 +41,7 @@ export class AppComponent {
   @HostListener('document:focus', ['event'])
   resync() {
     if (this.replicationService.lastPusherState) {
-      this.authService.refreshCSRF().subscribe(()=>{
-        setTimeout(() => {
-          console.log('resync after csrf');
-          Object.values(this.replicationService.streamSubjects).forEach(subj => {
-            subj.next('RESYNC');
-          });
-        }, 500);
-      });
-
+       window.location.reload();
     }
   }
 
