@@ -19,11 +19,15 @@ body { margin: 0px; }
     width: 100% !important;
 }
 
+.mat-mdc-menu-content {
+    border-radius: 10px;
+}
+
 .mini-user-fab {
     width: 36px !important;
     height: 36px !important;
     line-height: 12px !important;
-    
+
     span {
         line-height: 12px !important;
     }

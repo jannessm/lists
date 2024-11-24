@@ -13,7 +13,7 @@ export function newLists(lists: any): any {
         createdBy: '',
         sharedWith: [],
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        updatedAt: null,
         _deleted: false
     };
 
@@ -55,6 +55,7 @@ type MyListsDocumentType = AsTyped<typeof LISTS_SCHEMA>;
 
 type MyListsMethods = {
     users(): string[];
+    isCreated(): boolean;
 }
 
 export type MyListsDocument = MyDocument<MyListsDocumentType, MyListsMethods>
@@ -71,7 +72,7 @@ export function listsConflictHandler(
     // overwrite fork state with master changes that are different from the assumedMaster
     } else {
         const newState: MyListsDocumentType = JSON.parse(JSON.stringify(forkState));
-        
+
         if (assumedMasterState.name !== trueMasterState.name) {
             newState.name = trueMasterState.name;
         }

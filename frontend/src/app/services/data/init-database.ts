@@ -84,8 +84,11 @@ export async function addCollections(db: MyDatabase): Promise<MyDatabase> {
             methods: {
                 users: function() {
                     return [(this as any).createdBy, ...(this as any).sharedWith];
+                },
+                isCreated: function() {
+                    return !!(this as any).updatedAt;
                 }
-            }, 
+            },
             conflictHandler: listsConflictHandler
         },
         [DATA_TYPE.LIST_ITEM]: {

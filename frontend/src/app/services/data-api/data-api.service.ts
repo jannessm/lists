@@ -25,6 +25,8 @@ export class DataApiService {
     return this.http.post(BASE_API + 'graphql', {
       query: "mutation " + query,
       variables
+    }, {
+      headers: {'ngsw-bypass': 'true'}
     }).pipe(map(res => res as MutationResponse<T>));
   }
 
@@ -40,6 +42,8 @@ export class DataApiService {
     return this.http.post(BASE_API + 'graphql', {
       query: "subscription " + query,
       variables
+    },{
+      headers: {'ngsw-bypass': 'true'}
     }).pipe(map(res => res as SubscriptionResponse<T>))
   }
 
@@ -55,6 +59,8 @@ export class DataApiService {
     return this.http.post(BASE_API + 'graphql', {
       query,
       variables
+    },{
+      headers: {'ngsw-bypass': 'true'}
     }).pipe(map(res => res as T))
   }
 }

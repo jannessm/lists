@@ -40,8 +40,12 @@ export class AppComponent {
   @HostListener('document:pageshow', ['event'])
   @HostListener('document:focus', ['event'])
   resync() {
-    if (this.replicationService.lastPusherState) {
-       window.location.reload();
+    if (!document.hidden && this.replicationService.lastPusherState) {
+      this.authService.refreshCSRF().subscribe(()=>{
+        Object.values(this.replicationService.streamSubjects).forEach(subj => {
+          subj.next('RESYNC');
+        });
+      });
     }
   }
 
