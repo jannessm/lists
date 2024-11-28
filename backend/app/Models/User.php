@@ -44,10 +44,10 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
         'default_list',
         'default_reminder'
     ];
-    
+
     /**
      * default values
-     * 
+     *
      * @var array
      */
     protected $attributes = [
@@ -115,18 +115,21 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
             $newState = $user['newDocumentState'];
             $assumedMaster = $user['assumedMasterState'];
             $masterUser = NULL;
-            
+
             if ($newState[$this->primaryKey] !== Auth::id()) {
                 throw new ErrorException('cannot push other users than me');
             }
 
             $masterUser = User::find($assumedMaster[$this->primaryKey]);
-            
+
             foreach ($assumedMaster as $param => $val) {
                 switch($param) {
                     case 'created_at':
                     case 'updated_at':
                         $conflict = False; // ignore timestamps since they are only set by backend
+                        break;
+                    case 'email_verified_at':
+                        $conflict = !$val->eq($masterUser[$param]);
                         break;
                     default:
                         $conflict = $masterUser[$param] !== $val;
