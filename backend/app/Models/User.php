@@ -126,10 +126,8 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
                 switch($param) {
                     case 'created_at':
                     case 'updated_at':
-                        $conflict = False; // ignore timestamps since they are only set by backend
-                        break;
                     case 'email_verified_at':
-                        $conflict = !$val->eq($masterUser[$param]);
+                        $conflict = False; // ignore timestamps since they are only set by backend
                         break;
                     default:
                         $conflict = $masterUser[$param] !== $val;
