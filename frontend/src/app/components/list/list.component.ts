@@ -125,6 +125,10 @@ export class ListComponent implements OnDestroy {
   }
   
   addItem() {
+    if (!this.focusInput) {
+      return;
+    }
+
     if (this.list && this.list() &&
         this.me && this.me() &&
         !!this.newItem.value?.trim()

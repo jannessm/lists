@@ -7,7 +7,7 @@ import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-shee
 import { AuthService } from '../../../services/auth/auth.service';
 import { provideRouter } from '@angular/router';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { Component, signal, WritableSignal } from '@angular/core';
+import { Component, ComponentRef, signal, WritableSignal } from '@angular/core';
 import { DataService } from '../../../services/data/data.service';
 import { AuthServiceSpy, MockMyListsDocument } from '../../../services/auth/auth.service.mock';
 import { MyListsDatabase } from '../../../mydb/types/database';
@@ -24,6 +24,7 @@ describe('ListHeaderComponent', () => {
   class TestComponent {}
 
   let component: ListHeaderComponent;
+  let componentRef: ComponentRef<ListHeaderComponent>;
   let fixture: ComponentFixture<ListHeaderComponent>;
   
   let authMock: jasmine.SpyObj<AuthService>;
@@ -52,12 +53,14 @@ describe('ListHeaderComponent', () => {
 
     fixture = TestBed.createComponent(ListHeaderComponent);
     component = fixture.componentInstance;
+    componentRef = fixture.componentRef;
   });
 
-  it('should create', () => {
-    component.lists = signal(MockMyListsDocument) as unknown as WritableSignal<MyListsDocument>;
+  it('should create', async () => {
+    componentRef.setInput('lists',
+      signal(MockMyListsDocument) as unknown as WritableSignal<MyListsDocument>);
 
-    fixture.detectChanges();
+    await fixture.whenStable();
     expect(component).toBeTruthy();
   });
 });

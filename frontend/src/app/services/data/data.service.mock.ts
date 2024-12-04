@@ -1,6 +1,6 @@
 import { signal } from "@angular/core";
 import { of } from "rxjs";
-import { MyCollectionSpy } from "./db.mock";
+import { MyCollectionSpy, MyShoppingListsCollectionSpy } from "./db.mock";
 
 export class DataServiceSpy {
     groceryCategories = [];
@@ -8,6 +8,6 @@ export class DataServiceSpy {
     db = {
         items: new MyCollectionSpy(),
         users: new MyCollectionSpy(),
-        lists: new MyCollectionSpy()
+        lists: new MyShoppingListsCollectionSpy()
     };
 }

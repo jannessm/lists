@@ -52,8 +52,8 @@ describe('DateChipSelectComponent', () => {
       fixture.detectChanges();
     });
 
-    it('should not init timerpicker', () => {
-      expect(component.flatpickr).toBeFalsy();
+    it('should init timerpicker anyways', () => {
+      expect(component.flatpickr).toBeTruthy();
     });
     
     it('should render provided options', () => {

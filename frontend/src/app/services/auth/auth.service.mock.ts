@@ -3,7 +3,7 @@ import { ReminderOption } from '../../components/selects/date-chip-select/option
 import { of } from 'rxjs';
 
 export class AuthServiceSpy {
-  me = jasmine.createSpy('me').and.returnValue(signal(new MockMyMeDocument));
+  me = signal(new MockMyMeDocument());
 
   login = jasmine.createSpy('login').and.returnValue(of(true));
   resetPwd = jasmine.createSpy('resetPwd').and.returnValue(of(true));
@@ -35,8 +35,10 @@ export class MockMyMeDocument {
 
 export class MockMyListsDocument {
   name = 'test';
-  isShoppingList = false;
   patch = () => Promise.resolve();
+  isCreated = () => true;
+
+  constructor(public isShoppingList = false) { }
 }
 
 export class MockMyItemDocument {

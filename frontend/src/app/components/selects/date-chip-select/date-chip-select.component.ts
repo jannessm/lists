@@ -148,7 +148,6 @@ export class DateChipSelectComponent implements AfterViewInit {
 
   openFlatpickr() {
     if (!this.pickrIsOpen && !!this.flatpickr) {
-      console.log('actually open');
       this.flatpickr.open();
       this.pickrIsOpen = true;
       this.pickrOpened.emit();

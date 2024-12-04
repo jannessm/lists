@@ -1,5 +1,7 @@
 import { signal } from "@angular/core"
 import { of } from "rxjs"
+import { MockMyListsDocument } from "../auth/auth.service.mock";
+import { MyListsDocument } from "../../mydb/types/lists";
 
 export function getDBMock() {
     return jasmine.createSpyObj('DB_INSTANCE', ['destroy'], {
@@ -11,22 +13,33 @@ export function getDBMock() {
 }
 
 export class MyCollectionSpy {
-    find = jasmine.createSpy('find').and.returnValue({
-        $: of(),
-        $$: signal(undefined)
+    mockDoc: () => MockMyListsDocument | undefined = () => undefined;
+    find = jasmine.createSpy('find').and.callFake(() => {
+        return {
+            $: of(),
+            $$: signal(this.mockDoc())
+        }
     });
 
-    findOne = jasmine.createSpy('findOne').and.returnValue({
-        $: of(),
-        $$: signal(undefined)
+    findOne = jasmine.createSpy('findOne').and.callFake(() => {
+        return {
+            $: of(),
+            $$: signal(this.mockDoc())
+        }
     });
 
-    findMany = jasmine.createSpy('findMany').and.returnValue({
-        $: of([]),
-        $$: signal([])
+    findMany = jasmine.createSpy('findMany').and.callFake(() => {
+        return {
+            $: of(),
+            $$: signal([this.mockDoc()])
+        }
     });
 
     insert = jasmine.createSpy('insert').and.returnValue(Promise.resolve());
+}
+
+export class MyShoppingListsCollectionSpy extends MyCollectionSpy {
+    override mockDoc = () => new MockMyListsDocument(true);
 }
 
 export class MyItemSpy {

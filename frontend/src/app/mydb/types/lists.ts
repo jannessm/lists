@@ -1,6 +1,6 @@
 import { AsTyped } from 'as-typed';
 import { ulid } from "ulid";
-import { ForeignId, COMMON_SCHEMA } from "./common";
+import { COMMON_SCHEMA } from "./common";
 import { Signal } from "@angular/core";
 import { MyDocument } from './classes';
 import { MyCollection } from '../collection';
