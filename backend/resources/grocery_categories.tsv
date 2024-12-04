@@ -15,7 +15,7 @@ Beere	Tofu	Schnitzel	Donauwelle	Bueno	Buns	Maiswaffel	Mineralwasser	Tütel
 Brokkoli	Mozzarella	Burger	Schlemmer 	Neapolitaner	Brioche	Zwieback 	Mate	Beutel
 Broccoli	Grana Padano	Patty	Ben & Jerry	Haselnussschnitte	Kuchen	Gewürzgurken	Bier	Kondome
 Brombeere	Schupfnudeln	Parties	Erbsen	Funny-frisch	Torte	Passierte	Radler	Gleitgel
-Champions	Gnocchi	Bifi 	Häagen-Dazs	Apfelringe	Toastie	Geschälte	Sprite	Creme
+Champignon	Gnocchi	Bifi 	Häagen-Dazs	Apfelringe	Toastie	Geschälte	Sprite	Creme
 Tomate	Cheddar	Bacon	Waldbeeren	Milka	Milchbrötchen	Gehackte	7up	Nagellack
 Erdbeere	Hafermilch	Chicken	Pommes	Doppelkeks	Rosinenstuten	Apfelmus	Schorle	Tampons
 Ingwer	Milch	Meat 	Flammkuchen	Keks	Stulle	Stückige	Apfelschorle 	Binden
@@ -30,7 +30,7 @@ Wassermelone	Blätterteig	Würste	Kaisergemüse	Mars	Mandelhörnchen	Eintopf		B�
 Melone	Saint Albray	Nürnberger	Herzogin	Twix		Tomatensauce		Schminke
 Nektarine	Feta	Thüringer	Buttergemüse	Oreo		Thunfisch		Nagelschere
 Paprika	Butter	Frankfurter	Nuggets	Bahlsen		Kidney 		Nagelpfeile
-Pfirsich	Old Amsterdam 	Pommersche	6-Kräuter	Kinderriegel		Kapern		
+Pfirsich	Old Amsterdam 	Pommersche	6-Kräuter	Kinderriegel		Kapern		Gesichtswasser
 Plattpfirsich	Brotaufstrich 	Lyoner	Paella	Biscuit		Cornichon		
 Salat	Aufstrich	Speck	Flammkuchen	Cookies		Olive		
 Gurke	Sahne	Forelle	Königsgemüse	Pistazien		Dose		
@@ -121,7 +121,7 @@ Kürbis				Weingummi		Agavendicksaft
 Butternut 				Maltesers		Oblaten		
 Rote Beete				Sallos		Puddingpulver		
 spargel				Tic tac		Vanille		
-				Minibrezel		Backin		
+Artischocke				Minibrezel		Backin		
 				Pez		Backpulver		
 				Nachos		Pulver		
 						Kakao		
@@ -226,3 +226,11 @@ spargel				Tic tac		Vanille
 						harissa		
 						Orangat 		
 						Zitronat		
+						Meerrettich		
+						Tabasco		
+						Samba		
+						Ghee		
+						Weizenschrot		
+						Sesamöl		
+						Öl		
+						Rosinen		
