@@ -20,7 +20,7 @@
         
             <ng-container *ngFor="let item of slot.items">
                 <app-list-item
-                    *ngIf="(!item.done || !slotCollapseStates[slot.name]) && list() && me()"
+                    *ngIf="(!item.done || !slotCollapseStates[slot.name]) && !!list() && !!me()"
                     [me]="me"
                     [list]="list"
                     [item]="item"
@@ -32,7 +32,7 @@
 
     <div class="input-bar" (click)="openFocusInput($event)">
         
-        <mat-toolbar class="toolbar-time" [style.display]="focusInput ? 'block' : 'none'" *ngIf="list() && !list().isShoppingList">
+        <mat-toolbar class="toolbar-time" [style.display]="focusInput ? 'block' : 'none'" *ngIf="list() && !(list()?.isShoppingList)">
             <app-date-chip-select
                 [formControl]="newItemDue"
                 [options]="dueOptions"
@@ -42,10 +42,10 @@
             ></app-date-chip-select>
         </mat-toolbar>
 
-        <mat-toolbar class="toolbar-input" [class.focusInput]="focusInput" [class.isShoppingList]="list() ? list().isShoppingList : false">
+        <mat-toolbar class="toolbar-input" [class.focusInput]="focusInput" [class.isShoppingList]="list() ? list()?.isShoppingList : false">
             <form>
                 <input #addInput matInput placeholder="Hinzufügen" class="add-input" 
-                    [formControl]="newItem" autocomplete="off" [maxlength]="list() && list().isShoppingList ? 50 : 524288">
+                    [formControl]="newItem" autocomplete="off" [maxlength]="list() && list()?.isShoppingList ? 50 : 524288">
                 <button mat-icon-button (click)="addItem()"><mat-icon>add</mat-icon></button>
             </form>
         </mat-toolbar>

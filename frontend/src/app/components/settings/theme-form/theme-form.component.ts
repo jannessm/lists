@@ -26,7 +26,7 @@ export class ThemeFormComponent implements OnDestroy {
     private themeService: ThemeService,
     private authService: AuthService
   ) {
-    this.user = this.authService.me;
+    this.user = this.authService.me as Signal<MyMeDocument>;
 
     this.theme = new FormControl<string>('');
 

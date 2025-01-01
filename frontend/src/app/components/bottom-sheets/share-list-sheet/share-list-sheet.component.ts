@@ -28,7 +28,7 @@ import { AuthService } from '../../../services/auth/auth.service';
 })
 export class ShareListSheetComponent implements OnDestroy {
 
-  me: Signal<MyMeDocument>;
+  me: Signal<MyMeDocument | undefined>;
   lists: Signal<MyListsDocument>;
   isAdmin: boolean;
   allUsers$?: Observable<MyUsersDocument[]>;
@@ -112,7 +112,7 @@ export class ShareListSheetComponent implements OnDestroy {
 
   removeSharedWith(userId: string) {
     let resp;
-    if (this.isAdmin || userId == this.me().id) {
+    if (this.isAdmin || userId == this.me()?.id) {
       resp = {
         'remove': userId
       };

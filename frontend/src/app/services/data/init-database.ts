@@ -1,13 +1,9 @@
-import { Injector, untracked } from "@angular/core";
-import { toSignal } from '@angular/core/rxjs-interop';
-import { ITEM_SCHEMA, itemsConflictHandler } from "../../mydb/types/list-item";
-import { DATA_TYPE } from "../../mydb/types/graphql-types";
-import { MyReactivityFactory } from "../../mydb/types/interfaces";
-import { MyDatabase, createMyDatabase } from "../../mydb/database";
-import { ME_SCHEMA } from "../../mydb/types/me";
-import { LISTS_SCHEMA, listsConflictHandler } from "../../mydb/types/lists";
-import { USERS_SCHEMA } from "../../mydb/types/users";
-import { isValidUrl } from "../../pipes/linkify.pipe";
+import { Injector } from "@angular/core";
+import { environment } from "../../../environments/environment";
+import Dexie from "dexie";
+import { DB_CONFIG } from "./db-config";
+import { DexieSchema } from "../../mydb/types/schema";
+import { AddCollectionsOptions } from "../../mydb/types/database";
 
 export let DB_INSTANCE: any;
 
@@ -30,90 +26,31 @@ export async function initDatabase(injector: Injector) {
         });
     }
 
-    await _create(injector).then(db => DB_INSTANCE = db);
+    Dexie.debug = environment.dexieDebugMode;
+    const dexie = new Dexie('lists-db');
+
+    dexie.version(1)
+         .stores(getPrimaryKeysFromCollections(DB_CONFIG));
+    
+    DB_INSTANCE = dexie;
 }
 
-async function _create(injector: Injector): Promise<MyDatabase> {
-    console.log('DatabaseService: creating database..');
+function getPrimaryKeysFromCollections(options: AddCollectionsOptions): DexieSchema {
+    const schema: DexieSchema = { };
 
-    /**
-     * Add the Reactivity Factory so that we can get angular Signals
-     * instead of observables.
-     * @link https://rxdb.info/reactivity.html
-     */
-    const reactivityFactory: MyReactivityFactory = {
-        fromObservable(obs, initialValue: any) {
-            return untracked(() =>
-                toSignal(obs, {
-                    initialValue,
-                    injector,
-                    rejectErrors: true
-                })
-            );
-        }
-    }
+    Object.entries(options).forEach(val => {
+        const key = val[0];
+        const definition = val[1];
 
+        schema[key] = [
+            definition.schema.primaryKey,
+            ...definition.schema.required,
+            '_deleted', 'updatedAt', 'touched'
+        ].join(',');
 
-    const db = await createMyDatabase({
-        name: 'lists-db',
-        reactivity: reactivityFactory
-    });
-    console.log('DatabaseService: created database');
-
-    return await addCollections(db);
-}
-
-export async function addCollections(db: MyDatabase): Promise<MyDatabase> {
-
-    // create collections
-    console.log('DatabaseService: create collections');
-    await db.addCollections({
-        [DATA_TYPE.ME]: {
-            schema: ME_SCHEMA,
-            methods: {
-                hasLists: function(listId: string) {
-                    return !!((this as any).lists.find((l: string) => l === listId));
-                }
-            }
-        },
-        [DATA_TYPE.USERS]: {
-            schema: USERS_SCHEMA,
-        },
-        [DATA_TYPE.LISTS]: {
-            schema: LISTS_SCHEMA,
-            methods: {
-                users: function() {
-                    return [(this as any).createdBy, ...(this as any).sharedWith];
-                },
-                isCreated: function() {
-                    return !!(this as any).updatedAt;
-                }
-            },
-            conflictHandler: listsConflictHandler
-        },
-        [DATA_TYPE.LIST_ITEM]: {
-            schema: ITEM_SCHEMA,
-            methods: {
-                links: function() {
-                    const links: string[] = [];
-                    const description = (this as any).description as string | null | undefined || '';
-
-                    description.split('\n').forEach(line => {
-                        line.split(' ').forEach(word => {
-                            if (isValidUrl(word)) {
-                                links.push(word);
-                            }
-                        })
-                    });
-
-                    return links;
-                }
-            },
-            conflictHandler: itemsConflictHandler
-        }
+        schema[key + '_master_states'] = definition.schema.primaryKey;
+        schema[key + '_replication'] = 'updatedAt';
     });
 
-    console.log('DatabaseService: created');
-
-    return db;
+    return schema;
 }

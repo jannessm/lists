@@ -10,7 +10,7 @@
 
         <div class="item-content">
             <span>{{ item.name }}</span>
-            <mat-chip-listbox *ngIf="!list().isShoppingList">
+            <mat-chip-listbox *ngIf="!(list()?.isShoppingList)">
                 <mat-chip-option
                     *ngIf="item && item.due"
                     selectable="false"
@@ -29,6 +29,6 @@
             <button mat-icon-button (click)="deleteItem(item); $event.stopPropagation()" *ngIf="item && item.done"><mat-icon>close</mat-icon></button>
         </div>
 
-        <div class="created-marker" *ngIf="createdBy() && item && me().id !== createdBy()?.id" [class]="'user-fab-' + userFab(item) % 12"></div>
+        <div class="created-marker" *ngIf="!!me() && createdBy() && item && me()?.id !== createdBy()?.id" [class]="'user-fab-' + userFab(item) % 12"></div>
     </div>
 </div>

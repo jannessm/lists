@@ -58,9 +58,7 @@ export class AppComponent {
 
     if (this.replicationService.lastPusherState) {
       this.authService.refreshCSRF().subscribe(()=>{
-        Object.values(this.replicationService.streamSubjects).forEach(subj => {
-          subj.next('RESYNC');
-        });
+        this.dataService.resync();
       });
     }
   }

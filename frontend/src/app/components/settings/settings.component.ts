@@ -38,8 +38,6 @@ export class SettingsComponent implements OnDestroy {
   editMode: WritableSignal<boolean> = signal(false);
   editFormDisabled: WritableSignal<boolean> = signal(false);
 
-  // changePushSettingsSub: Subscription;
-
   pusherSub: Subscription;
 
   constructor(
@@ -47,7 +45,7 @@ export class SettingsComponent implements OnDestroy {
     private fb: FormBuilder,
     public pusher: PusherService,
   ) {
-    this.user = this.authService.me;
+    this.user = this.authService.me as Signal<MyMeDocument>;
 
     this.pusherSub = this.pusher.online.subscribe(isOnline => {
       this.editFormDisabled.set(!isOnline);

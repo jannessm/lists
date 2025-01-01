@@ -19,7 +19,7 @@ import { DataService } from '../data/data.service';
 export class AuthService {
   isLoggedIn: WritableSignal<boolean>;
 
-  me: Signal<MyMeDocument>;
+  me: WritableSignal<MyMeDocument | undefined> = signal(undefined);
 
   verificationInverval: undefined | any;
 
@@ -30,13 +30,16 @@ export class AuthService {
               private dataService: DataService,
               private bottomsheet: MatBottomSheet,
               private snackBar: MatSnackBar) {
-    this.me = this.dataService.db.me.findOne().$$;
+    this.dataService.db.me.findOne().$.subscribe((me: unknown) => {
+      this.me.set(me as MyMeDocument);
+    }
+  );
     this.isLoggedIn = signal(this.cookies.check(SESSION_COOKIE));
     
     effect(() => {
       if (this.isLoggedIn()) {
         this.setSessionCookie();
-        this.dataService.initDB(null);
+        this.dataService.initDB();
         setTimeout(() => {
           if (!this.router.url.startsWith('/user')) {
             this.router.navigateByUrl('/user/lists');

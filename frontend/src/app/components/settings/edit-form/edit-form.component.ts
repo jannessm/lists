@@ -22,7 +22,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./edit-form.component.scss', '../form.scss']
 })
 export class EditFormComponent implements OnDestroy {
-  user: Signal<MyMeDocument>;
+  user: Signal<MyMeDocument | undefined>;
 
   @Input() editMode = signal(false);
   @Input() disabled = signal(false);
@@ -59,9 +59,10 @@ export class EditFormComponent implements OnDestroy {
     );
 
     effect(() => {
-      if (this.editMode() && this.user()) {
-        this.editForm.get('name')?.setValue(this.user().name);
-        this.editForm.get('email')?.setValue(this.user().email);
+      const user = this.user()
+      if (this.editMode() && user) {
+        this.editForm.get('name')?.setValue(user.name);
+        this.editForm.get('email')?.setValue(user.email);
       } else {
         this.editForm.reset();
       }
@@ -114,22 +115,24 @@ export class EditFormComponent implements OnDestroy {
   }
 
   setName(name: string) {
-    if (this.user.name !== name) {
-      this.user().patch({name});
+    const user = this.user();
+    if (!!user && user.name !== name) {
+      user.patch({name});
     }
   }
 
   setEmail(email: string) {
-    if (this.user && this.user().email !== email) {
+    const user = this.user();
+    if (user && user.email !== email) {
       this.authService.changeEmail(email).subscribe(res => {
-        if (this.user) {
+        if (user) {
           if (res === ChangeEmailStatus.EMAIL_ALREADY_USED) {
             this.snackBar.open('Emailadresse wird bereits verwendet. Bitte wähle eine andere!', 'Ok');
           } else if (res === ChangeEmailStatus.ERROR) {
             this.snackBar.open('Email konnte nicht geändert werden.', 'Ok');
           } else {
             this.snackBar.open('Bestätige deine neue Emailadresse per Link in der Bestätigungsmail.', 'Ok');
-            this.user().patch({
+            user.patch({
               email,
               emailVerifiedAt: null
             });

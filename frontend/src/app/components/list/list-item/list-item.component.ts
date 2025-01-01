@@ -29,9 +29,9 @@ import { OpenLinkSheetComponent } from '../../bottom-sheets/open-link-sheet/open
 })
 export class ListItemComponent implements OnDestroy {
   @Input()
-  me!: Signal<MyMeDocument>;
+  me!: Signal<MyMeDocument | undefined>;
   @Input()
-  list!: Signal<MyListsDocument>;
+  list!: Signal<MyListsDocument | undefined>;
   @Input()
   item!: MyItemDocument;
 
@@ -75,8 +75,9 @@ export class ListItemComponent implements OnDestroy {
   }
 
   userFab(item: MyItemDocument) {
-    if (this.list) {
-      const index = this.list().users().findIndex(i => i === item.createdBy);
+    const list = this.list();
+    if (!!list) {
+      const index = list.users().findIndex(i => i === item.createdBy);
       if (index) {
         return index;
       }

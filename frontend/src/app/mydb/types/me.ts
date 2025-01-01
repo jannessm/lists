@@ -53,4 +53,4 @@ type MyMeMethods = {
 }
 
 export type MyMeDocument = MyDocument<MyMeDocumentType, MyMeMethods>
-export type MyMeCollection = MyCollection<MyMeDocumentType, MyMeMethods, Signal<MyMeDocument>>;
+export type MyMeCollection = MyCollection<MyMeDocumentType, MyMeMethods>;

@@ -59,7 +59,7 @@ type MyListsMethods = {
 }
 
 export type MyListsDocument = MyDocument<MyListsDocumentType, MyListsMethods>
-export type MyListsCollection = MyCollection<MyListsDocumentType, MyListsMethods, Signal<unknown>>;
+export type MyListsCollection = MyCollection<MyListsDocumentType, MyListsMethods>;
 
 export function listsConflictHandler(
     forkState: MyListsDocumentType,

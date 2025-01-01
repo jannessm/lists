@@ -2,7 +2,7 @@
     <button class="menu" mat-icon-button [matMenuTriggerFor]="menu"><mat-icon>more_vert</mat-icon></button>
     <mat-menu #menu="matMenu">
         <button mat-menu-item (click)="listSettings()" [disabled]="!isAdmin"><mat-icon>settings</mat-icon>Einstellungen</button>
-        <button mat-menu-item (click)="shareList()" [disabled]="!lists || (!!lists() && !lists().isCreated())"><mat-icon>group</mat-icon>Benutzer verwalten</button>
+        <button mat-menu-item (click)="shareList()" [disabled]="!lists || (!!lists() && !(lists()?.isCreated()))"><mat-icon>group</mat-icon>Benutzer verwalten</button>
         <button mat-menu-item (click)="listToText.emit()"><mat-icon>ios_share</mat-icon>Teilen</button>
         <button mat-menu-item (click)="markAllNotDone()"><mat-icon>remove_selection</mat-icon>Alle Einträge abwählen</button>
         <button mat-menu-item (click)="deleteAll()"><mat-icon>delete</mat-icon>Alle Einträge löschen</button>
@@ -10,7 +10,7 @@
         <button mat-menu-item (click)="deleteList()" [disabled]="!isAdmin"><mat-icon>delete_forever</mat-icon>Löschen</button>
     </mat-menu>
 
-    <h2 *ngIf="lists()">{{lists().name}}</h2>
+    <h2 *ngIf="lists()">{{lists()?.name}}</h2>
     <div class="users" *ngIf="users() && users().length > 1" (click)="shareList()">
         <button mat-mini-fab *ngFor="let user of users(); let i = index" [class]="'user-fab-' + i % 12" disabled >{{user?.name | nameBadge}}</button>
     </div>

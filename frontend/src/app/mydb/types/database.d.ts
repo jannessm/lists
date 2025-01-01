@@ -14,20 +14,9 @@ export type MyListsCollections = {
     lists: MyListsCollection,
     items: MyItemCollection
 };
-export type MyListsDatabase = MyDatabase<MyListsCollections, Signal<unknown>>;
-
-export type MyDatabase<Collections, reactivity> = MyDatabaseBase<reactivity> & Collections;
-
-export type MyDatabaseBase<reactivity> = {
-    private reactivity: MyReactivityFactory<reactivity>;
-    private db: Dexie;
-    private schema?: AddCollectionsOptions;
-    destroy: () => void;
-};
 
 export interface CreateDatabaseOptions {
     name: string;
-    reactivity: MyReactivityFactory;
 }
 
 export interface AddCollectionsOptions {

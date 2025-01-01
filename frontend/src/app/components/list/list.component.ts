@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnDestroy, Signal, ViewChild, WritableSignal, computed, effect, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, Signal, ViewChild, WritableSignal, computed, effect, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -18,6 +18,7 @@ import { UsersService } from '../../services/users/users.service';
 import { DueOption, DueOptionLabels, getDueDate, getReminderDate } from '../selects/date-chip-select/options';
 import { DateChipSelectComponent } from '../selects/date-chip-select/date-chip-select.component';
 import { ListHeaderComponent } from './list-header/list-header.component';
+import { DATA_TYPE } from '../../mydb/types/graphql-types';
 
 @Component({
   selector: 'app-list',
@@ -36,28 +37,38 @@ import { ListHeaderComponent } from './list-header/list-header.component';
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss']
 })
-export class ListComponent implements OnDestroy {
+export class ListComponent implements AfterViewInit, OnDestroy {
   @ViewChild('addInput') addInput!: ElementRef;
   @ViewChild('overlay') overlay!: ElementRef;
 
   @Input()
   set id(id: string) {
     if (!!id) {
-      this.list = this.dataService.db.lists.findOne({
+      this.listSub = this.dataService.db.lists.findOne({
         selector: { id }
-      }).$$ as Signal<MyListsDocument>;
+      }).$.subscribe((list: unknown) => {
+        if (!!list) {
+          this.list.set(list as MyListsDocument);
+        }
+      });
 
-      this.listItems = this.dataService.db.items.find({
+      this.listItemsSub = this.dataService.db.items.find({
         selector: { lists: id },
-      }).$$ as Signal<MyItemDocument[]>;
+      }).$.subscribe((items: unknown[]) => {
+        if (Array.isArray(items)) {
+          this.listItems.set(items as MyItemDocument[]);
+        }
+      });
     } else {
       this.router.navigateByUrl('/user/lists');
     }
   }
   
-  me: Signal<MyMeDocument>;
-  list!: Signal<MyListsDocument>;
-  listItems!: Signal<MyItemDocument[]>;
+  me: Signal<MyMeDocument | undefined>;
+  list: WritableSignal<MyListsDocument | undefined> = signal(undefined);
+  listItems: WritableSignal<MyItemDocument[]> = signal([]);
+  listSub?: Subscription;
+  listItemsSub?: Subscription;
 
   users$?: Subscription;
   users: WritableSignal<MyUsersDocument[]> = signal([]);
@@ -72,8 +83,9 @@ export class ListComponent implements OnDestroy {
   ignoreNext = false;
 
   slots: Signal<Slot[]> = computed(() => {
-    if (this.listItems() && this.list()) {
-      return this.groupItems(this.list(), this.listItems());
+    const list = this.list();
+    if (this.listItems() && !!list) {
+      return this.groupItems(list, this.listItems());
     }
     return [];
   });
@@ -89,19 +101,25 @@ export class ListComponent implements OnDestroy {
     this.me = this.authService.me;
 
     effect(() => {
+      const me = this.me();
+      const list = this.list();
       // handle if a list gets deleted while the list is opened
-      if(!!this.list() && !this.me().hasLists(this.list().id)) {
+      if(!!list && !!me && !me.hasLists(list.id)) {
         const snackbar = this.snackbar.open('Liste wurde gelöscht', 'Ok');
         snackbar.afterDismissed().subscribe(() => {
           this.router.navigateByUrl('/user/lists');
         });
       
       // make sure a list was loaded before
-      } else if (!!this.list()) {
-        const users = this.usersService.getMany(this.list().users());
+      } else if (!!list) {
+        const users = this.usersService.getMany(list.users());
         this.users$ = users.subscribe(u => this.users.set(u));
       }
     });
+  }
+
+  ngAfterViewInit(): void {
+    this.dataService.resync(DATA_TYPE.LIST_ITEM);
   }
 
   ngOnDestroy() {
@@ -129,8 +147,10 @@ export class ListComponent implements OnDestroy {
       return;
     }
 
-    if (this.list && this.list() &&
-        this.me && this.me() &&
+    const me = this.me();
+    const list = this.list();
+
+    if (!!list && !!me &&
         !!this.newItem.value?.trim()
       ) {
       const due = getDueDate(this.newItemDue.value || '');
@@ -138,11 +158,11 @@ export class ListComponent implements OnDestroy {
       const item = {
         name: this.newItem.value,
         due: due,
-        createdBy: this.me().id,
-        lists: this.list().id
+        createdBy: me.id,
+        lists: list.id
       };
 
-      const defaultReminder = this.me().defaultReminder;
+      const defaultReminder = me.defaultReminder;
       if (!!due && !!defaultReminder) {
         Object.assign(item, {
           reminder: getReminderDate(new Date(due), defaultReminder)
@@ -205,8 +225,10 @@ export class ListComponent implements OnDestroy {
     const open = '☐';
     const indent = '  ';
 
-    if (this.list()) {
-      let listStr = this.list().name + '\n\n';
+    const list = this.list();
+
+    if (!!list) {
+      let listStr = list.name + '\n\n';
       this.slots().forEach(slot => {
         if (slot.items.length > 0) {
           
@@ -224,15 +246,18 @@ export class ListComponent implements OnDestroy {
 
       // check if mobile
       if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && !!navigator.share) {
-        navigator.share({text: listStr, title: this.list().name});
+        navigator.share({text: listStr, title: list.name});
       } else {
-        navigator.clipboard.writeText(this.list().name + '\n\n' + listStr);
+        navigator.clipboard.writeText(list.name + '\n\n' + listStr);
         this.snackbar.open('Liste in die Zwischenablage kopiert!', 'Ok');
       }
     }
   }
 
   userIsAdmin() {
-    return !!this.me()?.id && this.me()?.id === this.list()?.createdBy;
+    const me = this.me();
+    const list = this.list();
+    
+    return !!me && !!list && !!me.id && me.id === list.createdBy;
   }
 }

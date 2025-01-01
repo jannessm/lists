@@ -19,7 +19,7 @@ import { ReminderOptionLabels, ReminderOption } from '../../selects/date-chip-se
   styleUrls: ['./others-form.component.scss', '../form.scss']
 })
 export class OthersFormComponent implements OnDestroy {
-  user: Signal<MyMeDocument>;
+  user: Signal<MyMeDocument | undefined>;
 
   form: FormGroup;
   formSub: Subscription;
@@ -31,7 +31,7 @@ export class OthersFormComponent implements OnDestroy {
     private fb: FormBuilder
   ) {
     this.user = this.authService.me;
-    const reminder = this.authService.me().defaultReminder || ReminderOption.MIN_0;
+    const reminder = this.user()?.defaultReminder || ReminderOption.MIN_0;
 
     this.form = fb.group({
       'reminder': [reminder]
@@ -39,8 +39,9 @@ export class OthersFormComponent implements OnDestroy {
 
     this.formSub = this.form.valueChanges.subscribe(() => {
       // push changes
-      if (this.user() && this.form.get('reminder')?.value) {
-        this.user().patch({
+      const user = this.user();
+      if (user && this.form.get('reminder')?.value) {
+        user.patch({
           defaultReminder: this.form.get('reminder')?.value
         });
       }

@@ -1,62 +1,45 @@
 import { CollectionMethods, QueryOptions, SortCriterias } from "./types/database";
-import { MyReactivityFactory } from "./types/interfaces";
-import { Observable,  filter, map } from "rxjs";
 import { MyDocument } from "./document";
-import { MyQuery, MyQuerySingle } from "./query";
 import { defaultConflictHandler } from "./conflict-handler";
 import { ConflictHandler } from "./types/replication";
 import { QueryObject } from "./types/classes";
-import { MyDatabase } from "./database";
+import { MyQuery, MyQuerySingle } from "./query";
+import { EventEmitter } from "@angular/core";
+import Dexie from "dexie";
+import { JsonSchema } from "./types/schema";
 
-export class MyCollection<DocType, DocMethods, Reactivity> {
+export class MyCollection<DocType, DocMethods> {
     private lastCheckpoint?: unknown;
-    $: Observable<MyDocument<DocType, DocMethods>[]>;
-    replication$: Observable<MyDocument<DocType, DocMethods>[]>;
+    $ = new EventEmitter<MyDocument<DocType, DocMethods>[]>();
+    replication$ = new EventEmitter<void>();
+    
+    public primaryKey!: string;
 
     private conflictHandler!: ConflictHandler;
 
-    constructor(public db: MyDatabase,
+    constructor(private dexie: Dexie,
                 private tableName: string,
-                public primaryKey: string,
-                public reactivity: MyReactivityFactory,
+                public schema: JsonSchema,
                 public methods?: CollectionMethods,
                 conflictHandler?: ConflictHandler
-    ) {
-        this.$ = this.db.$.pipe(
-            filter(changes => changes.collection == this.tableName),
-            map(changes => changes.changes)
-        );
-        this.replication$ = this.db.$.pipe(
-            filter(changes => changes.replicate && changes.collection == this.tableName),
-            map(changes => changes.changes)
-        );
-        
+    ) { 
         if (!conflictHandler) {
             this.conflictHandler = defaultConflictHandler;
         } else {
             this.conflictHandler = conflictHandler;
         }
-    }
 
-    get $$(): Reactivity {
-        return this.reactivity.fromObservable(
-            this.$,
-            []
-        );
+        this.primaryKey = schema.primaryKey;
     }
 
     get table() {
-        return this.db.dexie.table(this.tableName);
+        return this.dexie.table(this.tableName);
     }
     get replicationTable() {
-        return this.db.dexie.table(this.tableName + '_replication');
+        return this.dexie.table(this.tableName + '_replication');
     }
     get masterTable() {
-        return this.db.dexie.table(this.tableName + '_master_states');
-    }
-
-    get schema() {
-        return this.db.schema ? this.db.schema[this.tableName].schema : undefined;
+        return this.dexie.table(this.tableName + '_master_states');
     }
 
     find(query?: QueryOptions): MyQuery<DocType, DocMethods> {
@@ -98,13 +81,12 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
 
     async insert(doc: any) {
         // operate on copy only
-        console.log('insert', doc);
         const newDoc = JSON.parse(JSON.stringify(doc));
         Object.assign(newDoc, {touched: true});
-        this.table.add(newDoc);
-        this.db.next(this.tableName,
-                     [new MyDocument<DocType, DocMethods>(this, newDoc)]
-        );
+        await this.table.add(newDoc);
+
+        this.$.next([doc]);
+        this.replication$.next();
     }
 
     async markUntouched(docs: any[]) {
@@ -114,28 +96,30 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
                 changes: {touched: false}
             };
         });
-        this.table.bulkUpdate(changes);
-        
-        const keys = docs.map((doc: any) => doc[this.primaryKey]);
-        const updatedDocs = await this.table.bulkGet(keys);
-        this.db.next(
-            this.tableName,
-            updatedDocs.map(d => new MyDocument<DocType, DocMethods>(this, d)),
-            false
-        );
+        await this.table.bulkUpdate(changes);
+
+        const keys = docs.map(doc => doc[this.primaryKey]);
+        let newDocs = await this.table.bulkGet(keys);
+        newDocs = newDocs.map(doc => {
+            delete doc['touched'];
+            return doc;
+        });
+
+        this.updateMasterState(newDocs);
+
+        this.$.next(newDocs);
+        // no replication since it is triggered by replication
     }
 
     async update(newDoc: any) {
         // operate on copy only
         newDoc = JSON.parse(JSON.stringify(newDoc));
         Object.assign(newDoc, {touched: true});
-        
-        const key = await this.table.put(newDoc);
-        const updatedDoc = await this.table.get(key);
-        this.db.next(
-            this.tableName,
-            [new MyDocument<DocType, DocMethods>(this, updatedDoc)]
-        );
+
+        await this.table.put(newDoc);
+
+        this.$.next([newDoc]);
+        this.replication$.next();
     }
 
     async bulkUpdate(
@@ -150,15 +134,14 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
                 changes: patch
             };
         });
-        const keys = docs.map(doc => doc.key);
         
         await this.table.bulkUpdate(updates);
-        const updatedDocs = await this.table.bulkGet(keys);
-        this.db.next(
-            this.tableName,
-            updatedDocs.map(d => new MyDocument<DocType, DocMethods>(this, d))
-        );
 
+        const keys = docs.map((doc: any) => doc[this.primaryKey]);
+        const newDocs = await this.table.bulkGet(keys);
+        
+        this.$.next(newDocs);
+        this.replication$.next();
     }
 
     async remoteBulkAdd(docs: any[]) {
@@ -188,17 +171,11 @@ export class MyCollection<DocType, DocMethods, Reactivity> {
             }
         }
         
-        // update masterstates
+        this.$.next([]);
+    }
+
+    async updateMasterState(docs: any[]) {
         await this.masterTable.bulkPut(docs);
-        
-        // emit changes
-        const updatedIds = docs.map(doc => doc[this.primaryKey]);
-        const newDocs = await this.table.bulkGet(updatedIds);
-        this.db.next(
-            this.tableName,
-            newDocs.map(doc => new MyDocument<DocType, DocMethods>(this, doc)),
-            false
-        );
     }
 
     async getAssumedMaster(key: string) {

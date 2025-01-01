@@ -57,7 +57,7 @@ export class UpdateItemSheetComponent implements OnDestroy {
     this.list = data.list;
     const due = !!data.item.due ? new Date(data.item.due) : null;
     const reminder = !!data.item.reminder ? new Date(data.item.reminder) : null;
-    this.reminderDefault = this.authService.me().defaultReminder as ReminderOption || ReminderOption.MIN_30;
+    this.reminderDefault = this.authService.me()?.defaultReminder as ReminderOption || ReminderOption.MIN_30;
 
     this.form = this.fb.group({
       'name': [data.item.name, Validators.required],

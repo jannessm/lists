@@ -1,42 +1,25 @@
-import { BehaviorSubject, Observable, Subject, filter, map } from "rxjs";
+import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { MyCollection } from "./collection";
-import { Signal } from "@angular/core";
 import { MyDocument } from "./document";
-import { MyDocument as MyDocumentType, QueryObject } from "./types/classes";
+import { QueryObject } from "./types/classes";
 
 export class MyQuerySingle<DocType, DocMethods> {
     private subject = new Subject<MyDocument<DocType, DocMethods>>();
     lastResult!: MyDocument<DocType, DocMethods>;
 
     constructor(
-        private collection: MyCollection<DocType, DocMethods, unknown>,
+        private collection: MyCollection<DocType, DocMethods>,
         private query: QueryObject
     ) {
         this.update();
 
-        this.collection.$.pipe(
-                filter(docs => docs.reduce((carry, doc) =>
-                    carry || this.query.filter(doc), false
-                )),
-                map(docs => docs.find(this.query.filter))
-            )
-            .subscribe(doc => {
-                if (doc) {
-                    this.lastResult = doc;
-                    this.subject.next(doc);
-                }
+        this.collection.$.subscribe(() => {
+                this.update();
             });
     }
 
     get $(): Observable<MyDocument<DocType, DocMethods>> {
         return this.subject.asObservable();
-    }
-
-    get $$(): Signal<MyDocumentType<DocType, DocMethods>> {
-        return this.collection.reactivity.fromObservable(
-            this.$,
-            this.lastResult
-        );
     }
 
     private update() {
@@ -56,25 +39,10 @@ export class MyQuery<DocType, DocMethods> {
     private subject = new BehaviorSubject<MyDocument<DocType, DocMethods>[]>([]);
 
     constructor(
-        private collection: MyCollection<DocType, DocMethods, unknown>,
+        private collection: MyCollection<DocType, DocMethods>,
         private query: QueryObject
     ) {
-        const key = this.collection.primaryKey;
-        this.collection.$.pipe(
-                filter(docs => docs.reduce((carry, doc: any) => {
-                    if (this.subject.value && !!this.subject.value.find((d: any) => 
-                            d[key] === doc[key]
-                        )) {
-                        return true;
-                    }
-                    if (carry || this.query.filter(doc)) {
-                        return true;
-                    }
-
-                    return carry;
-                }, false))
-            )
-            .subscribe(() => {
+        this.collection.$.subscribe(() => {
                 this.update();
             });
         
@@ -84,13 +52,6 @@ export class MyQuery<DocType, DocMethods> {
 
     get $(): Observable<MyDocument<DocType, DocMethods>[]> {
         return this.subject.asObservable();
-    }
-
-    get $$(): Signal<MyDocumentType<DocType, DocMethods>[]> {
-        return this.collection.reactivity.fromObservable(
-            this.$,
-            this.subject.value
-        );
     }
 
     private update() {

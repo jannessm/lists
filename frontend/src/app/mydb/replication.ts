@@ -1,7 +1,6 @@
-import { Subject, Subscription, filter } from "rxjs";
+import { Subscription } from "rxjs";
 import { MyPullOptions, MyPushOptions, MyReplicationOptions } from "./types/replication";
 import { MyCollection } from "./collection";
-import { MyDocument } from "./types/classes";
 import { MyPushRow } from "./types/common";
 
 export async function replicateCollection(options: MyReplicationOptions): Promise<Replicator> {
@@ -16,21 +15,21 @@ export async function replicateCollection(options: MyReplicationOptions): Promis
 }
 
 export class Replicator {
-    private stream$: Subscription | undefined;
-    private localEvents$: Subscription;
-    public remoteEvents$ = new Subject<unknown>();
+    private stream$?: Subscription;
+    private replicationSub?: Subscription;
 
     constructor (
         private identifier: string,
-        private collection: MyCollection<unknown, unknown, unknown>,
+        private collection: MyCollection<unknown, unknown>,
         private pullOptions: MyPullOptions,
         private pushOptions?: MyPushOptions,
     ) {
-        this.localEvents$ = this.collection.replication$.subscribe(docs => {
-            this.push(docs);
+        this.pull().then(() => {
+            this.startStream();
+            this.replicationSub = this.collection.replication$.subscribe(() => {
+                this.push()
+            });
         });
-
-        this.pull().then(() => this.startStream());
     }
 
     public remove() {
@@ -39,8 +38,7 @@ export class Replicator {
 
     public destroy() {
         this.stream$?.unsubscribe();
-        this.remoteEvents$.complete();
-        this.localEvents$.unsubscribe();
+        this.replicationSub?.unsubscribe();
     }
 
     public async pull() {
@@ -57,17 +55,14 @@ export class Replicator {
                     docs = docs.map(this.pullOptions.modifier)
                 }
                 await this.collection.remoteBulkAdd(docs);
+                await this.collection.updateMasterState(docs);
                 await this.collection.setCheckpoint(newDocs.checkpoint);
             } else {
                 break;
             }
         }
 
-        const touchedDocs = await this.collection.table.toCollection()
-            .filter(doc => doc.touched)
-            .toArray();
-
-        await this.push(touchedDocs);
+        await this.push();
     }
 
     public startStream() {
@@ -82,14 +77,21 @@ export class Replicator {
                 docs = docs.map(this.pullOptions.modifier);
             }
             await this.collection.remoteBulkAdd(docs);
+            await this.collection.updateMasterState(docs);
             await this.collection.setCheckpoint(data.checkpoint);
-
-            this.remoteEvents$.next(docs);
         });
     }
 
-    public push(docs: MyDocument<any, unknown>[]) {
-        if (docs.length === 0 || !this.pushOptions) return;
+    public async push() {
+        if (!this.pushOptions) return;
+
+        let docs = await this.collection.table.toCollection()
+            .filter((doc: any) => doc.touched)
+            .toArray();
+
+        if (docs.length === 0) {
+            return;
+        }
 
         console.log('push', docs);
 
@@ -105,7 +107,7 @@ export class Replicator {
 
                     clearInterval(pushInterval);
                 } catch { }
-            }, 10 * 1000);
+            }, 1 * 1000);
         });
     }
 
@@ -130,11 +132,11 @@ export class Replicator {
 
             // update masterstate
             await this.collection.remoteBulkAdd(conflicts);
+            await this.collection.updateMasterState(conflicts);
 
             // try again with updated data
             return await this.pushInterval(docs, true);
         } else if (conflicts.length === 0) {
-            console.log('mark untouched');
             return await this.collection.markUntouched(docs);
         } else {
             throw Error('push still has conflicts.');

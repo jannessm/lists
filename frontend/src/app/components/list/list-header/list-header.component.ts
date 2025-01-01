@@ -25,7 +25,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './list-header.component.scss'
 })
 export class ListHeaderComponent {
-  @Input() lists!: Signal<MyListsDocument>;
+  @Input() lists!: Signal<MyListsDocument | undefined>;
   @Input() users: WritableSignal<MyUsersDocument[]> = signal([]);
   @Input() isAdmin = false;
 
@@ -40,9 +40,11 @@ export class ListHeaderComponent {
   ) {}
 
   listSettings() {
-    if (this.lists && this.lists()) {
+    const lists = this.lists();
+
+    if (!!lists) {
       const dialogRef = this.bottomSheet.open(AddSheetComponent, {
-        data: this.lists()
+        data: lists
       });
   
       dialogRef.afterDismissed().subscribe(new_values => {
@@ -50,25 +52,24 @@ export class ListHeaderComponent {
           this.snackbar.open('Name darf nicht leer sein.', 'Ok');
           return;
         }
-        
-        if (!!new_values && this.lists) {
-          const patch = { };
-          const list = this.lists();
 
-          if (list.name !== new_values.name) {
+        if (!!new_values && !!lists) {
+          const patch = { };
+
+          if (lists.name !== new_values.name) {
             Object.assign(patch, {
               name: new_values.name
             });
           }
           
-          if (list.isShoppingList !== new_values.isShoppingList) {
+          if (lists.isShoppingList !== new_values.isShoppingList) {
             Object.assign(patch, {
               isShoppingList: new_values.isShoppingList
             });
           }
 
           if (Object.keys(patch).length > 0) {
-            this.lists().patch(patch);
+            lists.patch(patch);
           }
         }
       });
@@ -86,11 +87,12 @@ export class ListHeaderComponent {
       });
 
       dialogRef.afterDismissed().subscribe(data => {
-        if (!!data && this.lists && this.lists()) {
+        const lists = this.lists();
+        if (!!data && !!lists) {
 
           // add
           if (!!data.email) {
-            this.authService.shareLists(data.email, this.lists().id)
+            this.authService.shareLists(data.email, lists.id)
               .subscribe(success => {
                 if (!success) {
                   this.snackbar.open('Einladung konnte nicht verschickt werden.', 'Ok');
@@ -112,11 +114,12 @@ export class ListHeaderComponent {
             });
 
             confirm.afterDismissed().subscribe(del => {
-              if (!del) {
+              const lists = this.lists();
+              if (!del || !lists) {
                 return;
               }
 
-              this.authService.unshareLists(data.remove, this.lists().id)
+              this.authService.unshareLists(data.remove, lists.id)
                 .subscribe(success => {
                   if (success) {
                     this.snackbar.open('Nutzer ' + removeUser.name + ' wurde entfernt.', 'Ok');
@@ -132,14 +135,16 @@ export class ListHeaderComponent {
   }
 
   deleteList() {
-    if (this.lists && this.lists()) {
+    const lists = this.lists();
+
+    if (!!lists) {
       const confirm = this.bottomSheet.open(ConfirmSheetComponent, {
-        data: 'Lösche Liste ' + this.lists().name
+        data: 'Lösche Liste ' + lists.name
       });
       
       confirm.afterDismissed().subscribe(del => {
-        if (del && this.lists && this.lists()) {
-          this.lists().remove().then(() => {
+        if (del && !!lists) {
+          lists.remove().then(() => {
             this.router.navigate(['/user/lists']);
           });
         }
@@ -151,10 +156,11 @@ export class ListHeaderComponent {
     const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche alle Einträge'});
     
     confirm.afterDismissed().subscribe(del => {
-      if (this.lists && this.lists() && del) {
+      const lists = this.lists();
+      if (!!lists && del) {
         this.dataService.db.items.find({
           selector: {
-            lists: this.lists().id
+            lists: lists.id
           }
         }).remove();
       }
@@ -165,10 +171,11 @@ export class ListHeaderComponent {
     const confirm = this.bottomSheet.open(ConfirmSheetComponent, {data: 'Lösche alle erledigten Einträge'});
     
     confirm.afterDismissed().subscribe(del => {
-      if (this.lists && this.lists() && del) {
+      const lists = this.lists();
+      if (!!lists && del) {
         this.dataService.db.items.find({
           selector: {
-            lists: this.lists().id,
+            lists: lists.id,
             done: true
           }
         }).remove();
@@ -177,10 +184,11 @@ export class ListHeaderComponent {
   }
 
   markAllNotDone() {
-    if (this.lists && this.lists()) {
+    const lists = this.lists();
+    if (!!lists) {
       this.dataService.db.items.find({
         selector: {
-          lists: this.lists().id
+          lists: lists.id
         }
       }).patch({
         done: false

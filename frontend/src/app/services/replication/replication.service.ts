@@ -1,6 +1,6 @@
-import { Host, HostListener, Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { DataApiService } from '../data-api/data-api.service';
-import { Subject, firstValueFrom } from 'rxjs';
+import { Subject, distinctUntilChanged, firstValueFrom } from 'rxjs';
 import { DATA_TYPE, graphQLGenerationInput } from '../../mydb/types/graphql-types';
 import { MutationResponse, PullResult, PushResult, QueryResponse, SubscriptionResponse } from '../../../models/responses';
 import { PusherService } from '../pusher/pusher.service';
@@ -32,6 +32,7 @@ export class ReplicationService implements OnDestroy {
           subj.next('RESYNC');
         });
       }
+      
       this.lastPusherState = isOnline;
     });
   }
@@ -42,8 +43,7 @@ export class ReplicationService implements OnDestroy {
 
   async setupReplication(
     collectionName: string,
-    collection: MyCollection<any, unknown, unknown>,
-    meId: string | null
+    collection: MyCollection<any, unknown>
   ) {
     const that = this;
     const schema = graphQLGenerationInput[collectionName as GenerationInputKey];
@@ -72,7 +72,7 @@ export class ReplicationService implements OnDestroy {
 
           return (result.data as PullResult)['pull' + operationName];
         },
-        stream$: await this.initStream(collectionName, meId),
+        stream$: await this.initStream(collectionName),
         modifier: (doc: any) => {
           packRef(doc, ['createdBy', 'sharedWith']);
 
@@ -123,11 +123,11 @@ export class ReplicationService implements OnDestroy {
     const replication = await replicateCollection(replicationConfig);
 
     this.replications[collectionName] = replication;
-
+  
     return replication;
   }
 
-  async initStream(collectionName: string, meId: string | null) {
+  async initStream(collectionName: string) {
     const schema = graphQLGenerationInput[collectionName as GenerationInputKey];
 
     const pullStreamQuery = pullStreamBuilderFromSchema(
@@ -136,9 +136,6 @@ export class ReplicationService implements OnDestroy {
     );
 
     let headers = {};
-    if (!!meId) {
-      headers = {id: meId}
-    }
     const query = pullStreamQuery(headers);
 
     // fix array items

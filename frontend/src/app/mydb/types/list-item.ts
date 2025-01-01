@@ -76,7 +76,7 @@ type MyItemDocumentMethods = {
 };
 
 export type MyItemDocument = MyDocument<MyItemDocumentType, MyItemDocumentMethods>
-export type MyItemCollection = MyCollection<MyItemDocumentType, MyItemDocumentMethods, Signal<unknown>>;
+export type MyItemCollection = MyCollection<MyItemDocumentType, MyItemDocumentMethods>;
 
 export function itemsConflictHandler(
     forkState: MyItemDocumentType,

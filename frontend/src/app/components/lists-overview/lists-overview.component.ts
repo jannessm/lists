@@ -1,4 +1,4 @@
-import { Component, NgZone, Signal, WritableSignal, effect, signal } from '@angular/core';
+import { AfterViewInit, Component, Signal, effect } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.component';
 
@@ -10,6 +10,7 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import { MyMeDocument } from '../../mydb/types/me';
 import { Subscription } from 'rxjs';
+import { DATA_TYPE } from '../../mydb/types/graphql-types';
 
 @Component({
   selector: 'app-lists-overview',
@@ -22,9 +23,9 @@ import { Subscription } from 'rxjs';
   templateUrl: './lists-overview.component.html',
   styleUrls: ['./lists-overview.component.scss']
 })
-export class ListsOverviewComponent {
+export class ListsOverviewComponent implements AfterViewInit {
 
-  me: Signal<MyMeDocument>;
+  me: Signal<MyMeDocument | undefined>;
   lists: MyListsDocument[] = [];
   listsSub?: Subscription;
 
@@ -36,13 +37,14 @@ export class ListsOverviewComponent {
     this.me = this.authService.me;
 
     effect(() => {
-      if (this.me()) {
+      const me = this.me();
+      if (!!me) {
         if (this.listsSub) {
           this.listsSub.unsubscribe();
         }
         
         this.listsSub = this.dataService.db.lists.find({
-          selector: {id: this.me().lists},
+          selector: {id: me.lists},
           sort: [{name: 'asc'}]
         }).$.subscribe(docs => {
           if (docs) {
@@ -54,25 +56,27 @@ export class ListsOverviewComponent {
       }
     });
   }
+  
+  ngAfterViewInit(): void {
+    this.dataService.resync(DATA_TYPE.LISTS);
+  }
 
   addList() {
     const dialogRef = this.bottomSheet.open(AddSheetComponent);
 
     dialogRef.afterDismissed().subscribe(async (res) => {
-      if (!!res &&
-          this.authService.me && 
-          this.authService.me()
-      ) {
+      const me = this.me();
+      if (!!res && !!me) {
         const newList = newLists({
           name: res.name,
           isShoppingList: res.isShoppingList,
-          createdBy: this.authService.me().id,
+          createdBy: me.id,
         });
 
-        const lists = this.authService.me().lists || [];
+        const lists = me.lists || [];
         
         this.dataService.db.lists.insert(newList);
-        this.authService.me().patch({lists: [...lists, newList.id]})
+        me.patch({lists: [...lists, newList.id]})
       }
     });
   }

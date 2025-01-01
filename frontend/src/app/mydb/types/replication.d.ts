@@ -19,6 +19,7 @@ export type MyPullHandler = (checkpoint: unknwon, batchSize: number) => Promise<
 export type MyPullData = {
     documents: any[];
     checkpoint: Checkpoint;
+    isBC?: boolean;
 };
 
 export type MyPushOptions = {

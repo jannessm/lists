@@ -1,6 +1,5 @@
 import { AsTyped } from 'as-typed';
 import { COMMON_SCHEMA } from "./common";
-import { Signal } from "@angular/core";
 import { MyDocument } from "./classes";
 import { MyCollection } from '../collection';
 
@@ -27,4 +26,4 @@ export const USERS_SCHEMA = {
 type MyUsersDocumentType = AsTyped<typeof USERS_SCHEMA>;
 
 export type MyUsersDocument = MyDocument<MyUsersDocumentType, {}>
-export type MyUsersCollection = MyCollection<MyUsersDocumentType, {}, Signal<MyUsersDocument>>;
+export type MyUsersCollection = MyCollection<MyUsersDocumentType, {}>;

@@ -20,7 +20,7 @@ export class ThemeService {
     effect(() => {
       if (this.authService.me()) {
         setTimeout(() => {
-          this.updateTheme(this.authService.me().theme as THEME);
+          this.updateTheme(this.authService.me()?.theme as THEME);
         });
       }
     })

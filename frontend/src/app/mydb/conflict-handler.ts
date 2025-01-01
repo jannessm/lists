@@ -12,7 +12,6 @@ export function defaultConflictHandler(
     assumedMasterState: any | undefined,
     trueMasterState: any | undefined,
 ): any {
-    console.log(forkState, trueMasterState, assumedMasterState)
     if (!assumedMasterState || !trueMasterState || assumedMasterState.updatedAt === trueMasterState.updatedAt) {
         return forkState;
     } else {
