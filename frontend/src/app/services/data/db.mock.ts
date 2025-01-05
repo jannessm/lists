@@ -1,14 +1,13 @@
 import { signal } from "@angular/core"
 import { of } from "rxjs"
 import { MockMyListsDocument } from "../auth/auth.service.mock";
-import { MyListsDocument } from "../../mydb/types/lists";
 
 export function getDBMock() {
-    return jasmine.createSpyObj('DB_INSTANCE', ['destroy'], {
-        me: {remove: Promise.resolve},
-        items: {remove: Promise.resolve},
-        users: {remove: Promise.resolve},
-        lists: {remove: Promise.resolve},
+    return jasmine.createSpyObj('DB_INSTANCE', [], {
+        me: new MyCollectionSpy(),
+        items: new MyCollectionSpy(),
+        users: new MyCollectionSpy(),
+        lists: new MyCollectionSpy(),
     })
 }
 
@@ -16,22 +15,19 @@ export class MyCollectionSpy {
     mockDoc: () => MockMyListsDocument | undefined = () => undefined;
     find = jasmine.createSpy('find').and.callFake(() => {
         return {
-            $: of(),
-            $$: signal(this.mockDoc())
+            $: of([this.mockDoc()])
         }
     });
 
     findOne = jasmine.createSpy('findOne').and.callFake(() => {
         return {
-            $: of(),
-            $$: signal(this.mockDoc())
+            $: of(this.mockDoc())
         }
     });
 
     findMany = jasmine.createSpy('findMany').and.callFake(() => {
         return {
-            $: of(),
-            $$: signal([this.mockDoc()])
+            $: of([this.mockDoc()])
         }
     });
 

@@ -10,7 +10,6 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { Component, ComponentRef, signal, WritableSignal } from '@angular/core';
 import { DataService } from '../../../services/data/data.service';
 import { AuthServiceSpy, MockMyListsDocument } from '../../../services/auth/auth.service.mock';
-import { MyListsDatabase } from '../../../mydb/types/database';
 import { MyListsDocument } from '../../../mydb/types/lists';
 import { DataServiceSpy } from '../../../services/data/data.service.mock';
 import { MatBottomSheetMock, MatSnackBarMock } from '../../../../testing/mocks';

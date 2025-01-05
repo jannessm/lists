@@ -6,14 +6,14 @@ import { ReplicationService } from '../replication/replication.service';
 import { PusherService } from '../pusher/pusher.service';
 import { of } from 'rxjs';
 import { getDBMock } from './db.mock';
-import { MyListsDatabase } from '../../mydb/types/database';
+import { MyListsCollections } from '../../mydb/types/database';
 
 describe('DataService', () => {
   let service: DataService;
   let mockReplicationService: jasmine.SpyObj<ReplicationService>;
   let mockHttpClient: jasmine.SpyObj<HttpClient>;
   let mockPusherService: jasmine.SpyObj<PusherService>;
-  let mockDB: jasmine.SpyObj<MyListsDatabase>;
+  let mockDB: jasmine.SpyObj<MyListsCollections>;
 
   beforeEach(() => {
     const MockHttpClient = jasmine.createSpyObj('HttpClient', ['get']);
@@ -40,7 +40,7 @@ describe('DataService', () => {
     mockHttpClient.get.and.returnValue(of(groceryCategories));
     service = TestBed.inject(DataService);
 
-    spyOnProperty(service, 'db').and.returnValue(mockDB);
+    service.db = mockDB;
 
     expect(service).toBeTruthy();
     expect(service.groceryCategories).toEqual(groceryCategories);

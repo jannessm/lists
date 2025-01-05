@@ -127,7 +127,7 @@ export class ListComponent implements AfterViewInit, OnDestroy {
   }
 
   groupItems(list: MyListsDocument, items: MyItemDocument[]): Slot[] {
-    if (items && list) {
+    if (items && list && items.length > 0 && !!items[0]) {
       const slots = groupItems(items, list.isShoppingList, this.dataService.groceryCategories);
 
       slots.forEach(s => {

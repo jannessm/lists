@@ -9,7 +9,6 @@ import { DataService } from '../data/data.service';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { of } from 'rxjs';
-import { signal } from '@angular/core';
 import { MockMyMeDocument } from './auth.service.mock';
 import { getAuthApiMock } from '../auth-api/auth-api.mock';
 import { CookieServiceMock, MatBottomSheetMock, MatSnackBarMock } from '../../../testing/mocks';
@@ -28,7 +27,7 @@ describe('AuthService', () => {
     const MockAuthApi = getAuthApiMock();
     const MockRouter = jasmine.createSpyObj('Router', ['navigateByUrl'], {'url': '/user/lists'});
     const MockPusherService = jasmine.createSpyObj('PusherService', ['unsubscribe'], {'online': of(true)});
-    const MockDataService = jasmine.createSpyObj('DataService', ['initDB', 'removeData'], {db: {me: {findOne: () => {return {$$: signal(MockMyMeDocument)}}}}});
+    const MockDataService = jasmine.createSpyObj('DataService', ['initDB', 'removeData'], {db: {me: {findOne: () => {return {$: of(MockMyMeDocument)}}}}});
     
 
     TestBed.configureTestingModule({
