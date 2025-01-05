@@ -35,7 +35,7 @@ export class AuthService {
     }
   );
     this.isLoggedIn = signal(this.cookies.check(SESSION_COOKIE));
-    
+
     effect(() => {
       if (this.isLoggedIn()) {
         this.setSessionCookie();
@@ -56,7 +56,7 @@ export class AuthService {
         }, 100);
       }
     });
-    
+
     this.api.validateLogin().subscribe(loggedIn => {
       if (loggedIn !== 'error') {
         this.isLoggedIn.set(!!loggedIn);
@@ -81,7 +81,7 @@ export class AuthService {
     }
 
     return this.api.login(email, password, captcha).pipe(
-      map(success => { 
+      map(success => {
         if (success) {
           this.isLoggedIn.set(true);
 
@@ -123,10 +123,14 @@ export class AuthService {
   logout() {
     this.api.logout().subscribe(success => {
       if (success) {
-        this.isLoggedIn.set(false);
-        this.router.navigateByUrl('/login');
+        this.setLoggedOut();
       }
     });
+  }
+
+  setLoggedOut() {
+    this.isLoggedIn.set(false);
+    this.router.navigateByUrl('/login');
   }
 
   setSessionCookie() {

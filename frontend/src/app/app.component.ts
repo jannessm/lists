@@ -42,24 +42,10 @@ export class AppComponent {
   resync() {
     if (document.hidden) return;
 
-    const now = Math.floor((new Date()).getTime() / (1000 * 60 * 60 * 24));
-    const expiration = new Date();
-    expiration.setMonth(expiration.getMonth() + 3);
-
-    if (!!this.cookieService.check('lastReload')) {
-      const lastReload = parseInt(this.cookieService.get('lastReload'));
-      if (lastReload < now || lastReload > 1000 * 60 * 60 * 24) {
-        this.cookieService.set('lastReload', now.toString(), expiration);
-        window.location.reload();
-      }
-    } else {
-      this.cookieService.set('lastReload', now.toString(), expiration);
-    }
-
     if (this.replicationService.lastPusherState) {
-      this.authService.refreshCSRF().subscribe(()=>{
+//      this.authService.refreshCSRF().subscribe(()=>{
         this.dataService.resync();
-      });
+//      });
     }
   }
 
