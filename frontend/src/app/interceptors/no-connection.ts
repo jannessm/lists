@@ -19,7 +19,7 @@ export function noConnectionInterceptor(req: HttpRequest<unknown>, next: HttpHan
             }
 
             const resp = event as any;
-            if (resp.type === HttpEventType.Response && resp.body.hasOwnProperty("errors") &&
+            if (resp.type === HttpEventType.Response && !!resp.body && resp.body.hasOwnProperty("errors") &&
                 Array.isArray(resp.body.errors) && resp.body.errors[0].hasOwnProperty("message") &&
                 resp.body.errors[0].message === "Unauthenticated.") {
                 auth.setLoggedOut();
