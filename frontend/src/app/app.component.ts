@@ -39,8 +39,12 @@ export class AppComponent {
   @HostListener('document:visibilitychange', ['event'])
   @HostListener('document:pageshow', ['event'])
   @HostListener('document:focus', ['event'])
-  resync() {
+  async resync() {
     if (document.hidden) return;
+
+    if (this.authService.isLoggedIn() && !this.dataService.dbInitialized) {
+      await this.dataService.initDB();
+    }
 
     if (this.replicationService.lastPusherState) {
 //      this.authService.refreshCSRF().subscribe(()=>{
