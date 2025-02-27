@@ -56,6 +56,13 @@ export class AuthService {
         }, 100);
       }
     });
+    if (this.isLoggedIn() && !this.dataService.dbInitialized) {
+      this.dataService.initDB()
+    } else if (!this.isLoggedIn()) {
+      this.deleteSessionCookie();
+      this.pusher.unsubscribe();
+      this.dataService.removeData();
+    }
 
     this.api.validateLogin().subscribe(loggedIn => {
       if (loggedIn !== 'error') {
@@ -72,7 +79,7 @@ export class AuthService {
       if (isOnline && this.isLoggedIn()) {
         this.evaluateVerifiedMail();
       }
-    })
+    });
   }
 
   login(email: string, password: string, captcha: string): Observable<boolean> {

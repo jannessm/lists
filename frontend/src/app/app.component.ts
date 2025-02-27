@@ -42,9 +42,9 @@ export class AppComponent {
   async resync() {
     if (document.hidden) return;
 
-    if (this.authService.isLoggedIn() && !this.dataService.dbInitialized) {
-      await this.dataService.initDB();
-    }
+    // if (this.authService.isLoggedIn() && !this.dataService.dbInitialized) {
+      // await this.dataService.initDB();
+    // }
 
     if (this.replicationService.lastPusherState) {
 //      this.authService.refreshCSRF().subscribe(()=>{
