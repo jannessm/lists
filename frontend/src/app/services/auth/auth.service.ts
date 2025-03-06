@@ -1,4 +1,4 @@
-import { Injectable, Signal, WritableSignal, effect, signal } from '@angular/core';
+import { Injectable, WritableSignal, effect, signal } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthApiService } from '../auth-api/auth-api.service';
 import { REGISTER, SESSION_COOKIE } from '../../globals';
@@ -35,6 +35,7 @@ export class AuthService {
     }
   );
     this.isLoggedIn = signal(this.cookies.check(SESSION_COOKIE));
+    this.checkInit();
 
     effect(() => {
       if (this.isLoggedIn()) {
@@ -56,13 +57,6 @@ export class AuthService {
         }, 100);
       }
     });
-    if (this.isLoggedIn() && !this.dataService.dbInitialized) {
-      this.dataService.initDB()
-    } else if (!this.isLoggedIn()) {
-      this.deleteSessionCookie();
-      this.pusher.unsubscribe();
-      this.dataService.removeData();
-    }
 
     this.api.validateLogin().subscribe(loggedIn => {
       if (loggedIn !== 'error') {
@@ -101,6 +95,16 @@ export class AuthService {
           return false;
         }
     }));
+  }
+
+  checkInit() {
+    if (this.isLoggedIn() && !this.dataService.dbInitialized) {
+      this.dataService.initDB();
+    } else if (!this.isLoggedIn()) {
+      this.deleteSessionCookie();
+      this.pusher.unsubscribe();
+      this.dataService.removeData();
+    }
   }
 
   register(

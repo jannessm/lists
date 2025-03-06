@@ -23,7 +23,6 @@ export class DataService {
   replications: {[key: string]: Replicator} = {};
 
   dbInitialized = false;
-  replicationInitialized = false;
 
   groceryCategories: GroceryCategories | undefined;
 
@@ -41,9 +40,9 @@ export class DataService {
   }
 
   resync(collection?: DATA_TYPE) {
-    if (collection && this.replicationInitialized) {
+    if (collection && this.dbInitialized) {
       this.replicationService.streamSubjects[collection].next("RESYNC");
-    } else if (this.replicationInitialized) {
+    } else if (this.dbInitialized) {
       Object.values(this.replicationService.streamSubjects).forEach(subj => {
         subj.next('RESYNC');
       });
@@ -51,7 +50,7 @@ export class DataService {
   }
 
   async initDB() {
-    if (this.db && !this.replicationInitialized) {
+    if (this.db && !this.dbInitialized) {
       await new Promise((resolve, rej) => {
         const checkInterval = setInterval(() => {
           if (this.pusherService.socketID) {
@@ -74,7 +73,7 @@ export class DataService {
       this.replications[DATA_TYPE.USERS] = repl;
     }
 
-    this.replicationInitialized = true;
+    this.dbInitialized = true;
   }
 
   addCollections(options: AddCollectionsOptions) {

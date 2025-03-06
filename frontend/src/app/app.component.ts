@@ -42,14 +42,10 @@ export class AppComponent {
   async resync() {
     if (document.hidden) return;
 
-    // if (this.authService.isLoggedIn() && !this.dataService.dbInitialized) {
-      // await this.dataService.initDB();
-    // }
+    this.authService.checkInit();
 
     if (this.replicationService.lastPusherState) {
-//      this.authService.refreshCSRF().subscribe(()=>{
-        this.dataService.resync();
-//      });
+      this.dataService.resync();
     }
   }
 
