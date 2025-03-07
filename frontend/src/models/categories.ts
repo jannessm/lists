@@ -45,7 +45,8 @@ function voteForGroceryCategory(categoryItems: string[]) {
         itemWord = itemWord.normalize("NFD").replace(/\p{Diacritic}/gu, "")
         itemWord = itemWord.replace(/\(.*\)/, "")
         const offset = itemWord.indexOf(catItem) + 1;
-        const weight = offset > 0 ? catItem.length : 0;
+        let weight = offset > 0 ? catItem.length : 0;
+        weight += itemWord === catItem ? 10000 : 0;
         votes += weight + offset;
       });
     });

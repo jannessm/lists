@@ -50,8 +50,22 @@ class GroceryCategoriesTest extends TestCase {
     }
 
     #[Test]
+    #[TestWith(["etwas tolles (oder so)", ["etwas", "tolles"]])]
+    #[TestWith(["alles (ohne (klammern))", ["alles"]])]
+    #[TestWith(["[ohne (eckige)] klammern", ["klammern"]])]
+    #[TestWith(["und {ohne } geschweifte", ["und", "geschweifte"]])]
+    public function remove_brackets(String $input, Array $correctTokens): void {
+        $refl = new \ReflectionClass(get_class($this->groceryCategories));
+        $tokenize = $refl->getMethod("tokenize");
+        
+        $tokens = $tokenize->invokeArgs($this->groceryCategories, [$input]);
+
+        $this->assertEqualsCanonicalizing($tokens, $correctTokens);
+    }
+
+    #[Test]
     #[TestWith(["eis", "Tiefkühlung"])]
-    // #[TestWith(["reis", "Tiefkühlung"])]
+    #[TestWith(["reis", "Vorratskammer"])]
     public function categorize_correctly(String $input, String $correctCategory): void {
         $category = $this->groceryCategories->categorize($input);
 

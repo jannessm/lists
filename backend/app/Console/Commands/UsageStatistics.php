@@ -64,5 +64,9 @@ class UsageStatistics extends Command
         } else {
             throw new \Exception('no ADMIN_MAIL defined');
         }
+
+        /************ Categories stats ************/
+        // $groceryLists = DB::table('lists')->where('is_shopping_list')->get();
+        // var_dump($groceryLists);
     }
 }
