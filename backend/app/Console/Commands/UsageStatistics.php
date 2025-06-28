@@ -56,16 +56,20 @@ class UsageStatistics extends Command
             ->where([['_deleted', true], ['updated_at', '>=', $last_week]])
             ->count();
 
+
+        /************ Categories stats ************/
+        $others_items = (new GroceryCategoriesData())->getOthersItems();
+
         if (!!config('mail.admin_mail')) {
             Mail::to(config('mail.admin_mail'))->send(
                 new UsageStatisticsEmail($all_users, $new_users, $unverified_users,
-                                         $new_items, $new_items_by_user, $deleted_items)
+                                         $new_items, $new_items_by_user, $deleted_items, $others_items)
             );
         } else {
             throw new \Exception('no ADMIN_MAIL defined');
         }
 
-        /************ Categories stats ************/
+
         // $groceryLists = DB::table('lists')->where('is_shopping_list')->get();
         // var_dump($groceryLists);
     }

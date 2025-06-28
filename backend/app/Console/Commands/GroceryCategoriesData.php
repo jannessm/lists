@@ -26,8 +26,22 @@ class GroceryCategoriesData extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
-    {
+    public function handle() {
+        $items = $this->getItemCategories();
+
+        // Check if items are found
+        if (empty($items)) {
+            $this->info('No items found for shopping lists.');
+            return;
+        }
+        
+        // get categories and dump to .csv
+        $this->writeItemsToCsv($items);
+    }
+
+    public function getItemCategories() {
+        $categorizer = new GroceryCategories();
+
         // Fetch all lists where is_shopping_list is true
         $shoppingLists = Lists::where('is_shopping_list', true)
                               ->where(function ($query) {
@@ -44,20 +58,28 @@ class GroceryCategoriesData extends Command
             $items = array_merge($items, $list->items->toArray());
         }
 
-        // Check if items are found
-        if (empty($items)) {
-            $this->info('No items found for shopping lists.');
-            return;
+        $itemCategories = [];
+        // Loop through each item and call the categories method
+        foreach ($items as $item) {
+            // Assuming the item is an instance of the Item model
+            $category = $categorizer->categorize($item['name']);
+            array_push($itemCategories, [$item['name'], $category]);
         }
-        
-        // get categories and dump to .csv
-        $this->writeItemsToCsv($items);
+
+        return $itemCategories;
     }
 
-    protected function writeItemsToCsv(array $items)
-    {
-        $categorizer = new GroceryCategories();
+    public function getOthersItems() {
+        $items = $this->getItemCategories();
+        $items = array_filter($items, function ($entry) {
+            return $entry[1] === "Other";
+        });
+        return array_map(function ($entry) {
+            return $entry[0];
+        }, $items);
+    }
 
+    protected function writeItemsToCsv(array $itemCategories) {
         // Define the CSV file path
         $csvFilePath = storage_path('app/categorized_shopping_list_items.csv');
 
@@ -68,10 +90,8 @@ class GroceryCategoriesData extends Command
         fputcsv($file, ['Item Name', 'Category']);
 
         // Loop through each item and call the categories method
-        foreach ($items as $item) {
-            // Assuming the item is an instance of the Item model
-            $category = $categorizer->categorize($item['name']);
-            fputcsv($file, [$item['name'], $category]); // Write item name and category to CSV
+        foreach ($itemCategories as $entry) {
+            fputcsv($file, $entry); // Write item name and category to CSV
         }
 
         // Close the file

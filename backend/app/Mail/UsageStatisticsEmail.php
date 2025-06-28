@@ -25,7 +25,8 @@ class UsageStatisticsEmail extends Mailable
                                 private int $unverified_users,
                                 private int $new_items,
                                 private Collection $new_items_by_user,
-                                private int $deleted_items)
+                                private int $deleted_items,
+                                private array $others_items)
     {
         //
     }
@@ -65,6 +66,13 @@ class UsageStatisticsEmail extends Mailable
         $mail->line('Top users:');
         foreach($this->new_items_by_user as $new_items) {
             $mail->line($new_items->name.' mit '.$new_items->new_items.' neuen Einträgen.');
+        }
+
+        $mail->line(new HtmlString('<hr>'))
+        ->line(new HtmlString('<h2>Others Items</h2>'));
+        
+        foreach($this->others_items as $item) {
+            $mail->line($item);
         }
         $mail->line(new HtmlString('<hr>'));
         
