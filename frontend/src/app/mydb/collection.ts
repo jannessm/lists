@@ -30,6 +30,8 @@ export class MyCollection<DocType, DocMethods> {
         }
 
         this.primaryKey = schema.primaryKey;
+
+        this.removeOldData().then(() => {});
     }
 
     get table() {
@@ -187,6 +189,20 @@ export class MyCollection<DocType, DocMethods> {
             this.table.clear(),
             this.masterTable.clear(),
             this.replicationTable.clear()
+        ]);
+    }
+
+    removeOldData() {
+        console.log("Removing old data from collection " + this.tableName);
+        // 90 days old data
+        function isOldData(item: any): boolean {
+            return item.touched !== true && item._deleted === true &&
+                   ((new Date(item.updatedAt)).getTime() < Date.now() - 1000 * 60 * 60 * 24 * 30 * 3);
+        }
+        return Promise.all([
+            this.table.filter(isOldData).delete(),
+            this.masterTable.filter(isOldData).delete(),
+            this.replicationTable.filter(isOldData).delete()
         ]);
     }
 
