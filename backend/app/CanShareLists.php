@@ -80,7 +80,7 @@ trait CanShareLists
             $recipient->notify(new ShareListsNotification($id));
         } else {
             Mail::to($email)->send(new InvitationEmail);
-            Mail::to($email)->send(new ShareListsEmail($id));
+            Mail::to($email)->send(new ShareListsEmail($id, $email));
         }
     }
 

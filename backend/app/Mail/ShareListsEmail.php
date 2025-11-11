@@ -18,14 +18,22 @@ class ShareListsEmail extends Mailable
     use Queueable, SerializesModels;
 
     private MailMessage $notification;
+    private String $recipientEmail;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(String $id) 
+    public function __construct(String $id, String $recipientEmail) 
     {
         $user = Auth::user();
-        $this->notification = (new ShareListsNotification($id))->toMail($user);
+        $this->recipientEmail = $recipientEmail;
+        
+        // Create a mock notifiable object with the recipient email
+        $notifiable = new \stdClass();
+        $notifiable->email = $recipientEmail;
+        $notifiable->name = $user->name;
+        
+        $this->notification = (new ShareListsNotification($id))->toMail($notifiable);
     }
 
     /**
