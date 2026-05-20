@@ -35,9 +35,9 @@ export class AppComponent {
   animationState = 'start';
   loading = false;
 
-  @HostListener('document:visibilitychange', ['event'])
-  @HostListener('document:pageshow', ['event'])
-  @HostListener('document:focus', ['event'])
+  @HostListener('document:visibilitychange')
+  @HostListener('document:pageshow')
+  @HostListener('document:focus')
   async resync() {
     if (document.hidden) return;
 
