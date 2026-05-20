@@ -147,10 +147,10 @@ return [
 
     'features' => [
         Features::registration(),
-        Features::resetPasswords(),
-        Features::emailVerification(),
+        // Features::resetPasswords(),     // removed — passwordless system
+        // Features::emailVerification(),  // removed — code verification replaces this
         // Features::updateProfileInformation(),
-        Features::updatePasswords(),
+        // Features::updatePasswords(),    // removed — passwordless system
     ],
 
 ];

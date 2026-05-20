@@ -1,0 +1,34 @@
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  width: 100%;
+  max-width: 400px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  h2 {
+    margin: 0;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    mat-form-field {
+      width: 100%;
+    }
+
+    .resend, .back {
+      display: flex;
+      justify-content: flex-start;
+    }
+  }
+}

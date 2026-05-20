@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Response;
+use App\Http\Controllers\Auth\MagicLinkController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,7 +15,7 @@ use Illuminate\Http\Response;
 |
 */
 
-$routes = ['', 'user', 'user/lists', 'user/lists/{id}', 'user/settings', 'cookies', 'graphql', 'forgot-password'];
+$routes = ['', 'user', 'user/lists', 'user/lists/{id}', 'user/settings', 'cookies', 'graphql'];
 
 $ngIndex = function () {
     return response(File::get(public_path() . '/ng-dist/browser/index.html'))->header('Content-Type', 'text/html; charset=UTF-8');
@@ -25,10 +25,12 @@ foreach ($routes as $route) {
     Route::get('/' . $route, $ngIndex);
 }
 
-Route::get('/reset-password', $ngIndex)->name('password.reset');
+// Magic link clickable button endpoint
+Route::get('/auth/verify', [MagicLinkController::class, 'verifyLink']);
 
 Route::get('/login', $ngIndex)->name('login');
 Route::get('/register', $ngIndex)->name('register');
+Route::get('/verify-code', $ngIndex);
 
 Route::get('/{file}', function(string $file) {
     $filename = public_path() . '/ng-dist/browser/' . $file;

@@ -1,0 +1,52 @@
+<div class="container">
+  <h2>Code eingeben</h2>
+
+  @if (pendingEmail) {
+    <p>Ein 6-stelliger Code wurde an <strong>{{ pendingEmail }}</strong> gesendet.<br>
+       Bitte gib den Code innerhalb von 15 Minuten ein.</p>
+  }
+
+  <form [formGroup]="form">
+    <mat-form-field appearance="outline">
+      <mat-label>6-stelliger Code</mat-label>
+      <input
+        matInput
+        formControlName="code"
+        maxlength="6"
+        autocomplete="one-time-code"
+        placeholder="z. B. ABC123"
+        (input)="form.get('code')?.setValue(form.get('code')?.value?.toUpperCase())"
+      >
+      @if (form.get('code')?.hasError('required')) {
+        <mat-error>Code muss angegeben werden!</mat-error>
+      }
+      @if (form.get('code')?.hasError('minlength') || form.get('code')?.hasError('maxlength')) {
+        <mat-error>Code muss genau 6 Zeichen lang sein.</mat-error>
+      }
+    </mat-form-field>
+
+    @if (errorMessage()) {
+      <mat-error>{{ errorMessage() }}</mat-error>
+    }
+
+    <button mat-flat-button color="primary"
+            (click)="submit()"
+            [disabled]="form.invalid || isSubmitting()">
+      Bestätigen
+    </button>
+
+    <div class="resend">
+      @if (resendCooldown() > 0) {
+        <span>Code erneut senden in {{ resendCooldown() }}s</span>
+      } @else {
+        <button mat-stroked-button type="button" (click)="resend()">Code erneut senden</button>
+      }
+    </div>
+
+    <div class="back">
+      <button mat-stroked-button type="button" routerLink="/login">
+        <mat-icon>chevron_left</mat-icon>Zurück zum Login
+      </button>
+    </div>
+  </form>
+</div>

@@ -28,20 +28,16 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline">
-      <mat-label>Passwort</mat-label>
-      <input matInput type="password" placeholder="Passwort" formControlName="pwd">
-      @if (form.get('pwd')?.hasError('required')) {
+      <mat-label>Email bestätigen</mat-label>
+      <input matInput placeholder="Email bestätigen" formControlName="email_confirmation" type="email">
+      @if (form.get('email_confirmation')?.hasError('required')) {
         <mat-error>
-          Passwort muss angegeben werden!
+          Email muss angegeben werden!
         </mat-error>
       }
-    </mat-form-field>
-    <mat-form-field appearance="outline">
-      <mat-label>Passwort wiederholen</mat-label>
-      <input matInput type="password" placeholder="Passwort wiederholen" formControlName="pwd_confirmation">
-      @if (form.get('pwd_confirmation')?.hasError('required')) {
+      @if (form.get('email_confirmation')?.hasError('email')) {
         <mat-error>
-          Passwort muss angegeben werden!
+          Bitte eine gültige Email Adresse angeben!
         </mat-error>
       }
     </mat-form-field>
@@ -56,7 +52,7 @@
 
     @if (form.hasError('notMatching')) {
       <mat-error>
-        Passwörter stimmen nicht überein!
+        Email-Adressen stimmen nicht überein!
       </mat-error>
     }
     @if (form.hasError('error')) {

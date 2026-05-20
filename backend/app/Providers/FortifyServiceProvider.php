@@ -3,9 +3,6 @@
 namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
-use App\Actions\Fortify\ResetUserPassword;
-use App\Actions\Fortify\UpdateUserPassword;
-use App\Actions\Fortify\UpdateUserProfileInformation;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -29,7 +26,7 @@ class FortifyServiceProvider extends ServiceProvider
                 return response("");
             }
         });
-    
+
         $this->app->instance(LoginResponse::class, new class implements LoginResponse {
             public function toResponse($request)
             {
@@ -37,7 +34,7 @@ class FortifyServiceProvider extends ServiceProvider
                 if ($request->session()->has('pending_list_invitation')) {
                     $invitation = $request->session()->get('pending_list_invitation');
                     $user = $request->user();
-                    
+
                     // Verify email matches
                     if ($user && $user->email === $invitation['email']) {
                         // Confirm the list invitation
@@ -45,28 +42,32 @@ class FortifyServiceProvider extends ServiceProvider
                         $request->session()->forget('pending_list_invitation');
                     }
                 }
-                
+
                 return response("");
             }
         });
-    
+
         $this->app->instance(RegisterResponse::class, new class implements RegisterResponse {
             public function toResponse($request)
             {
+                // After registration the user is NOT yet fully authenticated.
+                // Log them back out — full auth happens only after code verification.
+                auth()->logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
                 // Check for pending list invitation
                 if ($request->session()->has('pending_list_invitation')) {
                     $invitation = $request->session()->get('pending_list_invitation');
                     $user = $request->user();
-                    
-                    // Verify email matches
+
                     if ($user && $user->email === $invitation['email']) {
-                        // Confirm the list invitation
                         $user->confirmShareLists($invitation['list_id']);
                         $request->session()->forget('pending_list_invitation');
                     }
                 }
-                
-                return response("");
+
+                return response()->json(['status' => 'code_sent'], 201);
             }
         });
     }
@@ -77,18 +78,11 @@ class FortifyServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Fortify::createUsersUsing(CreateNewUser::class);
-        Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
-        Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
-        Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
         RateLimiter::for('login', function (Request $request) {
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
 
             return Limit::perMinute(5)->by($throttleKey);
-        });
-
-        RateLimiter::for('two-factor', function (Request $request) {
-            return Limit::perMinute(5)->by($request->session()->get('login.id'));
         });
     }
 }

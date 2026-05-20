@@ -17,7 +17,7 @@ class CaptchaVerification
     {
         $url = url()->current();
 
-        if (str_ends_with($url, 'login') || str_ends_with($url, 'register')) {
+        if (str_ends_with($url, 'register')) {
             $request->validate([
                 'captcha' => 'required|HCaptcha',
             ]);

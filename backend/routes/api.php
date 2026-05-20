@@ -4,17 +4,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-
-use Laravel\Fortify\RoutePath;
-
-use Symfony\Component\HttpFoundation\Response;
 
 use Nuwave\Lighthouse\Execution\Utils\Subscription;
 
+use App\Http\Controllers\Auth\MagicLinkController;
 use App\Http\Controllers\PushController;
 use App\Http\Controllers\ShareListsController;
-use App\Http\Controllers\VerifyEmailController;
 use App\Events\UserChanged;
 
 
@@ -42,20 +37,20 @@ Route::middleware("web")->get('auth', function(Request $request) {
 
 
 /**
- * email routes
+ * Passwordless auth routes
  */
 
-Route::middleware(["web"])->get('email/verified', function(Request $request) {
-    $user = $request->user();
-    if (!!$user && $user instanceof MustVerifyEmail && $user->hasVerifiedEmail()) {
-        return ["verified" => true];
-    }
-    return ["verified" => false];
-});
+// Override Fortify's login route with our custom passwordless login
+Route::middleware(["web"])->post('login', [MagicLinkController::class, 'login']);
 
-Route::get(RoutePath::for('verification.verify', '/email/verify/{id}/{hash}'), [VerifyEmailController::class, '__invoke'])
-    ->middleware(['signed', 'throttle:'.$verificationLimiter])
-    ->name('verification.verify');
+Route::middleware(["web"])->post('auth/verify-code', [MagicLinkController::class, 'verifyCode']);
+Route::middleware(["web"])->post('auth/resend-code', [MagicLinkController::class, 'resendCode']);
+
+
+
+/**
+ * User routes
+ */
 
 Route::middleware(["web"])->post('user/change-email', function(Request $request) {
     $user = $request->user();
@@ -71,7 +66,6 @@ Route::middleware(["web"])->post('user/change-email', function(Request $request)
     $user->email = $newEmail;
     $user->email_verified_at = null;
     $user->save();
-    $user->sendEmailVerificationNotification();
 
     UserChanged::dispatch([$user]);
 

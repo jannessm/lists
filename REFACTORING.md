@@ -176,6 +176,37 @@ Move to a fully passwordless authentication system. Passwords are removed from t
 - [X] **Max wrong attempts:** 10 failed attempts invalidate the code immediately. The user must log in again.
 - [X] **OTP input behaviour:** The 6-box code entry uses OTP-style inputs: each character auto-advances to the next box. Pasting a full 6-character string fills all boxes at once. The form auto-submits when the 6th box is filled.
 
+### Implementation Status
+
+#### Backend
+- [x] `magic_link_codes` migration (`database/migrations/2026_05_20_204102_create_magic_link_codes_table.php`)
+- [x] Drop `password` column and `password_reset_tokens` table migration (`database/migrations/2026_05_20_204103_remove_password_add_passwordless.php`)
+- [x] `MagicLinkCode` model (`app/Models/MagicLinkCode.php`)
+- [x] `MagicLinkService` (`app/Services/MagicLinkService.php`) — code generation, hashing, invalidation, verification
+- [x] `MagicLinkMail` mailable (`app/Mail/MagicLinkMail.php`) with email view (`resources/views/emails/magic-link.blade.php`)
+- [x] `MagicLinkController` (`app/Http/Controllers/Auth/MagicLinkController.php`) — login, verify-code, resend-code, GET verify-link
+- [x] `routes/api.php` — custom `POST /api/login` (overrides Fortify's), `POST /api/auth/verify-code`, `POST /api/auth/resend-code`; removed email-verification routes
+- [x] `routes/web.php` — added `GET /auth/verify` (clickable email link), removed `/reset-password` and `/forgot-password`
+- [x] `app/Models/User.php` — removed `password`, `MustVerifyEmail`, `CanResetPassword`
+- [x] `app/Actions/Fortify/CreateNewUser.php` — removed password, added `email_confirmation` validation, sends magic link
+- [x] `app/Http/Middleware/CaptchaVerification.php` — HCaptcha applied to `register` only (not `login`)
+- [x] `app/Providers/FortifyServiceProvider.php` — removed password features; `RegisterResponse` logs user out and returns `{ status: 'code_sent' }` (no session before code verification)
+- [x] `config/fortify.php` — disabled `resetPasswords`, `emailVerification`, `updatePasswords` features
+- [x] `database/factories/UserFactory.php` — removed password field
+- [x] Feature tests (`tests/Feature/MagicLinkTest.php`) covering: registration, login, verify-code (valid/expired/used/wrong/attempts/case-insensitive), resend-code, service unit tests
+- [x] GitHub Actions CI (`.github/workflows/backend-tests.yml`)
+
+#### Frontend
+- [x] `LoginComponent` — email-only form, no password, no HCaptcha
+- [x] `RegisterComponent` — replaced password fields with confirm-email, kept HCaptcha
+- [x] `VerifyCodeComponent` — code entry screen, auto-submit on 6 chars, resend with cooldown
+- [x] `AuthService` — `pendingEmail` signal, `login()` returns `code_sent`, `verifyCode()`, `resendCode()`, removed password methods
+- [x] `AuthApiService` — updated login/register signatures, added `verifyCode`, `resendCode`, removed password endpoints
+- [x] `app.routes.ts` — added `verify-code` route, removed `forgot-password` / `reset-password` routes
+- [x] `models/responses.ts` — added `VerifyCodeResponse`
+- [x] `settings/edit-form` — removed password-change fields
+- [x] Auth mocks updated (`auth.service.mock.ts`, `auth-api.mock.ts`)
+
 ---
 
 ## [3] Fix Sync Visibility — Changes Only Appear After Logout/Login
