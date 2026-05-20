@@ -27,77 +27,80 @@ Move to a fully passwordless authentication system. Passwords are removed from t
 #### Backend (`backend/`)
 
 1. **New `MagicLinkCode` model & migration**
+
    - Table: `magic_link_codes`
    - `id`, `user_id` (FK), `code` (6-char alphanumeric, hashed), `expires_at` (15 min TTL), `attempts` (int, default 0), `used_at`, `timestamps`
    - Index on `(user_id, used_at, expires_at)` for fast lookup.
-
 2. **Remove `password` column — new migration**
+
    - Drop the `password` column from the `users` table.
    - Remove `password` from the `User` model's `$fillable` / `$hidden` arrays.
    - Remove any `password_reset_tokens` table usage and related routes/controllers (password reset flow is obsolete in a passwordless system).
    - Remove `Hash::make(...)` calls from the registration controller.
+   - **Drop the `password_reset_tokens` table** in the same migration.
+   - **Remove all password-management infrastructure:** password-reset routes (`/forgot-password`, `/reset-password`), password-change route, their controllers (`ForgotPasswordController`, `NewPasswordController`, `PasswordController`), their mailers, and any related frontend screens, links, and form components.
+3. **Magic link generation service** (`app/Services/MagicLinkService.php`)
 
-2. **Magic link generation service** (`app/Services/MagicLinkService.php`)
    - Generate a cryptographically random 6-character alphanumeric code (uppercase A–Z + 0–9).
    - Store the code as **uppercase** and hash before persisting (e.g. `hash('sha256', strtoupper($code))`).
    - Normalise all incoming codes to uppercase before comparing.
    - Invalidate any previous unused codes for the same user before issuing a new one.
    - Return the plaintext code for inclusion in the email.
+4. **New Mailable** (`app/Mail/MagicLinkMail.php`)
 
-3. **New Mailable** (`app/Mail/MagicLinkMail.php`)
    - Replace (or extend) the existing email verification mailable.
    - Email subject: e.g. *"Your login code"*.
    - Body:
      - A prominent **"Log in"** button/link pointing to `GET /auth/verify?code=ABC123` — opens the default browser and completes login without any manual input.
      - The 6-character code displayed in plain text below the button for users who want to enter it manually inside the PWA.
      - Expiry notice (15 minutes).
+5. **New API endpoint: `GET /auth/verify`** (clickable link from email)
 
-4. **New API endpoint: `GET /auth/verify`** (clickable link from email)
    - Accepts `?code=ABC123` as a query parameter.
    - Normalises code to uppercase before hashing.
    - Validates the code: not expired, not used, attempts < 10, hash matches.
    - Marks the code as used, fully authenticates the session/token, and redirects to the app root.
    - On failure (expired, used, too many attempts): redirect to the login page with an error message.
+6. **New API endpoint: `POST /api/auth/verify-code`** (manual entry inside PWA)
 
-5. **New API endpoint: `POST /api/auth/verify-code`** (manual entry inside PWA)
    - Accepts `{ code: string }`.
    - Normalises input to uppercase before hashing.
    - Same validation logic as the GET endpoint.
    - Increments an `attempts` counter on each failed attempt; invalidates the code after 10 failures.
    - Returns `{ success: true }` or appropriate error (`invalid_code`, `expired`, `too_many_attempts`).
+7. **New API endpoint: `POST /api/auth/resend-code`**
 
-6. **New API endpoint: `POST /api/auth/resend-code`**
    - Rate-limited (e.g. max 3 requests per 10 minutes per user/IP).
    - Generates and sends a new code, invalidating the previous one.
+8. **Modify registration flow** (`app/Http/Controllers/Auth/RegisteredUserController.php` or equivalent)
 
-7. **Modify registration flow** (`app/Http/Controllers/Auth/RegisteredUserController.php` or equivalent)
    - Keep HCaptcha validation.
    - Validate that both submitted email values match (server-side check in addition to frontend).
    - Remove password from validation rules and user creation.
    - Remove: sending the standard email verification link.
    - Add: call `MagicLinkService` to generate and email a code after successful user creation.
    - Return a response that tells the frontend to show the code entry screen.
+9. **Modify login flow** (`app/Http/Controllers/Auth/AuthenticatedSessionController.php` or equivalent)
 
-8. **Modify login flow** (`app/Http/Controllers/Auth/AuthenticatedSessionController.php` or equivalent)
    - Remove HCaptcha validation.
    - Remove password credential check — look up the user by email only, then issue a magic link code.
    - After the user is found, do **not** fully authenticate the session yet.
    - Call `MagicLinkService` to generate and email a code.
    - Return a response that tells the frontend to show the code entry screen.
+10. **Remove email verification middleware/gate**
 
-9. **Remove email verification middleware/gate**
-   - Remove `verified` middleware from all routes / route groups.
-   - Remove or archive `app/Http/Middleware/EnsureEmailIsVerified.php` usage.
-   - The `email_verified_at` column can remain in the DB but is populated automatically when the first magic link code is successfully verified.
+    - Remove `verified` middleware from all routes / route groups.
+    - Remove or archive `app/Http/Middleware/EnsureEmailIsVerified.php` usage.
+    - The `email_verified_at` column can remain in the DB but is populated automatically when the first magic link code is successfully verified.
+11. **GraphQL / API route guards**
 
-10. **GraphQL / API route guards**
     - Add a new middleware `EnsureCodeVerified` (or equivalent session flag check) that blocks access to all protected routes until the magic link step is complete.
     - This replaces the old `verified` email middleware as the blocking gate.
+12. **Config** (`config/HCaptcha.php`)
 
-11. **Config** (`config/HCaptcha.php`)
     - No changes needed — HCaptcha config stays, it is still used for registration.
+13. **Tests** (`tests/Feature/`)
 
-12. **Tests** (`tests/Feature/`)
     - Update registration tests: no password field, two-email match validation, expect code email, no verification-link email.
     - Update login tests: no password field, no HCaptcha assertion, expect code email, expect blocked state before code entry.
     - Add tests for `verify-code` / `GET /auth/verify` endpoints: valid code, expired code, already-used code, wrong code, 10th wrong attempt invalidation, case-insensitivity.
@@ -106,35 +109,35 @@ Move to a fully passwordless authentication system. Passwords are removed from t
 #### Frontend (`frontend/`)
 
 1. **Remove HCaptcha widget and password fields from the login form**
+
    - Remove the HCaptcha component/directive from the login template.
    - Remove the password input field from the login form; the form now only has an email field.
    - Remove any login-specific HCaptcha token handling in the login service/component.
-
 2. **Update the registration form**
+
    - Remove the password and password-confirmation fields.
    - Add a second email field ("Confirm email") with client-side match validation.
    - Keep HCaptcha on the registration form.
-
 3. **New "Enter Code" screen / component** (`src/app/auth/verify-code/`)
+
    - A simple full-screen gate shown immediately after registration or login (when the user is inside the PWA).
    - Input: 6 individual character boxes for clear UX; input is normalised to uppercase automatically.
    - Submit button + "Resend code" link (with cooldown timer to prevent spam).
    - On success: navigate to the main app.
    - On failure: show inline error (`wrong code`, `expired`, `too many attempts — please log in again`).
    - After 10 wrong attempts the code is invalidated; redirect to the login page.
-
 4. **Auth state machine / guard**
+
    - Extend the auth state to include a `pendingVerification` state.
    - Angular route guard: redirect to the code-entry screen when state is `pendingVerification`.
    - Prevent navigation to any app route while in this state.
-
 5. **Auth service updates**
+
    - After login response: detect `pendingVerification` status, store partial auth state, navigate to code-entry screen.
    - After registration response: same as above.
    - Add `verifyCode(code: string)` method calling `POST /api/auth/verify-code`.
    - Add `resendCode()` method calling `POST /api/auth/resend-code`.
    - Remove all password-related logic (login payload, registration payload).
-
 6. **Remove email verification banner/prompt** (if any exists in the UI).
 
 ### Security Considerations
@@ -158,16 +161,22 @@ Move to a fully passwordless authentication system. Passwords are removed from t
 
 ### Decisions
 
-- [x] **Passwordless:** Passwords are removed entirely from the database (`password` column dropped) and all forms. Login identifies the user by email only; proof of identity is the magic link code. The `password_reset_tokens` table and related flows are also removed.
-- [x] **Registration email confirmation:** The registration form replaces the password field with a second "Confirm email" field. Both the frontend and backend validate that the two email values match before creating the user.
-- [x] **Clickable button + manual code entry:** The email contains a prominent clickable button/link (`GET /auth/verify?code=ABC123`) that opens the default browser and logs the user in directly — no manual entry required in that flow. The 6-character code is also displayed in the email so the user can type it manually inside the PWA if preferred. Both paths must be supported.
-- [x] **Session expiry before code entry:** If the user does not enter the code (or click the link) before the 15-minute TTL, the code expires and the partial session is discarded. The user must log in again from scratch — no resume on next visit.
-- [x] **Case-insensitive codes:** Code input is normalised to uppercase on both the frontend (display/input) and the backend (before hashing) so `abc123` and `ABC123` are treated identically.
-- [x] **Code TTL:** 15 minutes.
-- [x] **Max wrong attempts:** 10 failed attempts invalidate the code immediately. The user must log in again.
+- [X] **Passwordless:** Passwords are removed entirely from the database (`password` column dropped) and all forms. Login identifies the user by email only; proof of identity is the magic link code. The `password_reset_tokens` table and all password-management flows (reset, change) are also removed — add explicit scope items to drop those routes, controllers, and migrations.
+- [X] **Registration email confirmation:** The registration form replaces the password field with a second "Confirm email" field. The frontend prevents form submission when the two email values do not match (inline validation error). The backend also validates the match server-side as a safety net.
+- [X] **Clickable button + manual code entry:** The email contains a prominent clickable button/link (`GET /auth/verify?code=ABC123`) that opens the default browser and logs the user in directly — no manual entry required in that flow. The 6-character code is also displayed in the email so the user can type it manually inside the PWA if preferred. Both paths must be supported.
+- [X] **Partial auth state is not persisted client-side:** If the user closes the browser window before entering the code, the pending state is gone. The user can still complete login by clicking the magic link in the email (which carries the code in the URL), but cannot resume manual code entry on a fresh page load. There is no `localStorage`/`sessionStorage` persistence of the pending state.
+- [X] **No session created before code verification:** The backend does not create a Laravel session or issue a token until the code is successfully verified. The magic link code is tied to the user record only; `Auth::user()` returns nothing until verification is complete.
+- [X] **`GET /auth/verify` redirect:** On success, redirect to the app root (`/`).
+- [X] **Resend-code rate limiting key:** IP address only (user is not authenticated at that point).
+- [X] **Migration is a hard cutover:** Existing users with passwords lose their passwords immediately when the migration runs. No transition period. Communicate this in release notes.
+- [X] **Password management infrastructure removal:** The scope of changes explicitly includes dropping `password_reset_tokens` table, removing the password-reset and password-change routes, controllers, mailers, and any related frontend screens/links.
+- [X] **Session expiry before code entry:** If the user does not enter the code (or click the link) before the 15-minute TTL, the code expires. The user must log in again from scratch — no resume on next visit.
+- [X] **Case-insensitive codes:** Code input is normalised to uppercase on both the frontend (display/input) and the backend (before hashing) so `abc123` and `ABC123` are treated identically.
+- [X] **Code TTL:** 15 minutes.
+- [X] **Max wrong attempts:** 10 failed attempts invalidate the code immediately. The user must log in again.
+- [X] **OTP input behaviour:** The 6-box code entry uses OTP-style inputs: each character auto-advances to the next box. Pasting a full 6-character string fills all boxes at once. The form auto-submits when the 6th box is filled.
 
 ---
-
 
 ## [3] Fix Sync Visibility — Changes Only Appear After Logout/Login
 
@@ -222,25 +231,26 @@ Although WebSocket events start inside zone, the first `await` on a Dexie call l
 #### Scope of Changes
 
 1. **`MyCollection`** (`src/app/mydb/collection.ts`)
+
    - Accept an optional `NgZone` as the last constructor parameter.
    - Add a private `emit(docs)` helper that calls `ngZone.run(() => this.$.next(docs))` when a zone is present, or `this.$.next(docs)` directly otherwise (preserves backwards compatibility in unit tests where no zone exists).
    - Replace all direct `this.$.next(...)` calls with `this.emit(...)`.
    - Replace `EventEmitter` with `Subject` from RxJS — `EventEmitter` is for `@Output` bindings only and must not be used as a general event bus.
-
 2. **`DataService`** (`src/app/services/data/data.service.ts`)
-   - Inject `NgZone` and pass it as the last argument to every `new MyCollection(...)` call in `addCollections()`.
 
+   - Inject `NgZone` and pass it as the last argument to every `new MyCollection(...)` call in `addCollections()`.
 3. **Tests** (`src/app/mydb/collection.spec.ts`) — new file
+
    - Verify `ngZone.run()` is called on `insert()`, `update()`, and `remoteBulkAdd()`.
    - Verify that omitting `NgZone` does not throw and still emits (backwards compatibility).
    - Verify `collection.$` is a `Subject` and not an `EventEmitter`.
 
 ### Status
 
-- [x] `MyCollection` updated (emit via zone, replaced `EventEmitter` → `Subject`)
-- [x] `DataService` injects and forwards `NgZone`
-- [x] Unit tests added in `collection.spec.ts`
-- [ ] Remove the manual `resync()` calls from `AppComponent` once the fix is confirmed stable in production (keep the `visibilitychange` hook for normal reconnect scenarios, but remove the `lastPusherState` guard which was only needed to force a CD cycle)
+- [X] `MyCollection` updated (emit via zone, replaced `EventEmitter` → `Subject`)
+- [X] `DataService` injects and forwards `NgZone`
+- [X] Unit tests added in `collection.spec.ts`
+- [ ] Remove the manual `resync()` calls from `AppComponent` once the fix is confirmed stable in production — **manual judgement call** by the developer after observing production behaviour; no automated metric gates this. (Keep the `visibilitychange` hook for normal reconnect scenarios, but remove the `lastPusherState` guard which was only needed to force a CD cycle.)
 
 ### Migration Path
 
@@ -288,14 +298,14 @@ The UI cannot update until **two sequential IndexedDB operations complete** and 
 
 ### Problems
 
-| Problem | Impact |
-|---|---|
-| Full O(N×C×W) grocery recompute on every change | Wasted CPU; noticeable lag on long grocery lists |
-| Grocery category computed from item name at runtime | Category can change if the dictionary is updated, causing surprising jumps |
-| No stable position field | Impossible to support manual drag-to-reorder |
-| `localeCompare` alphabetical fallback inside a slot | Items re-order silently when renamed |
-| UI update blocked by IndexedDB WRITE before `$.next()` | User sees no visual feedback until the write completes |
-| `MyQuery.update()` does a full table scan after every collection event | Unnecessary read latency; scales poorly with list size |
+| Problem                                                                  | Impact                                                                     |
+| ------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| Full O(N×C×W) grocery recompute on every change                        | Wasted CPU; noticeable lag on long grocery lists                           |
+| Grocery category computed from item name at runtime                      | Category can change if the dictionary is updated, causing surprising jumps |
+| No stable position field                                                 | Impossible to support manual drag-to-reorder                               |
+| `localeCompare` alphabetical fallback inside a slot                    | Items re-order silently when renamed                                       |
+| UI update blocked by IndexedDB WRITE before `$.next()`                 | User sees no visual feedback until the write completes                     |
+| `MyQuery.update()` does a full table scan after every collection event | Unnecessary read latency; scales poorly with list size                     |
 
 ### Proposed Solution
 
@@ -332,56 +342,58 @@ Additionally, `MyQuery.update()` runs a full Dexie table scan on **every** `$.ne
 #### Backend (`backend/`)
 
 1. **New migration — add `sort_order` to `list_items`**
+
    - `$table->double('sort_order')->nullable(false)->default(0);`
    - Add a DB index on `(lists_id, sort_order)`.
    - Backfill existing rows: `UPDATE list_items SET sort_order = ROW_NUMBER() OVER (PARTITION BY lists_id ORDER BY created_at)`.
-
 2. **Expose `sort_order` in the GraphQL schema** (`graphql/list-item.graphql`)
+
    - Add `sort_order: Float!` to the `ListItem` type and create/update input types.
-
 3. **Conflict handler update for `sort_order`** (`backend/app/Models/ListItem.php` push resolver)
-   - `sort_order` uses **last-write-wins** (highest `updatedAt` wins), matching the existing LWW strategy.
 
+   - `sort_order` uses **last-write-wins** (highest `updatedAt` wins), matching the existing LWW strategy.
 4. **Ordered default pull query**
+
    - `pullBulk` should `ORDER BY sort_order ASC` so items arrive pre-sorted, eliminating the client-side sort on initial load.
 
 #### Frontend (`frontend/`)
 
 5. **Update `ITEM_SCHEMA`** (`src/app/mydb/types/list-item.ts`)
+
    - Add `sort_order: { type: 'number' }` — synced field.
    - Add `category: { type: ['string', 'null'] }` — **local-only**; stripped by `Replicator.applyPushMod()` which already removes keys not in the schema (ensure `category` is not added to the GraphQL type).
    - Bump schema version; Dexie migration sets `sort_order = 0` for existing local docs (correct values pulled on next resync).
-
 6. **Update `newItem()` factory** (`src/app/mydb/types/list-item.ts`)
-   - Accept `maxSortOrder: number` parameter; set `sort_order = maxSortOrder + 1.0`.
 
+   - Accept `maxSortOrder: number` parameter; set `sort_order = maxSortOrder + 1.0`.
 7. **Update `itemsConflictHandler`** (`src/app/mydb/types/list-item.ts`)
+
    - Add `sort_order`: LWW via `updatedAt`.
    - Do **not** propagate `category` — it is local-only.
-
 8. **Update `sortItems()`** (`src/models/categories.ts`)
+
    - New sort priority within a slot:
      1. `done=false` before `done=true`.
      2. Among not-done with `due`: ascending `due`.
      3. Among not-done without `due`: ascending `sort_order`.
      4. Among done: ascending `sort_order`.
    - Remove the `localeCompare` alphabetical fallback entirely.
-
 9. **Update `groupItems()`** (`src/models/categories.ts`)
+
    - For grocery lists: read `item.category` if set; if unset, compute via `voteForGroceryCategory` and write back via `item.patch({ category: computed })`.
    - `sort_order` is global — slot ordering within a category is determined directly by the global value.
-
 10. **New rebalance utility** (`src/models/sort-order.ts`)
+
     - `needsRebalance(items: MyItemDocument[]): boolean` — true if min adjacent gap < `1e-9`.
     - `rebalance(items: MyItemDocument[]): { id: string, sort_order: number }[]` — assigns integer positions 1, 2, 3, …
     - Called at the end of `groupItems()` if needed; patches are batched into a single write + push.
-
 11. **Fix `MyCollection.update()` and `MyCollection.insert()` — optimistic emit** (`src/app/mydb/collection.ts`)
+
     - Build the new doc state in memory.
     - Call `$.next([newDocOptimistic])` **immediately**, before any `await`.
     - Start the IndexedDB write in the background: `table.put(newDoc).then(() => replication$.next()).catch(() => { $.next([rollback]); snackbar.error(...) })`.
-
 12. **Fix `MyQuery.update()` — in-memory document cache** (`src/app/mydb/query.ts`)
+
     - `MyQuery` maintains an internal `Map<primaryKey, MyDocument>` as its current result set.
     - When `collection.$.next([updatedDocs])` fires with a **non-empty** array: patch only those documents in the map (O(k), typically k=1).
     - When `collection.$.next([])` fires (bulk/structural change, e.g. remote pull): fall back to a full Dexie scan.
@@ -414,13 +426,13 @@ Within a slot:
 
 ### Data Integrity Guarantees
 
-| Risk | Mitigation |
-|---|---|
-| Two clients insert at the same global position | LWW on `sort_order` via `updatedAt`; fractional indexing makes collision extremely unlikely |
-| Sort order drift after many insertions | Client-side rebalance at gap < 1e-9; synced back as a normal patch |
-| Grocery category changes when dictionary updated | Cache keyed to `name`; clearing local storage or a one-time migration flag invalidates all cached categories |
-| Optimistic update followed by server conflict | Conflict handler resolves; `$.next()` re-renders corrected state; user sees a brief flicker at most |
-| Existing items have `sort_order = 0` after migration | Backend backfill sets correct values; client pulls on next resync |
+| Risk                                                   | Mitigation                                                                                                     |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| Two clients insert at the same global position         | LWW on `sort_order` via `updatedAt`; fractional indexing makes collision extremely unlikely                |
+| Sort order drift after many insertions                 | Client-side rebalance at gap < 1e-9; synced back as a normal patch                                             |
+| Grocery category changes when dictionary updated       | Cache keyed to `name`; clearing local storage or a one-time migration flag invalidates all cached categories |
+| Optimistic update followed by server conflict          | Conflict handler resolves;`$.next()` re-renders corrected state; user sees a brief flicker at most           |
+| Existing items have `sort_order = 0` after migration | Backend backfill sets correct values; client pulls on next resync                                              |
 
 ### Migration Path
 
@@ -435,7 +447,16 @@ Within a slot:
 
 ### Open Questions
 
-- [ ] When a grocery item's `name` changes and its cached `category` is invalidated, should it snap to the new category immediately or wait for the user to confirm?
+- [X] When a grocery item's `name` changes and its cached `category` is invalidated, should it snap to the new category immediately or wait for the user to confirm: No, the change should apply immediately.
+
+### Decisions
+
+- [X] **`sort_order` is scoped per list:** The value is unique within a `lists_id`. No item appears in multiple lists, so there is no cross-list ordering concern.
+- [X] **Simultaneous inserts by two collaborators:** Both may compute the same `maxSortOrder + 1.0`. LWW via `updatedAt` resolves the conflict; the first writer wins the bottom position. The losing item may jump one slot, which is acceptable — fractional indexing keeps collisions extremely rare in practice.
+- [X] **Optimistic rollback UX:** On IndexedDB write failure, show a snackbar telling the user "The change could not be saved." The item snaps back to its previous state only after the user dismisses/acknowledges the snackbar (not silently).
+- [X] **`category` cache invalidation:** `category` is cleared and immediately recomputed inside `item.patch()` whenever `name` is part of the patch payload. This gives immediate, in-place category assignment without waiting for the next `groupItems()` cycle.
+- [X] **Rebalance timing:** Rebalance runs in the background after a list is opened (not inside `computed()`), so the user never observes any compute pause. Patches are batched and pushed as a normal background write.
+- [X] **New item `sort_order` initial value:** New items use `maxSortOrder + 1.0` within the list. The fuzzy grocery algorithm determines which slot the item appears in; `sort_order` is the tiebreaker within that slot.
 
 ### Notes
 
@@ -568,12 +589,14 @@ changeOption(event: MatChipListboxChange) {
 **Reproduction:** In the *add item* bar in `list.component`, the `(pickrClosed)` output is bound to `closeFocusInput()`. `closeFocusInput()` reads the `pickerOpen` / `ignoreNext` state and optionally refocuses the text input. Because `pickrClosed.emit()` fires **before** `this.onChange(this.value)`, any handler on the parent that tries to read the form-control value at that moment will still see the pre-pick value.
 
 **Root cause:** In `closePickr()`:
+
 ```ts
 this.pickrClosed.emit();    // ① parent handler runs now
 this.onChange(this.value);  // ② form control updated AFTER
 ```
 
 **Fix:** Swap the two lines so the form control is always up to date before any parent handler fires:
+
 ```ts
 this.onChange(this.value);  // ① update form value first
 this.onTouched();
@@ -605,13 +628,13 @@ if (dueDate && !isNaN(dueDate.valueOf()) && defaultReminder) {
 
 The `DateChipSelectComponent` combines a `MatChipListbox` (preset options) with a **flatpickr** calendar instance (custom date via the *"Andere"* chip). The following interaction contract is currently broken in several places:
 
-| State transition | Expected behaviour | Actual behaviour (before fixes) |
-|---|---|---|
-| Open sheet with existing custom date | Chip shows `"Andere"` with formatted date; datepicker opens to that date | Datepicker opens empty (Bug B) |
-| Click *"Andere"*, close calendar without picking | Revert to previous chip selection, form value unchanged | Form value set to `"different"` (Bug A) |
-| Pick custom date, then switch to *"Heute"*, then back to *"Andere"* | Datepicker opens empty (no pre-fill) | Datepicker opens to the old custom date (Bug C) |
-| Save item after picking a custom date | `due` = selected ISO string | `due` may still be the old value if parent read the form during the close event (Bug D) |
-| Add item; flatpickr mis-emits `"different"` | `reminder` not set | `reminder` = `"Invalid Date"` (Bug E) |
+| State transition                                                    | Expected behaviour                                                         | Actual behaviour (before fixes)                                                           |
+| ------------------------------------------------------------------- | -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Open sheet with existing custom date                                | Chip shows `"Andere"` with formatted date; datepicker opens to that date | Datepicker opens empty (Bug B)                                                            |
+| Click*"Andere"*, close calendar without picking                     | Revert to previous chip selection, form value unchanged                    | Form value set to `"different"` (Bug A)                                                 |
+| Pick custom date, then switch to*"Heute"*, then back to*"Andere"* | Datepicker opens empty (no pre-fill)                                       | Datepicker opens to the old custom date (Bug C)                                           |
+| Save item after picking a custom date                               | `due` = selected ISO string                                              | `due` may still be the old value if parent read the form during the close event (Bug D) |
+| Add item; flatpickr mis-emits `"different"`                       | `reminder` not set                                                       | `reminder` = `"Invalid Date"` (Bug E)                                                 |
 
 ---
 
@@ -649,18 +672,9 @@ update(item2) → replication$.next() → push() starts CONCURRENTLY
 
 Both concurrent pushes send `item1` to the server. The server calls `ListItemChanged::dispatch` once for each successful batch. `ItemChangedHandler` fires twice, both times finding `item1` in its payload → two push notifications are dispatched to all other list members.
 
-**Fix:** Introduce an `isPushing` flag (or replace the `subscribe` with a `concatMap`/`exhaustMap`) to ensure only one push is in flight at a time:
+**Fix:** Use an `isPushing` flag to ensure only one push is in flight at a time:
 
 ```ts
-// Option A — exhaustMap (drops new emissions while push is running)
-import { Subject } from 'rxjs';
-import { exhaustMap } from 'rxjs/operators';
-
-this.replicationSub = this.collection.replication$.pipe(
-    exhaustMap(() => from(this.push()))
-).subscribe();
-
-// Option B — simple flag guard inside push()
 private isPushing = false;
 
 public async push() {
@@ -674,7 +688,7 @@ public async push() {
 }
 ```
 
-`exhaustMap` is preferable: it automatically re-triggers once the in-flight push completes if additional changes arrived during that time (by combining with a debounce or keeping a dirty flag).
+A dirty flag should be set whenever `replication$.next()` fires while `isPushing` is `true`, so that a follow-up push is triggered automatically when the in-flight push completes.
 
 ---
 
@@ -698,7 +712,7 @@ this.pushInterval(docs).catch(err => {
 
 The `docs` array is a **snapshot taken before the first attempt**. If the server already upserted those items and dispatched `ListItemChanged`, the retry causes a second upsert + second dispatch → duplicate notification.
 
-**Fix:** Before each retry, re-query the database to check whether the items are still `touched`. Items that were successfully processed will have been `markUntouched`'d (or no longer exist as `touched`); only genuinely unsynced items should be retried:
+**Fix:** Call `markUntouched` only after the server response is confirmed (or the request definitively times out). Before each retry, re-query the database to check whether the items are still `touched`. Items that were successfully processed will have been `markUntouched`'d; only genuinely unsynced items should be retried:
 
 ```ts
 this.pushInterval(docs).catch(() => {
@@ -720,45 +734,19 @@ this.pushInterval(docs).catch(() => {
         } catch { }
     }, 1_000);
 });
+
 ```
 
 ---
 
-#### Bug H — Typo in `ItemChangedNotification::fromPushRow` causes deleted items to always classify as `Changed`
 
-**Location:** `backend/app/Notifications/ItemChangedNotification.php` — `fromPushRow()`
-
-**Root cause:** The deletion check compares a value with itself:
-
-```php
-// line 107 — always false because both sides are identical
-if ($newState['_deleted'] !== $newState['_deleted'] && $item->_deleted) {
-    return new ItemChangedNotification($item, ItemChangeEvent::Deleted, $user);
-}
-```
-
-`$newState['_deleted'] !== $newState['_deleted']` is equivalent to `false !== false` — always `false`. The deletion branch is dead code. Every soft-deleted item falls through to the final `return` and is classified as `ItemChangeEvent::Changed`.
-
-**Consequence:** When an item is deleted, the notification body reads *"… verändert"* instead of *"… gelöscht"*. In addition, if the wrongly-classified notification is then sent alongside a real `Changed` notification for a different item in the same batch, the recipient receives two notifications with confusingly identical text where one should say "deleted".
-
-**Fix:** The right-hand side must be `$master['_deleted']`:
-
-```php
-if ($newState['_deleted'] !== $master['_deleted'] && $item->_deleted) {
-    return new ItemChangedNotification($item, ItemChangeEvent::Deleted, $user);
-}
-```
-
----
 
 #### Summary
 
-| Bug | Layer | Root cause | Effect |
-|---|---|---|---|
+| Bug         | Layer                       | Root cause                                                                                | Effect                                                              |
+| ----------- | --------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | **F** | Frontend `replication.ts` | No concurrency guard on `push()` — concurrent calls include the same `touched` items | Duplicate `ListItemChanged` dispatches → duplicate notifications |
-| **G** | Frontend `replication.ts` | Retry uses original snapshot; server may have already processed the batch | Re-dispatch on timeout → duplicate notifications |
-| **H** | Backend `ItemChangedNotification` | `$newState['_deleted'] !== $newState['_deleted']` (self-comparison) | Deleted items always notify as "Changed"; can contribute to duplicate-looking notifications |
+| **G** | Frontend `replication.ts` | Retry uses original snapshot; server may have already processed the batch                 | Re-dispatch on timeout → duplicate notifications                   |
+|             |                             |                                                                                           |                                                                     |
 
-Fixing **F** (exhaustMap / isPushing flag) eliminates the most common source of duplicates. **G** is a defensive fix for timeout edge-cases. **H** is a correctness fix independent of duplication.
-
----
+Fixing **F** (exhaustMap / isPushing flag) eliminates the most common source of duplicates. **G** is a defensive fix for timeout edge-cases.

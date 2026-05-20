@@ -104,7 +104,7 @@ class ItemChangedNotification extends Notification implements ShouldQueue
             return new ItemChangedNotification($item, ItemChangeEvent::Done, $user);
         }
 
-        if ($newState['_deleted'] !== $newState['_deleted'] && $item->_deleted) {
+        if ($newState['_deleted'] !== $master['_deleted'] && $item->_deleted) {
             return new ItemChangedNotification($item, ItemChangeEvent::Deleted, $user);
         }
         return new ItemChangedNotification($item, ItemChangeEvent::Changed, $user);
