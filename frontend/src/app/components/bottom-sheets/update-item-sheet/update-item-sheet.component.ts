@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, Inject, OnDestroy, Signal, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
@@ -17,14 +17,13 @@ import { LinkifyPipe } from '../../../pipes/linkify.pipe';
 @Component({
     selector: 'app-update-item-sheet',
     imports: [
-        FormsModule,
-        ReactiveFormsModule,
-        CommonModule,
-        MaterialModule,
-        DateChipSelectComponent,
-        DateInputSelectComponent,
-        LinkifyPipe
-    ],
+    FormsModule,
+    ReactiveFormsModule,
+    MaterialModule,
+    DateChipSelectComponent,
+    DateInputSelectComponent,
+    LinkifyPipe
+],
     templateUrl: './update-item-sheet.component.html',
     styleUrls: ['./update-item-sheet.component.scss', '../styles.scss']
 })

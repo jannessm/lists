@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild, forwardRef } from '@angular/core';
 import { FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import flatpickr from 'flatpickr';
@@ -8,11 +8,10 @@ import { MaterialModule } from '../../../material.module';
 @Component({
     selector: 'app-date-input-select',
     imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MaterialModule
-    ],
+    FormsModule,
+    ReactiveFormsModule,
+    MaterialModule
+],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,

@@ -1,24 +1,29 @@
 <div class="content-grid">
-    <div class="content-header">
-        <h2>Lists</h2>
-        
-        <button
-            mat-icon-button
-            class="add-button"
-            (click)="addList()">
-            <mat-icon>add</mat-icon>
-        </button>
-    </div>
-    <div class="container">
-        <div *ngIf="!lists || !lists || lists.length === 0" class="no-lists">Keine Listen vorhanden</div>
+  <div class="content-header">
+    <h2>Lists</h2>
 
-        <button
-            class="list-card"
-            *ngFor="let l of lists"
-            mat-raised-button
-            [routerLink]="'/user/lists/' + l.id">
-            <span>{{ l.name }}</span>
-            <mat-icon *ngIf="l.isShoppingList" [style.color]="'#999'">shopping_basket</mat-icon>
-        </button>
-    </div>
+    <button
+      mat-icon-button
+      class="add-button"
+      (click)="addList()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+  <div class="container">
+    @if (!lists || !lists || lists.length === 0) {
+      <div class="no-lists">Keine Listen vorhanden</div>
+    }
+
+    @for (l of lists; track l) {
+      <button
+        class="list-card"
+        mat-raised-button
+        [routerLink]="'/user/lists/' + l.id">
+        <span>{{ l.name }}</span>
+        @if (l.isShoppingList) {
+          <mat-icon [style.color]="'#999'">shopping_basket</mat-icon>
+        }
+      </button>
+    }
+  </div>
 </div>

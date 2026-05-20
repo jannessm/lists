@@ -1,55 +1,65 @@
 <div class="content-grid">
-    <div id="content-overlay" *ngIf="focusInput" (click)="closeFocusInput($event)" #overlay></div>
-    <app-list-header
-        [lists]="list"
-        [users]="users"
-        [isAdmin]="userIsAdmin()"
-        (listToText)="listToText()"
-    ></app-list-header>
+  @if (focusInput) {
+    <div id="content-overlay" (click)="closeFocusInput($event)" #overlay></div>
+  }
+  <app-list-header
+    [lists]="list"
+    [users]="users"
+    [isAdmin]="userIsAdmin()"
+    (listToText)="listToText()"
+  ></app-list-header>
 
-    <div id="items-container" #itemsContainer>
-        <div class="slots" *ngFor="let slot of slots()">
-            <h5>
-                {{ slot.name }}
-                <mat-chip-listbox *ngIf="slot.nDone > 0" class="slot-done-toggle">
-                    <mat-chip-option (click)="slotCollapseStates[slot.name] = !slotCollapseStates[slot.name]" [selected]="!slotCollapseStates[slot.name]">
-                        {{ slot.nDone }}
-                    </mat-chip-option>
-                </mat-chip-listbox>
-            </h5>
-        
-            <ng-container *ngFor="let item of slot.items">
-                <app-list-item
-                    *ngIf="(!item.done || !slotCollapseStates[slot.name]) && !!list() && !!me()"
-                    [me]="me"
-                    [list]="list"
-                    [item]="item"
-                    ></app-list-item>
-            </ng-container>
-        </div>
-        <div *ngIf="slots().length === 0" class="no-lists">Keine Einträge vorhanden</div>
-    </div>
+  <div id="items-container" #itemsContainer>
+    @for (slot of slots(); track slot) {
+      <div class="slots">
+        <h5>
+          {{ slot.name }}
+          @if (slot.nDone > 0) {
+            <mat-chip-listbox class="slot-done-toggle">
+              <mat-chip-option (click)="slotCollapseStates[slot.name] = !slotCollapseStates[slot.name]" [selected]="!slotCollapseStates[slot.name]">
+                {{ slot.nDone }}
+              </mat-chip-option>
+            </mat-chip-listbox>
+          }
+        </h5>
+        @for (item of slot.items; track item) {
+          @if ((!item.done || !slotCollapseStates[slot.name]) && !!list() && !!me()) {
+            <app-list-item
+              [me]="me"
+              [list]="list"
+              [item]="item"
+            ></app-list-item>
+          }
+        }
+      </div>
+    }
+    @if (slots().length === 0) {
+      <div class="no-lists">Keine Einträge vorhanden</div>
+    }
+  </div>
 
-    <div class="input-bar" (click)="openFocusInput($event)">
-        
-        <mat-toolbar class="toolbar-time" [style.display]="focusInput ? 'block' : 'none'" *ngIf="list() && !(list()?.isShoppingList)">
-            <app-date-chip-select
-                [formControl]="newItemDue"
-                [options]="dueOptions"
-                [defaultOption]="dueDefault"
-                (pickrOpened)="pickerOpen = true"
-                (pickrClosed)="closeFocusInput()"
-            ></app-date-chip-select>
-        </mat-toolbar>
+  <div class="input-bar" (click)="openFocusInput($event)">
 
-        <mat-toolbar class="toolbar-input" [class.focusInput]="focusInput" [class.isShoppingList]="list() ? list()?.isShoppingList : false">
-            <form>
-                <input #addInput matInput placeholder="Hinzufügen" class="add-input" 
-                    [formControl]="newItem" autocomplete="off" [maxlength]="list() && list()?.isShoppingList ? 50 : 524288">
-                <button mat-icon-button (click)="addItem()"><mat-icon>add</mat-icon></button>
-            </form>
-        </mat-toolbar>
-    </div>
+    @if (list() && !(list()?.isShoppingList)) {
+      <mat-toolbar class="toolbar-time" [style.display]="focusInput ? 'block' : 'none'">
+        <app-date-chip-select
+          [formControl]="newItemDue"
+          [options]="dueOptions"
+          [defaultOption]="dueDefault"
+          (pickrOpened)="pickerOpen = true"
+          (pickrClosed)="closeFocusInput()"
+        ></app-date-chip-select>
+      </mat-toolbar>
+    }
+
+    <mat-toolbar class="toolbar-input" [class.focusInput]="focusInput" [class.isShoppingList]="list() ? list()?.isShoppingList : false">
+      <form>
+        <input #addInput matInput placeholder="Hinzufügen" class="add-input"
+          [formControl]="newItem" autocomplete="off" [maxlength]="list() && list()?.isShoppingList ? 50 : 524288">
+        <button mat-icon-button (click)="addItem()"><mat-icon>add</mat-icon></button>
+      </form>
+    </mat-toolbar>
+  </div>
 </div>
 
 

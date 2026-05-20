@@ -8,15 +8,14 @@ import md5 from 'md5-ts';
 import { AuthService } from '../../../services/auth/auth.service';
 import { ChangeEmailStatus } from '../../../../models/responses';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
     selector: 'app-settings-edit-form',
     imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        MaterialModule
-    ],
+    ReactiveFormsModule,
+    MaterialModule
+],
     templateUrl: './edit-form.component.html',
     styleUrls: ['./edit-form.component.scss', '../form.scss']
 })

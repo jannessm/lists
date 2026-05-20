@@ -11,15 +11,14 @@ import { AuthService } from '../../../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { DataService } from '../../../services/data/data.service';
 import { NameBadgePipe } from '../../../pipes/name-badge.pipe';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
     selector: 'app-list-header',
     imports: [
-        CommonModule,
-        MaterialModule,
-        NameBadgePipe
-    ],
+    MaterialModule,
+    NameBadgePipe
+],
     templateUrl: './list-header.component.html',
     styleUrl: './list-header.component.scss'
 })

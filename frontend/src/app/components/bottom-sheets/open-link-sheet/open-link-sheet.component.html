@@ -1,5 +1,7 @@
 <h3>Link öffnen</h3>
 
-<button class="link" *ngFor="let link of data" mat-stroked-button (click)="openLink(link)">{{link}}</button>
+@for (link of data; track link) {
+  <button class="link" mat-stroked-button (click)="openLink(link)">{{link}}</button>
+}
 
 <button mat-flat-button color="primary" (click)="bottomSheetRef.dismiss(false)">Abbrechen</button>

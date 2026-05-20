@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnDestroy, Signal, WritableSignal, signal } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../../material.module';
@@ -17,16 +17,15 @@ import { OthersFormComponent } from './others-form/others-form.component';
 @Component({
     selector: 'app-settings',
     imports: [
-        ReactiveFormsModule,
-        FormsModule,
-        CommonModule,
-        MaterialModule,
-        NameBadgePipe,
-        EditFormComponent,
-        ThemeFormComponent,
-        PushFormComponent,
-        OthersFormComponent
-    ],
+    ReactiveFormsModule,
+    FormsModule,
+    MaterialModule,
+    NameBadgePipe,
+    EditFormComponent,
+    ThemeFormComponent,
+    PushFormComponent,
+    OthersFormComponent
+],
     templateUrl: './settings.component.html',
     styleUrls: ['./settings.component.scss']
 })

@@ -1,31 +1,43 @@
-<div *ngFor="let user of users(); let i = index" class="shared-user">
+@for (user of users(); track user; let i = $index) {
+  <div class="shared-user">
     <div class="user-info">
-        <button mat-mini-fab [class]="'badge user-fab-' + (i % 12)" disabled>{{user?.name | nameBadge}}</button>
-        <span>{{user.name}}</span>
-        <span class="email">{{user.email}}</span>
+      <button mat-mini-fab [class]="'badge user-fab-' + (i % 12)" disabled>{{user?.name | nameBadge}}</button>
+      <span>{{user.name}}</span>
+      <span class="email">{{user.email}}</span>
     </div>
-    <span *ngIf="user.id === lists().createdBy" class="admin">Admin</span>
-    <button mat-icon-button (click)="removeSharedWith(user.id)" *ngIf="isAdmin && user.id !== lists().createdBy || user.id === me()?.id"><mat-icon>close</mat-icon></button>
-</div>
+    @if (user.id === lists().createdBy) {
+      <span class="admin">Admin</span>
+    }
+    @if (isAdmin && user.id !== lists().createdBy || user.id === me()?.id) {
+      <button mat-icon-button (click)="removeSharedWith(user.id)"><mat-icon>close</mat-icon></button>
+    }
+  </div>
+}
 
-<h3 *ngIf="isAdmin">Hinzufügen</h3>
+@if (isAdmin) {
+  <h3>Hinzufügen</h3>
+}
 
-<form [formGroup]="form" autocomplete="off" *ngIf="isAdmin">
+@if (isAdmin) {
+  <form [formGroup]="form" autocomplete="off">
     <mat-form-field appearance="outline">
-        <input matInput formControlName="email" placeholder="Email" [matAutocomplete]="auto">
+      <input matInput formControlName="email" placeholder="Email" [matAutocomplete]="auto">
     </mat-form-field>
-
     <mat-autocomplete #auto>
-        <mat-option *ngFor="let user of filteredUsers(); let i = index" [value]="user.email">
-            <div class="user-info">
-                <span>{{user.name}}</span>
-                <span class="email">{{user.email}}</span>
-            </div>
+      @for (user of filteredUsers(); track user; let i = $index) {
+        <mat-option [value]="user.email">
+          <div class="user-info">
+            <span>{{user.name}}</span>
+            <span class="email">{{user.email}}</span>
+          </div>
         </mat-option>
+      }
     </mat-autocomplete>
-
     <button mat-stroked-button [disabled]="!form.valid" (click)="returnFormContent()">{{'Speichern'}}</button>
     <button mat-flat-button color="primary" (click)="bottomSheetRef.dismiss()">Abbrechen</button>
-</form>
+  </form>
+}
 
-<button mat-flat-button color="primary" (click)="bottomSheetRef.dismiss()" *ngIf="!isAdmin">Schließen</button>
+@if (!isAdmin) {
+  <button mat-flat-button color="primary" (click)="bottomSheetRef.dismiss()">Schließen</button>
+}

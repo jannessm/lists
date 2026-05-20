@@ -7,7 +7,7 @@ import { AuthService } from '../../services/auth/auth.service';
 import { MyListsDocument } from '../../mydb/types/lists';
 import { Slot, groupItems } from '../../../models/categories';
 import { MyItemDocument, newItem } from '../../mydb/types/list-item';
-import { CommonModule } from '@angular/common';
+
 import { MaterialModule } from '../../material.module';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { ListItemComponent } from './list-item/list-item.component';
@@ -23,15 +23,14 @@ import { DATA_TYPE } from '../../mydb/types/graphql-types';
 @Component({
     selector: 'app-list',
     imports: [
-        CommonModule,
-        FormsModule,
-        MaterialModule,
-        RouterModule,
-        ReactiveFormsModule,
-        ListItemComponent,
-        DateChipSelectComponent,
-        ListHeaderComponent
-    ],
+    FormsModule,
+    MaterialModule,
+    RouterModule,
+    ReactiveFormsModule,
+    ListItemComponent,
+    DateChipSelectComponent,
+    ListHeaderComponent
+],
     templateUrl: './list.component.html',
     styleUrls: ['./list.component.scss']
 })

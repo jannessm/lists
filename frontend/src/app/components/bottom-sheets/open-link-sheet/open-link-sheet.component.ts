@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Inject } from '@angular/core';
 import { MAT_BOTTOM_SHEET_DATA, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,9 +6,8 @@ import { MatButtonModule } from '@angular/material/button';
 @Component({
     selector: 'app-open-link-sheet',
     imports: [
-        CommonModule,
-        MatButtonModule
-    ],
+    MatButtonModule
+],
     templateUrl: './open-link-sheet.component.html',
     styleUrls: ['./open-link-sheet.component.scss', '../styles.scss']
 })

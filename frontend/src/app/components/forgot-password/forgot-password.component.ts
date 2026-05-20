@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
 import { AuthService } from '../../services/auth/auth.service';
-import { CommonModule } from '@angular/common';
+
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
@@ -14,14 +14,13 @@ import { RouterModule } from '@angular/router';
 @Component({
     selector: 'app-forgot-pwd',
     imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        MatButtonModule,
-        MatFormFieldModule,
-        MatIconModule,
-        MatInputModule,
-        RouterModule
-    ],
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    RouterModule
+],
     templateUrl: './forgot-password.component.html',
     styleUrls: ['./forgot-password.component.scss']
 })

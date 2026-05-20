@@ -3,7 +3,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.component';
 
 import { MaterialModule } from '../../material.module';
-import { CommonModule } from '@angular/common';
+
 import { MyListsDocument, newLists } from '../../mydb/types/lists';
 import { DataService } from '../../services/data/data.service';
 import { RouterModule } from '@angular/router';
@@ -15,10 +15,9 @@ import { DATA_TYPE } from '../../mydb/types/graphql-types';
 @Component({
     selector: 'app-lists-overview',
     imports: [
-        CommonModule,
-        MaterialModule,
-        RouterModule
-    ],
+    MaterialModule,
+    RouterModule
+],
     templateUrl: './lists-overview.component.html',
     styleUrls: ['./lists-overview.component.scss']
 })

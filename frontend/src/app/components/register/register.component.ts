@@ -10,7 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import md5 from 'md5-ts';
 
 import { AuthService } from '../../services/auth/auth.service';
-import { CommonModule } from '@angular/common';
+
 import { MatchValidator } from '../../../models/match.validators';
 import { REGISTER } from '../../globals';
 import { MatIconModule } from '@angular/material/icon';
@@ -22,15 +22,14 @@ declare const window: any;
 @Component({
     selector: 'app-register',
     imports: [
-        CommonModule,
-        RouterModule,
-        ReactiveFormsModule,
-        MatButtonModule,
-        MatFormFieldModule,
-        MatIconModule,
-        MatInputModule,
-        HCaptchaComponent
-    ],
+    RouterModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    HCaptchaComponent
+],
     templateUrl: './register.component.html',
     styleUrls: ['./register.component.scss']
 })

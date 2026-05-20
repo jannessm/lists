@@ -1,34 +1,41 @@
-<div class="item"
-    *ngIf="item && list()"
-        [class.item-done]="item.done"
-        [class.item-touched]="!!item.touched"
-        (click)="openEditSheet(item)"
-        [id]="'id-' + item.id">
-    
+@if (item && list()) {
+  <div class="item"
+    [class.item-done]="item.done"
+    [class.item-touched]="!!item.touched"
+    (click)="openEditSheet(item)"
+    [id]="'id-' + item.id">
     <div class="item-container">
-        <mat-checkbox (change)="toggleDone()" color="primary" [checked]="item.done" (click)="$event.stopPropagation()"></mat-checkbox>
-
-        <div class="item-content">
-            <span>{{ item.name }}</span>
-            <mat-chip-listbox *ngIf="!(list()?.isShoppingList)">
-                <mat-chip-option
-                    *ngIf="item && item.due"
-                    selectable="false"
-                    disableRipple="true"
-                    [highlighted]="!!item.reminder">
-                    <span *ngIf="is_today(item); then shortTime else short"></span>
-                </mat-chip-option>
-
-                <ng-template #shortTime>{{item.due | date:'shortTime'}}</ng-template>
-                <ng-template #short>{{item.due | date:'short'}}</ng-template>
-            </mat-chip-listbox>
-        </div>
-
-        <div class="actions">
-            <button mat-icon-button (click)="openLink(item); $event.stopPropagation()" *ngIf="item && item.links().length > 0"><mat-icon>link</mat-icon></button>
-            <button mat-icon-button (click)="deleteItem(item); $event.stopPropagation()" *ngIf="item && item.done"><mat-icon>close</mat-icon></button>
-        </div>
-
-        <div class="created-marker" *ngIf="!!me() && createdBy() && item && me()?.id !== createdBy()?.id" [class]="'user-fab-' + userFab(item) % 12"></div>
+      <mat-checkbox (change)="toggleDone()" color="primary" [checked]="item.done" (click)="$event.stopPropagation()"></mat-checkbox>
+      <div class="item-content">
+        <span>{{ item.name }}</span>
+        @if (!(list()?.isShoppingList)) {
+          <mat-chip-listbox>
+            @if (item && item.due) {
+              <mat-chip-option
+                selectable="false"
+                disableRipple="true"
+                [highlighted]="!!item.reminder">
+                @if (is_today(item)) {
+                  {{item.due | date:'shortTime'}}
+                } @else {
+                  {{item.due | date:'short'}}
+                }
+              </mat-chip-option>
+            }
+          </mat-chip-listbox>
+        }
+      </div>
+      <div class="actions">
+        @if (item && item.links().length > 0) {
+          <button mat-icon-button (click)="openLink(item); $event.stopPropagation()"><mat-icon>link</mat-icon></button>
+        }
+        @if (item && item.done) {
+          <button mat-icon-button (click)="deleteItem(item); $event.stopPropagation()"><mat-icon>close</mat-icon></button>
+        }
+      </div>
+      @if (!!me() && createdBy() && item && me()?.id !== createdBy()?.id) {
+        <div class="created-marker" [class]="'user-fab-' + userFab(item) % 12"></div>
+      }
     </div>
-</div>
+  </div>
+}
