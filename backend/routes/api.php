@@ -67,6 +67,9 @@ Route::middleware(["web"])->post('user/change-email', function(Request $request)
     $user->email_verified_at = null;
     $user->save();
 
+    // Send a magic link code to the new email address for verification
+    app(\App\Services\MagicLinkService::class)->sendCode($user);
+
     UserChanged::dispatch([$user]);
 
     return ['status' => 'ok'];

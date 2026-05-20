@@ -19,7 +19,7 @@
     <p>Hi {{ $recipient->name }},</p>
     <p>Use the button below to log in instantly, or enter the code manually in the app.</p>
 
-    <a class="btn" href="{{ url('/auth/verify?code=' . $plainCode) }}">Log in</a>
+    <a class="btn" href="{{ url('/auth/verify?code=' . $plainCode . '&email=' . urlencode($recipient->email)) }}">Log in</a>
 
     <p>Or enter this code manually:</p>
     <div class="code">{{ $plainCode }}</div>

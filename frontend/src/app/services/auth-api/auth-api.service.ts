@@ -23,7 +23,7 @@ export class AuthApiService {
     return this.http.post<{status: string}>(BASE_API + "login", {
       email,
     }, {observe: 'response'}).pipe(
-      catchError(() => of(false as boolean)),
+      catchError(() => of(false)),
       map(res => {
         if (res instanceof HttpResponse && res.status === 200) {
           return 'code_sent';
