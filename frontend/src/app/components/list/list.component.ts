@@ -28,7 +28,6 @@ import { DATA_TYPE } from '../../mydb/types/graphql-types';
         MaterialModule,
         RouterModule,
         ReactiveFormsModule,
-        NameBadgePipe,
         ListItemComponent,
         DateChipSelectComponent,
         ListHeaderComponent

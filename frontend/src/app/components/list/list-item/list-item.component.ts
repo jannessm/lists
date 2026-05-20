@@ -20,7 +20,6 @@ import { OpenLinkSheetComponent } from '../../bottom-sheets/open-link-sheet/open
     imports: [
         CommonModule,
         MaterialModule,
-        NameBadgePipe,
         FormsModule
     ],
     templateUrl: './list-item.component.html',

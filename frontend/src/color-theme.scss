@@ -1,12 +1,15 @@
 @use '@angular/material' as mat;
 @use './app/styles/m3-theme.scss';
 
-@include mat.core();
+@include mat.elevation-classes();
+@include mat.app-background();
 @include mat.typography-hierarchy(m3-theme.$light-theme);
 
 body {
-    @include mat.core-theme(m3-theme.$light-theme);
-    @include mat.core-typography(m3-theme.$light-theme);
+    @include mat.elevation-classes();
+    @include mat.app-background();
+    @include mat.elevation-classes();
+    @include mat.app-background();
     // Include theme styles for core and each component used in your app.
     // Alternatively, you can import and @include the theme mixins for each component
     // that you are using.
@@ -50,7 +53,8 @@ body {
         background-color: #262626;
         color: white;
         
-        @include mat.core-color(m3-theme.$dark-theme);
+        @include mat.elevation-classes();
+        @include mat.app-background();
         @include mat.autocomplete-color(m3-theme.$dark-theme);
         @include mat.badge-color(m3-theme.$dark-theme);
         @include mat.button-color(m3-theme.$dark-theme);
