@@ -7,6 +7,7 @@ import { environment } from '../../../environments/environment';
 import { MyMeDocument } from '../../mydb/types/me';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { PusherService } from '../../services/pusher/pusher.service';
+import { DataService } from '../../services/data/data.service';
 import { Subscription } from 'rxjs';
 import { EditFormComponent } from './edit-form/edit-form.component';
 import { ThemeFormComponent } from './theme-form/theme-form.component';
@@ -44,6 +45,7 @@ export class SettingsComponent implements OnDestroy {
     private authService: AuthService,
     private fb: FormBuilder,
     public pusher: PusherService,
+    private dataService: DataService,
   ) {
     this.user = this.authService.me as Signal<MyMeDocument>;
 
@@ -70,6 +72,10 @@ export class SettingsComponent implements OnDestroy {
 
   openGithub() {
     window.open('https://github.com/jannessm/lists', '_blank')?.focus();
+  }
+
+  sync() {
+    this.dataService.resync();
   }
 
 }
