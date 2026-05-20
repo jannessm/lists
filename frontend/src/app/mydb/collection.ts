@@ -4,14 +4,16 @@ import { defaultConflictHandler } from "./conflict-handler";
 import { ConflictHandler } from "./types/replication";
 import { QueryObject } from "./types/classes";
 import { MyQuery, MyQuerySingle } from "./query";
-import { EventEmitter } from "@angular/core";
+import { NgZone } from "@angular/core";
+import { Subject } from "rxjs";
 import Dexie from "dexie";
 import { JsonSchema } from "./types/schema";
 
 export class MyCollection<DocType, DocMethods> {
     private lastCheckpoint?: unknown;
-    $ = new EventEmitter<MyDocument<DocType, DocMethods>[]>();
-    replication$ = new EventEmitter<void>();
+    /** Emits changed documents. Always fires inside Angular's NgZone. */
+    $ = new Subject<MyDocument<DocType, DocMethods>[]>();
+    replication$ = new Subject<void>();
     
     public primaryKey!: string;
 
@@ -21,7 +23,8 @@ export class MyCollection<DocType, DocMethods> {
                 private tableName: string,
                 public schema: JsonSchema,
                 public methods?: CollectionMethods,
-                conflictHandler?: ConflictHandler
+                conflictHandler?: ConflictHandler,
+                private ngZone?: NgZone
     ) { 
         if (!conflictHandler) {
             this.conflictHandler = defaultConflictHandler;
@@ -32,6 +35,20 @@ export class MyCollection<DocType, DocMethods> {
         this.primaryKey = schema.primaryKey;
 
         this.removeOldData().then(() => {});
+    }
+
+    /**
+     * Emit on the collection subject, always running inside Angular's NgZone so
+     * that change detection is triggered even when the call originates from a
+     * Dexie (IndexedDB) callback, which runs outside zone by default because
+     * Dexie uses its own Promise scheduler that zone.js does not patch.
+     */
+    private emit(docs: MyDocument<DocType, DocMethods>[]) {
+        if (this.ngZone) {
+            this.ngZone.run(() => this.$.next(docs));
+        } else {
+            this.$.next(docs);
+        }
     }
 
     get table() {
@@ -87,7 +104,7 @@ export class MyCollection<DocType, DocMethods> {
         Object.assign(newDoc, {touched: true});
         await this.table.add(newDoc);
 
-        this.$.next([doc]);
+        this.emit([doc]);
         this.replication$.next();
     }
 
@@ -109,7 +126,7 @@ export class MyCollection<DocType, DocMethods> {
 
         this.updateMasterState(newDocs);
 
-        this.$.next(newDocs);
+        this.emit(newDocs);
         // no replication since it is triggered by replication
     }
 
@@ -120,7 +137,7 @@ export class MyCollection<DocType, DocMethods> {
 
         await this.table.put(newDoc);
 
-        this.$.next([newDoc]);
+        this.emit([newDoc]);
         this.replication$.next();
     }
 
@@ -142,7 +159,7 @@ export class MyCollection<DocType, DocMethods> {
         const keys = docs.map((doc: any) => doc[this.primaryKey]);
         const newDocs = await this.table.bulkGet(keys);
         
-        this.$.next(newDocs);
+        this.emit(newDocs);
         this.replication$.next();
     }
 
@@ -173,7 +190,7 @@ export class MyCollection<DocType, DocMethods> {
             }
         }
         
-        this.$.next([]);
+        this.emit([]);
     }
 
     async updateMasterState(docs: any[]) {

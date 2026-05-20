@@ -94,6 +94,7 @@ class ListItem extends Model
                                 break;
                             } else {
                                 $conflict = $masterItem[$param] !== $val;
+                                break;
                             }
                         default:
                             $conflict = $masterItem[$param] !== $val;

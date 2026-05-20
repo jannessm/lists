@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, NgZone, OnDestroy } from '@angular/core';
 
 import { ReplicationService } from '../replication/replication.service';
 import { DATA_TYPE } from '../../mydb/types/graphql-types';
@@ -30,6 +30,7 @@ export class DataService {
     private replicationService: ReplicationService,
     private http: HttpClient,
     private pusherService: PusherService,
+    private ngZone: NgZone,
   ) {
     this.dexie = DB_INSTANCE;
     this.addCollections(DB_CONFIG);
@@ -83,22 +84,26 @@ export class DataService {
                                        DATA_TYPE.ME,
                                        options[DATA_TYPE.ME].schema,
                                        options[DATA_TYPE.ME].methods,
-                                       options[DATA_TYPE.ME].conflictHandler),
+                                       options[DATA_TYPE.ME].conflictHandler,
+                                       this.ngZone),
       [DATA_TYPE.USERS]: new MyCollection(this.dexie,
                                           DATA_TYPE.USERS,
                                           options[DATA_TYPE.USERS].schema,
                                           options[DATA_TYPE.USERS].methods,
-                                          options[DATA_TYPE.USERS].conflictHandler),
+                                          options[DATA_TYPE.USERS].conflictHandler,
+                                          this.ngZone),
       [DATA_TYPE.LISTS]: new MyCollection(this.dexie,
                                           DATA_TYPE.LISTS,
                                           options[DATA_TYPE.LISTS].schema,
                                           options[DATA_TYPE.LISTS].methods,
-                                          options[DATA_TYPE.LISTS].conflictHandler),
+                                          options[DATA_TYPE.LISTS].conflictHandler,
+                                          this.ngZone),
       [DATA_TYPE.LIST_ITEM]: new MyCollection(this.dexie,
                                               DATA_TYPE.LIST_ITEM,
                                               options[DATA_TYPE.LIST_ITEM].schema,
                                               options[DATA_TYPE.LIST_ITEM].methods,
-                                              options[DATA_TYPE.LIST_ITEM].conflictHandler),
+                                              options[DATA_TYPE.LIST_ITEM].conflictHandler,
+                                              this.ngZone),
     };
   }
 

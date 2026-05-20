@@ -153,7 +153,7 @@ export class AuthService {
 
   deleteSessionCookie() {
     const expiration = new Date();
-    expiration.setMonth(expiration.getFullYear() - 1);
+    expiration.setFullYear(expiration.getFullYear() - 1);
 
     this.cookies.set(SESSION_COOKIE, md5(Math.random().toString()), expiration);
   }
