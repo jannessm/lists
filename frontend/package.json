@@ -26,7 +26,7 @@
     "flatpickr": "^4.6.13",
     "laravel-echo": "^1.16.0",
     "md5-ts": "^0.1.6",
-    "ngx-cookie-service": "^18.0.0",
+    "ngx-cookie-service": "^21.0.0",
     "pusher-js": "^8.4.0-rc2",
     "rxjs": "^7.4.0",
     "tslib": "^2.3.0",
