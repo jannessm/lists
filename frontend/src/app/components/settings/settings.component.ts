@@ -15,21 +15,20 @@ import { PushFormComponent } from './push-form/push-form.component';
 import { OthersFormComponent } from './others-form/others-form.component';
 
 @Component({
-  selector: 'app-settings',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    FormsModule,
-    CommonModule,
-    MaterialModule,
-    NameBadgePipe,
-    EditFormComponent,
-    ThemeFormComponent,
-    PushFormComponent,
-    OthersFormComponent
-  ],
-  templateUrl: './settings.component.html',
-  styleUrls: ['./settings.component.scss']
+    selector: 'app-settings',
+    imports: [
+        ReactiveFormsModule,
+        FormsModule,
+        CommonModule,
+        MaterialModule,
+        NameBadgePipe,
+        EditFormComponent,
+        ThemeFormComponent,
+        PushFormComponent,
+        OthersFormComponent
+    ],
+    templateUrl: './settings.component.html',
+    styleUrls: ['./settings.component.scss']
 })
 export class SettingsComponent implements OnDestroy {
   user: Signal<MyMeDocument>;

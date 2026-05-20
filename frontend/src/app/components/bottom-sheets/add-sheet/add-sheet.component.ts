@@ -6,16 +6,15 @@ import { CommonModule } from '@angular/common';
 import { MyListsDocument } from '../../../mydb/types/lists';
 
 @Component({
-  selector: 'app-add-sheet',
-  standalone: true,
-  imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    CommonModule,
-    MaterialModule
-  ],
-  templateUrl: './add-sheet.component.html',
-  styleUrls: ['./add-sheet.component.scss', '../styles.scss']
+    selector: 'app-add-sheet',
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        CommonModule,
+        MaterialModule
+    ],
+    templateUrl: './add-sheet.component.html',
+    styleUrls: ['./add-sheet.component.scss', '../styles.scss']
 })
 export class AddSheetComponent {
 

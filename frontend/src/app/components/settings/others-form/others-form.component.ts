@@ -8,15 +8,14 @@ import { DateChipSelectComponent } from '../../selects/date-chip-select/date-chi
 import { ReminderOptionLabels, ReminderOption } from '../../selects/date-chip-select/options';
 
 @Component({
-  selector: 'app-settings-others-form',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MaterialModule,
-    DateChipSelectComponent,
-  ],
-  templateUrl: './others-form.component.html',
-  styleUrls: ['./others-form.component.scss', '../form.scss']
+    selector: 'app-settings-others-form',
+    imports: [
+        ReactiveFormsModule,
+        MaterialModule,
+        DateChipSelectComponent,
+    ],
+    templateUrl: './others-form.component.html',
+    styleUrls: ['./others-form.component.scss', '../form.scss']
 })
 export class OthersFormComponent implements OnDestroy {
   user: Signal<MyMeDocument | undefined>;

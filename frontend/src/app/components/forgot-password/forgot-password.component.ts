@@ -12,19 +12,18 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-forgot-pwd',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    RouterModule
-  ],
-  templateUrl: './forgot-password.component.html',
-  styleUrls: ['./forgot-password.component.scss']
+    selector: 'app-forgot-pwd',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        RouterModule
+    ],
+    templateUrl: './forgot-password.component.html',
+    styleUrls: ['./forgot-password.component.scss']
 })
 export class ForgotPasswordComponent {
 

@@ -11,15 +11,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-settings-edit-form',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MaterialModule
-  ],
-  templateUrl: './edit-form.component.html',
-  styleUrls: ['./edit-form.component.scss', '../form.scss']
+    selector: 'app-settings-edit-form',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MaterialModule
+    ],
+    templateUrl: './edit-form.component.html',
+    styleUrls: ['./edit-form.component.scss', '../form.scss']
 })
 export class EditFormComponent implements OnDestroy {
   user: Signal<MyMeDocument | undefined>;

@@ -9,16 +9,15 @@ import md5 from 'md5-ts';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-reset-password',
-  standalone: true,
-  imports: [
-    MaterialModule,
-    CommonModule,
-    ReactiveFormsModule,
-    RouterModule
-  ],
-  templateUrl: './reset-password.component.html',
-  styleUrl: './reset-password.component.scss'
+    selector: 'app-reset-password',
+    imports: [
+        MaterialModule,
+        CommonModule,
+        ReactiveFormsModule,
+        RouterModule
+    ],
+    templateUrl: './reset-password.component.html',
+    styleUrl: './reset-password.component.scss'
 })
 export class ResetPasswordComponent implements OnDestroy {
   token: string | undefined;

@@ -13,18 +13,17 @@ import { MyMeDocument } from '../../../mydb/types/me';
 import { AuthService } from '../../../services/auth/auth.service';
 
 @Component({
-  selector: 'app-share-list-sheet',
-  standalone: true,
-  imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    CommonModule,
-    MaterialModule,
-    NameBadgePipe,
-    MatAutocompleteModule
-  ],
-  templateUrl: './share-list-sheet.component.html',
-  styleUrls: ['./share-list-sheet.component.scss', '../styles.scss']
+    selector: 'app-share-list-sheet',
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        CommonModule,
+        MaterialModule,
+        NameBadgePipe,
+        MatAutocompleteModule
+    ],
+    templateUrl: './share-list-sheet.component.html',
+    styleUrls: ['./share-list-sheet.component.scss', '../styles.scss']
 })
 export class ShareListSheetComponent implements OnDestroy {
 

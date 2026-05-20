@@ -21,21 +21,20 @@ import { ListHeaderComponent } from './list-header/list-header.component';
 import { DATA_TYPE } from '../../mydb/types/graphql-types';
 
 @Component({
-  selector: 'app-list',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MaterialModule,
-    RouterModule,
-    ReactiveFormsModule,
-    NameBadgePipe,
-    ListItemComponent,
-    DateChipSelectComponent,
-    ListHeaderComponent
-  ],
-  templateUrl: './list.component.html',
-  styleUrls: ['./list.component.scss']
+    selector: 'app-list',
+    imports: [
+        CommonModule,
+        FormsModule,
+        MaterialModule,
+        RouterModule,
+        ReactiveFormsModule,
+        NameBadgePipe,
+        ListItemComponent,
+        DateChipSelectComponent,
+        ListHeaderComponent
+    ],
+    templateUrl: './list.component.html',
+    styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements AfterViewInit, OnDestroy {
   @ViewChild('addInput') addInput!: ElementRef;

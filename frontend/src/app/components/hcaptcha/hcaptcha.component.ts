@@ -5,11 +5,10 @@ import { Observable, Subscriber } from 'rxjs';
 declare const window: any;
 
 @Component({
-  selector: 'app-hcaptcha',
-  standalone: true,
-  imports: [ ],
-  templateUrl: './hcaptcha.component.html',
-  styleUrl: './hcaptcha.component.scss'
+    selector: 'app-hcaptcha',
+    imports: [],
+    templateUrl: './hcaptcha.component.html',
+    styleUrl: './hcaptcha.component.scss'
 })
 export class HCaptchaComponent {
 

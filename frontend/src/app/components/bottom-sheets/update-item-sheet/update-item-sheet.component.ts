@@ -15,19 +15,18 @@ import { datesAreEqual } from '../../selects/time-helpers';
 import { LinkifyPipe } from '../../../pipes/linkify.pipe';
 
 @Component({
-  selector: 'app-update-item-sheet',
-  standalone: true,
-  imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    CommonModule,
-    MaterialModule,
-    DateChipSelectComponent,
-    DateInputSelectComponent,
-    LinkifyPipe
-  ],
-  templateUrl: './update-item-sheet.component.html',
-  styleUrls: ['./update-item-sheet.component.scss', '../styles.scss']
+    selector: 'app-update-item-sheet',
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        CommonModule,
+        MaterialModule,
+        DateChipSelectComponent,
+        DateInputSelectComponent,
+        LinkifyPipe
+    ],
+    templateUrl: './update-item-sheet.component.html',
+    styleUrls: ['./update-item-sheet.component.scss', '../styles.scss']
 })
 export class UpdateItemSheetComponent implements OnDestroy {
   form: FormGroup;

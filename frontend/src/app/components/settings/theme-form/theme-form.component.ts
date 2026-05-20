@@ -7,14 +7,13 @@ import { MyMeDocument } from '../../../mydb/types/me';
 import { MaterialModule } from '../../../material.module';
 
 @Component({
-  selector: 'app-settings-theme-form',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MaterialModule,
-  ],
-  templateUrl: './theme-form.component.html',
-  styleUrls: ['./theme-form.component.scss', '../form.scss']
+    selector: 'app-settings-theme-form',
+    imports: [
+        ReactiveFormsModule,
+        MaterialModule,
+    ],
+    templateUrl: './theme-form.component.html',
+    styleUrls: ['./theme-form.component.scss', '../form.scss']
 })
 export class ThemeFormComponent implements OnDestroy {
   user: Signal<MyMeDocument>;

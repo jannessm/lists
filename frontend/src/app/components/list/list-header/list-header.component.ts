@@ -14,15 +14,14 @@ import { NameBadgePipe } from '../../../pipes/name-badge.pipe';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-list-header',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MaterialModule,
-    NameBadgePipe
-  ],
-  templateUrl: './list-header.component.html',
-  styleUrl: './list-header.component.scss'
+    selector: 'app-list-header',
+    imports: [
+        CommonModule,
+        MaterialModule,
+        NameBadgePipe
+    ],
+    templateUrl: './list-header.component.html',
+    styleUrl: './list-header.component.scss'
 })
 export class ListHeaderComponent {
   @Input() lists!: Signal<MyListsDocument | undefined>;

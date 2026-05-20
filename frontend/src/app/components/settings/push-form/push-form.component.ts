@@ -8,14 +8,13 @@ import { IosService } from '../../../services/ios/ios.service';
 import { IosInstallerPushComponent } from '../../snackbars/ios-installer-push/ios-installer-push.component';
 
 @Component({
-  selector: 'app-settings-push-form',
-  standalone: true,
-  imports: [
-    MaterialModule,
-    ReactiveFormsModule
-  ],
-  templateUrl: './push-form.component.html',
-  styleUrls: ['./push-form.component.scss', '../form.scss']
+    selector: 'app-settings-push-form',
+    imports: [
+        MaterialModule,
+        ReactiveFormsModule
+    ],
+    templateUrl: './push-form.component.html',
+    styleUrls: ['./push-form.component.scss', '../form.scss']
 })
 export class PushFormComponent implements OnDestroy {
   form: FormGroup<{

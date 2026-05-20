@@ -4,14 +4,13 @@ import { MaterialModule } from '../../../material.module';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-confirm-sheet',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MaterialModule
-  ],
-  templateUrl: './confirm-sheet.component.html',
-  styleUrls: ['./confirm-sheet.component.scss', '../styles.scss']
+    selector: 'app-confirm-sheet',
+    imports: [
+        CommonModule,
+        MaterialModule
+    ],
+    templateUrl: './confirm-sheet.component.html',
+    styleUrls: ['./confirm-sheet.component.scss', '../styles.scss']
 })
 export class ConfirmSheetComponent {
 

@@ -4,14 +4,13 @@ import { MAT_BOTTOM_SHEET_DATA, MatBottomSheetRef } from '@angular/material/bott
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
-  selector: 'app-open-link-sheet',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule
-  ],
-  templateUrl: './open-link-sheet.component.html',
-  styleUrls: ['./open-link-sheet.component.scss', '../styles.scss']
+    selector: 'app-open-link-sheet',
+    imports: [
+        CommonModule,
+        MatButtonModule
+    ],
+    templateUrl: './open-link-sheet.component.html',
+    styleUrls: ['./open-link-sheet.component.scss', '../styles.scss']
 })
 export class OpenLinkSheetComponent {
   links: string[] = [];

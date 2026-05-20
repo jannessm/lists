@@ -13,15 +13,14 @@ import { Subscription } from 'rxjs';
 import { DATA_TYPE } from '../../mydb/types/graphql-types';
 
 @Component({
-  selector: 'app-lists-overview',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MaterialModule,
-    RouterModule
-  ],
-  templateUrl: './lists-overview.component.html',
-  styleUrls: ['./lists-overview.component.scss']
+    selector: 'app-lists-overview',
+    imports: [
+        CommonModule,
+        MaterialModule,
+        RouterModule
+    ],
+    templateUrl: './lists-overview.component.html',
+    styleUrls: ['./lists-overview.component.scss']
 })
 export class ListsOverviewComponent implements AfterViewInit {
 

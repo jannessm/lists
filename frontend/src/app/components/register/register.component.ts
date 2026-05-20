@@ -20,20 +20,19 @@ import { Subscription } from 'rxjs';
 declare const window: any;
 
 @Component({
-  selector: 'app-register',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    ReactiveFormsModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    HCaptchaComponent
-  ],
-  templateUrl: './register.component.html',
-  styleUrls: ['./register.component.scss']
+    selector: 'app-register',
+    imports: [
+        CommonModule,
+        RouterModule,
+        ReactiveFormsModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        HCaptchaComponent
+    ],
+    templateUrl: './register.component.html',
+    styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent implements OnDestroy {
 
