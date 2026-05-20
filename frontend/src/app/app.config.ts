@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, ApplicationConfig, Injector, LOCALE_ID, enableProdMode, isDevMode } from '@angular/core';
+import { ApplicationConfig, Injector, LOCALE_ID, enableProdMode, isDevMode, inject, provideAppInitializer } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -17,12 +17,10 @@ if (environment.production) {
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    {
-      provide: APP_INITIALIZER,
-      useFactory: (injector: Injector) => () => initDatabase(injector),
-      multi: true,
-      deps: [Injector]
-    },
+    provideAppInitializer(() => {
+        const initializerFn = ((injector: Injector) => () => initDatabase(injector))(inject(Injector));
+        return initializerFn();
+      }),
     provideRouter(routes, withComponentInputBinding()),
     provideAnimations(),
     provideHttpClient(withInterceptors([laravelInterceptor, noConnectionInterceptor])),

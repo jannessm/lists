@@ -1,7 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MaterialModule } from '../../material.module';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth/auth.service';
 import { MatchValidator } from '../../../models/match.validators';
@@ -9,16 +9,14 @@ import md5 from 'md5-ts';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-reset-password',
-  standalone: true,
-  imports: [
+    selector: 'app-reset-password',
+    imports: [
     MaterialModule,
-    CommonModule,
     ReactiveFormsModule,
     RouterModule
-  ],
-  templateUrl: './reset-password.component.html',
-  styleUrl: './reset-password.component.scss'
+],
+    templateUrl: './reset-password.component.html',
+    styleUrl: './reset-password.component.scss'
 })
 export class ResetPasswordComponent implements OnDestroy {
   token: string | undefined;

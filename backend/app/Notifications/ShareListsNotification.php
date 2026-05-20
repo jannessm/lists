@@ -40,7 +40,7 @@ class ShareListsNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $url = $this->confirmationUrl();
+        $url = $this->confirmationUrl($notifiable);
 
         return (new MailMessage)
             ->greeting('Hallo!')
@@ -51,10 +51,17 @@ class ShareListsNotification extends Notification
             ->salutation("Mit freundlichen Grüßen");
     }
 
-    public function confirmationUrl() {
-        return URL::signedRoute('share-lists.confirm', [
+    public function confirmationUrl($notifiable = null) {
+        $params = [
             'id' => $this->lists->id,
             'hash' => sha1($this->lists->name)
-        ]);
+        ];
+        
+        // Include recipient email in the signed URL for unauthenticated access
+        if ($notifiable && isset($notifiable->email)) {
+            $params['email'] = $notifiable->email;
+        }
+        
+        return URL::signedRoute('share-lists.confirm', $params);
     }
 }

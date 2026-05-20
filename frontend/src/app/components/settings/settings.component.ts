@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnDestroy, Signal, WritableSignal, signal } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../../material.module';
@@ -7,6 +7,7 @@ import { environment } from '../../../environments/environment';
 import { MyMeDocument } from '../../mydb/types/me';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { PusherService } from '../../services/pusher/pusher.service';
+import { DataService } from '../../services/data/data.service';
 import { Subscription } from 'rxjs';
 import { EditFormComponent } from './edit-form/edit-form.component';
 import { ThemeFormComponent } from './theme-form/theme-form.component';
@@ -14,21 +15,19 @@ import { PushFormComponent } from './push-form/push-form.component';
 import { OthersFormComponent } from './others-form/others-form.component';
 
 @Component({
-  selector: 'app-settings',
-  standalone: true,
-  imports: [
+    selector: 'app-settings',
+    imports: [
     ReactiveFormsModule,
     FormsModule,
-    CommonModule,
     MaterialModule,
     NameBadgePipe,
     EditFormComponent,
     ThemeFormComponent,
     PushFormComponent,
     OthersFormComponent
-  ],
-  templateUrl: './settings.component.html',
-  styleUrls: ['./settings.component.scss']
+],
+    templateUrl: './settings.component.html',
+    styleUrls: ['./settings.component.scss']
 })
 export class SettingsComponent implements OnDestroy {
   user: Signal<MyMeDocument>;
@@ -44,6 +43,7 @@ export class SettingsComponent implements OnDestroy {
     private authService: AuthService,
     private fb: FormBuilder,
     public pusher: PusherService,
+    private dataService: DataService,
   ) {
     this.user = this.authService.me as Signal<MyMeDocument>;
 
@@ -70,6 +70,10 @@ export class SettingsComponent implements OnDestroy {
 
   openGithub() {
     window.open('https://github.com/jannessm/lists', '_blank')?.focus();
+  }
+
+  sync() {
+    this.dataService.resync();
   }
 
 }

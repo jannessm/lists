@@ -11,18 +11,16 @@ import { AuthService } from '../../../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { DataService } from '../../../services/data/data.service';
 import { NameBadgePipe } from '../../../pipes/name-badge.pipe';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
-  selector: 'app-list-header',
-  standalone: true,
-  imports: [
-    CommonModule,
+    selector: 'app-list-header',
+    imports: [
     MaterialModule,
     NameBadgePipe
-  ],
-  templateUrl: './list-header.component.html',
-  styleUrl: './list-header.component.scss'
+],
+    templateUrl: './list-header.component.html',
+    styleUrl: './list-header.component.scss'
 })
 export class ListHeaderComponent {
   @Input() lists!: Signal<MyListsDocument | undefined>;

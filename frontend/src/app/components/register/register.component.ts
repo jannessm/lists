@@ -10,7 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import md5 from 'md5-ts';
 
 import { AuthService } from '../../services/auth/auth.service';
-import { CommonModule } from '@angular/common';
+
 import { MatchValidator } from '../../../models/match.validators';
 import { REGISTER } from '../../globals';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,10 +20,8 @@ import { Subscription } from 'rxjs';
 declare const window: any;
 
 @Component({
-  selector: 'app-register',
-  standalone: true,
-  imports: [
-    CommonModule,
+    selector: 'app-register',
+    imports: [
     RouterModule,
     ReactiveFormsModule,
     MatButtonModule,
@@ -31,9 +29,9 @@ declare const window: any;
     MatIconModule,
     MatInputModule,
     HCaptchaComponent
-  ],
-  templateUrl: './register.component.html',
-  styleUrls: ['./register.component.scss']
+],
+    templateUrl: './register.component.html',
+    styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent implements OnDestroy {
 

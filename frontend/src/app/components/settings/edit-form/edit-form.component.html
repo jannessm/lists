@@ -1,66 +1,94 @@
 <div>
 
-    <form [formGroup]="editForm" *ngIf="editMode()">
-        <mat-form-field appearance="outline">
-            <mat-label>Name</mat-label>
-            <input matInput formControlName="name">
-            <mat-error *ngIf="editForm.get('name')?.hasError('required')">
-                Name muss angegeben werden!
-            </mat-error>
-        </mat-form-field>
-        
-        <mat-form-field appearance="outline">
-            <mat-label>Email</mat-label>
-            <input matInput formControlName="email">
-            <mat-hint *ngIf="disabled()">Im Offlinemodus nicht änderbar.</mat-hint>
-            <mat-error *ngIf="editForm.get('email')?.hasError('required')">
-                Email muss angegeben werden!
-            </mat-error>
-            <mat-error *ngIf="editForm.get('email')?.hasError('email')">
-                Bitte eine gültige Email Adresse angeben!
-            </mat-error>
-        </mat-form-field>
+  @if (editMode()) {
+    <form [formGroup]="editForm">
+      <mat-form-field appearance="outline">
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name">
+        @if (editForm.get('name')?.hasError('required')) {
+          <mat-error>
+            Name muss angegeben werden!
+          </mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email">
+        @if (disabled()) {
+          <mat-hint>Im Offlinemodus nicht änderbar.</mat-hint>
+        }
+        @if (editForm.get('email')?.hasError('required')) {
+          <mat-error>
+            Email muss angegeben werden!
+          </mat-error>
+        }
+        @if (editForm.get('email')?.hasError('email')) {
+          <mat-error>
+            Bitte eine gültige Email Adresse angeben!
+          </mat-error>
+        }
+      </mat-form-field>
+      <br>
         <br>
-        <br>
-        <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline">
             <mat-label>Altes Passwort</mat-label>
             <input matInput type="password" placeholder="Passwort" formControlName="oldPwd">
-            <mat-hint *ngIf="disabled()">Im Offlinemodus nicht änderbar.</mat-hint>
-            <mat-error *ngIf="editForm.get('oldPwd')?.hasError('required')">
+            @if (disabled()) {
+              <mat-hint>Im Offlinemodus nicht änderbar.</mat-hint>
+            }
+            @if (editForm.get('oldPwd')?.hasError('required')) {
+              <mat-error>
                 Passwort muss angegeben werden!
-            </mat-error>
+              </mat-error>
+            }
             <mat-hint>Nach einer Änderung des Passworts musst du dich erneut einloggen.</mat-hint>
-        </mat-form-field>
-        <mat-form-field appearance="outline">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
             <mat-label>Neues Passwort</mat-label>
             <input matInput type="password" placeholder="Passwort" formControlName="pwd">
-            <mat-hint *ngIf="disabled()">Im Offlinemodus nicht änderbar.</mat-hint>
-            <mat-error *ngIf="editForm.get('pwd')?.hasError('required')">
+            @if (disabled()) {
+              <mat-hint>Im Offlinemodus nicht änderbar.</mat-hint>
+            }
+            @if (editForm.get('pwd')?.hasError('required')) {
+              <mat-error>
                 Ein neues Passwort muss angegeben werden!
-            </mat-error>
-        </mat-form-field>
-        <mat-form-field appearance="outline">
+              </mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline">
             <mat-label>Passwort wiederholen</mat-label>
             <input matInput type="password" placeholder="Passwort wiederholen" formControlName="pwdConfirmation">
-            <mat-hint *ngIf="disabled()">Im Offlinemodus nicht änderbar.</mat-hint>
-            <mat-error *ngIf="editForm.get('pwdConfirmation')?.hasError('required')">
+            @if (disabled()) {
+              <mat-hint>Im Offlinemodus nicht änderbar.</mat-hint>
+            }
+            @if (editForm.get('pwdConfirmation')?.hasError('required')) {
+              <mat-error>
                 Das neue Passwort muss wiederholt werden!
-            </mat-error>
-            <mat-error *ngIf="editForm.hasError('notMatching')">
+              </mat-error>
+            }
+            @if (editForm.hasError('notMatching')) {
+              <mat-error>
                 Neue Passwörter stimmen nicht überein!
-            </mat-error>
-            <mat-error *ngIf="editForm.hasError('matching')">
+              </mat-error>
+            }
+            @if (editForm.hasError('matching')) {
+              <mat-error>
                 Das neue Passwort muss sich vom alten Passwort unterscheiden!
-            </mat-error>
-        </mat-form-field>
-    </form>
-    
-    <button mat-stroked-button
-        (click)="saveChanges()"
-        *ngIf="editMode()"
+              </mat-error>
+            }
+          </mat-form-field>
+        </form>
+      }
+
+      @if (editMode()) {
+        <button mat-stroked-button
+          (click)="saveChanges()"
         [disabled]="!editForm.valid">Speichern</button>
-    <button mat-flat-button
-        color="primary"
-        (click)="cancelChanges()"
-        *ngIf="editMode()">Abbrechen</button>
-</div>
+      }
+      @if (editMode()) {
+        <button mat-flat-button
+          color="primary"
+          (click)="cancelChanges()"
+        >Abbrechen</button>
+      }
+    </div>

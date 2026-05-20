@@ -33,6 +33,19 @@ class FortifyServiceProvider extends ServiceProvider
         $this->app->instance(LoginResponse::class, new class implements LoginResponse {
             public function toResponse($request)
             {
+                // Check for pending list invitation
+                if ($request->session()->has('pending_list_invitation')) {
+                    $invitation = $request->session()->get('pending_list_invitation');
+                    $user = $request->user();
+                    
+                    // Verify email matches
+                    if ($user && $user->email === $invitation['email']) {
+                        // Confirm the list invitation
+                        $user->confirmShareLists($invitation['list_id']);
+                        $request->session()->forget('pending_list_invitation');
+                    }
+                }
+                
                 return response("");
             }
         });
@@ -40,6 +53,19 @@ class FortifyServiceProvider extends ServiceProvider
         $this->app->instance(RegisterResponse::class, new class implements RegisterResponse {
             public function toResponse($request)
             {
+                // Check for pending list invitation
+                if ($request->session()->has('pending_list_invitation')) {
+                    $invitation = $request->session()->get('pending_list_invitation');
+                    $user = $request->user();
+                    
+                    // Verify email matches
+                    if ($user && $user->email === $invitation['email']) {
+                        // Confirm the list invitation
+                        $user->confirmShareLists($invitation['list_id']);
+                        $request->session()->forget('pending_list_invitation');
+                    }
+                }
+                
                 return response("");
             }
         });

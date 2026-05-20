@@ -3,7 +3,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AddSheetComponent } from '../bottom-sheets/add-sheet/add-sheet.component';
 
 import { MaterialModule } from '../../material.module';
-import { CommonModule } from '@angular/common';
+
 import { MyListsDocument, newLists } from '../../mydb/types/lists';
 import { DataService } from '../../services/data/data.service';
 import { RouterModule } from '@angular/router';
@@ -13,15 +13,13 @@ import { Subscription } from 'rxjs';
 import { DATA_TYPE } from '../../mydb/types/graphql-types';
 
 @Component({
-  selector: 'app-lists-overview',
-  standalone: true,
-  imports: [
-    CommonModule,
+    selector: 'app-lists-overview',
+    imports: [
     MaterialModule,
     RouterModule
-  ],
-  templateUrl: './lists-overview.component.html',
-  styleUrls: ['./lists-overview.component.scss']
+],
+    templateUrl: './lists-overview.component.html',
+    styleUrls: ['./lists-overview.component.scss']
 })
 export class ListsOverviewComponent implements AfterViewInit {
 

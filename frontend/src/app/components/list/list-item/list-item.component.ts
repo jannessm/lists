@@ -16,16 +16,14 @@ import { Observable, Subscription } from 'rxjs';
 import { OpenLinkSheetComponent } from '../../bottom-sheets/open-link-sheet/open-link-sheet.component';
 
 @Component({
-  selector: 'app-list-item',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MaterialModule,
-    NameBadgePipe,
-    FormsModule
-  ],
-  templateUrl: './list-item.component.html',
-  styleUrl: './list-item.component.scss'
+    selector: 'app-list-item',
+    imports: [
+        CommonModule,
+        MaterialModule,
+        FormsModule
+    ],
+    templateUrl: './list-item.component.html',
+    styleUrl: './list-item.component.scss'
 })
 export class ListItemComponent implements OnDestroy {
   @Input()

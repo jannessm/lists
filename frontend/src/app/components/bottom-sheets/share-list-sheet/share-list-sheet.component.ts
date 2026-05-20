@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Inject, OnDestroy, Signal, WritableSignal, effect, signal } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_BOTTOM_SHEET_DATA, MatBottomSheetRef } from '@angular/material/bottom-sheet';
@@ -13,18 +13,16 @@ import { MyMeDocument } from '../../../mydb/types/me';
 import { AuthService } from '../../../services/auth/auth.service';
 
 @Component({
-  selector: 'app-share-list-sheet',
-  standalone: true,
-  imports: [
+    selector: 'app-share-list-sheet',
+    imports: [
     FormsModule,
     ReactiveFormsModule,
-    CommonModule,
     MaterialModule,
     NameBadgePipe,
     MatAutocompleteModule
-  ],
-  templateUrl: './share-list-sheet.component.html',
-  styleUrls: ['./share-list-sheet.component.scss', '../styles.scss']
+],
+    templateUrl: './share-list-sheet.component.html',
+    styleUrls: ['./share-list-sheet.component.scss', '../styles.scss']
 })
 export class ShareListSheetComponent implements OnDestroy {
 

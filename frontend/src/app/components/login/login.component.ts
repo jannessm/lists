@@ -10,7 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import md5 from 'md5-ts';
 
 import { AuthService } from '../../services/auth/auth.service';
-import { CommonModule } from '@angular/common';
+
 import { MatIconModule } from '@angular/material/icon';
 import { HCaptchaComponent } from '../hcaptcha/hcaptcha.component';
 import { Subscription } from 'rxjs';
@@ -18,10 +18,8 @@ import { Subscription } from 'rxjs';
 declare const window: any;
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [
-    CommonModule,
+    selector: 'app-login',
+    imports: [
     RouterModule,
     ReactiveFormsModule,
     MatButtonModule,
@@ -29,9 +27,9 @@ declare const window: any;
     MatIconModule,
     MatInputModule,
     HCaptchaComponent
-  ],
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+],
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnDestroy {
 

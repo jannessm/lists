@@ -2,20 +2,18 @@ import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { MaterialModule } from '../../../material.module';
-import { CommonModule } from '@angular/common';
+
 import { MyListsDocument } from '../../../mydb/types/lists';
 
 @Component({
-  selector: 'app-add-sheet',
-  standalone: true,
-  imports: [
+    selector: 'app-add-sheet',
+    imports: [
     FormsModule,
     ReactiveFormsModule,
-    CommonModule,
     MaterialModule
-  ],
-  templateUrl: './add-sheet.component.html',
-  styleUrls: ['./add-sheet.component.scss', '../styles.scss']
+],
+    templateUrl: './add-sheet.component.html',
+    styleUrls: ['./add-sheet.component.scss', '../styles.scss']
 })
 export class AddSheetComponent {
 

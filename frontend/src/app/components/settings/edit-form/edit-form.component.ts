@@ -8,18 +8,16 @@ import md5 from 'md5-ts';
 import { AuthService } from '../../../services/auth/auth.service';
 import { ChangeEmailStatus } from '../../../../models/responses';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
-  selector: 'app-settings-edit-form',
-  standalone: true,
-  imports: [
-    CommonModule,
+    selector: 'app-settings-edit-form',
+    imports: [
     ReactiveFormsModule,
     MaterialModule
-  ],
-  templateUrl: './edit-form.component.html',
-  styleUrls: ['./edit-form.component.scss', '../form.scss']
+],
+    templateUrl: './edit-form.component.html',
+    styleUrls: ['./edit-form.component.scss', '../form.scss']
 })
 export class EditFormComponent implements OnDestroy {
   user: Signal<MyMeDocument | undefined>;

@@ -7,7 +7,7 @@ import { AuthService } from '../../services/auth/auth.service';
 import { MyListsDocument } from '../../mydb/types/lists';
 import { Slot, groupItems } from '../../../models/categories';
 import { MyItemDocument, newItem } from '../../mydb/types/list-item';
-import { CommonModule } from '@angular/common';
+
 import { MaterialModule } from '../../material.module';
 import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { ListItemComponent } from './list-item/list-item.component';
@@ -21,21 +21,18 @@ import { ListHeaderComponent } from './list-header/list-header.component';
 import { DATA_TYPE } from '../../mydb/types/graphql-types';
 
 @Component({
-  selector: 'app-list',
-  standalone: true,
-  imports: [
-    CommonModule,
+    selector: 'app-list',
+    imports: [
     FormsModule,
     MaterialModule,
     RouterModule,
     ReactiveFormsModule,
-    NameBadgePipe,
     ListItemComponent,
     DateChipSelectComponent,
     ListHeaderComponent
-  ],
-  templateUrl: './list.component.html',
-  styleUrls: ['./list.component.scss']
+],
+    templateUrl: './list.component.html',
+    styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements AfterViewInit, OnDestroy {
   @ViewChild('addInput') addInput!: ElementRef;

@@ -1,17 +1,15 @@
 import { Component, Inject } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { MaterialModule } from '../../../material.module';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
-  selector: 'app-confirm-sheet',
-  standalone: true,
-  imports: [
-    CommonModule,
+    selector: 'app-confirm-sheet',
+    imports: [
     MaterialModule
-  ],
-  templateUrl: './confirm-sheet.component.html',
-  styleUrls: ['./confirm-sheet.component.scss', '../styles.scss']
+],
+    templateUrl: './confirm-sheet.component.html',
+    styleUrls: ['./confirm-sheet.component.scss', '../styles.scss']
 })
 export class ConfirmSheetComponent {
 

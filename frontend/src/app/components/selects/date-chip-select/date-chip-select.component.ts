@@ -8,24 +8,23 @@ import { getTimePickerConfig } from '../../../../models/time-picker';
 import { MatChipListboxChange, MatChipSelectionChange } from '@angular/material/chips';
 
 @Component({
-  selector: 'app-date-chip-select',
-  standalone: true,
-  imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    MaterialModule,
-    CommonModule,
-  ],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => DateChipSelectComponent),
-      multi: true
-    },
-    DatePipe
-  ],
-  templateUrl: './date-chip-select.component.html',
-  styleUrl: './date-chip-select.component.scss'
+    selector: 'app-date-chip-select',
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        MaterialModule,
+        CommonModule,
+    ],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => DateChipSelectComponent),
+            multi: true
+        },
+        DatePipe
+    ],
+    templateUrl: './date-chip-select.component.html',
+    styleUrl: './date-chip-select.component.scss'
 })
 export class DateChipSelectComponent implements AfterViewInit {
 

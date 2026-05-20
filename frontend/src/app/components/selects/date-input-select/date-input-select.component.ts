@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild, forwardRef } from '@angular/core';
 import { FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import flatpickr from 'flatpickr';
@@ -6,24 +6,22 @@ import { getTimePickerConfig } from '../../../../models/time-picker';
 import { MaterialModule } from '../../../material.module';
 
 @Component({
-  selector: 'app-date-input-select',
-  standalone: true,
-  imports: [
-    CommonModule,
+    selector: 'app-date-input-select',
+    imports: [
     FormsModule,
     ReactiveFormsModule,
     MaterialModule
-  ],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => DateInputSelectComponent),
-      multi: true
-    },
-    DatePipe
-  ],
-  templateUrl: './date-input-select.component.html',
-  styleUrl: './date-input-select.component.scss'
+],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => DateInputSelectComponent),
+            multi: true
+        },
+        DatePipe
+    ],
+    templateUrl: './date-input-select.component.html',
+    styleUrl: './date-input-select.component.scss'
 })
 export class DateInputSelectComponent implements AfterViewInit {
   @Input() options: [key: string, value: string][] = [];
