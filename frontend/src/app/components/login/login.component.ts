@@ -6,16 +6,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
-
-import md5 from 'md5-ts';
-
 import { AuthService } from '../../services/auth/auth.service';
 
 import { MatIconModule } from '@angular/material/icon';
-import { HCaptchaComponent } from '../hcaptcha/hcaptcha.component';
 import { Subscription } from 'rxjs';
-
-declare const window: any;
 
 @Component({
     selector: 'app-login',
@@ -26,7 +20,6 @@ declare const window: any;
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    HCaptchaComponent
 ],
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.scss']
@@ -38,7 +31,6 @@ export class LoginComponent implements OnDestroy {
 
   wrongCredentials = false;
   noSpacesRegex = /.*\S.*/;
-  initCaptcha = signal(false);
 
   constructor(
     private fb: FormBuilder,
@@ -46,17 +38,11 @@ export class LoginComponent implements OnDestroy {
   ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      pwd: ['', Validators.required],
-      captcha: ['', Validators.required]
     });
 
     this.formSub = this.form.valueChanges.subscribe(() => {
       this.resetErrors();
     });
-  }
-
-  ngAfterViewInit() {
-    this.initCaptcha.set(true);
   }
 
   ngOnDestroy() {
@@ -74,30 +60,19 @@ export class LoginComponent implements OnDestroy {
   }
 
   login() {
+    if (this.form.invalid) return;
+
     this.authService.login(
       (this.form.controls['email'].value as string).toLowerCase(),
-      md5(this.form.controls['pwd'].value),
-      this.form.controls['captcha'].value
-    ).subscribe(loggedIn => {
-      if (!loggedIn) {
+    ).subscribe(result => {
+      if (result === false) {
         this.wrongCredentials = true;
-
         Object.values(this.form.controls).forEach(control => {
           control.setErrors({'wrongCredentials': true});
         });
-
-        window.hcaptcha.reset();
       }
-    })
-  }
-
-  captchaVerify(res: string) {
-    this.form.get('captcha')?.setErrors(null);
-    this.form.get('captcha')?.setValue(res);
-  }
-
-  captchaError() {
-    this.form.get('captcha')?.setErrors({'captcha': true});
+    });
   }
 
 }
+

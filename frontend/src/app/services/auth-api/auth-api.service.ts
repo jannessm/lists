@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, map, of } from 'rxjs';
-import { AuthResponse, ChangeEmailResponse, ChangeEmailStatus, ValidateResponse, VerifyMailResponse } from '../../../models/responses';
+import { AuthResponse, ChangeEmailResponse, ChangeEmailStatus, ValidateResponse, VerifyCodeResponse } from '../../../models/responses';
 import { BASE_API, REGISTER } from '../../globals';
 
 @Injectable({
@@ -19,22 +19,16 @@ export class AuthApiService {
     });
   }
 
-  login(email: string, password: string, captcha: string): Observable<boolean> {
-    return this.http.post<HttpResponse<AuthResponse>>(BASE_API + "login", {
+  login(email: string): Observable<boolean | 'code_sent'> {
+    return this.http.post<{status: string}>(BASE_API + "login", {
       email,
-      password,
-      remember: true,
-      captcha
     }, {observe: 'response'}).pipe(
       catchError(() => of(false)),
       map(res => {
-        // success
         if (res instanceof HttpResponse && res.status === 200) {
-          return true;
-        } else {
-          // res.status === 422
-          return false;
+          return 'code_sent';
         }
+        return false;
       }),
     );
   }
@@ -42,12 +36,11 @@ export class AuthApiService {
   register(
     name: string,
     email: string,
-    password: string,
-    password_confirmation: string,
+    email_confirmation: string,
     captcha: string
   ): Observable<AuthResponse | REGISTER> {
     return this.http.post<AuthResponse>(BASE_API + "register", {
-      name, email, password, password_confirmation, captcha
+      name, email, email_confirmation, captcha
     }, { observe: 'response' }).pipe(
       catchError(res => {
         return of(res);
@@ -85,23 +78,22 @@ export class AuthApiService {
     );
   }
 
-  verifyEmail(): Observable<boolean> {
-    return this.http.get<VerifyMailResponse>(BASE_API + 'email/verified', {observe: 'response'}).pipe(
-      catchError(() => of(false)),
+  verifyCode(email: string, code: string): Observable<VerifyCodeResponse> {
+    return this.http.post<VerifyCodeResponse>(BASE_API + 'auth/verify-code', {
+      email, code
+    }, { observe: 'response' }).pipe(
+      catchError(err => of(err.error || { error: 'invalid_code' })),
       map(res => {
         if (res instanceof HttpResponse) {
-          if (res.status === 200 && !!res.body?.verified) {
-            return true;
-          }
+          return res.body as VerifyCodeResponse;
         }
-
-        return false;
+        return res as VerifyCodeResponse;
       }),
     );
   }
 
-  resendVerificationMail(): Observable<boolean> {
-    return this.http.post(BASE_API + 'email/verification-notification',  {}, {observe: 'response'}).pipe(
+  resendCode(email: string): Observable<boolean> {
+    return this.http.post(BASE_API + 'auth/resend-code', { email }, { observe: 'response' }).pipe(
       catchError(() => of(false)),
       map(this.okMapper),
     );
@@ -124,45 +116,6 @@ export class AuthApiService {
 
         return ChangeEmailStatus.ERROR;
       }),
-    );
-  }
-
-  changePwd(current_password: string, password: string, password_confirmation: string): Observable<boolean> {
-    return this.http.put(BASE_API + 'user/password', {
-      current_password,
-      password,
-      password_confirmation
-    }, { observe: 'response' }).pipe(
-      catchError(() => of(false)),
-      map(this.okMapper),
-    );
-  }
-
-  forgotPwd(email: string): Observable<boolean> {
-    return this.http.post(BASE_API + 'forgot-password', {
-      email
-    }, {observe: 'response'}).pipe(
-      catchError(err => {
-        if (err.status === 422) {
-          return of(true);
-        }
-        return of(false)
-      }),
-      map(this.okMapper)
-    );
-  }
-
-  resetPwd(
-    token: string,
-    email: string,
-    password: string,
-    password_confirmation: string
-  ): Observable<boolean> {
-    return this.http.post(BASE_API + 'reset-password', {
-      token, email, password, password_confirmation
-    }, {observe: 'response'}).pipe(
-      catchError(() => of(false)), // 422 error
-      map(this.okMapper),
     );
   }
 
@@ -202,3 +155,4 @@ export class AuthApiService {
     return res;
   }
 }
+

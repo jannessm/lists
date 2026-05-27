@@ -8,15 +8,12 @@ export function getAuthApiMock() {
             'login',
             'register',
             'logout',
-            'verifyEmail',
+            'verifyCode',
+            'resendCode',
             'changeEmail',
-            'changePwd',
-            'forgotPwd',
-            'resetPwd',
             'shareLists',
             'unshareLists',
             'pushSubscribe',
-            'resendVerificationMail',
             'refreshCSRF'
         ]) as jasmine.SpyObj<AuthApiService>;
     

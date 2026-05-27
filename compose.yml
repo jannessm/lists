@@ -18,13 +18,6 @@ x-soketi-distroless: &soketi-distroless
     - lists
     - traefik
 
-x-laravel: &laravel
-  image: bitnami/laravel:11
-  restart: unless-stopped
-  expose:
-    - 8000
-  entrypoint: /entrypoint.sh
-
 x-laravel-networks: &laravel-networks
   networks:
     - lists
@@ -93,7 +86,11 @@ services:
 
   # laravel
   laravel-dev:
-    <<: *laravel
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUILD_ENV: development
     profiles: [dev]
     depends_on:
       - mysql-dev
@@ -106,17 +103,35 @@ services:
       - ./configs/dev:/configs
     networks:
       - lists
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
 
   laravel-staging:
-    <<: [*laravel, *laravel-networks]
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUILD_ENV: production
+    restart: unless-stopped
     profiles: [staging]
     depends_on:
       - mysql-dev
       - soketi-staging
+    expose:
+      - 8000
+    working_dir: /app
+    entrypoint: /entrypoint.sh
     volumes:
       - ./backend:/app
       - ./entrypoint.sh:/entrypoint.sh
       - ./configs/staging:/configs
+    networks:
+      - lists
+      - traefik
+    environment:
+      - APP_ENV=staging
+      - APP_DEBUG=false
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik"
@@ -126,15 +141,34 @@ services:
       - "traefik.http.services.lists-staging.loadbalancer.server.port=8000"
 
   laravel:
-    <<: [*laravel, *laravel-networks, *logging-config]
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUILD_ENV: production
+    restart: unless-stopped
     profiles: [prod]
     depends_on:
       - mysql
       - soketi
+    expose:
+      - 8000
+    working_dir: /app
+    entrypoint: /entrypoint.sh
     volumes:
       - ./backend:/app
       - ./entrypoint.sh:/entrypoint.sh
       - ./configs/prod:/configs
+    networks:
+      - lists
+      - traefik
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik"

@@ -2,9 +2,7 @@ import { Component, EventEmitter, Input, OnDestroy, Output, Signal, effect, sign
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { MaterialModule } from '../../../material.module';
-import { MatchValidator, NoMatchValidator } from '../../../../models/match.validators';
 import { MyMeDocument } from '../../../mydb/types/me';
-import md5 from 'md5-ts';
 import { AuthService } from '../../../services/auth/auth.service';
 import { ChangeEmailStatus } from '../../../../models/responses';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -38,15 +36,6 @@ export class EditFormComponent implements OnDestroy {
     this.editForm = fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      oldPwd: ['', []],
-      pwd: ['', []],
-      pwdConfirmation: ['', []]
-    },
-    {
-      validators: [
-        MatchValidator('pwd', 'pwdConfirmation'),
-        NoMatchValidator('oldPwd', 'pwd')
-      ]
     });
 
     this.editFormSub = this.editForm.valueChanges.subscribe(
@@ -67,14 +56,8 @@ export class EditFormComponent implements OnDestroy {
 
       if (this.disabled()) {
         this.editForm.get('email')?.disable();
-        this.editForm.get('oldPwd')?.disable();
-        this.editForm.get('pwd')?.disable();
-        this.editForm.get('pwdConfirmation')?.disable();
       } else {
         this.editForm.get('email')?.enable();
-        this.editForm.get('oldPwd')?.enable();
-        this.editForm.get('pwd')?.enable();
-        this.editForm.get('pwdConfirmation')?.enable();
       }
     });
   }
@@ -90,18 +73,10 @@ export class EditFormComponent implements OnDestroy {
 
     const name = this.editForm.get('name')?.value.trim();
     const email = this.editForm.get('email')?.value.trim();
-    const oldPwd = this.editForm.get('oldPwd')?.value;
-    const pwd = this.editForm.get('pwd')?.value;
-    const pwdConfirmation = this.editForm.get('pwdConfirmation')?.value;
-
-    let patch = {};
 
     if (!!this.user && !!name && !!email && this.editForm.valid) {
-      
       this.setName(name);
       this.setEmail(email);
-      this.setPwd(oldPwd, pwd, pwdConfirmation);
-
       this.editMode.set(false);
     } else {
       this.snackBar.open('Name und Email sind fehlerhaft.', 'Ok');
@@ -129,7 +104,7 @@ export class EditFormComponent implements OnDestroy {
           } else if (res === ChangeEmailStatus.ERROR) {
             this.snackBar.open('Email konnte nicht geändert werden.', 'Ok');
           } else {
-            this.snackBar.open('Bestätige deine neue Emailadresse per Link in der Bestätigungsmail.', 'Ok');
+            this.snackBar.open('Ein Login-Code wurde an die neue Email-Adresse gesendet.', 'Ok');
             user.patch({
               email,
               emailVerifiedAt: null
@@ -139,20 +114,5 @@ export class EditFormComponent implements OnDestroy {
       });
     }
   }
-
-  setPwd(oldPwd: string, pwd: string, pwdConfirmation: string) {
-    if (!!oldPwd && !!pwd && !!pwdConfirmation && oldPwd !== pwd) {
-      this.authService.changePwd(
-        md5(oldPwd),
-        md5(pwd),
-        md5(pwdConfirmation)
-      ).subscribe(res => {
-        if (res) {
-          this.authService.logout();
-        } else {
-          this.snackBar.open('Passwörter konnten nicht geändert werden.', 'Ok');
-        }
-      });
-    }
-  }
 }
+

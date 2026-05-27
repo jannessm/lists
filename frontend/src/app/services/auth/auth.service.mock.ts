@@ -4,15 +4,15 @@ import { of } from 'rxjs';
 
 export class AuthServiceSpy {
   me = signal(new MockMyMeDocument());
+  pendingEmail = signal<string | null>(null);
 
-  login = jasmine.createSpy('login').and.returnValue(of(true));
-  resetPwd = jasmine.createSpy('resetPwd').and.returnValue(of(true));
-  forgotPwd = jasmine.createSpy('forgotPwd').and.returnValue(of(true));
+  login = jasmine.createSpy('login').and.returnValue(of('code_sent'));
   shareLists = jasmine.createSpy('shareLists').and.returnValue(of(true));
   unshareLists = jasmine.createSpy('unshareLists').and.returnValue(of(true));
   changeEmail = jasmine.createSpy('changeEmail').and.returnValue(of(true));
-  changePwd = jasmine.createSpy('changePwd').and.returnValue(of(true));
   logout = jasmine.createSpy('logout').and.returnValue(of(true));
+  verifyCode = jasmine.createSpy('verifyCode').and.returnValue(of({ success: true }));
+  resendCode = jasmine.createSpy('resendCode').and.returnValue(of(true));
 }
 
 

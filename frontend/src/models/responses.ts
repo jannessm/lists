@@ -22,6 +22,11 @@ export enum ChangeEmailStatus {
     ERROR = 'error',
 }
 
+export interface VerifyCodeResponse {
+    success?: boolean;
+    error?: 'invalid_code' | 'expired' | 'too_many_attempts' | 'no_pending_email';
+}
+
 export interface QueryResponse<T> {
     data: T
 }

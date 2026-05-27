@@ -1,55 +1,26 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-
-import { AuthService } from '../../services/auth/auth.service';
-
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { RouterModule } from '@angular/router';
 
 @Component({
     selector: 'app-forgot-pwd',
     imports: [
-    ReactiveFormsModule,
     MatButtonModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
     RouterModule
 ],
-    templateUrl: './forgot-password.component.html',
-    styleUrls: ['./forgot-password.component.scss']
+    template: `
+      <div style="padding:24px">
+        <p>Passwörter werden nicht mehr unterstützt. Melde dich über deine Email-Adresse an.</p>
+        <button mat-flat-button color="primary" routerLink="/login">Zum Login</button>
+      </div>
+    `,
 })
 export class ForgotPasswordComponent {
-
-  form: FormGroup;
-
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private snackBar: MatSnackBar
-  ) {
-    this.form = this.fb.group({
-      email: ['', [Validators.required, Validators.email]]
-    });
+  constructor(private router: Router) {
+    this.router.navigateByUrl('/login');
   }
-
-  resetPwd() {
-    if (this.form.invalid) {
-      return;
-    }
-  
-    this.authService.forgotPwd(this.form.get('email')?.value).subscribe(success => {
-      if (success) {
-        this.snackBar.open('Existiert ein Nutzer mit dieser Email, wurde eine Email zum Zurücksetzen versendet.', 'Ok');
-      } else {
-        this.snackBar.open('Es ist ein Fehler aufgetreten.', 'Ok');
-      }
-    })
-  }
-
 }
+

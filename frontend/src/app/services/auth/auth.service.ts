@@ -5,10 +5,8 @@ import { REGISTER, SESSION_COOKIE } from '../../globals';
 import md5 from 'md5-ts';
 import { Router } from '@angular/router';
 import { Observable, map, debounceTime, of } from 'rxjs';
-import { AuthResponse, ChangeEmailStatus } from '../../../models/responses';
+import { AuthResponse, ChangeEmailStatus, VerifyCodeResponse } from '../../../models/responses';
 import { PusherService } from '../pusher/pusher.service';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { VerifyMailComponent } from '../../components/bottom-sheets/verify-mail/verify-mail.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MyMeDocument } from '../../mydb/types/me';
 import { DataService } from '../data/data.service';
@@ -19,16 +17,16 @@ import { DataService } from '../data/data.service';
 export class AuthService {
   isLoggedIn: WritableSignal<boolean>;
 
-  me: WritableSignal<MyMeDocument | undefined> = signal(undefined);
+  /** Set to the email address while waiting for code verification. */
+  pendingEmail: WritableSignal<string | null> = signal(null);
 
-  verificationInverval: undefined | any;
+  me: WritableSignal<MyMeDocument | undefined> = signal(undefined);
 
   constructor(private cookies: CookieService,
               private api: AuthApiService,
               private router: Router,
               private pusher: PusherService,
               private dataService: DataService,
-              private bottomsheet: MatBottomSheet,
               private snackBar: MatSnackBar) {
     this.dataService.db.me.findOne().$.subscribe((me: unknown) => {
       this.me.set(me as MyMeDocument);
@@ -69,32 +67,27 @@ export class AuthService {
         this.api.refreshCSRF().subscribe(()=>{});
       }
     });
-    this.pusher.online.pipe(debounceTime(1000)).subscribe(isOnline => {
-      if (isOnline && this.isLoggedIn()) {
-        this.evaluateVerifiedMail();
-      }
-    });
   }
 
-  login(email: string, password: string, captcha: string): Observable<boolean> {
+  /**
+   * Passwordless login: sends a magic link code to the user's email.
+   * Returns `'code_sent'` on success, `false` on error.
+   */
+  login(email: string): Observable<'code_sent' | false> {
     if (this.cookies.check(SESSION_COOKIE)) {
       this.cookies.delete(SESSION_COOKIE);
     }
 
-    return this.api.login(email, password, captcha).pipe(
-      map(success => {
-        if (success) {
-          this.isLoggedIn.set(true);
-
-          this.router.navigateByUrl('/user/lists');
-
-          return true;
-        } else {
-          this.isLoggedIn.set(false);
-
-          return false;
+    return this.api.login(email).pipe(
+      map(result => {
+        if (result === 'code_sent') {
+          this.pendingEmail.set(email);
+          this.router.navigateByUrl('/verify-code');
+          return 'code_sent';
         }
-    }));
+        return false;
+      })
+    );
   }
 
   checkInit() {
@@ -110,25 +103,53 @@ export class AuthService {
   register(
     name: string,
     email: string,
-    password: string,
-    password_confirmation: string,
+    email_confirmation: string,
     captcha: string
   ): Observable<AuthResponse | REGISTER> {
     return this.api.register(
       name,
       email,
-      password,
-      password_confirmation,
+      email_confirmation,
       captcha
     ).pipe(
       map(res => {
         if (res === REGISTER.SUCCESS) {
-          this.isLoggedIn.set(true);
+          this.pendingEmail.set(email);
+          this.router.navigateByUrl('/verify-code');
         }
-
         return res;
       })
     );
+  }
+
+  /**
+   * Verify the 6-character code entered by the user.
+   */
+  verifyCode(code: string): Observable<VerifyCodeResponse> {
+    const email = this.pendingEmail();
+    if (!email) {
+      return of({ error: 'no_pending_email' } as VerifyCodeResponse);
+    }
+
+    return this.api.verifyCode(email, code).pipe(
+      map(res => {
+        if (res.success) {
+          this.pendingEmail.set(null);
+          this.isLoggedIn.set(true);
+          this.router.navigateByUrl('/user/lists');
+        }
+        return res;
+      })
+    );
+  }
+
+  /**
+   * Resend the magic link code to the pending email.
+   */
+  resendCode(): Observable<boolean> {
+    const email = this.pendingEmail();
+    if (!email) return of(false);
+    return this.api.resendCode(email);
   }
 
   logout() {
@@ -158,52 +179,8 @@ export class AuthService {
     this.cookies.set(SESSION_COOKIE, md5(Math.random().toString()), expiration);
   }
 
-  evaluateVerifiedMail() {
-    const lastVerification = localStorage.getItem('lastVerification');
-    let lastVerificationDate: Date = new Date();
-
-    if (!!lastVerification) {
-      lastVerificationDate = new Date(lastVerification);
-    } else {
-      lastVerificationDate.setDate(lastVerificationDate.getDate() - 2);
-    }
-
-    const now = new Date();
-    if (now.valueOf() - lastVerificationDate.valueOf() > 24 * 60 * 60 * 1000) {
-      localStorage.setItem('lastVerification', now.toISOString());
-
-      this.api.verifyEmail().subscribe(verified => {
-        if (!verified) {
-          const dialogRef = this.bottomsheet.open(VerifyMailComponent);
-          dialogRef.afterDismissed().subscribe(sendMail => {
-            if (sendMail) {
-              this.api.resendVerificationMail().subscribe(() => {
-                this.snackBar.open('Email wurde versendet.', 'OK');
-              });
-            }
-          })
-        }
-      });
-    }
-  }
-
   changeEmail(newEmail: string): Observable<ChangeEmailStatus> {
     return this.api.changeEmail(newEmail);
-  }
-
-  changePwd(current_password: string, password: string, password_confirmation: string) {
-    return this.api.changePwd(current_password, password, password_confirmation);
-  }
-
-  forgotPwd(email: string) {
-    return this.api.forgotPwd(email);
-  }
-
-  resetPwd(
-    token: string, email: string,
-    password: string, password_confirmation: string
-  ) {
-    return this.api.resetPwd(token, email, password, password_confirmation);
   }
 
   shareLists(email: string, listsId: string) {
@@ -230,3 +207,4 @@ export class AuthService {
     return this.api.refreshCSRF();
   }
 }
+

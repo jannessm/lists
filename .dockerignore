@@ -1,0 +1,34 @@
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+compose.yml
+.dockerignore
+
+# Frontend
+frontend/
+
+# Config directories
+configs/
+
+# Docs
+*.md
+*.ai
+
+# Backend vendor (will be installed during build)
+backend/vendor/
+backend/node_modules/
+
+# Laravel specific
+backend/storage/logs/*
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+backend/.env
+backend/.env.*
+
+# IDE
+.vscode/
+.idea/

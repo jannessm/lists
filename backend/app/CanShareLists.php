@@ -20,7 +20,7 @@ trait CanShareLists
 
         if ($lists) {
             $users = count($lists->users()->filter(function ($val) {
-                $val->id === $this->id;
+                return $val->id === $this->id;
             })->values()->all());
             return $users > 0;
         }

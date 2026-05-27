@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use App\Models\Lists;
 use App\Notifications\ShareListsNotification;
@@ -36,7 +37,7 @@ class ShareListsTest extends TestCase
         $response = $this->get($url);
         
         // Should redirect to login
-        $response->assertRedirect('/login');
+        $response->assertRedirect('/login?message=Please login to accept the list invitation');
         
         // Check that invitation is stored in session
         $this->assertTrue(session()->has('pending_list_invitation'));
@@ -83,8 +84,12 @@ class ShareListsTest extends TestCase
         // Create recipient user
         $recipient = User::factory()->create();
         
-        // Store pending invitation in session
-        $this->session([
+        // Generate magic link code
+        $service = app(\App\Services\MagicLinkService::class);
+        $plainCode = $service->sendCode($recipient);
+        
+        // Start a session and store pending invitation
+        $this->withSession([
             'pending_list_invitation' => [
                 'list_id' => $list->id,
                 'email' => $recipient->email,
@@ -92,16 +97,13 @@ class ShareListsTest extends TestCase
             ]
         ]);
         
-        // Simulate login by calling the login response
-        $request = \Illuminate\Http\Request::create('/login', 'POST');
-        $request->setLaravelSession(session());
-        $request->setUserResolver(function () use ($recipient) {
-            return $recipient;
-        });
+        // Verify the code (which should trigger authentication and invitation confirmation)
+        $response = $this->postJson('/api/auth/verify-code', [
+            'email' => $recipient->email,
+            'code' => $plainCode,
+        ]);
         
-        // Trigger login response manually
-        $loginResponse = app(\Laravel\Fortify\Contracts\LoginResponse::class);
-        $loginResponse->toResponse($request);
+        $response->assertStatus(200);
         
         // User should now have access to the list
         $this->assertTrue($recipient->hasAccessToLists($list->id));
