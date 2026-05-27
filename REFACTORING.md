@@ -493,6 +493,28 @@ Within a slot:
 
 - **Drag-to-reorder** (optional future feature, not in scope for this refactoring): once `sort_order` is in place, drag-to-reorder can be added to grocery lists. When a user drags an item into a different grocery category slot, the app should send a **notification email to the list admin** containing the item name, the source category, and the target category. This creates a passive feedback loop to improve the grocery dictionary over time without requiring any explicit user submissions.
 
+### Implementation Status
+
+- [x] **Backend migration** — `2026_05_27_000001_add_sort_order_to_list_items.php` adds `sort_order DOUBLE NOT NULL DEFAULT 0`, index on `(lists_id, sort_order)`, and SQLite-compatible backfill using a correlated subquery.
+- [x] **GraphQL schema** — `sort_order: Float!` added to `ListItem` type; `sort_order: Float` added to `ListItemInput` in `graphql/list-item.graphql`.
+- [x] **`ITEM_SCHEMA`** — `sort_order: { type: 'number' }` added to `list-item.ts` properties. `category` is intentionally **not** added to the schema so it is never pushed to the server.
+- [x] **`newItem()`** — accepts optional `maxSortOrder` parameter; sets `sort_order = maxSortOrder + 1.0`.
+- [x] **`itemsConflictHandler()`** — `sort_order` uses LWW via `updatedAt`; `category` is never propagated.
+- [x] **`sortItems()`** — replaced `localeCompare` alphabetical fallback with `sort_order` tiebreaker. New priority: done-status → not-done with due (ascending due) → not-done without due (ascending sort_order) → done (ascending sort_order).
+- [x] **`groupItems()`** — reads `(item as any).category` cache; on miss, computes via `voteForGroceryCategory` and fires `item.patch({ category })` asynchronously (fire-and-forget). `category` is local-only.
+- [x] **`sort-order.ts`** — new utility with `needsRebalance(sortOrders)` (gap < 1e-9) and `rebalance(sortOrders)` (reassigns integers 1, 2, 3, …).
+- [x] **`MyCollection.insert()` / `update()` — optimistic emit** — emit fires synchronously before `await table.add/put()`; write continues in background; on failure, emit `[]` triggers a full-scan rollback.
+- [x] **`MyQuery` — in-memory cache** — maintains a `Map<pk, MyDocument>` cache; on non-empty emit patches changed documents without hitting IndexedDB; on empty emit `[]` falls back to a full Dexie scan.
+- [x] **`MyDocument.patch()`** — deletes `newDoc.category` whenever `'name' in patch` to invalidate the grocery-category cache.
+- [x] **`ReplicationService` push modifier** — explicit `delete doc['category']` for `items` collection before the GraphQL push (belt-and-suspenders alongside `filterObjectBySchemaFields`).
+- [x] **Tests — backend** — `SortOrderTest.php`: column existence, default value, GraphQL pull returns `sort_order`, push persists `sort_order`, conflict detection when `sort_order` diverges.
+- [x] **Tests — `sort-order.spec.ts`** — `needsRebalance` and `rebalance` unit tests.
+- [x] **Tests — `categories.spec.ts`** — `sortItems` priority order, `groupItems` category caching (cache hit skips patch, cache miss fires patch, correct slot placement).
+- [x] **Tests — `list-item.spec.ts`** — conflict handler updated: `sort_order` LWW with newer/older `updatedAt`.
+- [x] **Tests — `collection.spec.ts`** — optimistic-emit tests: emit fires before DB write, rollback on write failure.
+- [x] **Tests — `query.spec.ts`** — in-memory cache tests: initial full scan, patch without full scan, delete removes from cache, empty emit triggers full scan, insert adds to cache.
+- [x] **GitHub Actions** — `.github/workflows/frontend-tests.yml` added to run `ng test --no-watch --no-progress --browsers=ChromeHeadless` on every push/PR.
+
 ## [4] Bug Fixes
 
 ### [4.1] Adding / Manipulating Items with a Due Date + Reminder
