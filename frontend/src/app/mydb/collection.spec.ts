@@ -485,3 +485,4 @@ describe('MyCollection — optimistic UI updates', () => {
     expect(emitted[0].length).toBe(1);
     expect(emitted[1]).toEqual([]);
   });
+});

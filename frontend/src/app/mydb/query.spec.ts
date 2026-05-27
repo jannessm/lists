@@ -69,7 +69,6 @@ describe('MyQuery — in-memory cache', () => {
 
     await flush();
 
-    const emitted = query.$.getValue ? (query.$ as any).getValue() : undefined;
     // Use the subscription to capture the latest value
     let latest: any[] = [];
     query.$.subscribe(v => latest = v);
