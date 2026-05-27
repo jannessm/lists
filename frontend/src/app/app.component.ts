@@ -42,10 +42,6 @@ export class AppComponent {
     if (document.hidden) return;
 
     this.authService.checkInit();
-
-     if (this.replicationService.lastPusherState) {
-      this.dataService.resync();
-    }
   }
 
   constructor(
