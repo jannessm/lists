@@ -14,7 +14,7 @@
       <div class="no-lists">Keine Listen vorhanden</div>
     }
 
-    @for (l of lists; track l) {
+    @for (l of lists; track l.id) {
       <button
         class="list-card"
         mat-raised-button

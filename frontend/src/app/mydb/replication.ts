@@ -1,4 +1,4 @@
-import { Subscription } from "rxjs";
+import { Subscription, debounceTime } from "rxjs";
 import { MyPullOptions, MyPushOptions, MyReplicationOptions } from "./types/replication";
 import { MyCollection } from "./collection";
 import { MyPushRow } from "./types/common";
@@ -26,7 +26,9 @@ export class Replicator {
     ) {
         this.pull().then(() => {
             this.startStream();
-            this.replicationSub = this.collection.replication$.subscribe(() => {
+            this.replicationSub = this.collection.replication$.pipe(
+                debounceTime(50)
+            ).subscribe(() => {
                 this.push()
             });
         });
@@ -76,9 +78,14 @@ export class Replicator {
             if (this.pullOptions.modifier) {
                 docs = docs.map(this.pullOptions.modifier);
             }
-            await this.collection.remoteBulkAdd(docs);
-            await this.collection.updateMasterState(docs);
-            await this.collection.setCheckpoint(data.checkpoint);
+            try {
+                await this.collection.remoteBulkAdd(docs);
+                await this.collection.updateMasterState(docs);
+                await this.collection.setCheckpoint(data.checkpoint);
+            } catch (err) {
+                console.error('startStream: error processing stream event, triggering resync', err);
+                this.pull();
+            }
         });
     }
 
@@ -117,6 +124,17 @@ export class Replicator {
         let pushRows: MyPushRow[] = await Promise.all(
             docs.map(doc => this.getPushRow(doc))
         );
+
+        // skip rows where the local state is identical to the assumed master (no real change)
+        pushRows = pushRows.filter(row =>
+            JSON.stringify(row.newDocumentState) !== JSON.stringify(row.assumedMasterState)
+        );
+
+        if (pushRows.length === 0) {
+            await this.collection.markUntouched(docs);
+            return;
+        }
+
         let conflicts = await this.pushOptions.handler(pushRows);
 
         // handle conflicts

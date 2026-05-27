@@ -1,5 +1,5 @@
 <mat-chip-listbox [(ngModel)]="chipOption" [disabled]="disabled" (click)="updateTime()">
-  @for (item of options; track item) {
+  @for (item of options; track $index) {
     <mat-chip-option [value]="item[0]">{{item[1]}}</mat-chip-option>
   }
 </mat-chip-listbox>

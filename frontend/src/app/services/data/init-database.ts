@@ -1,4 +1,4 @@
-import { Injector } from "@angular/core";
+import { InjectionToken, Injector } from "@angular/core";
 import { environment } from "../../../environments/environment";
 import Dexie from "dexie";
 import { DB_CONFIG } from "./db-config";
@@ -6,6 +6,12 @@ import { DexieSchema } from "../../mydb/types/schema";
 import { AddCollectionsOptions } from "../../mydb/types/database";
 
 export let DB_INSTANCE: any;
+
+/** Injection token that resolves to the Dexie database instance. */
+export const DEXIE_INSTANCE = new InjectionToken<Dexie>('DEXIE_INSTANCE', {
+    providedIn: 'root',
+    factory: () => DB_INSTANCE,
+});
 
 /**
  * This is run via APP_INITIALIZER in app.module.ts

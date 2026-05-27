@@ -15,7 +15,7 @@
   }
   @if (users() && users().length > 1) {
     <div class="users" (click)="shareList()">
-      @for (user of users(); track user; let i = $index) {
+      @for (user of users(); track user.id; let i = $index) {
         <button mat-mini-fab [class]="'user-fab-' + i % 12" disabled >{{user?.name | nameBadge}}</button>
       }
     </div>

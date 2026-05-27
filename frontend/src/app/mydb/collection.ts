@@ -76,7 +76,7 @@ export class MyCollection<DocType, DocMethods> {
                 }
             }
         }
-        return new MyQuery<DocType, DocMethods>(this, req);
+        return new MyQuery<DocType, DocMethods>(this, req, this.ngZone);
     }
 
     findOne(query?: QueryOptions): MyQuerySingle<DocType, DocMethods> {
@@ -95,7 +95,7 @@ export class MyCollection<DocType, DocMethods> {
             }
         }
         
-        return new MyQuerySingle<DocType, DocMethods>(this, req);
+        return new MyQuerySingle<DocType, DocMethods>(this, req, this.ngZone);
     }
 
     async insert(doc: any) {
@@ -170,19 +170,27 @@ export class MyCollection<DocType, DocMethods> {
             await this.table.bulkAdd(docs);
         } catch (err: any) {
             const bulk = [];
-            for (const [pos, error] of Object.entries(err.failuresByPos)) {
-                if (!(error as any).message.includes('Key already exists')) {
-                    console.error(error);
-                }
-                const trueMaster = docs[parseInt(pos)];
-                const assumedMaster = await this.masterTable.get(
-                    {[this.primaryKey]: trueMaster[this.primaryKey]}
-                );
-                const forkState = await this.table.get(
-                    {[this.primaryKey]: trueMaster[this.primaryKey]}
-                );
+            // err.failuresByPos is only present on a Dexie BulkError.
+            // For any other IDB error, fall back to a full bulkPut so we
+            // still apply the remote state and call emit() below.
+            if (err.failuresByPos) {
+                for (const [pos, error] of Object.entries(err.failuresByPos)) {
+                    if (!(error as any).message.includes('Key already exists')) {
+                        console.error(error);
+                    }
+                    const trueMaster = docs[parseInt(pos)];
+                    const assumedMaster = await this.masterTable.get(
+                        {[this.primaryKey]: trueMaster[this.primaryKey]}
+                    );
+                    const forkState = await this.table.get(
+                        {[this.primaryKey]: trueMaster[this.primaryKey]}
+                    );
 
-                bulk.push(this.conflictHandler(forkState, assumedMaster, trueMaster));
+                    bulk.push(this.conflictHandler(forkState, assumedMaster, trueMaster));
+                }
+            } else {
+                console.error('remoteBulkAdd: unexpected non-BulkError, falling back to bulkPut', err);
+                docs.forEach(doc => bulk.push(doc));
             }
 
             if (bulk.length > 0) {
