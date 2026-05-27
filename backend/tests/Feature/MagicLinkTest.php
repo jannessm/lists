@@ -320,7 +320,7 @@ class MagicLinkTest extends TestCase
     // GET /auth/verify (clickable email link)
     // -------------------------------------------------------------------------
 
-    public function test_verify_link_authenticates_and_redirects_to_root(): void
+    public function test_verify_link_redirects_to_verify_code_page(): void
     {
         Mail::fake();
         $user = User::factory()->create(['email' => 'dave@example.com']);
@@ -329,15 +329,18 @@ class MagicLinkTest extends TestCase
 
         $response = $this->get('/auth/verify?code=' . $plainCode . '&email=dave%40example.com');
 
-        $response->assertRedirect('/');
-        $this->assertAuthenticatedAs($user);
+        // Should redirect to verify-code page with code and email parameters
+        $response->assertRedirect('/verify-code?code=' . $plainCode . '&email=dave%40example.com');
+        // User is not authenticated yet (will be authenticated by frontend via API)
+        $this->assertGuest();
     }
 
-    public function test_verify_link_redirects_to_login_with_error_on_invalid_code(): void
+    public function test_verify_link_redirects_to_verify_code_even_with_invalid_code(): void
     {
         $response = $this->get('/auth/verify?code=XXXXXX&email=nobody%40example.com');
 
-        $response->assertRedirect('/login?error=invalid_code');
+        // Should redirect to verify-code page (frontend will handle the error)
+        $response->assertRedirect('/verify-code?code=XXXXXX&email=nobody%40example.com');
         $this->assertGuest();
     }
 

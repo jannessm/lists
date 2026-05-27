@@ -70,6 +70,18 @@ class MagicLinkController extends Controller
         Auth::login($user, remember: true);
         $request->session()->regenerate();
 
+        // Check for pending list invitation and confirm it
+        if ($request->session()->has('pending_list_invitation')) {
+            $invitation = $request->session()->get('pending_list_invitation');
+            
+            // Verify email matches
+            if ($user->email === $invitation['email']) {
+                // Confirm the list invitation
+                $user->confirmShareLists($invitation['list_id']);
+                $request->session()->forget('pending_list_invitation');
+            }
+        }
+
         return response()->json(['success' => true]);
     }
 
