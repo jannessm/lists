@@ -102,10 +102,12 @@ export class MyCollection<DocType, DocMethods> {
         // operate on copy only
         const newDoc = JSON.parse(JSON.stringify(doc));
         Object.assign(newDoc, {touched: true});
-        await this.table.add(newDoc);
 
-        this.emit([doc]);
-        this.replication$.next();
+        // Optimistic update: emit immediately so the UI can re-render before
+        // the IndexedDB write completes.  On failure, emit an empty array to
+        // trigger a full re-scan that shows the rolled-back state.
+        this.emit([newDoc]);
+        this.table.add(newDoc).then(() => this.replication$.next()).catch(() => this.emit([]));
     }
 
     async markUntouched(docs: any[]) {
@@ -135,10 +137,11 @@ export class MyCollection<DocType, DocMethods> {
         newDoc = JSON.parse(JSON.stringify(newDoc));
         Object.assign(newDoc, {touched: true});
 
-        await this.table.put(newDoc);
-
+        // Optimistic update: emit immediately so the UI can re-render before
+        // the IndexedDB write completes.  On failure, emit an empty array to
+        // trigger a full re-scan that shows the rolled-back state.
         this.emit([newDoc]);
-        this.replication$.next();
+        this.table.put(newDoc).then(() => this.replication$.next()).catch(() => this.emit([]));
     }
 
     async bulkUpdate(

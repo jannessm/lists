@@ -19,19 +19,24 @@ export function sortItems(items: MyItemDocument[]) {
     const c = a.done ? 1 : 0;
     const d = b.done ? 1 : 0;
 
-    if ((c === 1 && d !== 1) || (d === 1 && c !== 1)) {
+    // done items always go last
+    if (c !== d) {
       return c - d;
     }
 
-    if (a.due && b.due) {
-      return new Date(a.due).valueOf() - new Date(b.due).valueOf();
+    // both not-done: items with a due date come before items without
+    if (!a.done && !b.done) {
+      if (a.due && !b.due) return -1;
+      if (!a.due && b.due) return 1;
+      if (a.due && b.due) {
+        return new Date(a.due).valueOf() - new Date(b.due).valueOf();
+      }
     }
 
-    if (c - d == 0) {
-      return a.name.localeCompare(b.name);
-    }
-
-    return c - d;
+    // stable tiebreaker: sort_order (ascending)
+    const sa = (a as any).sort_order ?? 0;
+    const sb = (b as any).sort_order ?? 0;
+    return sa - sb;
   });
 }
   
@@ -94,6 +99,17 @@ export function groupItems(
   }
 
   const catItemAssignment = items.map(i => {
+    // For grocery lists, use the cached category if available.
+    // If the cache is missing, compute the category and store it
+    // on the document (fire-and-forget; category is local-only and
+    // not pushed to the server).
+    if (isGroceries && groceryCategories) {
+      const cachedCategory = (i as any).category as string | undefined;
+      if (cachedCategory) {
+        return { votes: 1, name: cachedCategory, item: i };
+      }
+    }
+
     const votes = categories.map(cat => {
         if (Array.isArray(cat.calcVotes)) {
           return {
@@ -110,13 +126,22 @@ export function groupItems(
         }
       });
 
-    return votes.reduce((vote, cat) => {
+    const result = votes.reduce((vote, cat) => {
       if (cat.votes > vote.votes) {
         return cat;
       } else {
         return vote;
       }
-    }, {votes: 0, name: GROCERY_OTHERS, item: i})
+    }, {votes: 0, name: GROCERY_OTHERS, item: i});
+
+    // Cache the computed category on the document so subsequent renders skip
+    // the O(C×W) computation. category is local-only and never pushed to the
+    // server (it is absent from ITEM_SCHEMA).
+    if (isGroceries && groceryCategories) {
+      i.patch({ category: result.name });
+    }
+
+    return result;
   });
 
   catItemAssignment.forEach(highestVotes => {

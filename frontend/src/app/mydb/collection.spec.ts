@@ -178,3 +178,104 @@ describe('MyCollection — Subject instead of EventEmitter', () => {
     expect(typeof col.$.next).toBe('function');
   });
 });
+
+describe('MyCollection — optimistic UI updates', () => {
+
+  it('emits the new doc BEFORE the IndexedDB write resolves for insert()', async () => {
+    const { dexieStub, tableStub } = makeDexieStub();
+
+    // Replace add() with a Promise that never resolves during this test
+    let addResolve!: () => void;
+    tableStub.add = jasmine.createSpy('add').and.callFake(() =>
+      new Promise<void>(r => { addResolve = r; })
+    );
+
+    const col = new MyCollection(
+      dexieStub as unknown as Dexie,
+      'items',
+      MINIMAL_SCHEMA,
+    );
+
+    const emitOrder: string[] = [];
+    col.$.subscribe(() => emitOrder.push('emit'));
+
+    const insertPromise = col.insert({ id: '1', name: 'optimistic' });
+
+    // Emit should have fired synchronously (before the DB promise resolves)
+    expect(emitOrder).toEqual(['emit']);
+
+    // Resolve the DB write and await insert completion
+    addResolve();
+    await insertPromise;
+  });
+
+  it('emits the updated doc BEFORE the IndexedDB write resolves for update()', async () => {
+    const { dexieStub, tableStub } = makeDexieStub();
+
+    let putResolve!: () => void;
+    tableStub.put = jasmine.createSpy('put').and.callFake(() =>
+      new Promise<void>(r => { putResolve = r; })
+    );
+
+    const col = new MyCollection(
+      dexieStub as unknown as Dexie,
+      'items',
+      MINIMAL_SCHEMA,
+    );
+
+    const emitOrder: string[] = [];
+    col.$.subscribe(() => emitOrder.push('emit'));
+
+    const updatePromise = col.update({ id: '1', name: 'updated' });
+
+    expect(emitOrder).toEqual(['emit']);
+
+    putResolve();
+    await updatePromise;
+  });
+
+  it('emits an empty array (rollback) when the IndexedDB write fails for insert()', async () => {
+    const { dexieStub, tableStub } = makeDexieStub();
+
+    tableStub.add = jasmine.createSpy('add').and.returnValue(Promise.reject(new Error('disk full')));
+
+    const col = new MyCollection(
+      dexieStub as unknown as Dexie,
+      'items',
+      MINIMAL_SCHEMA,
+    );
+
+    const emitted: any[][] = [];
+    col.$.subscribe(docs => emitted.push(docs));
+
+    await col.insert({ id: '1', name: 'fail' });
+    // Wait one microtask cycle for the catch handler to fire
+    await Promise.resolve();
+
+    // First emit is optimistic ([doc]), second is rollback ([])
+    expect(emitted.length).toBe(2);
+    expect(emitted[0].length).toBe(1);
+    expect(emitted[1]).toEqual([]);
+  });
+
+  it('emits an empty array (rollback) when the IndexedDB write fails for update()', async () => {
+    const { dexieStub, tableStub } = makeDexieStub();
+
+    tableStub.put = jasmine.createSpy('put').and.returnValue(Promise.reject(new Error('disk full')));
+
+    const col = new MyCollection(
+      dexieStub as unknown as Dexie,
+      'items',
+      MINIMAL_SCHEMA,
+    );
+
+    const emitted: any[][] = [];
+    col.$.subscribe(docs => emitted.push(docs));
+
+    await col.update({ id: '1', name: 'fail' });
+    await Promise.resolve();
+
+    expect(emitted.length).toBe(2);
+    expect(emitted[0].length).toBe(1);
+    expect(emitted[1]).toEqual([]);
+  });
