@@ -10,7 +10,7 @@
   ></app-list-header>
 
   <div id="items-container" #itemsContainer>
-    @for (slot of slots(); track slot) {
+    @for (slot of slots(); track slot.name) {
       <div class="slots">
         <h5>
           {{ slot.name }}
@@ -22,7 +22,7 @@
             </mat-chip-listbox>
           }
         </h5>
-        @for (item of slot.items; track item) {
+        @for (item of slot.items; track item.id) {
           @if ((!item.done || !slotCollapseStates[slot.name]) && !!list() && !!me()) {
             <app-list-item
               [me]="me"

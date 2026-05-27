@@ -23,10 +23,10 @@ abstract class StreamAuthorize extends GraphQLSubscription {
     /** Filter which subscribers should receive the subscription. */
     public function filter(Subscriber $subscriber, mixed $root): bool
     {
-        if (!$subscriber->socket_id) {
+        if (!$subscriber->context->user) {
             return false;
         }
-        
+
         if (!is_array($root)) {
             $root = [$root];
         }

@@ -1,4 +1,4 @@
-name: Frontend Point 3 Tests
+name: Frontend Sync Tests
 
 on:
   pull_request:
@@ -30,5 +30,5 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
-      - name: Run point 3 collection tests
+      - name: Run sync collection tests
         run: npm run test:collection

@@ -1,4 +1,5 @@
 import { BehaviorSubject, Observable, Subject } from "rxjs";
+import { NgZone } from "@angular/core";
 import { MyCollection } from "./collection";
 import { MyDocument } from "./document";
 import { QueryObject } from "./types/classes";
@@ -9,7 +10,8 @@ export class MyQuerySingle<DocType, DocMethods> {
 
     constructor(
         private collection: MyCollection<DocType, DocMethods>,
-        private query: QueryObject
+        private query: QueryObject,
+        private ngZone?: NgZone,
     ) {
         this.update();
 
@@ -25,7 +27,11 @@ export class MyQuerySingle<DocType, DocMethods> {
     private update() {
         this.query.query().then(doc => {
             this.lastResult = doc;
-            this.subject.next(doc);
+            if (this.ngZone) {
+                this.ngZone.run(() => this.subject.next(doc));
+            } else {
+                this.subject.next(doc);
+            }
         });
     }
     
@@ -40,7 +46,8 @@ export class MyQuery<DocType, DocMethods> {
 
     constructor(
         private collection: MyCollection<DocType, DocMethods>,
-        private query: QueryObject
+        private query: QueryObject,
+        private ngZone?: NgZone,
     ) {
         this.collection.$.subscribe(() => {
                 this.update();
@@ -56,7 +63,11 @@ export class MyQuery<DocType, DocMethods> {
 
     private update() {
         return this.query.query().then(docs => {
-            this.subject.next(docs);
+            if (this.ngZone) {
+                this.ngZone.run(() => this.subject.next(docs));
+            } else {
+                this.subject.next(docs);
+            }
         });
     }
 

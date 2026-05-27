@@ -1,6 +1,6 @@
 <h3>Link öffnen</h3>
 
-@for (link of data; track link) {
+@for (link of data; track $index) {
   <button class="link" mat-stroked-button (click)="openLink(link)">{{link}}</button>
 }
 
