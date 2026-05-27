@@ -69,6 +69,14 @@ export class MyQuery<DocType, DocMethods> {
         return this.subject.asObservable();
     }
 
+    private emit(docs: MyDocument<DocType, DocMethods>[]) {
+        if (this.ngZone) {
+            this.ngZone.run(() => this.subject.next(docs));
+        } else {
+            this.subject.next(docs);
+        }
+    }
+
     private fullScan() {
         return this.query.query().then(docs => {
             this.cache.clear();
@@ -76,11 +84,7 @@ export class MyQuery<DocType, DocMethods> {
                 this.cache.set(doc.key, doc);
             });
 
-            if (this.ngZone) {
-                this.ngZone.run(() => this.subject.next([...this.cache.values()]));
-            } else {
-                this.subject.next([...this.cache.values()]);
-            }
+            this.emit([...this.cache.values()]);
         });
     }
 
@@ -102,7 +106,7 @@ export class MyQuery<DocType, DocMethods> {
         });
 
         if (changed) {
-            this.subject.next([...this.cache.values()]);
+            this.emit([...this.cache.values()]);
         }
     }
 

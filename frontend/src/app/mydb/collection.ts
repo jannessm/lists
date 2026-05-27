@@ -50,6 +50,13 @@ export class MyCollection<DocType, DocMethods> {
             this.$.next(docs);
         }
     }
+    private emitReplication() {
+        if (this.ngZone) {
+            this.ngZone.run(() => this.replication$.next());
+        } else {
+            this.replication$.next();
+        }
+    }
 
     get table() {
         return this.dexie.table(this.tableName);
@@ -107,7 +114,7 @@ export class MyCollection<DocType, DocMethods> {
         // the IndexedDB write completes.  On failure, emit an empty array to
         // trigger a full re-scan that shows the rolled-back state.
         this.emit([newDoc]);
-        this.table.add(newDoc).then(() => this.replication$.next()).catch(() => this.emit([]));
+        this.table.add(newDoc).then(() => this.emitReplication()).catch(() => this.emit([]));
     }
 
     async markUntouched(docs: any[]) {
@@ -141,7 +148,7 @@ export class MyCollection<DocType, DocMethods> {
         // the IndexedDB write completes.  On failure, emit an empty array to
         // trigger a full re-scan that shows the rolled-back state.
         this.emit([newDoc]);
-        this.table.put(newDoc).then(() => this.replication$.next()).catch(() => this.emit([]));
+        this.table.put(newDoc).then(() => this.emitReplication()).catch(() => this.emit([]));
     }
 
     async bulkUpdate(
@@ -163,7 +170,7 @@ export class MyCollection<DocType, DocMethods> {
         const newDocs = await this.table.bulkGet(keys);
         
         this.emit(newDocs);
-        this.replication$.next();
+        this.emitReplication();
     }
 
     async remoteBulkAdd(docs: any[]) {

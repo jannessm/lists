@@ -112,7 +112,7 @@ export function itemsConflictHandler(
             newState.done = trueMasterState.done;
         }
         if (assumedMasterState.sort_order !== trueMasterState.sort_order &&
-            trueMasterState.updatedAt > assumedMasterState.updatedAt) {
+            trueMasterState.updatedAt! > assumedMasterState.updatedAt!) {
             (newState as any).sort_order = (trueMasterState as any).sort_order;
         }
         if (assumedMasterState.updatedAt !== trueMasterState.updatedAt) {
