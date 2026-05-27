@@ -26,6 +26,19 @@
       width: 100%;
     }
 
+    .error-banner {
+      padding: 12px;
+      background-color: rgba(244, 67, 54, 0.1);
+      border-left: 4px solid #f44336;
+      border-radius: 4px;
+      margin: 8px 0;
+
+      mat-error {
+        display: block;
+        font-size: 14px;
+      }
+    }
+
     .resend, .back {
       display: flex;
       justify-content: flex-start;

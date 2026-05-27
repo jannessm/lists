@@ -40,7 +40,28 @@
           Bitte eine gültige Email Adresse angeben!
         </mat-error>
       }
+      @if (form.hasError('notMatching') && (form.get('email')?.touched || form.get('email_confirmation')?.touched)) {
+        <mat-error>
+          Email-Adressen stimmen nicht überein!
+        </mat-error>
+      }
     </mat-form-field>
+
+    <div class="error-messages">
+      @if (form.hasError('notMatching') && (form.get('email')?.touched || form.get('email_confirmation')?.touched)) {
+        <mat-error>
+          Email-Adressen stimmen nicht überein!
+        </mat-error>
+      }
+      @if (form.hasError('error')) {
+        <mat-error>
+          Etwas ist schief gelaufen!
+        </mat-error>
+      }
+      @if (form.get('captcha')?.hasError('captcha')) {
+        <mat-error>Captcha nicht erfolgreich. Bitte neu laden.</mat-error>
+      }
+    </div>
 
     <app-hcaptcha
       [init]="initCaptcha"
@@ -48,21 +69,6 @@
       (error)="captchaError()"
       (expired)="captchaError()"
     ></app-hcaptcha>
-
-
-    @if (form.hasError('notMatching')) {
-      <mat-error>
-        Email-Adressen stimmen nicht überein!
-      </mat-error>
-    }
-    @if (form.hasError('error')) {
-      <mat-error>
-        Etwas ist schief gelaufen!
-      </mat-error>
-    }
-    @if (form.get('captcha')?.hasError('captcha')) {
-      <mat-error>Cpatcha nicht erfolgreich. Bitte neu laden.</mat-error>
-    }
 
     <button mat-flat-button color="primary" (click)="register()" [disabled]="form.invalid || form.disabled">Register</button>
 

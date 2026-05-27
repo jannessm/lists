@@ -76,31 +76,19 @@ class MagicLinkController extends Controller
     /**
      * GET /auth/verify?code=ABC123
      * Clickable link from email – verifies code and redirects to app.
+     * 
+     * Since clicking from email is cross-site navigation, session cookies
+     * may not be sent (SameSite=Lax). We redirect to the verify-code page
+     * with the code as a parameter so the PWA can complete authentication.
      */
     public function verifyLink(Request $request)
     {
         $code  = $request->query('code', '');
         $email = $request->query('email', '');
 
-        $user = User::where('email', strtolower(trim($email)))->first();
-
-        if ($user) {
-            $record = $this->magicLink->verifyCode($user, $code);
-
-            if ($record) {
-                if (!$user->email_verified_at) {
-                    $user->email_verified_at = now();
-                    $user->save();
-                }
-
-                Auth::login($user, remember: true);
-                $request->session()->regenerate();
-
-                return redirect('/');
-            }
-        }
-
-        return redirect('/login?error=invalid_code');
+        // Instead of authenticating here, redirect to the PWA with the code
+        // The PWA will then call the verifyCode API endpoint with proper session handling
+        return redirect('/verify-code?code=' . urlencode($code) . '&email=' . urlencode($email));
     }
 
     /**

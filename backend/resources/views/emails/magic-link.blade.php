@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your login code</title>
+    <title>Dein Anmeldecode</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0; }
         .container { max-width: 480px; margin: 40px auto; background: #fff; border-radius: 8px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
@@ -15,17 +15,17 @@
 </head>
 <body>
 <div class="container">
-    <h1>Your login code</h1>
-    <p>Hi {{ $recipient->name }},</p>
-    <p>Use the button below to log in instantly, or enter the code manually in the app.</p>
+    <h1>Dein Anmeldecode</h1>
+    <p>Hallo {{ $recipient->name }},</p>
+    <p>Klicke auf den Button, um dich sofort anzumelden, oder gib den Code manuell in der App ein.</p>
 
-    <a class="btn" href="{{ url('/auth/verify?code=' . $plainCode . '&email=' . urlencode($recipient->email)) }}">Log in</a>
+    <a class="btn" href="{{ url('/auth/verify?code=' . $plainCode . '&email=' . urlencode($recipient->email)) }}">Anmelden</a>
 
-    <p>Or enter this code manually:</p>
+    <p>Oder gib diesen Code manuell ein:</p>
     <div class="code">{{ $plainCode }}</div>
 
-    <p class="note">This code expires in 15&nbsp;minutes and can only be used once.<br>
-    If you did not request this code, you can safely ignore this email.</p>
+    <p class="note">Dieser Code ist 15&nbsp;Minuten gültig und kann nur einmal verwendet werden.<br>
+    Falls du diesen Code nicht angefordert hast, kannst du diese E-Mail einfach ignorieren.</p>
 </div>
 </body>
 </html>

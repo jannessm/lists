@@ -53,7 +53,13 @@ export class RegisterComponent implements OnDestroy {
     });
 
     this.fromSub = this.form.valueChanges.subscribe(() => {
-      this.form.setErrors(null);
+      // Only clear the 'error' flag (server error), keep validation errors
+      const errors = this.form.errors;
+      if (errors && errors['error']) {
+        const newErrors = {...errors};
+        delete newErrors['error'];
+        this.form.setErrors(Object.keys(newErrors).length > 0 ? newErrors : null);
+      }
     });
   }
 

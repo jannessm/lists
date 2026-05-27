@@ -21,7 +21,7 @@ class MagicLinkMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your login code',
+            subject: 'Dein Anmeldecode',
         );
     }
 

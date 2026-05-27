@@ -23,10 +23,18 @@
       @if (form.get('code')?.hasError('minlength') || form.get('code')?.hasError('maxlength')) {
         <mat-error>Code muss genau 6 Zeichen lang sein.</mat-error>
       }
+      @if (form.get('code')?.hasError('invalidCode')) {
+        <mat-error>Ungültiger Code. Bitte erneut versuchen.</mat-error>
+      }
+      @if (form.get('code')?.hasError('tooManyAttempts')) {
+        <mat-error>Zu viele Fehlversuche. Du wirst zum Login weitergeleitet.</mat-error>
+      }
     </mat-form-field>
 
     @if (errorMessage()) {
-      <mat-error>{{ errorMessage() }}</mat-error>
+      <div class="error-banner">
+        <mat-error>{{ errorMessage() }}</mat-error>
+      </div>
     }
 
     <button mat-flat-button color="primary"

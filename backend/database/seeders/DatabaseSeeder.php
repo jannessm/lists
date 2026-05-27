@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
@@ -29,7 +28,6 @@ class DatabaseSeeder extends Seeder
             ->create([
             'name' => 'Test User',
             'email' => 'test@test',
-            'password' => Hash::make(md5("test")),
         ]);
     }
 
@@ -58,7 +56,7 @@ class DatabaseSeeder extends Seeder
 
             // create user if not done yet
             if (!array_key_exists($relation['user_id'], $new_users)) {
-                $stmt = $pdo->prepare('SELECT email, password, dark_theme AS theme FROM user WHERE email = :email;');
+                $stmt = $pdo->prepare('SELECT email, dark_theme AS theme FROM user WHERE email = :email;');
                 $stmt->execute([
                     ':email' => $relation['user_id']
                 ]);
