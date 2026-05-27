@@ -14,7 +14,6 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ConfirmSheetComponent } from './components/bottom-sheets/confirm-sheet/confirm-sheet.component';
 import { WebPushService } from './services/web-push/web-push.service';
 import { IosService } from './services/ios/ios.service';
-import { ReplicationService } from './services/replication/replication.service';
 
 @Component({
     selector: 'app-root',
@@ -42,10 +41,6 @@ export class AppComponent {
     if (document.hidden) return;
 
     this.authService.checkInit();
-
-    if (this.replicationService.lastPusherState) {
-      this.dataService.resync();
-    }
   }
 
   constructor(
@@ -59,7 +54,6 @@ export class AppComponent {
     private bottomSheet: MatBottomSheet,
     private webPush: WebPushService,
     private iosService: IosService,
-    private replicationService: ReplicationService
   ) {
     effect(() => {
       this.setTheme(this.themeService.isDark());

@@ -281,7 +281,7 @@ Although WebSocket events start inside zone, the first `await` on a Dexie call l
 - [X] `MyCollection` updated (emit via zone, replaced `EventEmitter` → `Subject`)
 - [X] `DataService` injects and forwards `NgZone`
 - [X] Unit tests added in `collection.spec.ts`
-- [ ] Remove the manual `resync()` calls from `AppComponent` once the fix is confirmed stable in production — **manual judgement call** by the developer after observing production behaviour; no automated metric gates this. (Keep the `visibilitychange` hook for normal reconnect scenarios, but remove the `lastPusherState` guard which was only needed to force a CD cycle.)
+- [X] Remove the manual `resync()` calls from `AppComponent` once the fix is confirmed stable in production — removed the `lastPusherState` guard and `dataService.resync()` call; kept `authService.checkInit()` and the `visibilitychange` hook.
 
 ### Migration Path
 
