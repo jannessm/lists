@@ -178,3 +178,209 @@ describe('MyCollection — Subject instead of EventEmitter', () => {
     expect(typeof col.$.next).toBe('function');
   });
 });
+
+describe('MyCollection — bulkUpdate NgZone integration', () => {
+  it('calls ngZone.run() when emitting after bulkUpdate()', async () => {
+    const { dexieStub, tableStub } = makeDexieStub();
+    const { zone, getRunCallCount } = makeZoneSpy();
+
+    const col = new MyCollection(
+      dexieStub as unknown as Dexie,
+      'items',
+      MINIMAL_SCHEMA,
+      undefined,
+      undefined,
+      zone,
+    );
+
+    // Pre-populate the store so bulkGet returns meaningful data
+    tableStub.add({ id: '1', name: 'original', touched: false });
+
+    const emitted: any[][] = [];
+    col.$.subscribe(docs => emitted.push(docs));
+
+    // bulkUpdate expects MyDocument-like objects with a `key` property
+    const fakeDoc = { key: '1', id: '1', name: 'original' } as any;
+    await col.bulkUpdate([fakeDoc], { key: 'name', changes: { name: 'patched' } });
+
+    expect(getRunCallCount()).toBeGreaterThan(0);
+    expect(emitted.length).toBe(1);
+  });
+});
+
+describe('MyCollection — markUntouched NgZone integration', () => {
+  it('calls ngZone.run() when emitting after markUntouched()', async () => {
+    const { dexieStub, tableStub } = makeDexieStub();
+    const { zone, getRunCallCount } = makeZoneSpy();
+
+    const col = new MyCollection(
+      dexieStub as unknown as Dexie,
+      'items',
+      MINIMAL_SCHEMA,
+      undefined,
+      undefined,
+      zone,
+    );
+
+    // Pre-populate
+    tableStub.add({ id: '1', name: 'test', touched: true });
+
+    const emitted: any[][] = [];
+    col.$.subscribe(docs => emitted.push(docs));
+
+    await col.markUntouched([{ id: '1', name: 'test' }]);
+
+    expect(getRunCallCount()).toBeGreaterThan(0);
+    expect(emitted.length).toBe(1);
+  });
+});
+
+describe('MyCollection — replication$ fires on mutating methods', () => {
+  it('fires replication$ after insert()', async () => {
+    const { dexieStub } = makeDexieStub();
+    const col = new MyCollection(
+      dexieStub as unknown as Dexie,
+      'items',
+      MINIMAL_SCHEMA,
+    );
+
+    let replicationFired = 0;
+    col.replication$.subscribe(() => replicationFired++);
+
+    await col.insert({ id: '1', name: 'test' });
+    expect(replicationFired).toBe(1);
+  });
+
+  it('fires replication$ after update()', async () => {
+    const { dexieStub } = makeDexieStub();
+    const col = new MyCollection(
+      dexieStub as unknown as Dexie,
+      'items',
+      MINIMAL_SCHEMA,
+    );
+
+    let replicationFired = 0;
+    col.replication$.subscribe(() => replicationFired++);
+
+    await col.update({ id: '1', name: 'updated' });
+    expect(replicationFired).toBe(1);
+  });
+
+  it('fires replication$ after bulkUpdate()', async () => {
+    const { dexieStub, tableStub } = makeDexieStub();
+    const col = new MyCollection(
+      dexieStub as unknown as Dexie,
+      'items',
+      MINIMAL_SCHEMA,
+    );
+
+    tableStub.add({ id: '1', name: 'original', touched: false });
+
+    let replicationFired = 0;
+    col.replication$.subscribe(() => replicationFired++);
+
+    const fakeDoc = { key: '1', id: '1', name: 'original' } as any;
+    await col.bulkUpdate([fakeDoc], { key: 'name', changes: { name: 'patched' } });
+    expect(replicationFired).toBe(1);
+  });
+
+  it('does NOT fire replication$ after remoteBulkAdd() (triggered by replication itself)', async () => {
+    const { dexieStub } = makeDexieStub();
+    const col = new MyCollection(
+      dexieStub as unknown as Dexie,
+      'items',
+      MINIMAL_SCHEMA,
+    );
+
+    let replicationFired = 0;
+    col.replication$.subscribe(() => replicationFired++);
+
+    await col.remoteBulkAdd([{ id: '2', name: 'remote' }]);
+    expect(replicationFired).toBe(0);
+  });
+
+  it('does NOT fire replication$ after markUntouched() (triggered by replication itself)', async () => {
+    const { dexieStub, tableStub } = makeDexieStub();
+    const col = new MyCollection(
+      dexieStub as unknown as Dexie,
+      'items',
+      MINIMAL_SCHEMA,
+    );
+
+    tableStub.add({ id: '1', name: 'test', touched: true });
+
+    let replicationFired = 0;
+    col.replication$.subscribe(() => replicationFired++);
+
+    await col.markUntouched([{ id: '1', name: 'test' }]);
+    expect(replicationFired).toBe(0);
+  });
+});
+
+describe('MyCollection — emitted data correctness', () => {
+  it('insert() emits the original document (not the touched copy)', async () => {
+    const { dexieStub } = makeDexieStub();
+    const { zone } = makeZoneSpy();
+
+    const col = new MyCollection(
+      dexieStub as unknown as Dexie,
+      'items',
+      MINIMAL_SCHEMA,
+      undefined,
+      undefined,
+      zone,
+    );
+
+    const emitted: any[][] = [];
+    col.$.subscribe(docs => emitted.push(docs));
+
+    const originalDoc = { id: '1', name: 'hello' };
+    await col.insert(originalDoc);
+
+    expect(emitted[0][0]).toEqual(originalDoc);
+  });
+
+  it('update() emits the document with touched flag', async () => {
+    const { dexieStub } = makeDexieStub();
+    const { zone } = makeZoneSpy();
+
+    const col = new MyCollection(
+      dexieStub as unknown as Dexie,
+      'items',
+      MINIMAL_SCHEMA,
+      undefined,
+      undefined,
+      zone,
+    );
+
+    const emitted: any[][] = [];
+    col.$.subscribe(docs => emitted.push(docs));
+
+    await col.update({ id: '1', name: 'updated' });
+
+    expect(emitted[0][0].id).toBe('1');
+    expect(emitted[0][0].name).toBe('updated');
+    expect(emitted[0][0].touched).toBe(true);
+  });
+
+  it('remoteBulkAdd() emits empty array on success (signals change, consumers re-query)', async () => {
+    const { dexieStub } = makeDexieStub();
+    const { zone } = makeZoneSpy();
+
+    const col = new MyCollection(
+      dexieStub as unknown as Dexie,
+      'items',
+      MINIMAL_SCHEMA,
+      undefined,
+      undefined,
+      zone,
+    );
+
+    const emitted: any[][] = [];
+    col.$.subscribe(docs => emitted.push(docs));
+
+    await col.remoteBulkAdd([{ id: '2', name: 'remote' }]);
+
+    expect(emitted[0]).toEqual([]);
+  });
+});
