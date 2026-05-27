@@ -14,7 +14,6 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ConfirmSheetComponent } from './components/bottom-sheets/confirm-sheet/confirm-sheet.component';
 import { WebPushService } from './services/web-push/web-push.service';
 import { IosService } from './services/ios/ios.service';
-import { ReplicationService } from './services/replication/replication.service';
 
 @Component({
     selector: 'app-root',
@@ -54,8 +53,7 @@ export class AppComponent {
     private swUpdate: SwUpdate,
     private bottomSheet: MatBottomSheet,
     private webPush: WebPushService,
-    private iosService: IosService,
-    private replicationService: ReplicationService
+    private iosService: IosService
   ) {
     effect(() => {
       this.setTheme(this.themeService.isDark());

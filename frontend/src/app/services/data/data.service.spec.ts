@@ -7,6 +7,7 @@ import { PusherService } from '../pusher/pusher.service';
 import { of } from 'rxjs';
 import { getDBMock } from './db.mock';
 import { MyListsCollections } from '../../mydb/types/database';
+import { DEXIE_INSTANCE } from './init-database';
 
 describe('DataService', () => {
   let service: DataService;
@@ -21,11 +22,15 @@ describe('DataService', () => {
     const MockPusherService = jasmine.createSpyObj('PusherService', [], {socketID: '1234'});
     mockDB = getDBMock();
 
+    const tableStub = { filter: () => ({ delete: () => Promise.resolve() }), toArray: () => Promise.resolve([]) };
+    const MockDexie = { table: () => tableStub } as any;
+
     TestBed.configureTestingModule({
       providers: [
         {provide: ReplicationService, useValue: MockReplicationService},
         {provide: HttpClient, useValue: MockHttpClient},
         {provide: PusherService, useValue: MockPusherService},
+        {provide: DEXIE_INSTANCE, useValue: MockDexie},
       ]
     });
 

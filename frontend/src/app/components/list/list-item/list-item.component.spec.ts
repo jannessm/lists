@@ -31,6 +31,7 @@ describe('ListItemComponent', () => {
 
     usersMock = TestBed.inject(UsersService) as jasmine.SpyObj<UsersService>;
     bottomSheetMock = TestBed.inject(MatBottomSheet) as jasmine.SpyObj<MatBottomSheet>;
+    bottomSheetRefMock = jasmine.createSpyObj('MatBottomSheetRef', ['afterDismissed', 'dismiss']);
     bottomSheetMock.open.and.returnValue(bottomSheetRefMock);
 
     fixture = TestBed.createComponent(ListItemComponent);

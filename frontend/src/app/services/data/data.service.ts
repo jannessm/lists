@@ -1,11 +1,11 @@
-import { Injectable, NgZone, OnDestroy } from '@angular/core';
+import { Injectable, NgZone, OnDestroy, Inject } from '@angular/core';
 
 import { ReplicationService } from '../replication/replication.service';
 import { DATA_TYPE } from '../../mydb/types/graphql-types';
 import { GroceryCategories } from '../../../models/categories_groceries';
 import { HttpClient } from '@angular/common/http';
 import { BASE_API } from '../../globals';
-import { DB_INSTANCE } from './init-database';
+import { DB_INSTANCE, DEXIE_INSTANCE } from './init-database';
 import { AddCollectionsOptions, MyListsCollections } from '../../mydb/types/database';
 import { Replicator } from '../../mydb/replication';
 import { PusherService } from '../pusher/pusher.service';
@@ -31,8 +31,9 @@ export class DataService {
     private http: HttpClient,
     private pusherService: PusherService,
     private ngZone: NgZone,
+    @Inject(DEXIE_INSTANCE) private dexieInstance: Dexie,
   ) {
-    this.dexie = DB_INSTANCE;
+    this.dexie = dexieInstance;
     this.addCollections(DB_CONFIG);
 
     this.http.get<GroceryCategories>(BASE_API + 'grocery-categories').subscribe(cats => {

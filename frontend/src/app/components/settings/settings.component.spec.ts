@@ -12,6 +12,8 @@ import { OthersFormComponent } from './others-form/others-form.component';
 import { MyMeDocument } from '../../mydb/types/me';
 import { AuthServiceSpy } from '../../services/auth/auth.service.mock';
 import { PusherServiceSpy } from '../../services/pusher/pusher.service.mock';
+import { DataService } from '../../services/data/data.service';
+import { DataServiceSpy } from '../../services/data/data.service.mock';
 
 describe('SettingsComponent', () => {
   @Component({
@@ -52,7 +54,8 @@ describe('SettingsComponent', () => {
     await TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useClass: AuthServiceSpy },
-        { provide: PusherService, useClass: PusherServiceSpy }
+        { provide: PusherService, useClass: PusherServiceSpy },
+        { provide: DataService, useClass: DataServiceSpy }
       ]
     }).overrideComponent(SettingsComponent, {
       add: {
