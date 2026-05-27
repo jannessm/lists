@@ -81,7 +81,6 @@ export class MyQuery<DocType, DocMethods> {
             } else {
                 this.subject.next([...this.cache.values()]);
             }
-            this.subject.next([...this.cache.values()]);
         });
     }
 
