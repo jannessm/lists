@@ -37,7 +37,7 @@ class ShareListsTest extends TestCase
         $response = $this->get($url);
         
         // Should redirect to login
-        $response->assertRedirect('/login');
+        $response->assertRedirect('/login?message=Please login to accept the list invitation');
         
         // Check that invitation is stored in session
         $this->assertTrue(session()->has('pending_list_invitation'));
