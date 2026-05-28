@@ -25,9 +25,7 @@ class SortOrderTest extends TestCase
 
     private function createListForUser(User $user): Lists
     {
-        $list = Lists::factory()->create(['created_by' => $user->id]);
-        $list->users()->attach($user->id);
-        return $list;
+        return Lists::factory()->create(['created_by' => $user->id]);
     }
 
     private function graphql(string $query, array $variables = []): \Illuminate\Testing\TestResponse
