@@ -57,7 +57,7 @@ class ContextSerializerTest extends TestCase
     // Serialize / unserialize with authenticated user
     // -------------------------------------------------------------------------
 
-    public function test_serialized_string_is_a_plain_php_serialized_string(): void
+    public function test_serialized_string_is_valid_json(): void
     {
         $user = User::factory()->create();
         $context = $this->makeContext($user);
@@ -65,8 +65,9 @@ class ContextSerializerTest extends TestCase
         $serializer = $this->app->make(SerializesContext::class);
         $serialized = $serializer->serialize($context);
 
-        // Must be a plain PHP-serialised string (starts with 'a:')
-        $this->assertStringStartsWith('a:', $serialized);
+        $decoded = json_decode($serialized, true);
+        $this->assertNotNull($decoded, 'serialize() must return valid JSON');
+        $this->assertArrayHasKey('user_id', $decoded);
     }
 
     public function test_round_trip_preserves_authenticated_user(): void
@@ -128,10 +129,20 @@ class ContextSerializerTest extends TestCase
         $serializer = $this->app->make(SerializesContext::class);
         $serialized = $serializer->serialize($context);
 
-        // If the string can be unserialized without errors it is self-contained
-        $data = unserialize($serialized);
+        // JSON decode must succeed and the payload contains only the user_id scalar
+        $data = json_decode($serialized, true);
         $this->assertIsArray($data);
         $this->assertArrayHasKey('user_id', $data);
+        $this->assertScalarOrNull($data['user_id']);
+    }
+
+    /** Assert that a value is either null or a scalar (int, float, string, bool). */
+    private function assertScalarOrNull(mixed $value): void
+    {
+        $this->assertTrue(
+            $value === null || is_scalar($value),
+            'user_id must be a scalar or null, got ' . gettype($value),
+        );
     }
 
     // -------------------------------------------------------------------------

@@ -12,6 +12,9 @@ use Nuwave\Lighthouse\Support\Contracts\SerializesContext;
  * Stores only the authenticated user's ID so that the file-based subscription
  * storage driver never encounters non-serialisable objects (closures, PDO
  * connections, etc.) that can live inside a full Request attributes bag.
+ *
+ * JSON is used instead of PHP's serialize() to avoid PHP object-injection
+ * vulnerabilities that can arise when deserialising untrusted cache values.
  */
 class ContextSerializer implements SerializesContext
 {
@@ -19,7 +22,7 @@ class ContextSerializer implements SerializesContext
     {
         $user = $context->user();
 
-        return serialize([
+        return (string) json_encode([
             'user_id' => $user?->getAuthIdentifier(),
         ]);
     }
@@ -27,11 +30,11 @@ class ContextSerializer implements SerializesContext
     public function unserialize(string $context): GraphQLContext
     {
         /** @var array{user_id: mixed} $data */
-        $data = unserialize($context);
+        $data = (array) json_decode($context, true);
 
         $request = new Request();
 
-        if ($data['user_id'] !== null) {
+        if (($data['user_id'] ?? null) !== null) {
             $user = User::find($data['user_id']);
             $request->setUserResolver(fn () => $user);
         }
