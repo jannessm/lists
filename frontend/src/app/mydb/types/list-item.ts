@@ -115,7 +115,7 @@ export function itemsConflictHandler(
             // Apply trueMaster's sort_order when the server changed it and either the
             // client did not also change it, or the server's update is newer (LWW).
             const forkAlsoChanged = (forkState as any).sort_order !== (assumedMasterState as any).sort_order;
-            if (!forkAlsoChanged || (trueMasterState as any).updatedAt >= (forkState as any).updatedAt) {
+            if (!forkAlsoChanged || (trueMasterState as any).updatedAt > (forkState as any).updatedAt) {
                 (newState as any).sort_order = (trueMasterState as any).sort_order;
             }
         }
