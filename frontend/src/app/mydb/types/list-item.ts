@@ -111,9 +111,13 @@ export function itemsConflictHandler(
         if (assumedMasterState.done !== trueMasterState.done) {
             newState.done = trueMasterState.done;
         }
-        if (assumedMasterState.sort_order !== trueMasterState.sort_order &&
-            trueMasterState.updatedAt! > assumedMasterState.updatedAt!) {
-            (newState as any).sort_order = (trueMasterState as any).sort_order;
+        if ((assumedMasterState as any).sort_order !== (trueMasterState as any).sort_order) {
+            // Apply trueMaster's sort_order when the server changed it and either the
+            // client did not also change it, or the server's update is newer (LWW).
+            const forkAlsoChanged = (forkState as any).sort_order !== (assumedMasterState as any).sort_order;
+            if (!forkAlsoChanged || (trueMasterState as any).updatedAt >= (forkState as any).updatedAt) {
+                (newState as any).sort_order = (trueMasterState as any).sort_order;
+            }
         }
         if (assumedMasterState.updatedAt !== trueMasterState.updatedAt) {
             newState.updatedAt = trueMasterState.updatedAt;
