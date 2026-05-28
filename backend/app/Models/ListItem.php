@@ -176,7 +176,7 @@ class ListItem extends Model
         if (strlen($newDescriptionJoined) > 0) {
             array_push($newDescription, $newDescriptionJoined);
         }
-        if (!!$newState['description'] && strlen($newState['description']) > 0) {
+        if (!empty($newState['description'] ?? null)) {
             array_push($newDescription, $newState['description']);
         }
         $newState['description'] = join("\n\n", $newDescription);

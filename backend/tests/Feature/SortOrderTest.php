@@ -30,7 +30,7 @@ class SortOrderTest extends TestCase
 
     private function graphql(string $query, array $variables = []): \Illuminate\Testing\TestResponse
     {
-        return $this->postJson('/graphql', [
+        return $this->postJson('/api/graphql', [
             'query'     => $query,
             'variables' => $variables,
         ]);
