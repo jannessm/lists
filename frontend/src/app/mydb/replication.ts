@@ -27,7 +27,7 @@ export class Replicator {
         this.pull().then(() => {
             this.startStream();
             this.replicationSub = this.collection.replication$.pipe(
-                debounceTime(50)
+                debounceTime(500)
             ).subscribe(() => {
                 this.push()
             });

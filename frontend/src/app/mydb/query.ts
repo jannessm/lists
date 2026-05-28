@@ -80,6 +80,10 @@ export class MyQuery<DocType, DocMethods> {
     private fullScan() {
         return this.query.query().then(docs => {
             this.cache.clear();
+            if (!docs) {
+                this.emit([]);
+                return;
+            }
             (docs as MyDocument<DocType, DocMethods>[]).forEach(doc => {
                 this.cache.set(doc.key, doc);
             });

@@ -68,7 +68,7 @@ class ListItem extends Model
 
             if (array_key_exists('assumedMasterState', $item)) {
                 $assumedMaster = $item['assumedMasterState'];
-                $masterItem = ListItem::find($assumedMaster[$this->primaryKey]);
+                $masterItem = ListItem::with(['createdBy', 'lists'])->find($assumedMaster[$this->primaryKey]);
 
                 foreach ($assumedMaster as $param => $val) {
                     switch($param) {

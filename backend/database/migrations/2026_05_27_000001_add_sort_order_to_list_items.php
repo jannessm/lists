@@ -13,8 +13,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('list_items', function (Blueprint $table) {
-            $table->double('sort_order')->nullable(false)->default(0)->after('_deleted');
-            $table->index(['lists_id', 'sort_order']);
+            if (!Schema::hasColumn('list_items', 'sort_order')) {
+                $table->double('sort_order')->nullable(false)->default(0)->after('_deleted');
+            }
+            if (!collect(Schema::getIndexes('list_items'))->contains(fn($idx) => $idx['name'] === 'list_items_lists_id_sort_order_index')) {
+                $table->index(['lists_id', 'sort_order']);
+            }
         });
 
         // Backfill existing rows with sequential sort_order values per list
@@ -34,14 +38,14 @@ return new class extends Migration
                 )
             ');
         } else {
+            // MySQL requires UPDATE ... JOIN syntax instead of UPDATE ... FROM
             DB::statement('
                 UPDATE list_items
-                SET sort_order = subq.rn
-                FROM (
+                JOIN (
                     SELECT id, ROW_NUMBER() OVER (PARTITION BY lists_id ORDER BY created_at) AS rn
                     FROM list_items
-                ) AS subq
-                WHERE list_items.id = subq.id
+                ) AS subq ON list_items.id = subq.id
+                SET list_items.sort_order = subq.rn
             ');
         }
     }

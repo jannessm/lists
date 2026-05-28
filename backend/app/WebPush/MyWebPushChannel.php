@@ -15,7 +15,7 @@ class MyWebPushChannel extends WebPushChannel {
      * @param  \Illuminate\Notifications\Notification  $notification
      * @return void
      */
-    public function send($notifiable, Notification $notification)
+    public function send(mixed $notifiable, Notification $notification): void
     {
         /** @var \Illuminate\Database\Eloquent\Collection $subscriptions */
         $subscriptions = $notifiable->routeNotificationFor('WebPush', $notification);

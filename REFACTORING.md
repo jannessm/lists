@@ -2,213 +2,6 @@
 
 ---
 
-## [1] Passwordless Auth — Magic Links, No Password, No Email Verification Gate
-
-### Overview
-
-Move to a fully passwordless authentication system. Passwords are removed from the database and all forms. Login is replaced by a magic link / 6-character alphanumeric code sent to the user's email. HCaptcha is kept on the registration form for bot protection but removed from login. The separate email-verification gate is dropped — a successfully entered code proves email ownership. During registration the user enters their email address twice to prevent typos.
-
-### Current Behavior
-
-- **Registration:** User enters name, email, and password (×2). HCaptcha required. A verification link is sent by email.
-- **Login:** User enters email + password. HCaptcha required.
-- **Email verification:** User must click a verification link before accessing the app.
-
-### Target Behavior
-
-- **Registration:** User enters name and email (×2, to prevent typos). No password field. HCaptcha still required. After successful registration, a magic link / 6-character alphanumeric code is sent to the user's email. The user must enter the code to gain access — this simultaneously verifies the email address.
-- **Login:** User enters email only. No password. No HCaptcha. A 6-character alphanumeric code is sent to the user's email. The user must enter the code to complete login.
-- **Password:** Removed entirely — no `password` column in the database, no password field in any form, no password hashing.
-- **Email verification check:** Removed as a separate gate. Ownership of the email address is implicitly proven by successfully entering the magic link code during registration.
-- **Blocking gate:** The user cannot access any part of the app until they have successfully entered the 6-character code, both after registration and after every login attempt.
-
-### Scope of Changes
-
-#### Backend (`backend/`)
-
-1. **New `MagicLinkCode` model & migration**
-
-   - Table: `magic_link_codes`
-   - `id`, `user_id` (FK), `code` (6-char alphanumeric, hashed), `expires_at` (15 min TTL), `attempts` (int, default 0), `used_at`, `timestamps`
-   - Index on `(user_id, used_at, expires_at)` for fast lookup.
-2. **Remove `password` column — new migration**
-
-   - Drop the `password` column from the `users` table.
-   - Remove `password` from the `User` model's `$fillable` / `$hidden` arrays.
-   - Remove any `password_reset_tokens` table usage and related routes/controllers (password reset flow is obsolete in a passwordless system).
-   - Remove `Hash::make(...)` calls from the registration controller.
-   - **Drop the `password_reset_tokens` table** in the same migration.
-   - **Remove all password-management infrastructure:** password-reset routes (`/forgot-password`, `/reset-password`), password-change route, their controllers (`ForgotPasswordController`, `NewPasswordController`, `PasswordController`), their mailers, and any related frontend screens, links, and form components.
-3. **Magic link generation service** (`app/Services/MagicLinkService.php`)
-
-   - Generate a cryptographically random 6-character alphanumeric code (uppercase A–Z + 0–9).
-   - Store the code as **uppercase** and hash before persisting (e.g. `hash('sha256', strtoupper($code))`).
-   - Normalise all incoming codes to uppercase before comparing.
-   - Invalidate any previous unused codes for the same user before issuing a new one.
-   - Return the plaintext code for inclusion in the email.
-4. **New Mailable** (`app/Mail/MagicLinkMail.php`)
-
-   - Replace (or extend) the existing email verification mailable.
-   - Email subject: e.g. *"Your login code"*.
-   - Body:
-     - A prominent **"Log in"** button/link pointing to `GET /auth/verify?code=ABC123` — opens the default browser and completes login without any manual input.
-     - The 6-character code displayed in plain text below the button for users who want to enter it manually inside the PWA.
-     - Expiry notice (15 minutes).
-5. **New API endpoint: `GET /auth/verify`** (clickable link from email)
-
-   - Accepts `?code=ABC123` as a query parameter.
-   - Normalises code to uppercase before hashing.
-   - Validates the code: not expired, not used, attempts < 10, hash matches.
-   - Marks the code as used, fully authenticates the session/token, and redirects to the app root.
-   - On failure (expired, used, too many attempts): redirect to the login page with an error message.
-6. **New API endpoint: `POST /api/auth/verify-code`** (manual entry inside PWA)
-
-   - Accepts `{ code: string }`.
-   - Normalises input to uppercase before hashing.
-   - Same validation logic as the GET endpoint.
-   - Increments an `attempts` counter on each failed attempt; invalidates the code after 10 failures.
-   - Returns `{ success: true }` or appropriate error (`invalid_code`, `expired`, `too_many_attempts`).
-7. **New API endpoint: `POST /api/auth/resend-code`**
-
-   - Rate-limited (e.g. max 3 requests per 10 minutes per user/IP).
-   - Generates and sends a new code, invalidating the previous one.
-8. **Modify registration flow** (`app/Http/Controllers/Auth/RegisteredUserController.php` or equivalent)
-
-   - Keep HCaptcha validation.
-   - Validate that both submitted email values match (server-side check in addition to frontend).
-   - Remove password from validation rules and user creation.
-   - Remove: sending the standard email verification link.
-   - Add: call `MagicLinkService` to generate and email a code after successful user creation.
-   - Return a response that tells the frontend to show the code entry screen.
-9. **Modify login flow** (`app/Http/Controllers/Auth/AuthenticatedSessionController.php` or equivalent)
-
-   - Remove HCaptcha validation.
-   - Remove password credential check — look up the user by email only, then issue a magic link code.
-   - After the user is found, do **not** fully authenticate the session yet.
-   - Call `MagicLinkService` to generate and email a code.
-   - Return a response that tells the frontend to show the code entry screen.
-10. **Remove email verification middleware/gate**
-
-    - Remove `verified` middleware from all routes / route groups.
-    - Remove or archive `app/Http/Middleware/EnsureEmailIsVerified.php` usage.
-    - The `email_verified_at` column can remain in the DB but is populated automatically when the first magic link code is successfully verified.
-11. **GraphQL / API route guards**
-
-    - Add a new middleware `EnsureCodeVerified` (or equivalent session flag check) that blocks access to all protected routes until the magic link step is complete.
-    - This replaces the old `verified` email middleware as the blocking gate.
-12. **Config** (`config/HCaptcha.php`)
-
-    - No changes needed — HCaptcha config stays, it is still used for registration.
-13. **Tests** (`tests/Feature/`)
-
-    - Update registration tests: no password field, two-email match validation, expect code email, no verification-link email.
-    - Update login tests: no password field, no HCaptcha assertion, expect code email, expect blocked state before code entry.
-    - Add tests for `verify-code` / `GET /auth/verify` endpoints: valid code, expired code, already-used code, wrong code, 10th wrong attempt invalidation, case-insensitivity.
-    - Add tests for `resend-code` endpoint: rate limiting, old code invalidation, session cleared on new code.
-
-#### Frontend (`frontend/`)
-
-1. **Remove HCaptcha widget and password fields from the login form**
-
-   - Remove the HCaptcha component/directive from the login template.
-   - Remove the password input field from the login form; the form now only has an email field.
-   - Remove any login-specific HCaptcha token handling in the login service/component.
-2. **Update the registration form**
-
-   - Remove the password and password-confirmation fields.
-   - Add a second email field ("Confirm email") with client-side match validation.
-   - Keep HCaptcha on the registration form.
-3. **New "Enter Code" screen / component** (`src/app/auth/verify-code/`)
-
-   - A simple full-screen gate shown immediately after registration or login (when the user is inside the PWA).
-   - Input: 6 individual character boxes for clear UX; input is normalised to uppercase automatically.
-   - Submit button + "Resend code" link (with cooldown timer to prevent spam).
-   - On success: navigate to the main app.
-   - On failure: show inline error (`wrong code`, `expired`, `too many attempts — please log in again`).
-   - After 10 wrong attempts the code is invalidated; redirect to the login page.
-4. **Auth state machine / guard**
-
-   - Extend the auth state to include a `pendingVerification` state.
-   - Angular route guard: redirect to the code-entry screen when state is `pendingVerification`.
-   - Prevent navigation to any app route while in this state.
-5. **Auth service updates**
-
-   - After login response: detect `pendingVerification` status, store partial auth state, navigate to code-entry screen.
-   - After registration response: same as above.
-   - Add `verifyCode(code: string)` method calling `POST /api/auth/verify-code`.
-   - Add `resendCode()` method calling `POST /api/auth/resend-code`.
-   - Remove all password-related logic (login payload, registration payload).
-6. **Remove email verification banner/prompt** (if any exists in the UI).
-
-### Security Considerations
-
-- Passwords are no longer stored — the attack surface of a leaked database is significantly reduced.
-- Codes must expire (**15 minutes TTL**).
-- Codes must be single-use (`used_at` check).
-- Store only the **hash** of the uppercase code in the database, never the plaintext.
-- **Max 10 wrong attempts** per code — on the 10th failure the code is immediately invalidated and the user must log in again.
-- Rate-limit the login and resend-code endpoints to further mitigate brute-force attempts.
-- The "partially authenticated" session must not grant access to any data until the code step is passed. If the session expires or is abandoned before the code is entered, it is discarded and the user must log in again.
-
-### Migration Path
-
-1. Write and test backend service + endpoints.
-2. Add DB migrations: new `magic_link_codes` table; drop `password` column from `users`; drop `password_reset_tokens` table.
-3. Update and run existing test suite.
-4. Update frontend: remove password fields, add confirm-email field to registration, remove HCaptcha from login, add code-entry screen, update auth service.
-5. Deploy with feature flag if needed to allow rollback.
-6. Remove old email verification and password-reset infrastructure once magic link flow is stable.
-
-### Decisions
-
-- [X] **Passwordless:** Passwords are removed entirely from the database (`password` column dropped) and all forms. Login identifies the user by email only; proof of identity is the magic link code. The `password_reset_tokens` table and all password-management flows (reset, change) are also removed — add explicit scope items to drop those routes, controllers, and migrations.
-- [X] **Registration email confirmation:** The registration form replaces the password field with a second "Confirm email" field. The frontend prevents form submission when the two email values do not match (inline validation error). The backend also validates the match server-side as a safety net.
-- [X] **Clickable button + manual code entry:** The email contains a prominent clickable button/link (`GET /auth/verify?code=ABC123`) that opens the default browser and logs the user in directly — no manual entry required in that flow. The 6-character code is also displayed in the email so the user can type it manually inside the PWA if preferred. Both paths must be supported.
-- [X] **Partial auth state is not persisted client-side:** If the user closes the browser window before entering the code, the pending state is gone. The user can still complete login by clicking the magic link in the email (which carries the code in the URL), but cannot resume manual code entry on a fresh page load. There is no `localStorage`/`sessionStorage` persistence of the pending state.
-- [X] **No session created before code verification:** The backend does not create a Laravel session or issue a token until the code is successfully verified. The magic link code is tied to the user record only; `Auth::user()` returns nothing until verification is complete.
-- [X] **`GET /auth/verify` redirect:** On success, redirect to the app root (`/`).
-- [X] **Resend-code rate limiting key:** IP address only (user is not authenticated at that point).
-- [X] **Migration is a hard cutover:** Existing users with passwords lose their passwords immediately when the migration runs. No transition period. Communicate this in release notes.
-- [X] **Password management infrastructure removal:** The scope of changes explicitly includes dropping `password_reset_tokens` table, removing the password-reset and password-change routes, controllers, mailers, and any related frontend screens/links.
-- [X] **Session expiry before code entry:** If the user does not enter the code (or click the link) before the 15-minute TTL, the code expires. The user must log in again from scratch — no resume on next visit.
-- [X] **Case-insensitive codes:** Code input is normalised to uppercase on both the frontend (display/input) and the backend (before hashing) so `abc123` and `ABC123` are treated identically.
-- [X] **Code TTL:** 15 minutes.
-- [X] **Max wrong attempts:** 10 failed attempts invalidate the code immediately. The user must log in again.
-- [X] **OTP input behaviour:** The 6-box code entry uses OTP-style inputs: each character auto-advances to the next box. Pasting a full 6-character string fills all boxes at once. The form auto-submits when the 6th box is filled.
-
-### Implementation Status
-
-#### Backend
-- [x] `magic_link_codes` migration (`database/migrations/2026_05_20_204102_create_magic_link_codes_table.php`)
-- [x] Drop `password` column and `password_reset_tokens` table migration (`database/migrations/2026_05_20_204103_remove_password_add_passwordless.php`)
-- [x] `MagicLinkCode` model (`app/Models/MagicLinkCode.php`)
-- [x] `MagicLinkService` (`app/Services/MagicLinkService.php`) — code generation, hashing, invalidation, verification
-- [x] `MagicLinkMail` mailable (`app/Mail/MagicLinkMail.php`) with email view (`resources/views/emails/magic-link.blade.php`)
-- [x] `MagicLinkController` (`app/Http/Controllers/Auth/MagicLinkController.php`) — login, verify-code, resend-code, GET verify-link
-- [x] `routes/api.php` — custom `POST /api/login` (overrides Fortify's), `POST /api/auth/verify-code`, `POST /api/auth/resend-code`; removed email-verification routes
-- [x] `routes/web.php` — added `GET /auth/verify` (clickable email link), removed `/reset-password` and `/forgot-password`
-- [x] `app/Models/User.php` — removed `password`, `MustVerifyEmail`, `CanResetPassword`
-- [x] `app/Actions/Fortify/CreateNewUser.php` — removed password, added `email_confirmation` validation, sends magic link
-- [x] `app/Http/Middleware/CaptchaVerification.php` — HCaptcha applied to `register` only (not `login`)
-- [x] `app/Providers/FortifyServiceProvider.php` — removed password features; `RegisterResponse` logs user out and returns `{ status: 'code_sent' }` (no session before code verification)
-- [x] `config/fortify.php` — disabled `resetPasswords`, `emailVerification`, `updatePasswords` features
-- [x] `database/factories/UserFactory.php` — removed password field
-- [x] Feature tests (`tests/Feature/MagicLinkTest.php`) covering: registration, login, verify-code (valid/expired/used/wrong/attempts/case-insensitive), resend-code, service unit tests
-- [x] GitHub Actions CI (`.github/workflows/backend-tests.yml`)
-
-#### Frontend
-- [x] `LoginComponent` — email-only form, no password, no HCaptcha
-- [x] `RegisterComponent` — replaced password fields with confirm-email, kept HCaptcha
-- [x] `VerifyCodeComponent` — code entry screen, auto-submit on 6 chars, resend with cooldown
-- [x] `AuthService` — `pendingEmail` signal, `login()` returns `code_sent`, `verifyCode()`, `resendCode()`, removed password methods
-- [x] `AuthApiService` — updated login/register signatures, added `verifyCode`, `resendCode`, removed password endpoints
-- [x] `app.routes.ts` — added `verify-code` route, removed `forgot-password` / `reset-password` routes
-- [x] `models/responses.ts` — added `VerifyCodeResponse`
-- [x] `settings/edit-form` — removed password-change fields
-- [x] Auth mocks updated (`auth.service.mock.ts`, `auth-api.mock.ts`)
-
----
-
 ## [3] Fix Sync Visibility — Changes Only Appear After Logout/Login
 
 ### Overview
@@ -495,25 +288,25 @@ Within a slot:
 
 ### Implementation Status
 
-- [x] **Backend migration** — `2026_05_27_000001_add_sort_order_to_list_items.php` adds `sort_order DOUBLE NOT NULL DEFAULT 0`, index on `(lists_id, sort_order)`, and SQLite-compatible backfill using a correlated subquery.
-- [x] **GraphQL schema** — `sort_order: Float!` added to `ListItem` type; `sort_order: Float` added to `ListItemInput` in `graphql/list-item.graphql`.
-- [x] **`ITEM_SCHEMA`** — `sort_order: { type: 'number' }` added to `list-item.ts` properties. `category` is intentionally **not** added to the schema so it is never pushed to the server.
-- [x] **`newItem()`** — accepts optional `maxSortOrder` parameter; sets `sort_order = maxSortOrder + 1.0`.
-- [x] **`itemsConflictHandler()`** — `sort_order` uses LWW via `updatedAt`; `category` is never propagated.
-- [x] **`sortItems()`** — replaced `localeCompare` alphabetical fallback with `sort_order` tiebreaker. New priority: done-status → not-done with due (ascending due) → not-done without due (ascending sort_order) → done (ascending sort_order).
-- [x] **`groupItems()`** — reads `(item as any).category` cache; on miss, computes via `voteForGroceryCategory` and fires `item.patch({ category })` asynchronously (fire-and-forget). `category` is local-only.
-- [x] **`sort-order.ts`** — new utility with `needsRebalance(sortOrders)` (gap < 1e-9) and `rebalance(sortOrders)` (reassigns integers 1, 2, 3, …).
-- [x] **`MyCollection.insert()` / `update()` — optimistic emit** — emit fires synchronously before `await table.add/put()`; write continues in background; on failure, emit `[]` triggers a full-scan rollback.
-- [x] **`MyQuery` — in-memory cache** — maintains a `Map<pk, MyDocument>` cache; on non-empty emit patches changed documents without hitting IndexedDB; on empty emit `[]` falls back to a full Dexie scan.
-- [x] **`MyDocument.patch()`** — deletes `newDoc.category` whenever `'name' in patch` to invalidate the grocery-category cache.
-- [x] **`ReplicationService` push modifier** — explicit `delete doc['category']` for `items` collection before the GraphQL push (belt-and-suspenders alongside `filterObjectBySchemaFields`).
-- [x] **Tests — backend** — `SortOrderTest.php`: column existence, default value, GraphQL pull returns `sort_order`, push persists `sort_order`, conflict detection when `sort_order` diverges.
-- [x] **Tests — `sort-order.spec.ts`** — `needsRebalance` and `rebalance` unit tests.
-- [x] **Tests — `categories.spec.ts`** — `sortItems` priority order, `groupItems` category caching (cache hit skips patch, cache miss fires patch, correct slot placement).
-- [x] **Tests — `list-item.spec.ts`** — conflict handler updated: `sort_order` LWW with newer/older `updatedAt`.
-- [x] **Tests — `collection.spec.ts`** — optimistic-emit tests: emit fires before DB write, rollback on write failure.
-- [x] **Tests — `query.spec.ts`** — in-memory cache tests: initial full scan, patch without full scan, delete removes from cache, empty emit triggers full scan, insert adds to cache.
-- [x] **GitHub Actions** — `.github/workflows/frontend-tests.yml` added to run `ng test --no-watch --no-progress --browsers=ChromeHeadless` on every push/PR.
+- [X] **Backend migration** — `2026_05_27_000001_add_sort_order_to_list_items.php` adds `sort_order DOUBLE NOT NULL DEFAULT 0`, index on `(lists_id, sort_order)`, and SQLite-compatible backfill using a correlated subquery.
+- [X] **GraphQL schema** — `sort_order: Float!` added to `ListItem` type; `sort_order: Float` added to `ListItemInput` in `graphql/list-item.graphql`.
+- [X] **`ITEM_SCHEMA`** — `sort_order: { type: 'number' }` added to `list-item.ts` properties. `category` is intentionally **not** added to the schema so it is never pushed to the server.
+- [X] **`newItem()`** — accepts optional `maxSortOrder` parameter; sets `sort_order = maxSortOrder + 1.0`.
+- [X] **`itemsConflictHandler()`** — `sort_order` uses LWW via `updatedAt`; `category` is never propagated.
+- [X] **`sortItems()`** — replaced `localeCompare` alphabetical fallback with `sort_order` tiebreaker. New priority: done-status → not-done with due (ascending due) → not-done without due (ascending sort_order) → done (ascending sort_order).
+- [X] **`groupItems()`** — reads `(item as any).category` cache; on miss, computes via `voteForGroceryCategory` and fires `item.patch({ category })` asynchronously (fire-and-forget). `category` is local-only.
+- [X] **`sort-order.ts`** — new utility with `needsRebalance(sortOrders)` (gap < 1e-9) and `rebalance(sortOrders)` (reassigns integers 1, 2, 3, …).
+- [X] **`MyCollection.insert()` / `update()` — optimistic emit** — emit fires synchronously before `await table.add/put()`; write continues in background; on failure, emit `[]` triggers a full-scan rollback.
+- [X] **`MyQuery` — in-memory cache** — maintains a `Map<pk, MyDocument>` cache; on non-empty emit patches changed documents without hitting IndexedDB; on empty emit `[]` falls back to a full Dexie scan.
+- [X] **`MyDocument.patch()`** — deletes `newDoc.category` whenever `'name' in patch` to invalidate the grocery-category cache.
+- [X] **`ReplicationService` push modifier** — explicit `delete doc['category']` for `items` collection before the GraphQL push (belt-and-suspenders alongside `filterObjectBySchemaFields`).
+- [X] **Tests — backend** — `SortOrderTest.php`: column existence, default value, GraphQL pull returns `sort_order`, push persists `sort_order`, conflict detection when `sort_order` diverges.
+- [X] **Tests — `sort-order.spec.ts`** — `needsRebalance` and `rebalance` unit tests.
+- [X] **Tests — `categories.spec.ts`** — `sortItems` priority order, `groupItems` category caching (cache hit skips patch, cache miss fires patch, correct slot placement).
+- [X] **Tests — `list-item.spec.ts`** — conflict handler updated: `sort_order` LWW with newer/older `updatedAt`.
+- [X] **Tests — `collection.spec.ts`** — optimistic-emit tests: emit fires before DB write, rollback on write failure.
+- [X] **Tests — `query.spec.ts`** — in-memory cache tests: initial full scan, patch without full scan, delete removes from cache, empty emit triggers full scan, insert adds to cache.
+- [X] **GitHub Actions** — `.github/workflows/frontend-tests.yml` added to run `ng test --no-watch --no-progress --browsers=ChromeHeadless` on every push/PR.
 
 ## [4] Bug Fixes
 
@@ -791,8 +584,6 @@ this.pushInterval(docs).catch(() => {
 ```
 
 ---
-
-
 
 #### Summary
 
