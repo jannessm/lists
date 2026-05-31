@@ -151,6 +151,7 @@ export class ListComponent implements AfterViewInit, OnDestroy {
         !!this.newItem.value?.trim()
       ) {
       const due = getDueDate(this.newItemDue.value || '');
+      const dueDate = due ? new Date(due) : null;
 
       const item = {
         name: this.newItem.value,
@@ -160,9 +161,9 @@ export class ListComponent implements AfterViewInit, OnDestroy {
       };
 
       const defaultReminder = me.defaultReminder;
-      if (!!due && !!defaultReminder) {
+      if (dueDate && !isNaN(dueDate.valueOf()) && !!defaultReminder) {
         Object.assign(item, {
-          reminder: getReminderDate(new Date(due), defaultReminder)
+          reminder: getReminderDate(dueDate, defaultReminder)
         })
       }
 

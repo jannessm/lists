@@ -594,3 +594,16 @@ this.pushInterval(docs).catch(() => {
 |             |                             |                                                                                           |                                                                     |
 
 Fixing **F** (exhaustMap / isPushing flag) eliminates the most common source of duplicates. **G** is a defensive fix for timeout edge-cases.
+
+### Implementation Status
+
+- [X] **Bug A** — `get value()` rewritten: checks `instanceof Date` and `typeof string` with validity guard; falls back to `defaultOption` when date is falsy instead of returning `"different"`.
+- [X] **Bug B** — `ngAfterViewInit()` now calls `this.flatpickr?.setDate(this.date)` after `initFlatpickr()` to re-apply any date stored by `writeValue()` before flatpickr was ready.
+- [X] **Bug C** — `changeOption()` calls `this.flatpickr?.clear()` when deselecting any chip or switching to a non-`'different'` chip, clearing stale internal `selectedDates`.
+- [X] **Bug D** — `closePickr()` reordered: `onChange(this.value)` and `onTouched()` now fire **before** `pickrClosed.emit()`. Also handles the no-selection case (reverts to default when `selectedDates[0]` is `undefined`).
+- [X] **Bug E** — `addItem()` in `list.component.ts` validates the due date via `new Date(due)` + `isNaN()` before calling `getReminderDate()`. Invalid dates no longer produce `"Invalid Date"` reminders.
+- [X] **Bug F** — Already fixed in prior refactoring: `isPushing` flag + `pushQueued` dirty flag with `while` loop in `push()` ensures at most one `_doPush()` runs at a time; queued pushes execute sequentially after the in-flight push completes.
+- [X] **Bug G** — `_doPush()` retry loop re-queries the database for still-`touched` documents using a `Set` of original primary keys; items that were already processed (no longer `touched`) are skipped. If no items remain, the retry interval is cleared immediately.
+- [X] **Tests — `date-chip-select.component.spec.ts`** — 4 new tests: Bug A (close without selection returns default, not `"different"`), Bug B (`writeValue` before flatpickr init applies date after init), Bug C (switching away from "different" clears flatpickr), Bug D (`onChange` fires before `pickrClosed`).
+- [X] **Tests — `options.spec.ts`** — new file: `getDueDate` (SOMETIME, TODAY, TOMORROW, passthrough, valid ISO) and `getReminderDate` (NO_REMINDER, MIN_30, Invalid Date throws).
+- [X] **Tests — `replication.spec.ts`** — new file: Bug F (concurrent push guard, queued follow-up), Bug G (retry re-queries touched docs).

@@ -249,5 +249,93 @@ describe('DateChipSelectComponent', () => {
       );
       expect(component.chipOption).toEqual('different');
     }));
+
+    // Bug A: closing flatpickr without picking a date should NOT return "different"
+    it('should not return "different" when flatpickr is closed without selection (Bug A)', fakeAsync(() => {
+      componentRef.setInput('defaultOption', 'option1');
+      fixture.detectChanges();
+
+      const differentOption = componentEl.query(By.css('mat-chip-option[value=different] button'));
+      click(differentOption);
+      tick(100);
+      expect(component.pickrIsOpen).toBeTrue();
+
+      // clear selected dates to simulate closing without picking
+      component.flatpickr?.clear();
+      component.flatpickr?.close();
+      tick(100);
+
+      // value should fall back to default, not return literal "different"
+      expect(component.value).not.toEqual('different');
+      expect(component.value).toEqual('option1');
+    }));
+
+    // Bug B: writeValue before flatpickr is initialised should still apply the date
+    it('should apply writeValue date to flatpickr after init (Bug B)', fakeAsync(() => {
+      const presetDate = new Date(2222, 5, 15);
+
+      // Simulate what Angular forms do: writeValue is called during init,
+      // potentially before ngAfterViewInit.
+      // We recreate the component to test this flow.
+      const fixture2 = TestBed.createComponent(DateChipSelectComponent);
+      const comp2 = fixture2.componentInstance;
+      const compRef2 = fixture2.componentRef;
+      compRef2.setInput('options', options);
+      compRef2.setInput('showOthers', true);
+
+      // writeValue before first detectChanges (which triggers ngAfterViewInit)
+      comp2.writeValue(presetDate.toISOString());
+      expect(comp2.date).toEqual(presetDate);
+      expect(comp2.chipOption).toEqual('different');
+
+      // Now trigger ngAfterViewInit via detectChanges
+      fixture2.detectChanges();
+      tick(100);
+
+      // flatpickr should now have the date set
+      expect(comp2.flatpickr).toBeTruthy();
+      expect(comp2.flatpickr?.selectedDates.length).toBeGreaterThan(0);
+      expect(comp2.flatpickr?.selectedDates[0].valueOf()).toEqual(presetDate.valueOf());
+    }));
+
+    // Bug C: switching away from "Andere" and back should clear stale flatpickr selection
+    it('should clear flatpickr when switching away from "different" chip (Bug C)', fakeAsync(() => {
+      // Pick a custom date via "Andere"
+      const differentOption = componentEl.query(By.css('mat-chip-option[value=different] button'));
+      click(differentOption);
+      tick(100);
+
+      const customDate = new Date(2222, 3, 10);
+      component.flatpickr?.setDate(customDate, true);
+      component.flatpickr?.close();
+      tick(100);
+
+      expect(component.date).toEqual(customDate);
+
+      // Switch to option1
+      const chipOptions = componentEl.queryAll(By.css('mat-chip-option button'));
+      click(chipOptions[0]);
+      tick(100);
+
+      // flatpickr internal selection should be cleared
+      expect(component.flatpickr?.selectedDates.length).toEqual(0);
+    }));
+
+    // Bug D: onChange should fire before pickrClosed
+    it('should emit onChange before pickrClosed (Bug D)', fakeAsync(() => {
+      const callOrder: string[] = [];
+
+      component.registerOnChange(() => callOrder.push('onChange'));
+      component.pickrClosed.subscribe(() => callOrder.push('pickrClosed'));
+
+      const differentOption = componentEl.query(By.css('mat-chip-option[value=different] button'));
+      click(differentOption);
+      tick(100);
+
+      component.flatpickr?.close();
+      tick(100);
+
+      expect(callOrder.indexOf('onChange')).toBeLessThan(callOrder.indexOf('pickrClosed'));
+    }));
   });
 });

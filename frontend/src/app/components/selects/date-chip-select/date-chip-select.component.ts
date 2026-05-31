@@ -61,20 +61,25 @@ export class DateChipSelectComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.initFlatpickr();
+    // re-apply a date stored by writeValue() before flatpickr was ready
+    if (this.date) {
+      this.flatpickr?.setDate(this.date);
+    }
   }
 
   get value(): string {
-    switch(this.chipOption) {
-      case 'different':
-        if (typeof this.date === 'string' && !!this.date) {
-          this.date = new Date(this.date);
-          return this.date.toISOString();
-        } else {
-          return this.chipOption;
-        }
-      default:
-        return this.chipOption;
+    if (this.chipOption === 'different') {
+      const d = this.date;
+      if (d instanceof Date && !isNaN(d.valueOf())) return d.toISOString();
+      if (typeof d === 'string' && !!d) {
+        this.date = new Date(d);
+        return (this.date as Date).toISOString();
+      }
+      // picker was opened but closed without a selection — fall back to default
+      this.chipOption = this.defaultOption || '';
+      return this.chipOption;
     }
+    return this.chipOption;
   }
 
   writeValue(chipOption: string): void {
@@ -117,6 +122,7 @@ export class DateChipSelectComponent implements AfterViewInit {
       if (!event.value) {
         this.chipOption = this.defaultOption || '';
         this.date = '';
+        this.flatpickr?.clear();
         this.onChange(this.value);
         this.onTouched();
       } else if (
@@ -126,6 +132,8 @@ export class DateChipSelectComponent implements AfterViewInit {
       ) {
         this.openFlatpickr();
       } else {
+        this.date = '';
+        this.flatpickr?.clear();
         this.onChange(this.value);
         this.onTouched();
       }
@@ -156,10 +164,17 @@ export class DateChipSelectComponent implements AfterViewInit {
   closePickr() {
     if (this.pickrIsOpen && this.flatpickr) {
       this.pickrIsOpen = false;
-      this.date = this.flatpickr.selectedDates[0];
-      this.pickrClosed.emit();
+      const picked = this.flatpickr.selectedDates[0];
+      if (!picked) {
+        // user dismissed without picking — revert to default
+        this.chipOption = this.defaultOption || '';
+        this.date = '';
+      } else {
+        this.date = picked;
+      }
       this.onChange(this.value);
       this.onTouched();
+      this.pickrClosed.emit();
     }
   }
 
