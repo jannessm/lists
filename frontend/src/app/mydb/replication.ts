@@ -17,6 +17,8 @@ export async function replicateCollection(options: MyReplicationOptions): Promis
 export class Replicator {
     private stream$?: Subscription;
     private replicationSub?: Subscription;
+    private isPushing = false;
+    private pushQueued = false;
 
     constructor (
         private identifier: string,
@@ -90,6 +92,28 @@ export class Replicator {
     }
 
     public async push() {
+        if (this.isPushing) {
+            // Another push is already in flight; queue one follow-up so any
+            // changes written while this push runs are not silently dropped.
+            this.pushQueued = true;
+            return;
+        }
+
+        this.isPushing = true;
+        try {
+            await this._doPush();
+
+            // If a push was queued while we were running, execute it now.
+            while (this.pushQueued) {
+                this.pushQueued = false;
+                await this._doPush();
+            }
+        } finally {
+            this.isPushing = false;
+        }
+    }
+
+    private async _doPush() {
         if (!this.pushOptions) return;
 
         let docs = await this.collection.table.toCollection()
@@ -106,7 +130,7 @@ export class Replicator {
         docs = docs.map(doc => doc.isClassObject ? doc.lastData : doc)
             .map(doc => JSON.parse(JSON.stringify(doc)));
 
-        this.pushInterval(docs).catch(err => {
+        await this.pushInterval(docs).catch(err => {
             // try push each min until succession
             const pushInterval = setInterval(async () => {
                 try {

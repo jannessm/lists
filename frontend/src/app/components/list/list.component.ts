@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, Signal, ViewChild, WritableSignal, computed, effect, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, Signal, ViewChild, WritableSignal, computed, effect, signal, untracked } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -45,7 +45,7 @@ export class ListComponent implements AfterViewInit, OnDestroy {
         selector: { id }
       }).$.subscribe((list: unknown) => {
         if (!!list) {
-          this.list.set(list as MyListsDocument);
+          untracked(() => this.list.set(list as MyListsDocument));
         }
       });
 
@@ -53,7 +53,7 @@ export class ListComponent implements AfterViewInit, OnDestroy {
         selector: { lists: id },
       }).$.subscribe((items: unknown[]) => {
         if (Array.isArray(items)) {
-          this.listItems.set(items as MyItemDocument[]);
+          untracked(() => this.listItems.set(items as MyItemDocument[]));
         }
       });
     } else {
