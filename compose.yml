@@ -8,6 +8,12 @@ x-mysql: &mysql
   networks:
     - lists
 
+x-redis: &redis
+  image: redis:7-alpine
+  restart: unless-stopped
+  networks:
+    - lists
+
 x-soketi-distroless: &soketi-distroless
   image: 'quay.io/soketi/soketi:1.6-16-distroless'
   restart: unless-stopped
@@ -30,6 +36,15 @@ x-logging-config: &logging-config
       max-file: "3"
 
 services:
+  # redis
+  redis-dev:
+    <<: *redis
+    profiles: [dev, staging]
+
+  redis:
+    <<: [*redis, *logging-config]
+    profiles: [prod]
+
   # mysql
   mysql-dev:
     <<: *mysql
@@ -95,6 +110,7 @@ services:
     depends_on:
       - mysql-dev
       - soketi-dev
+      - redis-dev
     ports:
       - "8000:8000"
     volumes:
@@ -106,6 +122,8 @@ services:
     environment:
       - APP_ENV=local
       - APP_DEBUG=true
+      - REDIS_HOST=redis-dev
+      - REDIS_PORT=6379
 
   laravel-staging:
     build:

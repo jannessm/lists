@@ -5,7 +5,7 @@ import { Signal } from "@angular/core";
 import { MyDocument } from './classes';
 import { MyCollection } from '../collection';
 
-export function newItem(item: any): any {
+export function newItem(item: any, maxSortOrder = 0): any {
     const newItem = {
         id: ulid().toLowerCase(),
         name: '',
@@ -16,6 +16,7 @@ export function newItem(item: any): any {
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         lists: '',
         done: false,
+        sort_order: maxSortOrder + 1.0,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         _deleted: false
@@ -63,6 +64,9 @@ export const ITEM_SCHEMA = {
         lists: {
             type: 'string'
         },
+        sort_order: {
+            type: 'number'
+        },
         ...COMMON_SCHEMA
     },
     required: ['id', 'name', 'createdBy', 'done', 'lists']
@@ -106,6 +110,14 @@ export function itemsConflictHandler(
         }
         if (assumedMasterState.done !== trueMasterState.done) {
             newState.done = trueMasterState.done;
+        }
+        if ((assumedMasterState as any).sort_order !== (trueMasterState as any).sort_order) {
+            // Apply trueMaster's sort_order when the server changed it and either the
+            // client did not also change it, or the server's update is newer (LWW).
+            const forkAlsoChanged = (forkState as any).sort_order !== (assumedMasterState as any).sort_order;
+            if (!forkAlsoChanged || (trueMasterState as any).updatedAt > (forkState as any).updatedAt) {
+                (newState as any).sort_order = (trueMasterState as any).sort_order;
+            }
         }
         if (assumedMasterState.updatedAt !== trueMasterState.updatedAt) {
             newState.updatedAt = trueMasterState.updatedAt;

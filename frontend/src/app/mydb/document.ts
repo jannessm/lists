@@ -25,6 +25,11 @@ export class MyDocument<DocType, DocMethods> {
         // create a deep copy to not modify doc instance
         const newDoc = JSON.parse(JSON.stringify(this.data));
         Object.assign(newDoc, patch);
+        // Invalidate the cached grocery category whenever the item name changes
+        // so groupItems() recomputes it on the next render.
+        if ('name' in patch) {
+            delete newDoc['category'];
+        }
         return this.collection.update(newDoc);
     }
 

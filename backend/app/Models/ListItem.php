@@ -68,7 +68,7 @@ class ListItem extends Model
 
             if (array_key_exists('assumedMasterState', $item)) {
                 $assumedMaster = $item['assumedMasterState'];
-                $masterItem = ListItem::find($assumedMaster[$this->primaryKey]);
+                $masterItem = ListItem::with(['createdBy', 'lists'])->find($assumedMaster[$this->primaryKey]);
 
                 foreach ($assumedMaster as $param => $val) {
                     switch($param) {
@@ -176,7 +176,7 @@ class ListItem extends Model
         if (strlen($newDescriptionJoined) > 0) {
             array_push($newDescription, $newDescriptionJoined);
         }
-        if (!!$newState['description'] && strlen($newState['description']) > 0) {
+        if (!empty($newState['description'] ?? null)) {
             array_push($newDescription, $newState['description']);
         }
         $newState['description'] = join("\n\n", $newDescription);

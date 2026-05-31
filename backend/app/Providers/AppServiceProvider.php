@@ -10,7 +10,9 @@ use Illuminate\Notifications\Messages\MailMessage;
 use NotificationChannels\WebPush\ReportHandlerInterface;
 use NotificationChannels\WebPush\ReportHandler;
 
+use App\GraphQL\ContextSerializer;
 use App\WebPush\MyWebPushChannel;
+use Nuwave\Lighthouse\Support\Contracts\SerializesContext;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(SerializesContext::class, ContextSerializer::class);
     }
 
     /**

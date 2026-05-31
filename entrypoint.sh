@@ -23,6 +23,7 @@ echo "MySQL is up - continuing"
 
 # Run migrations and optimizations
 # php artisan migrate --seed
+php artisan lighthouse:clear-cache
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache

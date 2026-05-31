@@ -18,6 +18,9 @@ type ListItem {
 
   "Delete flag for rxDB"
   _deleted: Boolean!
+
+  "Stable fractional sort position within the list."
+  sort_order: Float!
 }
 
 ####### Input Types #########
@@ -34,6 +37,7 @@ input ListItemInput {
   createdAt: DateTimeUtc @rename(attribute: "created_at")
   updatedAt: DateTimeUtc @rename(attribute: "updated_at")
   _deleted: Boolean
+  sort_order: Float
 }
 
 input ItemsInputHeaders {

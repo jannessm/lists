@@ -50,6 +50,13 @@ export class MyCollection<DocType, DocMethods> {
             this.$.next(docs);
         }
     }
+    private emitReplication() {
+        if (this.ngZone) {
+            this.ngZone.run(() => this.replication$.next());
+        } else {
+            this.replication$.next();
+        }
+    }
 
     get table() {
         return this.dexie.table(this.tableName);
@@ -99,13 +106,15 @@ export class MyCollection<DocType, DocMethods> {
     }
 
     async insert(doc: any) {
-        // operate on copy only
+        // operate on copy only for the IndexedDB write (needs touched flag)
         const newDoc = JSON.parse(JSON.stringify(doc));
         Object.assign(newDoc, {touched: true});
-        await this.table.add(newDoc);
 
+        // Optimistic update: emit the original doc (without touched) immediately
+        // so the UI can re-render before the IndexedDB write completes.
+        // On failure, emit an empty array to trigger a full re-scan.
         this.emit([doc]);
-        this.replication$.next();
+        this.table.add(newDoc).then(() => this.emitReplication()).catch(() => this.emit([]));
     }
 
     async markUntouched(docs: any[]) {
@@ -135,10 +144,11 @@ export class MyCollection<DocType, DocMethods> {
         newDoc = JSON.parse(JSON.stringify(newDoc));
         Object.assign(newDoc, {touched: true});
 
-        await this.table.put(newDoc);
-
+        // Optimistic update: emit immediately so the UI can re-render before
+        // the IndexedDB write completes.  On failure, emit an empty array to
+        // trigger a full re-scan that shows the rolled-back state.
         this.emit([newDoc]);
-        this.replication$.next();
+        this.table.put(newDoc).then(() => this.emitReplication()).catch(() => this.emit([]));
     }
 
     async bulkUpdate(
@@ -160,7 +170,7 @@ export class MyCollection<DocType, DocMethods> {
         const newDocs = await this.table.bulkGet(keys);
         
         this.emit(newDocs);
-        this.replication$.next();
+        this.emitReplication();
     }
 
     async remoteBulkAdd(docs: any[]) {

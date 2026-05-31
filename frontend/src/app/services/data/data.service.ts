@@ -59,7 +59,7 @@ export class DataService {
             clearInterval(checkInterval);
             resolve(null);
           }
-        }, 100);
+        }, 500);
       });
 
       let repl = await this.replicationService.setupReplication(DATA_TYPE.LISTS, this.db.lists);

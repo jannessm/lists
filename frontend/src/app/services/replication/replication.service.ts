@@ -115,6 +115,12 @@ export class ReplicationService implements OnDestroy {
             doc.description = null;
           }
 
+          // category is a local-only field used for grocery caching;
+          // it must never be pushed to the server.
+          if (collectionName === DATA_TYPE.LIST_ITEM) {
+            delete doc['category'];
+          }
+
           return doc;
         }
       };
