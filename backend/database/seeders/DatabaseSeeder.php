@@ -119,7 +119,25 @@ class DatabaseSeeder extends Seeder
         }
 
         //process list items
-        $stmt = $pdo->prepare('SELECT name, time AS due, done, list_id, created_by from list_items;');
+        // First, check if sort_order exists in the source database
+        $columnsStmt = $pdo->prepare("PRAGMA table_info(list_items)");
+        $columnsStmt->execute();
+        $columns = $columnsStmt->fetchAll(\PDO::FETCH_ASSOC);
+        $hasSortOrder = false;
+        foreach ($columns as $column) {
+            if ($column['name'] === 'sort_order') {
+                $hasSortOrder = true;
+                break;
+            }
+        }
+
+        // Build SELECT query based on available columns
+        $selectFields = 'name, time AS due, done, list_id, created_by';
+        if ($hasSortOrder) {
+            $selectFields .= ', sort_order';
+        }
+        
+        $stmt = $pdo->prepare("SELECT {$selectFields} FROM list_items;");
         $stmt->execute();
 
         // Track sort order per list
@@ -144,10 +162,16 @@ class DatabaseSeeder extends Seeder
             }
 
             // Add sort_order for the new schema
-            if (!isset($sort_orders[$item['lists_id']])) {
-                $sort_orders[$item['lists_id']] = 0;
+            // Use existing sort_order if available, otherwise generate sequential
+            if (!isset($item['sort_order']) || $item['sort_order'] === null || $item['sort_order'] === '') {
+                if (!isset($sort_orders[$item['lists_id']])) {
+                    $sort_orders[$item['lists_id']] = 0;
+                }
+                $item['sort_order'] = $sort_orders[$item['lists_id']]++;
+            } else {
+                // Ensure sort_order is numeric
+                $item['sort_order'] = (float) $item['sort_order'];
             }
-            $item['sort_order'] = $sort_orders[$item['lists_id']]++;
 
             $newItem = \App\Models\ListItem::create($item);
         }

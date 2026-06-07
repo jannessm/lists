@@ -94,10 +94,8 @@ export class SettingsComponent implements OnDestroy {
     this.isSyncing = true;
     
     try {
-      this.dataService.resync();
-      
-      // Wait a bit to allow sync to complete
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Clear all local databases and pull fresh data from server
+      await this.dataService.fullResync();
       
       this.snackBar.open('Synchronisierung erfolgreich', 'OK', {
         duration: 3000,

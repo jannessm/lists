@@ -11,4 +11,5 @@ export class DataServiceSpy {
     };
 
     resync = jasmine.createSpy('resync');
+    fullResync = jasmine.createSpy('fullResync').and.returnValue(Promise.resolve());
 }

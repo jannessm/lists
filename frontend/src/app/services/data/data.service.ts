@@ -120,4 +120,36 @@ export class DataService {
       this.dbInitialized = false;
     }
   }
+
+  /**
+   * Completely clears all local databases and re-syncs from server.
+   * This is useful for recovering from database corruption or migration issues.
+   */
+  async fullResync() {
+    console.log('Starting full resync: clearing all local data...');
+    
+    // Stop all active replications
+    if (this.dbInitialized) {
+      Object.values(this.replications).forEach(repl => {
+        repl.destroy();
+      });
+    }
+
+    // Clear all collections (data, master states, and replication checkpoints)
+    await this.db.me.remove();
+    await this.db.users.remove();
+    await this.db.lists.remove();
+    await this.db.items.remove();
+    
+    // Reset initialization flag
+    this.dbInitialized = false;
+    this.replications = {};
+
+    console.log('Local data cleared. Re-initializing database...');
+
+    // Re-initialize and pull fresh data from server
+    await this.initDB();
+    
+    console.log('Full resync complete!');
+  }
 }
