@@ -86,8 +86,7 @@ class User extends Authenticatable {
     }
 
     public function listItems() {
-        $lists = $this->lists()->select('id')->all();
-        $listsIds = array_column($lists, 'id');
+        $listsIds = $this->lists()->pluck('id')->toArray();
         return ListItem::whereIn('lists_id', $listsIds);
     }
 
