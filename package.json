@@ -1,6 +1,6 @@
 {
   "name": "lists",
-  "version": "4.0.1",
+  "version": "4.0.4",
   "description": "",
   "scripts": {
     "build": "cd frontend; npm run build; cd ..",
