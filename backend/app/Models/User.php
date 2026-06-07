@@ -86,7 +86,11 @@ class User extends Authenticatable {
     }
 
     public function listItems() {
-        $listsIds = $this->lists()->pluck('id')->toArray();
+        // Get IDs from both created and shared lists
+        $createdListIds = $this->createdLists()->pluck('id')->toArray();
+        $sharedListIds = $this->sharedLists()->pluck('id')->toArray();
+        $listsIds = array_merge($createdListIds, $sharedListIds);
+        
         return ListItem::whereIn('lists_id', $listsIds);
     }
 
