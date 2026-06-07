@@ -1,6 +1,7 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 
 import { DateChipSelectComponent } from './date-chip-select.component';
+import { DateTimePickerComponent } from '../date-time-picker/date-time-picker.component';
 import { ComponentRef, DebugElement, LOCALE_ID } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { click } from '../../../../testing/helpers';
@@ -37,6 +38,14 @@ describe('DateChipSelectComponent', () => {
     component = fixture.componentInstance;
     componentRef = fixture.componentRef;
     componentEl = fixture.debugElement;
+
+    // Create a DateTimePickerComponent and wire it up
+    const pickerFixture = TestBed.createComponent(DateTimePickerComponent);
+    const pickerInstance = pickerFixture.componentInstance;
+    component.picker = pickerInstance;
+    pickerInstance.pickerClosed.subscribe(() => component.closePicker());
+    pickerInstance.dateChange.subscribe((d: Date) => component.onDateChange(d));
+
     fixture.detectChanges();
   });
 
@@ -153,39 +162,39 @@ describe('DateChipSelectComponent', () => {
     });
 
     it('timepicker should open on select and preselect current time', fakeAsync(() => {
-      expect(component.date).toEqual('');
+      expect(component.date).toBeNull();
 
       const differentOption = componentEl.query(By.css('mat-chip-option[value=different] button'));
       click(differentOption);
       tick(100);
 
       expect(component.pickrIsOpen).toBeTrue();
-      expect(component.picker.isOpen).toBeTrue();
+      expect(component.picker!.isOpen).toBeTrue();
       expect(component.chipOption).toEqual('different');
     }));
 
     it('if timepicker is closed, text of different should be replaced', fakeAsync(() => {
-      expect(component.date).toEqual('');
+      expect(component.date).toBeNull();
 
       const differentOption = componentEl.query(By.css('mat-chip-option[value=different] button'));
       click(differentOption);
       tick(100);
 
-      component.picker.close();
+      component.picker!.close();
       tick(100);
       fixture.detectChanges();
 
       expect(component.pickrIsOpen).toBeFalse();
-      expect(component.picker.isOpen).toBeFalse();
+      expect(component.picker!.isOpen).toBeFalse();
       expect(component.chipOption).toEqual('different');
       expect(component.date).toEqual(baseTime);
-      expect(differentOption.nativeElement.innerText).toEqual(
+      expect(differentOption.nativeElement.innerText.trim()).toEqual(
         datePipe.transform(baseTime, 'short')
       );
     }));
 
     it('if timepicker date changes, component date should update immediately', fakeAsync(() => {
-      expect(component.date).toEqual('');
+      expect(component.date).toBeNull();
       const newDate = new Date(2222, 0, 24);
 
       const differentOption = componentEl.query(By.css('mat-chip-option[value=different] button'));
@@ -193,22 +202,22 @@ describe('DateChipSelectComponent', () => {
       fixture.detectChanges();
       tick(100);
 
-      component.picker.setDate(newDate, true);
+      component.picker!.setDate(newDate, true);
       fixture.detectChanges();
       tick(100);
 
       expect(component.date).toEqual(newDate);
-      expect(differentOption.nativeElement.innerText).toEqual(
+      expect(differentOption.nativeElement.innerText.trim()).toEqual(
         datePipe.transform(newDate, 'short')
       );
       expect(component.chipOption).toEqual('different');
 
-      component.picker.close();
+      component.picker!.close();
       tick(100);
       fixture.detectChanges();
 
       expect(component.pickrIsOpen).toBeFalse();
-      expect(component.picker.isOpen).toBeFalse();
+      expect(component.picker!.isOpen).toBeFalse();
       expect(component.date).toEqual(newDate);
     }));
 
@@ -222,8 +231,8 @@ describe('DateChipSelectComponent', () => {
       tick(100);
       expect(component.pickrIsOpen).toBeTrue();
 
-      component.picker.clear();
-      component.picker.close();
+      component.picker!.clear();
+      component.picker!.close();
       tick(100);
 
       expect(component.value).not.toEqual('different');
@@ -244,12 +253,17 @@ describe('DateChipSelectComponent', () => {
       expect(comp2.date).toEqual(presetDate);
       expect(comp2.chipOption).toEqual('different');
 
+      // Simulate the picker being attached after writeValue (as happens in real usage)
+      const pickerFixture2 = TestBed.createComponent(DateTimePickerComponent);
+      const pickerInstance2 = pickerFixture2.componentInstance;
+      comp2.picker = pickerInstance2;
+
       fixture2.detectChanges();
       tick(100);
 
       expect(comp2.picker).toBeTruthy();
-      expect(comp2.picker.selectedDate).toBeTruthy();
-      expect(comp2.picker.selectedDate!.valueOf()).toEqual(presetDate.valueOf());
+      expect(comp2.picker!.selectedDate).toBeTruthy();
+      expect(comp2.picker!.selectedDate!.valueOf()).toEqual(presetDate.valueOf());
     }));
 
     // Bug C: switching away from "Andere" and back should clear stale selection
@@ -259,8 +273,8 @@ describe('DateChipSelectComponent', () => {
       tick(100);
 
       const customDate = new Date(2222, 3, 10);
-      component.picker.setDate(customDate, true);
-      component.picker.close();
+      component.picker!.setDate(customDate, true);
+      component.picker!.close();
       tick(100);
 
       expect(component.date).toEqual(customDate);
@@ -269,7 +283,7 @@ describe('DateChipSelectComponent', () => {
       click(chipOptions[0]);
       tick(100);
 
-      expect(component.picker.selectedDate).toBeNull();
+      expect(component.picker!.selectedDate).toBeNull();
     }));
 
     // Bug D: onChange should fire before pickrClosed
@@ -283,7 +297,7 @@ describe('DateChipSelectComponent', () => {
       click(differentOption);
       tick(100);
 
-      component.picker.close();
+      component.picker!.close();
       tick(100);
 
       expect(callOrder.indexOf('onChange')).toBeLessThan(callOrder.indexOf('pickrClosed'));
