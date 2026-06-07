@@ -115,7 +115,10 @@ return [
     |
     | This option controls which PHP classes may be unserialized when reading
     | values from the cache. Set to false to disallow all object unserialization,
-    | or provide an array of allowed class names.
+    | or provide an array of allowed class names. Set to true to allow all classes.
+    |
+    | For GraphQL, we need to allow deserialization of AST nodes and related classes.
+    | Using true here is safe for this application context.
     |
     */
 

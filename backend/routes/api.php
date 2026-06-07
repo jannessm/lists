@@ -110,6 +110,38 @@ Route::post('push/unsubscribe', [PushController::class, 'unsubscribe'])
 
 
 
+Route::post('report-sync-error', function(Request $request) {
+    $user = $request->user();
+    
+    if (!$user) {
+        return response()->json(['status' => 'unauthorized'], 401);
+    }
+
+    $errorMessage = $request->input('errorMessage', 'Unknown error');
+    $errorDetails = $request->input('errorDetails', []);
+
+    $adminEmail = config('mail.admin_mail');
+    
+    if ($adminEmail) {
+        \Illuminate\Support\Facades\Mail::to($adminEmail)
+            ->send(new \App\Mail\SyncErrorEmail(
+                $user->email,
+                $user->id,
+                $errorMessage,
+                $errorDetails
+            ));
+    }
+
+    \Illuminate\Support\Facades\Log::error('Sync error reported', [
+        'user_id' => $user->id,
+        'user_email' => $user->email,
+        'error_message' => $errorMessage,
+        'error_details' => $errorDetails
+    ]);
+
+    return response()->json(['status' => 'ok']);
+})->middleware(['web', 'throttle:'.$verificationLimiter]);
+
 Route::get('grocery-categories', function(Request $request) {
     $handle = fopen(resource_path() . '/grocery_categories.tsv', 'rb');
     $f = [];

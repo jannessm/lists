@@ -21,6 +21,7 @@ export class ReplicationService implements OnDestroy {
   replications: {[key: string]: any} = {};
   streamSubjects: {[key: string]: Subject<any>} = {};
   lastPusherState = false;
+  syncErrorSubject = new Subject<{error: Error, context: string}>();
 
   constructor(
     private api: DataApiService,
@@ -39,6 +40,7 @@ export class ReplicationService implements OnDestroy {
 
   ngOnDestroy(): void {
     Object.values(this.streamSubjects).forEach(subj => subj.complete());
+    this.syncErrorSubject.complete();
   }
 
   async setupReplication(
@@ -68,9 +70,16 @@ export class ReplicationService implements OnDestroy {
 
           query.query = fixQuery(query.query);
 
-          const result = await firstValueFrom(that.api.graphQL<QueryResponse<PullResult>>(query));
-
-          return (result.data as PullResult)['pull' + operationName];
+          try {
+            const result = await firstValueFrom(that.api.graphQL<QueryResponse<PullResult>>(query));
+            return (result.data as PullResult)['pull' + operationName];
+          } catch (error) {
+            that.syncErrorSubject.next({
+              error: error as Error,
+              context: `pull handler for ${collectionName}`
+            });
+            throw error;
+          }
         },
         stream$: await this.initStream(collectionName),
         modifier: (doc: any) => {
@@ -96,9 +105,16 @@ export class ReplicationService implements OnDestroy {
 
           query.query = fixQuery(query.query);
 
-          const result = await firstValueFrom(that.api.graphQL<MutationResponse<PushResult>>(query));
-
-          return (result.data as PushResult)['push' + operationName];
+          try {
+            const result = await firstValueFrom(that.api.graphQL<MutationResponse<PushResult>>(query));
+            return (result.data as PushResult)['push' + operationName];
+          } catch (error) {
+            that.syncErrorSubject.next({
+              error: error as Error,
+              context: `push handler for ${collectionName}`
+            });
+            throw error;
+          }
         },
         modifier: (doc: any) => {
           removeItems(doc, ['sharedWith', 'items']);

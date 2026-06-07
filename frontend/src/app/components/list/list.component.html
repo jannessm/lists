@@ -16,7 +16,7 @@
   <div id="items-container" #itemsContainer>
     @for (slot of slots(); track slot.name) {
       <div class="slots">
-        @if (slots().length > 1) {
+        @if (slots().length > 1 || slot.nDone > 0) {
           <h5>
             {{ slot.name }}
             @if (slot.nDone > 0) {

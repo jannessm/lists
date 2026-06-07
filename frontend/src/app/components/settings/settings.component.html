@@ -41,8 +41,13 @@
         class="forms"
       ></app-settings-edit-form>
       <hr>
-        <button mat-button (click)="sync()" matTooltip="Sync data">
-          <mat-icon>sync</mat-icon>Synchronisieren
+        <button mat-button (click)="sync()" [disabled]="isSyncing" matTooltip="Sync data">
+          @if (isSyncing) {
+            <mat-icon>hourglass_empty</mat-icon>
+          } @else {
+            <mat-icon>sync</mat-icon>
+          }
+          Synchronisieren
         </button>
         <app-settings-theme-form class="forms"></app-settings-theme-form>
         <app-settings-others-form class="forms"></app-settings-others-form>
