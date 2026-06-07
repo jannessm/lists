@@ -32,17 +32,20 @@ final class PullItems
             $id = $args['id'];
         }
 
-        $newItems = $user->listItems()
-            ->where("updated_at", ">", $updatedAt)
-            ->limit($args["limit"])->get();
-        $sameItems = $user->listItems()
-            ->where("updated_at", $updatedAt)
-            ->where("id", ">", $id)
-            ->limit($args["limit"])->get();
-        $items = $newItems->merge($sameItems)
-            ->sortBy('updated_at')
-            ->sortBy('id')
-            ->slice(0, $args["limit"])->all();
+        // Build a single query that properly handles pagination
+        $items = $user->listItems()
+            ->where(function ($query) use ($updatedAt, $id) {
+                $query->where('updated_at', '>', $updatedAt)
+                      ->orWhere(function ($query) use ($updatedAt, $id) {
+                          $query->where('updated_at', '=', $updatedAt)
+                                ->where('id', '>', $id);
+                      });
+            })
+            ->orderBy('updated_at')
+            ->orderBy('id')
+            ->limit($args["limit"])
+            ->get()
+            ->all();
         
         $last_item = end($items);
         $result = [
