@@ -1,0 +1,47 @@
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  width: 100%;
+  max-width: 400px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  h2 {
+    margin: 0;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    mat-form-field {
+      width: 100%;
+    }
+
+    .error-banner {
+      padding: 12px;
+      background-color: rgba(244, 67, 54, 0.1);
+      border-left: 4px solid #f44336;
+      border-radius: 4px;
+      margin: 8px 0;
+
+      mat-error {
+        display: block;
+        font-size: 14px;
+      }
+    }
+
+    .resend, .back {
+      display: flex;
+      justify-content: flex-start;
+    }
+  }
+}

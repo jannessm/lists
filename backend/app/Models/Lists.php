@@ -66,10 +66,12 @@ class Lists extends Model
 
         $upserts = [];
         $conflicts = [];
+        $newDocIds = []; // IDs of brand-new lists (no assumedMasterState)
 
         foreach($args['rows'] as $list) {
             $conflict = FALSE;
             $newState = $list['newDocumentState'];
+            $isNewDoc = !array_key_exists('assumedMasterState', $list);
 
             if (array_key_exists('assumedMasterState', $list)) {
                 $assumedMaster = $list['assumedMasterState'];
@@ -110,8 +112,12 @@ class Lists extends Model
                 unset($newState['createdBy']);
                 unset($newState['sharedWith']);
                 unset($newState['created_at']);
-                unset($newState['updated_at']);
+                $newState['updated_at'] = now();
                 array_push($upserts, $newState);
+
+                if ($isNewDoc) {
+                    array_push($newDocIds, $newState['id']);
+                }
             }
         }
 
@@ -121,6 +127,12 @@ class Lists extends Model
             $updatedLists = Lists::whereIn('id', $ids)->orderBy('updated_at')->get()->all();
 
             ListsChanged::dispatch($updatedLists);
+
+            // Return newly created lists alongside conflicts so the frontend
+            // can update its local updatedAt (which starts as null) without
+            // needing a separate pull round-trip.
+            $newDocs = array_values(array_filter($updatedLists, fn($l) => in_array($l->id, $newDocIds)));
+            return array_merge($conflicts, $newDocs);
         }
 
         return $conflicts;

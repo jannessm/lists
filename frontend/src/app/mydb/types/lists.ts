@@ -66,8 +66,17 @@ export function listsConflictHandler(
     assumedMasterState: MyListsDocumentType | undefined,
     trueMasterState: MyListsDocumentType | undefined,
 ) {
-     // if no master state was ever registered
-     if (!assumedMasterState || !trueMasterState) {
+    // No previous master: brand-new doc. Accept server-set fields (e.g.
+    // updatedAt) from trueMaster so isCreated() returns true immediately.
+    if (!assumedMasterState) {
+        const newState: MyListsDocumentType = JSON.parse(JSON.stringify(forkState));
+        if (trueMasterState?.updatedAt) {
+            newState.updatedAt = trueMasterState.updatedAt;
+        }
+        return newState;
+    }
+
+    if (!trueMasterState) {
         return forkState;
     // overwrite fork state with master changes that are different from the assumedMaster
     } else {

@@ -6,12 +6,11 @@ import { AuthApiService } from '../auth-api/auth-api.service';
 import { Router } from '@angular/router';
 import { PusherService } from '../pusher/pusher.service';
 import { DataService } from '../data/data.service';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { of } from 'rxjs';
 import { MockMyMeDocument } from './auth.service.mock';
 import { getAuthApiMock } from '../auth-api/auth-api.mock';
-import { CookieServiceMock, MatBottomSheetMock, MatSnackBarMock } from '../../../testing/mocks';
+import { CookieServiceMock, MatSnackBarMock } from '../../../testing/mocks';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -20,7 +19,6 @@ describe('AuthService', () => {
   let mockRouter: jasmine.SpyObj<Router>;
   let mockPusherService: jasmine.SpyObj<PusherService>;
   let mockDataService: jasmine.SpyObj<DataService>;
-  let mockBottomSheet: jasmine.SpyObj<MatBottomSheet>;
   let mockSnackBar: jasmine.SpyObj<MatSnackBar>;
 
   beforeEach(() => {
@@ -37,7 +35,6 @@ describe('AuthService', () => {
         {provide: Router, useValue: MockRouter},
         {provide: PusherService, useValue: MockPusherService},
         {provide: DataService, useValue: MockDataService},
-        {provide: MatBottomSheet, useValue: MatBottomSheetMock},
         {provide: MatSnackBar, useValue: MatSnackBarMock},
       ]
     });
@@ -47,7 +44,6 @@ describe('AuthService', () => {
     mockRouter = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     mockPusherService = TestBed.inject(PusherService) as jasmine.SpyObj<PusherService>;
     mockDataService = TestBed.inject(DataService) as jasmine.SpyObj<DataService>;
-    mockBottomSheet = TestBed.inject(MatBottomSheet) as jasmine.SpyObj<MatBottomSheet>;
     mockSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
   });
 

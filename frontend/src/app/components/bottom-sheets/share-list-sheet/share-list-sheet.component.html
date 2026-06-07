@@ -1,4 +1,4 @@
-@for (user of users(); track user; let i = $index) {
+@for (user of users(); track user.id; let i = $index) {
   <div class="shared-user">
     <div class="user-info">
       <button mat-mini-fab [class]="'badge user-fab-' + (i % 12)" disabled>{{user?.name | nameBadge}}</button>
@@ -24,7 +24,7 @@
       <input matInput formControlName="email" placeholder="Email" [matAutocomplete]="auto">
     </mat-form-field>
     <mat-autocomplete #auto>
-      @for (user of filteredUsers(); track user; let i = $index) {
+      @for (user of filteredUsers(); track user.id; let i = $index) {
         <mat-option [value]="user.email">
           <div class="user-info">
             <span>{{user.name}}</span>

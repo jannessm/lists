@@ -10,6 +10,7 @@ import { AuthServiceSpy, MockMyListsDocument } from '../../services/auth/auth.se
 import { of } from 'rxjs';
 import { DataServiceSpy } from '../../services/data/data.service.mock';
 import { MatBottomSheetRefMock } from '../../../testing/mocks';
+import { provideRouter } from '@angular/router';
 
 describe('ListsOverviewComponent', () => {
   let component: ListsOverviewComponent;
@@ -27,6 +28,7 @@ describe('ListsOverviewComponent', () => {
         { provide: DataService, useClass: DataServiceSpy },
         { provide: MatBottomSheet, useValue: MatBottomSheetRefMock },
         provideAnimations(),
+        provideRouter([]),
       ]
     }).compileComponents();
 

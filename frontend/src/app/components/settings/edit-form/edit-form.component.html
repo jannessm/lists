@@ -28,67 +28,18 @@
           </mat-error>
         }
       </mat-form-field>
-      <br>
-        <br>
-          <mat-form-field appearance="outline">
-            <mat-label>Altes Passwort</mat-label>
-            <input matInput type="password" placeholder="Passwort" formControlName="oldPwd">
-            @if (disabled()) {
-              <mat-hint>Im Offlinemodus nicht änderbar.</mat-hint>
-            }
-            @if (editForm.get('oldPwd')?.hasError('required')) {
-              <mat-error>
-                Passwort muss angegeben werden!
-              </mat-error>
-            }
-            <mat-hint>Nach einer Änderung des Passworts musst du dich erneut einloggen.</mat-hint>
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Neues Passwort</mat-label>
-            <input matInput type="password" placeholder="Passwort" formControlName="pwd">
-            @if (disabled()) {
-              <mat-hint>Im Offlinemodus nicht änderbar.</mat-hint>
-            }
-            @if (editForm.get('pwd')?.hasError('required')) {
-              <mat-error>
-                Ein neues Passwort muss angegeben werden!
-              </mat-error>
-            }
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Passwort wiederholen</mat-label>
-            <input matInput type="password" placeholder="Passwort wiederholen" formControlName="pwdConfirmation">
-            @if (disabled()) {
-              <mat-hint>Im Offlinemodus nicht änderbar.</mat-hint>
-            }
-            @if (editForm.get('pwdConfirmation')?.hasError('required')) {
-              <mat-error>
-                Das neue Passwort muss wiederholt werden!
-              </mat-error>
-            }
-            @if (editForm.hasError('notMatching')) {
-              <mat-error>
-                Neue Passwörter stimmen nicht überein!
-              </mat-error>
-            }
-            @if (editForm.hasError('matching')) {
-              <mat-error>
-                Das neue Passwort muss sich vom alten Passwort unterscheiden!
-              </mat-error>
-            }
-          </mat-form-field>
-        </form>
-      }
+    </form>
+  }
 
-      @if (editMode()) {
-        <button mat-stroked-button
-          (click)="saveChanges()"
-        [disabled]="!editForm.valid">Speichern</button>
-      }
-      @if (editMode()) {
-        <button mat-flat-button
-          color="primary"
-          (click)="cancelChanges()"
-        >Abbrechen</button>
-      }
-    </div>
+  @if (editMode()) {
+    <button mat-stroked-button
+      (click)="saveChanges()"
+    [disabled]="!editForm.valid">Speichern</button>
+  }
+  @if (editMode()) {
+    <button mat-flat-button
+      color="primary"
+      (click)="cancelChanges()"
+    >Abbrechen</button>
+  }
+</div>

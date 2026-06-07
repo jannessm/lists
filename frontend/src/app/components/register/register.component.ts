@@ -1,13 +1,10 @@
 import { Component, OnDestroy, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-
-
-import md5 from 'md5-ts';
 
 import { AuthService } from '../../services/auth/auth.service';
 
@@ -48,16 +45,21 @@ export class RegisterComponent implements OnDestroy {
     this.form = this.fb.group({
       name: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      pwd: ['', Validators.required],
-      pwd_confirmation: ['', Validators.required],
+      email_confirmation: ['', [Validators.required, Validators.email]],
       captcha: ['', Validators.required]
     },
     {
-      validators: MatchValidator('pwd', 'pwd_confirmation')
+      validators: MatchValidator('email', 'email_confirmation')
     });
 
     this.fromSub = this.form.valueChanges.subscribe(() => {
-      this.form.setErrors(null);
+      // Only clear the 'error' flag (server error), keep validation errors
+      const errors = this.form.errors;
+      if (errors && errors['error']) {
+        const newErrors = {...errors};
+        delete newErrors['error'];
+        this.form.setErrors(Object.keys(newErrors).length > 0 ? newErrors : null);
+      }
     });
   }
 
@@ -73,8 +75,7 @@ export class RegisterComponent implements OnDestroy {
     this.authService.register(
       (this.form.controls['name'].value as string),
       (this.form.controls['email'].value as string).toLowerCase(),
-      md5(this.form.controls['pwd'].value),
-      md5(this.form.controls['pwd_confirmation'].value),
+      (this.form.controls['email_confirmation'].value as string).toLowerCase(),
       this.form.controls['captcha'].value
     ).subscribe(res => {
       if (res == REGISTER.FOUND) {
@@ -96,3 +97,4 @@ export class RegisterComponent implements OnDestroy {
     this.form.get('captcha')?.setErrors({'captcha': true});
   }
 }
+

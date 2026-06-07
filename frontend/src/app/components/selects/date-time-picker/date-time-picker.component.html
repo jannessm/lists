@@ -1,0 +1,58 @@
+@if (isOpen) {
+  <div class="picker-backdrop" (click)="close()"></div>
+  <div class="picker-popup">
+
+    <!-- Year navigation -->
+    <div class="nav-row">
+      <button type="button" class="nav-btn" (click)="prevYear()">&#171;</button>
+      <span class="nav-label">{{ viewYear }}</span>
+      <button type="button" class="nav-btn" (click)="nextYear()">&#187;</button>
+    </div>
+
+    <!-- Month navigation -->
+    <div class="nav-row">
+      <button type="button" class="nav-btn" (click)="prevMonth()">&#8249;</button>
+      <span class="nav-label">{{ viewMonthLabel }}</span>
+      <button type="button" class="nav-btn" (click)="nextMonth()">&#8250;</button>
+    </div>
+
+    <!-- Weekday header + day cells -->
+    <div class="calendar-grid">
+      @for (wd of WEEKDAYS; track wd) {
+        <div class="weekday-header">{{ wd }}</div>
+      }
+      @for (week of calendarWeeks; track $index) {
+        @for (day of week; track $index) {
+          <button
+            type="button"
+            class="day-cell"
+            [class.selected]="isSelectedDay(day)"
+            [class.today]="isToday(day)"
+            [class.empty]="!day"
+            [disabled]="!day"
+            (click)="selectDay(day)"
+          >{{ day }}</button>
+        }
+      }
+    </div>
+
+    <!-- Time input -->
+    <div class="time-row">
+      <label for="time-input">Zeit:</label>
+      <input
+        id="time-input"
+        type="time"
+        [(ngModel)]="timeValue"
+        (change)="onTimeChange()"
+        step="60"
+      >
+    </div>
+
+    <!-- Close button -->
+    <div class="action-row">
+      <button matButton="outlined" type="button" (click)="cancel()">Abbrechen</button>
+      <button matButton="tonal" type="button" (click)="close()">OK</button>
+    </div>
+
+  </div>
+}

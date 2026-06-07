@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -22,7 +20,7 @@ use App\CanShareLists;
 use App\WebPush\HasPushSettings;
 use App\Events\UserChanged;
 
-class User extends Authenticatable implements MustVerifyEmail, CanResetPassword {
+class User extends Authenticatable {
     use HasApiTokens,
         HasFactory,
         Notifiable,
@@ -39,7 +37,6 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
     protected $fillable = [
         'name',
         'email',
-        'password',
         'theme',
         'default_list',
         'default_reminder'
@@ -63,7 +60,6 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
      * @var array<int, string>
      */
     protected $hidden = [
-        'password',
         'remember_token',
     ];
 
@@ -74,7 +70,6 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
         '_deleted' => 'boolean'
     ];
 
@@ -140,7 +135,6 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword 
             }
 
             if (!$conflict) {
-                $newState['password'] = $masterUser->password;
                 $newState['updated_at'] = $this->freshTimestamp();
                 array_push($upserts, $newState);
             }

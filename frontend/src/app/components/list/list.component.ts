@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, Signal, ViewChild, WritableSignal, computed, effect, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, Signal, ViewChild, WritableSignal, computed, effect, signal, untracked } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -9,7 +9,6 @@ import { Slot, groupItems } from '../../../models/categories';
 import { MyItemDocument, newItem } from '../../mydb/types/list-item';
 
 import { MaterialModule } from '../../material.module';
-import { NameBadgePipe } from '../../pipes/name-badge.pipe';
 import { ListItemComponent } from './list-item/list-item.component';
 import { MyMeDocument } from '../../mydb/types/me';
 import { Subscription } from 'rxjs';
@@ -19,24 +18,28 @@ import { DueOption, DueOptionLabels, getDueDate, getReminderDate } from '../sele
 import { DateChipSelectComponent } from '../selects/date-chip-select/date-chip-select.component';
 import { ListHeaderComponent } from './list-header/list-header.component';
 import { DATA_TYPE } from '../../mydb/types/graphql-types';
+import { DateTimePickerComponent } from '../selects/date-time-picker/date-time-picker.component';
 
 @Component({
-    selector: 'app-list',
-    imports: [
+  selector: 'app-list',
+  imports: [
     FormsModule,
     MaterialModule,
     RouterModule,
     ReactiveFormsModule,
     ListItemComponent,
     DateChipSelectComponent,
-    ListHeaderComponent
-],
-    templateUrl: './list.component.html',
-    styleUrls: ['./list.component.scss']
+    ListHeaderComponent,
+    DateTimePickerComponent
+  ],
+  templateUrl: './list.component.html',
+  styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements AfterViewInit, OnDestroy {
   @ViewChild('addInput') addInput!: ElementRef;
   @ViewChild('overlay') overlay!: ElementRef;
+  @ViewChild(DateTimePickerComponent) dateTimePicker!: DateTimePickerComponent;
+  @ViewChild(DateChipSelectComponent) dateChipSelect!: DateChipSelectComponent;
 
   @Input()
   set id(id: string) {
@@ -45,7 +48,7 @@ export class ListComponent implements AfterViewInit, OnDestroy {
         selector: { id }
       }).$.subscribe((list: unknown) => {
         if (!!list) {
-          this.list.set(list as MyListsDocument);
+          untracked(() => this.list.set(list as MyListsDocument));
         }
       });
 
@@ -53,7 +56,7 @@ export class ListComponent implements AfterViewInit, OnDestroy {
         selector: { lists: id },
       }).$.subscribe((items: unknown[]) => {
         if (Array.isArray(items)) {
-          this.listItems.set(items as MyItemDocument[]);
+          untracked(() => this.listItems.set(items as MyItemDocument[]));
         }
       });
     } else {
@@ -123,6 +126,15 @@ export class ListComponent implements AfterViewInit, OnDestroy {
     this.users$?.unsubscribe();
   }
 
+  onDateChange(date: Date): void {
+    this.dateChipSelect?.onDateChange(date);
+  }
+
+  closePicker(): void {
+    this.dateChipSelect?.closePicker();
+    this.addInput.nativeElement.focus();
+  }
+
   groupItems(list: MyListsDocument, items: MyItemDocument[]): Slot[] {
     if (items && list && items.length > 0 && !!items[0]) {
       const slots = groupItems(items, list.isShoppingList, this.dataService.groceryCategories);
@@ -151,6 +163,7 @@ export class ListComponent implements AfterViewInit, OnDestroy {
         !!this.newItem.value?.trim()
       ) {
       const due = getDueDate(this.newItemDue.value || '');
+      const dueDate = due ? new Date(due) : null;
 
       const item = {
         name: this.newItem.value,
@@ -160,9 +173,9 @@ export class ListComponent implements AfterViewInit, OnDestroy {
       };
 
       const defaultReminder = me.defaultReminder;
-      if (!!due && !!defaultReminder) {
+      if (dueDate && !isNaN(dueDate.valueOf()) && !!defaultReminder) {
         Object.assign(item, {
-          reminder: getReminderDate(new Date(due), defaultReminder)
+          reminder: getReminderDate(dueDate, defaultReminder)
         })
       }
 

@@ -49,6 +49,7 @@ describe('itemsConflictHandler', () => {
             timezone: 'de',
             lists: 'a list id',
             done: false,
+            sort_order: 1.0,
             createdAt: 'one day ago',
             updatedAt: 'now',
             _deleted: false};
@@ -64,6 +65,7 @@ describe('itemsConflictHandler', () => {
             timezone: 'en',
             lists: 'another list id',
             done: true,
+            sort_order: 5.0,
             createdAt: 'two days ago',
             updatedAt: 'just now',
             _deleted: true} as any;
@@ -80,6 +82,7 @@ describe('itemsConflictHandler', () => {
             timezone: 'en',
             lists: 'a list id',
             done: true,
+            sort_order: 5.0,
             createdAt: 'one day ago',
             updatedAt: 'just now',
             _deleted: true} as any;
@@ -87,6 +90,43 @@ describe('itemsConflictHandler', () => {
         const result = itemsConflictHandler(forkState, assumedMaster, trueMaster);
 
         expect(result).toEqual(assumedResult);
+    });
+
+    it('does not overwrite sort_order when trueMaster has an older updatedAt', () => {
+        const forkState = {
+            id: '1234',
+            name: 'hi',
+            description: null,
+            createdBy: 'me',
+            reminder: null,
+            due: null,
+            timezone: 'UTC',
+            lists: 'list1',
+            done: false,
+            sort_order: 10.0,
+            createdAt: 'one day ago',
+            updatedAt: 'just now',
+            _deleted: false};
+        const assumedMaster = JSON.parse(JSON.stringify(forkState));
+        assumedMaster.sort_order = 2.0;
+        const trueMaster = {
+            id: '1234',
+            name: 'hi',
+            description: null,
+            createdBy: 'me',
+            reminder: null,
+            due: null,
+            timezone: 'UTC',
+            lists: 'list1',
+            done: false,
+            sort_order: 2.0,
+            createdAt: 'one day ago',
+            updatedAt: 'earlier',  // older than forkState.updatedAt
+            _deleted: false} as any;
+
+        const result = itemsConflictHandler(forkState as any, assumedMaster, trueMaster) as any;
+        // sort_order should NOT be overwritten because trueMaster.updatedAt < forkState.updatedAt
+        expect(result.sort_order).toBe(10.0);
     });
 });
 

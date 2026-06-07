@@ -1,4 +1,4 @@
-import { Subscription } from "rxjs";
+import { Subscription, debounceTime } from "rxjs";
 import { MyPullOptions, MyPushOptions, MyReplicationOptions } from "./types/replication";
 import { MyCollection } from "./collection";
 import { MyPushRow } from "./types/common";
@@ -17,6 +17,8 @@ export async function replicateCollection(options: MyReplicationOptions): Promis
 export class Replicator {
     private stream$?: Subscription;
     private replicationSub?: Subscription;
+    private isPushing = false;
+    private pushQueued = false;
 
     constructor (
         private identifier: string,
@@ -26,7 +28,9 @@ export class Replicator {
     ) {
         this.pull().then(() => {
             this.startStream();
-            this.replicationSub = this.collection.replication$.subscribe(() => {
+            this.replicationSub = this.collection.replication$.pipe(
+                debounceTime(500)
+            ).subscribe(() => {
                 this.push()
             });
         });
@@ -76,13 +80,40 @@ export class Replicator {
             if (this.pullOptions.modifier) {
                 docs = docs.map(this.pullOptions.modifier);
             }
-            await this.collection.remoteBulkAdd(docs);
-            await this.collection.updateMasterState(docs);
-            await this.collection.setCheckpoint(data.checkpoint);
+            try {
+                await this.collection.remoteBulkAdd(docs);
+                await this.collection.updateMasterState(docs);
+                await this.collection.setCheckpoint(data.checkpoint);
+            } catch (err) {
+                console.error('startStream: error processing stream event, triggering resync', err);
+                this.pull();
+            }
         });
     }
 
     public async push() {
+        if (this.isPushing) {
+            // Another push is already in flight; queue one follow-up so any
+            // changes written while this push runs are not silently dropped.
+            this.pushQueued = true;
+            return;
+        }
+
+        this.isPushing = true;
+        try {
+            await this._doPush();
+
+            // If a push was queued while we were running, execute it now.
+            while (this.pushQueued) {
+                this.pushQueued = false;
+                await this._doPush();
+            }
+        } finally {
+            this.isPushing = false;
+        }
+    }
+
+    private async _doPush() {
         if (!this.pushOptions) return;
 
         let docs = await this.collection.table.toCollection()
@@ -99,11 +130,29 @@ export class Replicator {
         docs = docs.map(doc => doc.isClassObject ? doc.lastData : doc)
             .map(doc => JSON.parse(JSON.stringify(doc)));
 
-        this.pushInterval(docs).catch(err => {
-            // try push each min until succession
+        await this.pushInterval(docs).catch(err => {
+            // try push each second until success; re-query touched docs each time
+            // to avoid re-submitting items the server already processed (Bug G).
+            const pk = this.collection.primaryKey;
+            const docIds = new Set(docs.map((d: any) => d[pk]));
             const pushInterval = setInterval(async () => {
                 try {
-                    await this.pushInterval(docs);
+                    // re-read touched docs — avoids re-sending already-processed items
+                    const stillTouched = await this.collection.table
+                        .toCollection()
+                        .filter((d: any) => d.touched && docIds.has(d[pk]))
+                        .toArray();
+
+                    if (stillTouched.length === 0) {
+                        clearInterval(pushInterval);
+                        return;
+                    }
+
+                    const retryDocs = stillTouched
+                        .map((doc: any) => doc.isClassObject ? doc.lastData : doc)
+                        .map((doc: any) => JSON.parse(JSON.stringify(doc)));
+
+                    await this.pushInterval(retryDocs);
 
                     clearInterval(pushInterval);
                 } catch { }
@@ -117,6 +166,17 @@ export class Replicator {
         let pushRows: MyPushRow[] = await Promise.all(
             docs.map(doc => this.getPushRow(doc))
         );
+
+        // skip rows where the local state is identical to the assumed master (no real change)
+        pushRows = pushRows.filter(row =>
+            JSON.stringify(row.newDocumentState) !== JSON.stringify(row.assumedMasterState)
+        );
+
+        if (pushRows.length === 0) {
+            await this.collection.markUntouched(docs);
+            return;
+        }
+
         let conflicts = await this.pushOptions.handler(pushRows);
 
         // handle conflicts

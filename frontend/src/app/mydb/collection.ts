@@ -4,14 +4,16 @@ import { defaultConflictHandler } from "./conflict-handler";
 import { ConflictHandler } from "./types/replication";
 import { QueryObject } from "./types/classes";
 import { MyQuery, MyQuerySingle } from "./query";
-import { EventEmitter } from "@angular/core";
+import { NgZone } from "@angular/core";
+import { Subject } from "rxjs";
 import Dexie from "dexie";
 import { JsonSchema } from "./types/schema";
 
 export class MyCollection<DocType, DocMethods> {
     private lastCheckpoint?: unknown;
-    $ = new EventEmitter<MyDocument<DocType, DocMethods>[]>();
-    replication$ = new EventEmitter<void>();
+    /** Emits changed documents. Always fires inside Angular's NgZone. */
+    $ = new Subject<MyDocument<DocType, DocMethods>[]>();
+    replication$ = new Subject<void>();
     
     public primaryKey!: string;
 
@@ -21,7 +23,8 @@ export class MyCollection<DocType, DocMethods> {
                 private tableName: string,
                 public schema: JsonSchema,
                 public methods?: CollectionMethods,
-                conflictHandler?: ConflictHandler
+                conflictHandler?: ConflictHandler,
+                private ngZone?: NgZone
     ) { 
         if (!conflictHandler) {
             this.conflictHandler = defaultConflictHandler;
@@ -32,6 +35,27 @@ export class MyCollection<DocType, DocMethods> {
         this.primaryKey = schema.primaryKey;
 
         this.removeOldData().then(() => {});
+    }
+
+    /**
+     * Emit on the collection subject, always running inside Angular's NgZone so
+     * that change detection is triggered even when the call originates from a
+     * Dexie (IndexedDB) callback, which runs outside zone by default because
+     * Dexie uses its own Promise scheduler that zone.js does not patch.
+     */
+    private emit(docs: MyDocument<DocType, DocMethods>[]) {
+        if (this.ngZone) {
+            this.ngZone.run(() => this.$.next(docs));
+        } else {
+            this.$.next(docs);
+        }
+    }
+    private emitReplication() {
+        if (this.ngZone) {
+            this.ngZone.run(() => this.replication$.next());
+        } else {
+            this.replication$.next();
+        }
     }
 
     get table() {
@@ -59,7 +83,7 @@ export class MyCollection<DocType, DocMethods> {
                 }
             }
         }
-        return new MyQuery<DocType, DocMethods>(this, req);
+        return new MyQuery<DocType, DocMethods>(this, req, this.ngZone);
     }
 
     findOne(query?: QueryOptions): MyQuerySingle<DocType, DocMethods> {
@@ -78,17 +102,19 @@ export class MyCollection<DocType, DocMethods> {
             }
         }
         
-        return new MyQuerySingle<DocType, DocMethods>(this, req);
+        return new MyQuerySingle<DocType, DocMethods>(this, req, this.ngZone);
     }
 
     async insert(doc: any) {
-        // operate on copy only
+        // operate on copy only for the IndexedDB write (needs touched flag)
         const newDoc = JSON.parse(JSON.stringify(doc));
         Object.assign(newDoc, {touched: true});
-        await this.table.add(newDoc);
 
-        this.$.next([doc]);
-        this.replication$.next();
+        // Optimistic update: emit the original doc (without touched) immediately
+        // so the UI can re-render before the IndexedDB write completes.
+        // On failure, emit an empty array to trigger a full re-scan.
+        this.emit([doc]);
+        this.table.add(newDoc).then(() => this.emitReplication()).catch(() => this.emit([]));
     }
 
     async markUntouched(docs: any[]) {
@@ -109,7 +135,7 @@ export class MyCollection<DocType, DocMethods> {
 
         this.updateMasterState(newDocs);
 
-        this.$.next(newDocs);
+        this.emit(newDocs);
         // no replication since it is triggered by replication
     }
 
@@ -118,10 +144,11 @@ export class MyCollection<DocType, DocMethods> {
         newDoc = JSON.parse(JSON.stringify(newDoc));
         Object.assign(newDoc, {touched: true});
 
-        await this.table.put(newDoc);
-
-        this.$.next([newDoc]);
-        this.replication$.next();
+        // Optimistic update: emit immediately so the UI can re-render before
+        // the IndexedDB write completes.  On failure, emit an empty array to
+        // trigger a full re-scan that shows the rolled-back state.
+        this.emit([newDoc]);
+        this.table.put(newDoc).then(() => this.emitReplication()).catch(() => this.emit([]));
     }
 
     async bulkUpdate(
@@ -142,8 +169,8 @@ export class MyCollection<DocType, DocMethods> {
         const keys = docs.map((doc: any) => doc[this.primaryKey]);
         const newDocs = await this.table.bulkGet(keys);
         
-        this.$.next(newDocs);
-        this.replication$.next();
+        this.emit(newDocs);
+        this.emitReplication();
     }
 
     async remoteBulkAdd(docs: any[]) {
@@ -153,19 +180,27 @@ export class MyCollection<DocType, DocMethods> {
             await this.table.bulkAdd(docs);
         } catch (err: any) {
             const bulk = [];
-            for (const [pos, error] of Object.entries(err.failuresByPos)) {
-                if (!(error as any).message.includes('Key already exists')) {
-                    console.error(error);
-                }
-                const trueMaster = docs[parseInt(pos)];
-                const assumedMaster = await this.masterTable.get(
-                    {[this.primaryKey]: trueMaster[this.primaryKey]}
-                );
-                const forkState = await this.table.get(
-                    {[this.primaryKey]: trueMaster[this.primaryKey]}
-                );
+            // err.failuresByPos is only present on a Dexie BulkError.
+            // For any other IDB error, fall back to a full bulkPut so we
+            // still apply the remote state and call emit() below.
+            if (err.failuresByPos) {
+                for (const [pos, error] of Object.entries(err.failuresByPos)) {
+                    if (!(error as any).message.includes('Key already exists')) {
+                        console.error(error);
+                    }
+                    const trueMaster = docs[parseInt(pos)];
+                    const assumedMaster = await this.masterTable.get(
+                        {[this.primaryKey]: trueMaster[this.primaryKey]}
+                    );
+                    const forkState = await this.table.get(
+                        {[this.primaryKey]: trueMaster[this.primaryKey]}
+                    );
 
-                bulk.push(this.conflictHandler(forkState, assumedMaster, trueMaster));
+                    bulk.push(this.conflictHandler(forkState, assumedMaster, trueMaster));
+                }
+            } else {
+                console.error('remoteBulkAdd: unexpected non-BulkError, falling back to bulkPut', err);
+                docs.forEach(doc => bulk.push(doc));
             }
 
             if (bulk.length > 0) {
@@ -173,7 +208,7 @@ export class MyCollection<DocType, DocMethods> {
             }
         }
         
-        this.$.next([]);
+        this.emit([]);
     }
 
     async updateMasterState(docs: any[]) {
