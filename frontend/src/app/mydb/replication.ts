@@ -131,10 +131,28 @@ export class Replicator {
             .map(doc => JSON.parse(JSON.stringify(doc)));
 
         await this.pushInterval(docs).catch(err => {
-            // try push each min until succession
+            // try push each second until success; re-query touched docs each time
+            // to avoid re-submitting items the server already processed (Bug G).
+            const pk = this.collection.primaryKey;
+            const docIds = new Set(docs.map((d: any) => d[pk]));
             const pushInterval = setInterval(async () => {
                 try {
-                    await this.pushInterval(docs);
+                    // re-read touched docs — avoids re-sending already-processed items
+                    const stillTouched = await this.collection.table
+                        .toCollection()
+                        .filter((d: any) => d.touched && docIds.has(d[pk]))
+                        .toArray();
+
+                    if (stillTouched.length === 0) {
+                        clearInterval(pushInterval);
+                        return;
+                    }
+
+                    const retryDocs = stillTouched
+                        .map((doc: any) => doc.isClassObject ? doc.lastData : doc)
+                        .map((doc: any) => JSON.parse(JSON.stringify(doc)));
+
+                    await this.pushInterval(retryDocs);
 
                     clearInterval(pushInterval);
                 } catch { }

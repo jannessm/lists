@@ -4,6 +4,8 @@
   }
 </mat-chip-listbox>
 
-<mat-form-field appearance="outline">
-  <input matInput type="datetime-local" #pickr (change)="updateChips()" [(ngModel)]="dateString" [disabled]="disabled">
-</mat-form-field>
+<div class="picker-anchor">
+  <button type="button" mat-stroked-button [disabled]="disabled" (click)="openDatePicker()">
+    {{ dateLabel }}
+  </button>
+</div>

@@ -55,8 +55,7 @@
       <mat-label>Erinnerung</mat-label>
       <app-date-chip-select
         formControlName="reminder"
-        (pickrOpened)="pickrOpened()"
-        (pickrClosed)="pickrClosed()"
+        [showOthers]="false"
         [defaultOption]="reminderDefault"
         [options]="reminderOptions"
       ></app-date-chip-select>

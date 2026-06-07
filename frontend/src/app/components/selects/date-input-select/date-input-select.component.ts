@@ -1,16 +1,15 @@
 import { DatePipe } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild, forwardRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild, forwardRef } from '@angular/core';
 import { FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
-import flatpickr from 'flatpickr';
-import { getTimePickerConfig } from '../../../../models/time-picker';
 import { MaterialModule } from '../../../material.module';
+import { DateTimePickerComponent } from '../date-time-picker/date-time-picker.component';
 
 @Component({
     selector: 'app-date-input-select',
     imports: [
     FormsModule,
     ReactiveFormsModule,
-    MaterialModule
+    MaterialModule,
 ],
     providers: [
         {
@@ -23,7 +22,7 @@ import { MaterialModule } from '../../../material.module';
     templateUrl: './date-input-select.component.html',
     styleUrl: './date-input-select.component.scss'
 })
-export class DateInputSelectComponent implements AfterViewInit {
+export class DateInputSelectComponent {
   @Input() options: [key: string, value: string][] = [];
   @Input() getChipValue: (date: Date | null) => string = () => '';
   @Input() getChipDate: (option: string) => string | null = () => null;
@@ -36,27 +35,19 @@ export class DateInputSelectComponent implements AfterViewInit {
   disabled = false;
 
   chipOption: string = '';
-  dateString: string = '';
   date: Date | null = null;
-  timezone?: string;
-  flatpickr?: flatpickr.Instance;
   pickrIsOpen = false;
-  @ViewChild('pickr') picker!: ElementRef;
 
-  constructor(private datePipe: DatePipe) {
-    this.timezone = new Date().toISOString().slice(16);
-  }
+  @ViewChild(DateTimePickerComponent) picker!: DateTimePickerComponent;
 
-  ngAfterViewInit(): void {
-    this.initFlatpickr();
-  }
+  constructor(private datePipe: DatePipe) {}
 
   get value(): string {
-    if (this.date) {
-      return this.date.toISOString();
-    } else {
-      return '';
-    }
+    return this.date ? this.date.toISOString() : '';
+  }
+
+  get dateLabel(): string {
+    return this.datePipe.transform(this.date, 'short') || 'Datum wählen';
   }
 
   writeValue(date: string | null): void {
@@ -71,32 +62,23 @@ export class DateInputSelectComponent implements AfterViewInit {
         this.onTouched();
       });
     }
-    this.dateString = this.getDateString(this.date);
     this.chipOption = this.getChipValue(this.date);
   }
 
-  updateTime() {
+  updateTime(): void {
     if (this.chipOption) {
       const date = this.getChipDate(this.chipOption) || '';
       this.date = new Date(date);
-      
-      if (!!date) {
-        this.dateString = this.getDateString(this.date);
-      }
-
       this.onChange(this.value);
       this.onTouched();
     }
   }
 
-  updateChips() {
-    if (this.flatpickr) {
-      this.date = this.flatpickr.selectedDates[0];
-      this.chipOption = this.getChipValue(this.date);
-      
-      this.onChange(this.value);
-      this.onTouched();
-    }
+  onDateChange(date: Date): void {
+    this.date = date;
+    this.chipOption = this.getChipValue(this.date);
+    this.onChange(this.value);
+    this.onTouched();
   }
 
   registerOnChange(fn: any): void {
@@ -107,54 +89,18 @@ export class DateInputSelectComponent implements AfterViewInit {
     this.onTouched = fn;
   }
 
-  setDisabledState?(isDisabled: boolean): void {
+  setDisabledState(isDisabled: boolean): void {
     this.disabled = isDisabled;
   }
 
-  initFlatpickr() {
-    const config = getTimePickerConfig();
-    Object.assign(config, {
-      formatDate: (date: Date) => this.getDateString(date)
-    });
-
-    this.flatpickr = flatpickr(this.picker.nativeElement, config) as flatpickr.Instance;
-  
-    this.flatpickr.config.onClose.push(() => {
-      this.closePickr();
-    });
-    this.flatpickr.config.onChange.push(() => {
-      this.updateChips();
-    });
-  }
-
-  openFlatpickr() {
-    if (!this.pickrIsOpen && !!this.flatpickr) {
-      this.flatpickr.open();
+  openDatePicker(): void {
+    if (!this.pickrIsOpen && this.picker) {
+      if (this.date) {
+        this.picker.setDate(this.date);
+      }
+      this.picker.open();
       this.pickrIsOpen = true;
       this.pickrOpened.emit();
     }
-  }
-
-  closePickr() {
-    if (this.pickrIsOpen) {
-      this.pickrIsOpen = false;
-      this.pickrClosed.emit();
-      this.onChange(this.value);
-      this.onTouched();
-    }
-  }
-
-  parseDateTime(date: Date | null) {
-    if (date) {
-      return this.datePipe.transform(
-        date.toISOString().slice(0, 16),
-        'short'
-      );
-    }
-    return '';
-  }
-  
-  getDateString(date: Date) {
-    return this.datePipe.transform(date, 'short') || '';
   }
 }
