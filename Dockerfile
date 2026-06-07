@@ -7,13 +7,16 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
+    libicu-dev \
     zip \
     unzip \
     libzip-dev \
     && rm -rf /var/lib/apt/lists/*
 
+
+RUN docker-php-ext-configure intl
 # Install PHP extensions required by Laravel
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip intl
 
 # Install Redis PHP extension
 RUN pecl install redis && docker-php-ext-enable redis
