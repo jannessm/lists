@@ -33,7 +33,6 @@
               }
             ],
             "styles": [
-              "node_modules/flatpickr/dist/flatpickr.css",
               "src/color-theme.scss",
               "src/styles.scss"
             ],
@@ -122,7 +121,6 @@
               "src/manifest.webmanifest"
             ],
             "styles": [
-              "node_modules/flatpickr/dist/flatpickr.css",
               "src/styles.scss"
             ],
             "scripts": []

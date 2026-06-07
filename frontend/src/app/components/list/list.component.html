@@ -2,6 +2,10 @@
   @if (focusInput) {
     <div id="content-overlay" (click)="closeFocusInput($event)" #overlay></div>
   }
+  <app-date-time-picker
+    (dateChange)="onDateChange($event)"
+    (pickerClosed)="closePicker()"
+  ></app-date-time-picker>
   <app-list-header
     [lists]="list"
     [users]="users"
@@ -12,16 +16,18 @@
   <div id="items-container" #itemsContainer>
     @for (slot of slots(); track slot.name) {
       <div class="slots">
-        <h5>
-          {{ slot.name }}
-          @if (slot.nDone > 0) {
-            <mat-chip-listbox class="slot-done-toggle">
-              <mat-chip-option (click)="slotCollapseStates[slot.name] = !slotCollapseStates[slot.name]" [selected]="!slotCollapseStates[slot.name]">
-                {{ slot.nDone }}
-              </mat-chip-option>
-            </mat-chip-listbox>
-          }
-        </h5>
+        @if (slots().length > 1) {
+          <h5>
+            {{ slot.name }}
+            @if (slot.nDone > 0) {
+              <mat-chip-listbox class="slot-done-toggle">
+                <mat-chip-option (click)="slotCollapseStates[slot.name] = !slotCollapseStates[slot.name]" [selected]="!slotCollapseStates[slot.name]">
+                  {{ slot.nDone }}
+                </mat-chip-option>
+              </mat-chip-listbox>
+            }
+          </h5>
+        }
         @for (item of slot.items; track item.id) {
           @if ((!item.done || !slotCollapseStates[slot.name]) && !!list() && !!me()) {
             <app-list-item
@@ -44,6 +50,7 @@
       <mat-toolbar class="toolbar-time" [style.display]="focusInput ? 'block' : 'none'">
         <app-date-chip-select
           [formControl]="newItemDue"
+          [picker]="dateTimePicker"
           [options]="dueOptions"
           [defaultOption]="dueDefault"
           (pickrOpened)="pickerOpen = true"
