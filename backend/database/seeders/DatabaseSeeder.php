@@ -122,6 +122,9 @@ class DatabaseSeeder extends Seeder
         $stmt = $pdo->prepare('SELECT name, time AS due, done, list_id, created_by from list_items;');
         $stmt->execute();
 
+        // Track sort order per list
+        $sort_orders = [];
+
         while ($item = $stmt->fetch(\PDO::FETCH_ASSOC)) {
 
             if (!array_key_exists($item['list_id'], $new_lists) ||
@@ -139,6 +142,12 @@ class DatabaseSeeder extends Seeder
                 $item['description'] = $item['name'];
                 $item['name'] = substr($item['name'], 0, 50);
             }
+
+            // Add sort_order for the new schema
+            if (!isset($sort_orders[$item['lists_id']])) {
+                $sort_orders[$item['lists_id']] = 0;
+            }
+            $item['sort_order'] = $sort_orders[$item['lists_id']]++;
 
             $newItem = \App\Models\ListItem::create($item);
         }
