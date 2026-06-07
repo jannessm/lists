@@ -38,6 +38,19 @@ export async function initDatabase(injector: Injector) {
     dexie.version(1)
          .stores(getPrimaryKeysFromCollections(DB_CONFIG));
     
+    // Version 2: Add sort_order field to list_items
+    dexie.version(2)
+         .stores(getPrimaryKeysFromCollections(DB_CONFIG))
+         .upgrade(async tx => {
+            // Set sort_order to 0 for all existing items
+            // The correct values will be pulled from the server on next sync
+            await tx.table('items').toCollection().modify(item => {
+                if (item.sort_order === undefined) {
+                    item.sort_order = 0;
+                }
+            });
+         });
+    
     DB_INSTANCE = dexie;
 }
 

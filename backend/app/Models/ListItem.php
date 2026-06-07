@@ -23,6 +23,7 @@ class ListItem extends Model
     protected $attributes = [
         'done' => false,
         '_deleted' => false,
+        'sort_order' => 0,
     ];
 
     /**

@@ -179,8 +179,14 @@ export class ListComponent implements AfterViewInit, OnDestroy {
         })
       }
 
+      // Compute maxSortOrder from existing items in this list
+      const currentItems = this.listItems();
+      const maxSortOrder = currentItems.length > 0
+        ? Math.max(...currentItems.map(i => (i as any).sort_order || 0))
+        : 0;
+
       this.dataService.db.items.insert(
-        newItem(item)
+        newItem(item, maxSortOrder)
       ).then(() => {
         this.newItem.reset();
         this.newItemDue.setValue(DueOption.SOMETIME);
