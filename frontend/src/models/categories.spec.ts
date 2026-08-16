@@ -53,12 +53,12 @@ describe('sortItems', () => {
     });
 
     it('sorts numeric name parts naturally', () => {
-        const a = makeItem({ name: 'item 2', sort_order: 2 });
-        const b = makeItem({ name: 'item 10', sort_order: 1 });
-        const items = [b, a];
+        const lower = makeItem({ name: 'item 2', sort_order: 2 });
+        const higher = makeItem({ name: 'item 10', sort_order: 1 });
+        const items = [higher, lower];
         sortItems(items);
-        expect(items[0]).toBe(a);
-        expect(items[1]).toBe(b);
+        expect(items[0]).toBe(lower);
+        expect(items[1]).toBe(higher);
     });
 
     it('uses sort_order as tiebreaker for equal names', () => {

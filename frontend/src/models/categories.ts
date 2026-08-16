@@ -25,8 +25,8 @@ export function sortItems(items: MyItemDocument[]) {
     }
 
     // stable tiebreaker for equal names: sort_order (ascending)
-    const sa = (a as any).sort_order ?? 0;
-    const sb = (b as any).sort_order ?? 0;
+    const sa = a.sort_order ?? 0;
+    const sb = b.sort_order ?? 0;
     return sa - sb;
   });
 }
