@@ -14,29 +14,46 @@ export interface Slot {
   nDone: number;
 }
 
-export function sortItems(items: MyItemDocument[]) {
+function compareItemNames(a: MyItemDocument, b: MyItemDocument) {
+  return (a.name ?? "").localeCompare(b.name ?? "", undefined, { sensitivity: "base" });
+}
+
+function getDueTimestamp(item: MyItemDocument) {
+  if (!item.due) {
+    return Number.POSITIVE_INFINITY;
+  }
+
+  const due = new Date(item.due).valueOf();
+  return Number.isNaN(due) ? Number.POSITIVE_INFINITY : due;
+}
+
+export function sortItems(items: MyItemDocument[], isGroceries: boolean = false) {
   items.sort((a, b) => {
-    const c = a.done ? 1 : 0;
-    const d = b.done ? 1 : 0;
-
-    // done items always go last
-    if (c !== d) {
-      return c - d;
-    }
-
-    // both not-done: items with a due date come before items without
-    if (!a.done && !b.done) {
-      if (a.due && !b.due) return -1;
-      if (!a.due && b.due) return 1;
-      if (a.due && b.due) {
-        return new Date(a.due).valueOf() - new Date(b.due).valueOf();
+    if (isGroceries) {
+      const doneSort = (a.done ? 1 : 0) - (b.done ? 1 : 0);
+      if (doneSort !== 0) {
+        return doneSort;
       }
+
+      return compareItemNames(a, b);
     }
 
-    // stable tiebreaker: sort_order (ascending)
-    const sa = (a as any).sort_order ?? 0;
-    const sb = (b as any).sort_order ?? 0;
-    return sa - sb;
+    const dueSort = getDueTimestamp(a) - getDueTimestamp(b);
+    if (dueSort !== 0) {
+      return dueSort;
+    }
+
+    const doneSort = (a.done ? 1 : 0) - (b.done ? 1 : 0);
+    if (doneSort !== 0) {
+      return doneSort;
+    }
+
+    const nameSort = compareItemNames(a, b);
+    if (nameSort !== 0) {
+      return nameSort;
+    }
+
+    return ((a as any).sort_order ?? 0) - ((b as any).sort_order ?? 0);
   });
 }
   
@@ -155,7 +172,7 @@ export function groupItems(
     slot.nDone += highestVotes.item.done ? 1 : 0;
   });
   
-  slots.forEach(cat => sortItems(cat.items));
+  slots.forEach(cat => sortItems(cat.items, isGroceries));
   
   if (isGroceries && groceryCategories) {
     slots.sort(compareSlots(Object.keys(groceryCategories)));

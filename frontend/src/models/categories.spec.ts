@@ -34,59 +34,52 @@ function makeItem(overrides: Partial<any> = {}): MyItemDocument {
 
 describe('sortItems', () => {
 
-    it('puts done items after not-done items', () => {
-        const a = makeItem({ name: 'a', done: false, sort_order: 1 });
-        const b = makeItem({ name: 'b', done: true,  sort_order: 2 });
-        const items = [b, a];
-        sortItems(items);
-        expect(items[0]).toBe(a);
-        expect(items[1]).toBe(b);
-    });
-
-    it('sorts not-done items with due dates before those without', () => {
-        const withDue    = makeItem({ name: 'with',    done: false, due: new Date(Date.now() + 1000).toISOString(), sort_order: 2 });
-        const withoutDue = makeItem({ name: 'without', done: false, due: null, sort_order: 1 });
-        const items = [withoutDue, withDue];
-        sortItems(items);
-        expect(items[0]).toBe(withDue);
-        expect(items[1]).toBe(withoutDue);
-    });
-
-    it('sorts by ascending due date among not-done items with due dates', () => {
-        const earlier = makeItem({ name: 'e', done: false, due: new Date(1000).toISOString(), sort_order: 2 });
-        const later   = makeItem({ name: 'l', done: false, due: new Date(2000).toISOString(), sort_order: 1 });
+    it('sorts normal list items by due date first', () => {
+        const later = makeItem({ name: 'later', done: false, due: new Date(2000).toISOString() });
+        const earlier = makeItem({ name: 'earlier', done: true, due: new Date(1000).toISOString() });
         const items = [later, earlier];
         sortItems(items);
         expect(items[0]).toBe(earlier);
         expect(items[1]).toBe(later);
     });
 
-    it('uses sort_order as tiebreaker when no due dates are set', () => {
-        const first  = makeItem({ name: 'z', done: false, sort_order: 1 });
-        const second = makeItem({ name: 'a', done: false, sort_order: 2 });
-        const items = [second, first];
+    it('puts items without due dates after items with due dates in normal lists', () => {
+        const withDue = makeItem({ name: 'with', due: new Date(Date.now() + 1000).toISOString() });
+        const withoutDue = makeItem({ name: 'without', due: null });
+        const items = [withoutDue, withDue];
         sortItems(items);
-        expect(items[0]).toBe(first);
-        expect(items[1]).toBe(second);
+        expect(items[0]).toBe(withDue);
+        expect(items[1]).toBe(withoutDue);
     });
 
-    it('uses sort_order to sort done items among themselves', () => {
-        const first  = makeItem({ name: 'z', done: true, sort_order: 1 });
-        const second = makeItem({ name: 'a', done: true, sort_order: 2 });
-        const items = [second, first];
+    it('sorts by done/not-done when due date is the same for normal lists', () => {
+        const sameDue = new Date(1000).toISOString();
+        const done = makeItem({ name: 'a', done: true, due: sameDue });
+        const notDone = makeItem({ name: 'b', done: false, due: sameDue });
+        const items = [done, notDone];
         sortItems(items);
-        expect(items[0]).toBe(first);
-        expect(items[1]).toBe(second);
+        expect(items[0]).toBe(notDone);
+        expect(items[1]).toBe(done);
     });
 
-    it('treats missing sort_order as 0', () => {
-        const withOrder    = makeItem({ name: 'b', done: false, sort_order: 5 });
-        const withoutOrder = makeItem({ name: 'a', done: false });
-        delete (withoutOrder as any).sort_order;
-        const items = [withOrder, withoutOrder];
+    it('sorts alphabetically when due date and done state match in normal lists', () => {
+        const banana = makeItem({ name: 'banana', done: false, due: null });
+        const apple = makeItem({ name: 'apple', done: false, due: null });
+        const items = [apple, banana];
         sortItems(items);
-        expect(items[0]).toBe(withoutOrder);
-        expect(items[1]).toBe(withOrder);
+        expect(items[0]).toBe(apple);
+        expect(items[1]).toBe(banana);
+    });
+
+    it('sorts grocery items by done/not-done and then alphabetically', () => {
+        const done = makeItem({ name: 'apple', done: true });
+        const notDoneZ = makeItem({ name: 'zucchini', done: false });
+        const notDoneA = makeItem({ name: 'banana', done: false });
+        const items = [done, notDoneZ, notDoneA];
+        sortItems(items, true);
+        expect(items[0]).toBe(notDoneA);
+        expect(items[1]).toBe(notDoneZ);
+        expect(items[2]).toBe(done);
     });
 });
 
