@@ -13,7 +13,7 @@ export interface Slot {
   nDone: number;
 }
 
-const REGULAR_LIST_SLOTS = {
+export const REGULAR_LIST_SLOTS = {
   OPEN: 'Offen',
   DONE: 'Erledigt',
 } as const;

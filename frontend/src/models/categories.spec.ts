@@ -1,4 +1,4 @@
-import { sortItems, groupItems, Slot } from './categories';
+import { sortItems, groupItems, REGULAR_LIST_SLOTS, Slot } from './categories';
 import { MyItemDocument } from '../app/mydb/types/list-item';
 
 // ---------------------------------------------------------------------------
@@ -128,7 +128,7 @@ describe('groupItems — regular lists', () => {
 
         const slots = groupItems([doneItem, openItem], false, undefined);
 
-        expect(slots.map(slot => slot.name)).toEqual(['Offen', 'Erledigt']);
+        expect(slots.map(slot => slot.name)).toEqual([REGULAR_LIST_SLOTS.OPEN, REGULAR_LIST_SLOTS.DONE]);
         expect(slots[0].items).toEqual([openItem]);
         expect(slots[1].items).toEqual([doneItem]);
         expect(slots[1].nDone).toBe(1);
