@@ -35,21 +35,21 @@ function makeItem(overrides: Partial<any> = {}): MyItemDocument {
 describe('sortItems', () => {
 
     it('sorts items alphabetically', () => {
-        const first  = makeItem({ name: 'zebra', done: false, sort_order: 1 });
-        const second = makeItem({ name: 'apple', done: false, sort_order: 2 });
-        const items = [second, first];
+        const zebraItem = makeItem({ name: 'zebra', done: false, sort_order: 1 });
+        const appleItem = makeItem({ name: 'apple', done: false, sort_order: 2 });
+        const items = [appleItem, zebraItem];
         sortItems(items);
-        expect(items[0]).toBe(second);
-        expect(items[1]).toBe(first);
+        expect(items[0]).toBe(appleItem);
+        expect(items[1]).toBe(zebraItem);
     });
 
     it('sorts alphabetically without case sensitivity', () => {
-        const first  = makeItem({ name: 'Banana', done: false, sort_order: 2 });
-        const second = makeItem({ name: 'apple', done: false, sort_order: 1 });
-        const items = [first, second];
+        const bananaItem = makeItem({ name: 'Banana', done: false, sort_order: 2 });
+        const appleItem = makeItem({ name: 'apple', done: false, sort_order: 1 });
+        const items = [bananaItem, appleItem];
         sortItems(items);
-        expect(items[0]).toBe(second);
-        expect(items[1]).toBe(first);
+        expect(items[0]).toBe(appleItem);
+        expect(items[1]).toBe(bananaItem);
     });
 
     it('uses sort_order as a tiebreaker for identical names', () => {
