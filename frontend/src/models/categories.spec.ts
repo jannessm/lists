@@ -34,54 +34,27 @@ function makeItem(overrides: Partial<any> = {}): MyItemDocument {
 
 describe('sortItems', () => {
 
-    it('puts done items after not-done items', () => {
-        const a = makeItem({ name: 'a', done: false, sort_order: 1 });
-        const b = makeItem({ name: 'b', done: true,  sort_order: 2 });
-        const items = [b, a];
-        sortItems(items);
-        expect(items[0]).toBe(a);
-        expect(items[1]).toBe(b);
-    });
-
-    it('sorts not-done items with due dates before those without', () => {
-        const withDue    = makeItem({ name: 'with',    done: false, due: new Date(Date.now() + 1000).toISOString(), sort_order: 2 });
-        const withoutDue = makeItem({ name: 'without', done: false, due: null, sort_order: 1 });
-        const items = [withoutDue, withDue];
-        sortItems(items);
-        expect(items[0]).toBe(withDue);
-        expect(items[1]).toBe(withoutDue);
-    });
-
-    it('sorts by ascending due date among not-done items with due dates', () => {
-        const earlier = makeItem({ name: 'e', done: false, due: new Date(1000).toISOString(), sort_order: 2 });
-        const later   = makeItem({ name: 'l', done: false, due: new Date(2000).toISOString(), sort_order: 1 });
-        const items = [later, earlier];
-        sortItems(items);
-        expect(items[0]).toBe(earlier);
-        expect(items[1]).toBe(later);
-    });
-
-    it('uses sort_order as tiebreaker when no due dates are set', () => {
-        const first  = makeItem({ name: 'z', done: false, sort_order: 1 });
-        const second = makeItem({ name: 'a', done: false, sort_order: 2 });
+    it('sorts items alphabetically', () => {
+        const first  = makeItem({ name: 'zebra', done: false, sort_order: 1 });
+        const second = makeItem({ name: 'apple', done: false, sort_order: 2 });
         const items = [second, first];
         sortItems(items);
-        expect(items[0]).toBe(first);
-        expect(items[1]).toBe(second);
+        expect(items[0]).toBe(second);
+        expect(items[1]).toBe(first);
     });
 
-    it('uses sort_order to sort done items among themselves', () => {
-        const first  = makeItem({ name: 'z', done: true, sort_order: 1 });
-        const second = makeItem({ name: 'a', done: true, sort_order: 2 });
-        const items = [second, first];
+    it('sorts alphabetically without case sensitivity', () => {
+        const first  = makeItem({ name: 'Banana', done: false, sort_order: 2 });
+        const second = makeItem({ name: 'apple', done: false, sort_order: 1 });
+        const items = [first, second];
         sortItems(items);
-        expect(items[0]).toBe(first);
-        expect(items[1]).toBe(second);
+        expect(items[0]).toBe(second);
+        expect(items[1]).toBe(first);
     });
 
-    it('treats missing sort_order as 0', () => {
-        const withOrder    = makeItem({ name: 'b', done: false, sort_order: 5 });
-        const withoutOrder = makeItem({ name: 'a', done: false });
+    it('uses sort_order as a tiebreaker for identical names', () => {
+        const withOrder    = makeItem({ name: 'apple', done: false, sort_order: 5 });
+        const withoutOrder = makeItem({ name: 'apple', done: false });
         delete (withoutOrder as any).sort_order;
         const items = [withOrder, withoutOrder];
         sortItems(items);
@@ -144,5 +117,41 @@ describe('groupItems — category caching for grocery lists', () => {
         const item = makeItem({ name: 'task', due: new Date().toISOString() });
         groupItems([item], false, undefined);
         expect((item as any).patch).not.toHaveBeenCalled();
+    });
+});
+
+describe('groupItems — regular lists', () => {
+
+    it('groups regular list items into open and done slots', () => {
+        const openItem = makeItem({ name: 'banana', done: false });
+        const doneItem = makeItem({ name: 'apple', done: true });
+
+        const slots = groupItems([doneItem, openItem], false, undefined);
+
+        expect(slots.map(slot => slot.name)).toEqual(['Offen', 'Erledigt']);
+        expect(slots[0].items).toEqual([openItem]);
+        expect(slots[1].items).toEqual([doneItem]);
+        expect(slots[1].nDone).toBe(1);
+    });
+
+    it('sorts items alphabetically within each regular list slot', () => {
+        const openB = makeItem({ name: 'banana', done: false });
+        const openA = makeItem({ name: 'apple', done: false });
+        const doneB = makeItem({ name: 'dates', done: true });
+        const doneA = makeItem({ name: 'carrot', done: true });
+
+        const slots = groupItems([doneB, openB, doneA, openA], false, undefined);
+
+        expect(slots[0].items).toEqual([openA, openB]);
+        expect(slots[1].items).toEqual([doneA, doneB]);
+    });
+
+    it('sorts grocery bin items alphabetically', () => {
+        const milk = makeItem({ name: 'milk', category: 'Dairy' });
+        const cheese = makeItem({ name: 'cheese', category: 'Dairy' });
+
+        const slots = groupItems([milk, cheese], true, { Dairy: ['milk', 'cheese'] });
+
+        expect(slots[0].items).toEqual([cheese, milk]);
     });
 });

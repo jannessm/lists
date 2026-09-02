@@ -1,5 +1,4 @@
 import { GroceryCategories, GROCERY_OTHERS } from "./categories_groceries";
-import { is_past, is_sometime, is_soon, is_today, is_tomorrow, TIMESLOTS } from "./categories_timeslots";
 import { MyItemDocument } from "../app/mydb/types/list-item";
 
 
@@ -9,31 +8,23 @@ export interface Category {
 }
 
 export interface Slot {
-  name: string | TIMESLOTS;
+  name: string;
   items: MyItemDocument[];
   nDone: number;
 }
 
+const REGULAR_LIST_SLOTS = {
+  OPEN: 'Offen',
+  DONE: 'Erledigt',
+} as const;
+
 export function sortItems(items: MyItemDocument[]) {
   items.sort((a, b) => {
-    const c = a.done ? 1 : 0;
-    const d = b.done ? 1 : 0;
-
-    // done items always go last
-    if (c !== d) {
-      return c - d;
+    const byName = a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+    if (byName !== 0) {
+      return byName;
     }
 
-    // both not-done: items with a due date come before items without
-    if (!a.done && !b.done) {
-      if (a.due && !b.due) return -1;
-      if (!a.due && b.due) return 1;
-      if (a.due && b.due) {
-        return new Date(a.due).valueOf() - new Date(b.due).valueOf();
-      }
-    }
-
-    // stable tiebreaker: sort_order (ascending)
     const sa = (a as any).sort_order ?? 0;
     const sb = (b as any).sort_order ?? 0;
     return sa - sb;
@@ -78,24 +69,34 @@ export function groupItems(
   isGroceries: boolean,
   groceryCategories: GroceryCategories | undefined = undefined
 ) {
+  if (!isGroceries) {
+    const openItems = items.filter(item => !item.done);
+    const doneItems = items.filter(item => item.done);
+    const slots: Slot[] = [];
+
+    if (openItems.length > 0) {
+      sortItems(openItems);
+      slots.push({ name: REGULAR_LIST_SLOTS.OPEN, items: openItems, nDone: 0 });
+    }
+
+    if (doneItems.length > 0) {
+      sortItems(doneItems);
+      slots.push({ name: REGULAR_LIST_SLOTS.DONE, items: doneItems, nDone: doneItems.length });
+    }
+
+    return slots;
+  }
+
   const slots: Slot[] = [];
   let categories: Category[] = [];
-  
-  if (isGroceries && groceryCategories) {
+
+  if (groceryCategories) {
     categories = Object.entries(groceryCategories).map((entry) => {
       return {
         calcVotes: voteForGroceryCategory(entry[1]),
         name: entry[0]
       };
     });
-
-  } else {
-    categories = [
-      {calcVotes: [is_today, is_past], name: TIMESLOTS.TODAY},
-      {calcVotes: is_tomorrow, name: TIMESLOTS.TOMORROW},
-      {calcVotes: is_soon, name: TIMESLOTS.SOON},
-      {calcVotes: is_sometime, name: TIMESLOTS.SOMETIME},
-    ];
   }
 
   const catItemAssignment = items.map(i => {
@@ -103,7 +104,7 @@ export function groupItems(
     // If the cache is missing, compute the category and store it
     // on the document (fire-and-forget; category is local-only and
     // not pushed to the server).
-    if (isGroceries && groceryCategories) {
+    if (groceryCategories) {
       const cachedCategory = (i as any).category as string | undefined;
       if (cachedCategory) {
         return { votes: 1, name: cachedCategory, item: i };
@@ -137,7 +138,7 @@ export function groupItems(
     // Cache the computed category on the document so subsequent renders skip
     // the O(C×W) computation. category is local-only and never pushed to the
     // server (it is absent from ITEM_SCHEMA).
-    if (isGroceries && groceryCategories) {
+    if (groceryCategories) {
       i.patch({ category: result.name });
     }
 
@@ -157,10 +158,8 @@ export function groupItems(
   
   slots.forEach(cat => sortItems(cat.items));
   
-  if (isGroceries && groceryCategories) {
+  if (groceryCategories) {
     slots.sort(compareSlots(Object.keys(groceryCategories)));
-  } else {
-    slots.sort(compareSlots(categories.map(c => c.name)))
   }
 
   return slots;
